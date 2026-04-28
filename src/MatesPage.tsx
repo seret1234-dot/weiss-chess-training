@@ -109,7 +109,7 @@ export default function MatesPage() {
             ← Back
           </button>
 
-          <div style={{ fontSize: 26, fontWeight: 800 }}>Mate Themes</div>
+          <div style={{ fontSize: 26, fontWeight: 800 }}>Mate Distance</div>
 
           <div
             style={{
@@ -121,7 +121,7 @@ export default function MatesPage() {
               border: '1px solid rgba(255,255,255,0.05)',
             }}
           >
-            Choose mate pattern
+            Choose mate depth
           </div>
         </div>
 
@@ -159,7 +159,7 @@ export default function MatesPage() {
               maxWidth: 780,
             }}
           >
-            Choose your mate pattern
+            Choose mate distance
           </h1>
 
           <p
@@ -171,7 +171,7 @@ export default function MatesPage() {
               margin: 0,
             }}
           >
-            Start with one motif and build automatic recognition through repetition.
+            Start with short mates and progress to deeper calculation training.
           </p>
         </div>
 
@@ -182,21 +182,14 @@ export default function MatesPage() {
             gap: 20,
           }}
         >
-          <Card
-            title="Back Rank"
-            subtitle="Train classic mate-in-1 back rank patterns with chunk mastery and fast-solve tracking."
-            icon="♜"
-            accent="linear-gradient(135deg, #7fa650 0%, #5d7f38 100%)"
-            href="/backrank"
-          />
-
-          <Card
-            title="Anastasia"
-            subtitle="Train Anastasia mate patterns on a dedicated page with the same trainer structure."
-            icon="♞"
-            accent="linear-gradient(135deg, #c57b57 0%, #9b5939 100%)"
-            href="/anastasia"
-          />
+          <Card title="Mate in 1" subtitle="Single move checkmate patterns" icon="♚" accent="linear-gradient(135deg, #7fa650 0%, #5d7f38 100%)" href="/mates/m1" />
+          <Card title="Mate in 2" subtitle="Two move mating combinations" icon="♚" accent="linear-gradient(135deg, #c57b57 0%, #9b5939 100%)" href="/mates/m2" />
+          <Card title="Mate in 3" subtitle="Calculation-based mating patterns" icon="♚" accent="linear-gradient(135deg, #4f8cc9 0%, #2c5e91 100%)" href="/mates/m3" />
+          <Card title="Mate in 4" subtitle="Longer forcing sequences" icon="♚" accent="linear-gradient(135deg, #a96acb 0%, #7c3fa1 100%)" href="/mates/m4" />
+          <Card title="Mate in 5" subtitle="Advanced mating ideas" icon="♚" accent="linear-gradient(135deg, #e27d60 0%, #b45137 100%)" href="/mates/m5" />
+          <Card title="Mate in 6" subtitle="Deep calculation training" icon="♚" accent="linear-gradient(135deg, #6bc1a3 0%, #3d8f75 100%)" href="/mates/m6" />
+          <Card title="Mate in 7" subtitle="Extended attack sequences" icon="♚" accent="linear-gradient(135deg, #d1a94a 0%, #9b7a27 100%)" href="/mates/m7" />
+          <Card title="Mate in 8" subtitle="Maximum depth mating training" icon="♚" accent="linear-gradient(135deg, #d85c8a 0%, #a02f5a 100%)" href="/mates/m8" />
         </div>
       </div>
     </div>

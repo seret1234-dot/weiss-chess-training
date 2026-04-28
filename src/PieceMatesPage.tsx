@@ -178,7 +178,7 @@ export default function PieceMatesPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
             gap: 20,
           }}
         >
@@ -212,6 +212,14 @@ export default function PieceMatesPage() {
             icon="♕"
             accent="linear-gradient(135deg, #10b981 0%, #047857 100%)"
             onClick={() => navigate('/endgame/piece-mates/kqk')}
+          />
+
+          <MateCard
+            title="King + Rook vs King"
+            subtitle="Learn the classic rook mate technique: restrict the king, build the box, and convert accurately."
+            icon="♖"
+            accent="linear-gradient(135deg, #ef4444 0%, #991b1b 100%)"
+            onClick={() => navigate('/endgame/piece-mates/krk')}
           />
         </div>
       </div>

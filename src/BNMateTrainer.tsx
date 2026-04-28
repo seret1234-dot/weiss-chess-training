@@ -1,10 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Chess } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
 import { BNEngine } from './lib/bnEngine'
 import type { EngineResult } from './lib/bnEngine'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
+import { supabase } from './lib/supabase'
+import TrainerShell from './components/trainer/TrainerShell'
+import {
+  BigMessage,
+  HintButton,
+  PanelCard,
+  PrimaryButton,
+  ProgressBar,
+  SectionTitle,
+  SecondaryButton,
+  ShellInput,
+} from './components/trainer/ui'
 
 type RawTrainingPosition = {
   id?: string
@@ -90,6 +101,12 @@ type GlobalChunkEntry = {
   chunkFile: string
   chunkNumber: number
 }
+
+type FirstIncompleteChunkResult = {
+  themeIndex: number
+  chunkIndex: number
+  chunkFile: string
+} | null
 
 const BOARD_WIDTH_KEY = 'bnMate_boardWidth_v5'
 const PROGRESS_KEY = 'bnMate_progress_v5'
@@ -348,15 +365,48 @@ function createEmptyTrainerProgress(order: string[] = []): TrainerProgress {
   }
 }
 
-function loadStoredProgress(): TrainerProgress | null {
-  const raw = localStorage.getItem(PROGRESS_KEY)
-  if (!raw) return null
+async function loadStoredProgress(): Promise<TrainerProgress | null> {
+  let localProgress: TrainerProgress | null = null
 
-  try {
-    return JSON.parse(raw) as TrainerProgress
-  } catch {
-    return null
+  const raw = localStorage.getItem(PROGRESS_KEY)
+  if (raw) {
+    try {
+      localProgress = JSON.parse(raw) as TrainerProgress
+    } catch {
+      localProgress = null
+    }
   }
+
+  const { data: authData } = await supabase.auth.getUser()
+  const user = authData.user
+
+  if (!user) return localProgress
+
+  const { data, error } = await supabase
+    .from('training_progress')
+    .select('item_id, mastery')
+    .eq('user_id', user.id)
+    .eq('course', 'endgame')
+    .eq('theme', 'bn')
+
+  if (error || !data) return localProgress
+
+  const merged = localProgress ?? createEmptyTrainerProgress([])
+
+  for (const row of data) {
+    const itemId = String(row.item_id ?? '')
+    const mastery = Number(row.mastery ?? 0)
+
+    if (!itemId) continue
+
+    merged.positions[itemId] = {
+      fastSolves: mastery,
+      totalSolves: Math.max(merged.positions[itemId]?.totalSolves ?? 0, mastery),
+      mastered: mastery >= POSITION_FAST_SOLVES_TO_MASTER,
+    }
+  }
+
+  return merged
 }
 
 function mergeProgress(order: string[], stored: TrainerProgress | null): TrainerProgress {
@@ -379,8 +429,33 @@ function mergeProgress(order: string[], stored: TrainerProgress | null): Trainer
   return merged
 }
 
-function saveProgress(progress: TrainerProgress) {
+async function saveProgress(progress: TrainerProgress) {
   localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress))
+
+  const { data: authData } = await supabase.auth.getUser()
+  const user = authData.user
+  if (!user) return
+
+  const rows = Object.entries(progress.positions).map(([itemId, stats]) => ({
+    user_id: user.id,
+    course: 'endgame',
+    theme: 'bn',
+    item_id: itemId,
+    mastery: stats.fastSolves,
+    updated_at: new Date().toISOString(),
+  }))
+
+  if (rows.length === 0) return
+
+  const { error } = await supabase
+    .from('training_progress')
+    .upsert(rows, {
+      onConflict: 'user_id,course,theme,item_id',
+    })
+
+  if (error) {
+    console.error('Failed to save BN progress:', error)
+  }
 }
 
 function buildThemeConfig(progression: ProgressionFile, themeId: string): ThemeConfig {
@@ -585,6 +660,55 @@ function chooseHintMove(
   return null
 }
 
+async function findFirstIncompleteChunk(
+  progression: ProgressionFile,
+  progress: TrainerProgress
+): Promise<FirstIncompleteChunkResult> {
+  for (let themeIndex = 0; themeIndex < progression.order.length; themeIndex += 1) {
+    const themeId = progression.order[themeIndex]
+    const themeConfig = buildThemeConfig(progression, themeId)
+    const chunkFiles = resolveChunkFiles(themeConfig)
+
+    for (let chunkIndex = 0; chunkIndex < chunkFiles.length; chunkIndex += 1) {
+      const chunkFile = chunkFiles[chunkIndex]
+
+      try {
+        const rawData = await fetchJson<any>(
+          `/data/lichess/bn_v3/chunks/${chunkFile}`
+        )
+
+        const rawPositions = Array.isArray(rawData)
+          ? rawData
+          : Array.isArray(rawData?.positions)
+            ? rawData.positions
+            : []
+
+        const chunkPositions = rawPositions.map((item: RawTrainingPosition, index: number) =>
+          normalizePosition(item, index, chunkFile)
+        )
+
+        if (chunkPositions.length === 0) continue
+
+        const hasUnmastered = chunkPositions.some(
+          (p) => !getPositionStats(progress, p.id).mastered
+        )
+
+        if (hasUnmastered) {
+          return {
+            themeIndex,
+            chunkIndex,
+            chunkFile,
+          }
+        }
+      } catch {
+        continue
+      }
+    }
+  }
+
+  return null
+}
+
 export default function BNMateTrainer() {
   const [progression, setProgression] = useState<ProgressionFile | null>(null)
   const [progress, setProgress] = useState<TrainerProgress | null>(null)
@@ -613,11 +737,22 @@ export default function BNMateTrainer() {
   const [justMated, setJustMated] = useState(false)
   const [flashSolvedPositionId, setFlashSolvedPositionId] = useState<string | null>(null)
   const [jumpChunkInput, setJumpChunkInput] = useState('')
+  const [allComplete, setAllComplete] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
+  const [isHandleHovered, setIsHandleHovered] = useState(false)
 
   const moveStartedAtRef = useRef<number>(Date.now())
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const feedbackTimeoutRef = useRef<number | null>(null)
   const engineRef = useRef<BNEngine | null>(null)
   const analysisTokenRef = useRef(0)
+
+  function getLegalTargets(fromSquare: string) {
+    const moves = game.moves({ verbose: true }) as Array<{ from: string; to: string }>
+    return moves
+      .filter((m) => m.from === fromSquare)
+      .map((m) => m.to)
+  }
 
   useEffect(() => {
     localStorage.setItem(BOARD_WIDTH_KEY, String(boardWidth))
@@ -625,7 +760,7 @@ export default function BNMateTrainer() {
 
   useEffect(() => {
     if (progress) {
-      saveProgress(progress)
+      void saveProgress(progress)
     }
   }, [progress])
 
@@ -643,12 +778,41 @@ export default function BNMateTrainer() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      if (loadingChunk || inputLocked) return
+      if (loadingChunk || inputLocked || allComplete) return
       setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current)
     }, 100)
 
     return () => window.clearInterval(interval)
-  }, [loadingChunk, inputLocked, currentIndex])
+  }, [loadingChunk, inputLocked, currentIndex, allComplete])
+
+  useEffect(() => {
+    function onMouseMove(e: MouseEvent) {
+      if (!isDragging || !containerRef.current) return
+
+      const rect = containerRef.current.getBoundingClientRect()
+      const leftPadding = 16
+      const rightPanelWidth = 340
+      const dividerWidth = 18
+      const minBoard = 420
+      const maxBoard = Math.min(950, rect.width - rightPanelWidth - dividerWidth - leftPadding)
+
+      const nextSize = e.clientX - rect.left - leftPadding
+      const clamped = Math.max(minBoard, Math.min(maxBoard, nextSize))
+      setBoardWidth(clamped)
+    }
+
+    function onMouseUp() {
+      setIsDragging(false)
+    }
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [isDragging])
 
   function clearHighlights() {
     setMarkedSquare(null)
@@ -766,8 +930,6 @@ export default function BNMateTrainer() {
   }, [positions, progress])
 
   const chunkTarget = positions.length * POSITION_FAST_SOLVES_TO_MASTER
-  const chunkComplete = positions.length > 0 && chunkMasteredCount === positions.length
-
   const themeDoneCount = useMemo(() => {
     if (!progression || !progress) return 0
     return progression.order.filter((themeId) => progress.themes[themeId]?.mastered).length
@@ -798,14 +960,39 @@ export default function BNMateTrainer() {
     loadPosition(nextIndex)
   }
 
+  function markCompletedChunksFromProgress(
+    targetProgress: TrainerProgress,
+    themeId: string,
+    chunkFiles: string[],
+    currentChunkIdx: number
+  ) {
+    const themeState = targetProgress.themes[themeId] ?? createEmptyThemeProgress()
+    const currentChunk = chunkFiles[currentChunkIdx]
+    const nextCompleted = currentChunk
+      ? Array.from(new Set([...themeState.completedChunkFiles, currentChunk]))
+      : themeState.completedChunkFiles
+
+    return {
+      ...targetProgress,
+      themes: {
+        ...targetProgress.themes,
+        [themeId]: {
+          ...themeState,
+          completedChunkFiles: nextCompleted,
+        },
+      },
+    }
+  }
+
   function moveToNextTheme() {
     if (!progression || !progress) return
 
     const nextThemeIndex = progress.currentThemeIndex + 1
     if (nextThemeIndex >= progression.order.length) {
-      setStatus('All themes complete.')
-      setMessage('Progression finished.')
-      setInputLocked(false)
+      setAllComplete(true)
+      setStatus('All chunks complete')
+      setMessage('')
+      setInputLocked(true)
       return
     }
 
@@ -823,41 +1010,9 @@ export default function BNMateTrainer() {
     setMoveTimesMs([])
     setCurrentMoveElapsedMs(0)
     setJustMated(false)
+    setAllComplete(false)
     setStatus('Loading next theme...')
     setMessage('')
-  }
-
-  function goToTheme(targetThemeIndex: number) {
-    if (!progress || !progression) return
-
-    const maxThemeIndex = Math.max(0, progression.order.length - 1)
-    const safeThemeIndex = Math.max(0, Math.min(maxThemeIndex, targetThemeIndex))
-    const targetThemeId = progression.order[safeThemeIndex]
-    if (!targetThemeId) return
-
-    clearPendingFeedbackTimeout()
-    setFlashSolvedPositionId(null)
-    setPositions([])
-    setCurrentIndex(0)
-    clearHighlights()
-    setInputLocked(false)
-    setMoveTimesMs([])
-    setCurrentMoveElapsedMs(0)
-    setJustMated(false)
-    setStatus('Loading theme...')
-    setMessage('')
-
-    setProgress({
-      ...progress,
-      currentThemeIndex: safeThemeIndex,
-      themes: {
-        ...progress.themes,
-        [targetThemeId]: {
-          ...progress.themes[targetThemeId],
-          currentChunkIndex: 0,
-        },
-      },
-    })
   }
 
   function goToThemeChunk(targetThemeIndex: number, targetChunkIndex: number) {
@@ -880,6 +1035,7 @@ export default function BNMateTrainer() {
     setMoveTimesMs([])
     setCurrentMoveElapsedMs(0)
     setJustMated(false)
+    setAllComplete(false)
     setStatus('Loading chunk...')
     setMessage('')
 
@@ -894,6 +1050,43 @@ export default function BNMateTrainer() {
         },
       },
     })
+  }
+
+  function goToPrevChunk() {
+    const currentIdx = globalChunkLookup.findIndex(
+      (entry) =>
+        entry.themeIndex === (progress?.currentThemeIndex ?? -1) &&
+        entry.chunkIndex === (currentThemeProgress?.currentChunkIndex ?? -1) &&
+        entry.chunkFile === currentChunkFile
+    )
+
+    if (currentIdx <= 0) {
+      if (globalChunkLookup[0]) {
+        goToThemeChunk(globalChunkLookup[0].themeIndex, globalChunkLookup[0].chunkIndex)
+      }
+      return
+    }
+
+    const prev = globalChunkLookup[currentIdx - 1]
+    if (prev) {
+      goToThemeChunk(prev.themeIndex, prev.chunkIndex)
+    }
+  }
+
+  function goToNextChunk() {
+    const currentIdx = globalChunkLookup.findIndex(
+      (entry) =>
+        entry.themeIndex === (progress?.currentThemeIndex ?? -1) &&
+        entry.chunkIndex === (currentThemeProgress?.currentChunkIndex ?? -1) &&
+        entry.chunkFile === currentChunkFile
+    )
+
+    if (currentIdx === -1) return
+
+    const next = globalChunkLookup[Math.min(globalChunkLookup.length - 1, currentIdx + 1)]
+    if (next) {
+      goToThemeChunk(next.themeIndex, next.chunkIndex)
+    }
   }
 
   function jumpToChunkByNumber(raw: string) {
@@ -925,8 +1118,45 @@ export default function BNMateTrainer() {
           '/data/lichess/bn_v3/bn_v3_progression.json'
         )
 
-        const merged = mergeProgress(loadedProgression.order ?? [], loadStoredProgress())
+        const stored = await loadStoredProgress()
+        const merged = mergeProgress(loadedProgression.order ?? [], stored)
 
+        const firstIncomplete = await findFirstIncompleteChunk(loadedProgression, merged)
+
+        if (!firstIncomplete) {
+          merged.currentThemeIndex = Math.max(0, loadedProgression.order.length - 1)
+
+          const finalThemeId = loadedProgression.order[merged.currentThemeIndex]
+          if (finalThemeId) {
+            const finalThemeConfig = buildThemeConfig(loadedProgression, finalThemeId)
+            const finalChunkFiles = resolveChunkFiles(finalThemeConfig)
+            merged.themes[finalThemeId] = {
+              ...merged.themes[finalThemeId],
+              currentChunkIndex: Math.max(0, finalChunkFiles.length - 1),
+              mastered: true,
+              completedChunkFiles: finalChunkFiles,
+            }
+          }
+
+          setAllComplete(true)
+          setProgression(loadedProgression)
+          setProgress(merged)
+          setStatus('All chunks complete')
+          setMessage('')
+          setInputLocked(true)
+          return
+        }
+
+        merged.currentThemeIndex = firstIncomplete.themeIndex
+        const firstThemeId = loadedProgression.order[firstIncomplete.themeIndex]
+        if (firstThemeId) {
+          merged.themes[firstThemeId] = {
+            ...merged.themes[firstThemeId],
+            currentChunkIndex: firstIncomplete.chunkIndex,
+          }
+        }
+
+        setAllComplete(false)
         setProgression(loadedProgression)
         setProgress(merged)
       } catch (err) {
@@ -940,7 +1170,7 @@ export default function BNMateTrainer() {
 
   useEffect(() => {
     async function loadCurrentChunk() {
-      if (!progression || !progress || !currentThemeId || !currentThemeConfig || !currentChunkFile) {
+      if (!progression || !progress || !currentThemeId || !currentThemeConfig || !currentChunkFile || allComplete) {
         return
       }
 
@@ -971,6 +1201,78 @@ export default function BNMateTrainer() {
           return
         }
 
+        const allChunkMastered = chunkPositions.every((p) => getPositionStats(progress, p.id).mastered)
+
+        if (allChunkMastered) {
+          const themeState = progress.themes[currentThemeId] ?? createEmptyThemeProgress()
+          const chunkFiles = currentChunkFiles
+          const isLastChunk = themeState.currentChunkIndex >= chunkFiles.length - 1
+
+          const progressedWithCompletion = markCompletedChunksFromProgress(
+            progress,
+            currentThemeId,
+            chunkFiles,
+            themeState.currentChunkIndex
+          )
+
+          if (isLastChunk) {
+            const nextProgress = {
+              ...progressedWithCompletion,
+              themes: {
+                ...progressedWithCompletion.themes,
+                [currentThemeId]: {
+                  ...progressedWithCompletion.themes[currentThemeId],
+                  mastered: true,
+                },
+              },
+            }
+
+            const nextThemeIndex = progress.currentThemeIndex + 1
+            if (nextThemeIndex >= progression.order.length) {
+              setProgress(nextProgress)
+              setAllComplete(true)
+              setPositions(chunkPositions)
+              setStatus('All chunks complete')
+              setMessage('')
+              setInputLocked(true)
+              return
+            }
+
+            const nextThemeId = progression.order[nextThemeIndex]
+            if (nextThemeId) {
+              const advanced = {
+                ...nextProgress,
+                currentThemeIndex: nextThemeIndex,
+                themes: {
+                  ...nextProgress.themes,
+                  [nextThemeId]: {
+                    ...nextProgress.themes[nextThemeId],
+                    currentChunkIndex: nextProgress.themes[nextThemeId]?.currentChunkIndex ?? 0,
+                  },
+                },
+              }
+              setProgress(advanced)
+            } else {
+              setProgress(nextProgress)
+            }
+            return
+          }
+
+          const advanced = {
+            ...progressedWithCompletion,
+            themes: {
+              ...progressedWithCompletion.themes,
+              [currentThemeId]: {
+                ...progressedWithCompletion.themes[currentThemeId],
+                currentChunkIndex: Math.min(themeState.currentChunkIndex + 1, chunkFiles.length - 1),
+              },
+            },
+          }
+
+          setProgress(advanced)
+          return
+        }
+
         const nextIndex = chooseRandomUnmasteredIndex(chunkPositions, progress)
         const nextPosition = chunkPositions[nextIndex]
 
@@ -996,36 +1298,61 @@ export default function BNMateTrainer() {
     }
 
     void loadCurrentChunk()
-  }, [progression, currentThemeId, currentThemeConfig, currentChunkFile])
+  }, [progression, currentThemeId, currentThemeConfig, currentChunkFile, currentChunkFiles, allComplete])
 
   function moveToNextChunkOrTheme(updatedProgress: TrainerProgress) {
-    if (!currentThemeId || !currentThemeProgress) return
+    if (!currentThemeId || !currentThemeProgress || !currentThemeConfig) return
 
+    const themeState = updatedProgress.themes[currentThemeId] ?? createEmptyThemeProgress()
     const chunkFiles = currentChunkFiles
-    const themeState = updatedProgress.themes[currentThemeId]
+    const currentChunkIdx = themeState.currentChunkIndex
+    const currentChunk = chunkFiles[currentChunkIdx]
 
-    if (chunkComplete) {
-      const currentChunk = chunkFiles[themeState.currentChunkIndex]
-      const isLastChunk = themeState.currentChunkIndex >= chunkFiles.length - 1
+    const updatedChunkComplete =
+      positions.length > 0 &&
+      positions.every((p) => getPositionStats(updatedProgress, p.id).mastered)
+
+    if (updatedChunkComplete) {
+      const progressedWithCompletion = currentChunk
+        ? {
+            ...updatedProgress,
+            themes: {
+              ...updatedProgress.themes,
+              [currentThemeId]: {
+                ...themeState,
+                completedChunkFiles: Array.from(new Set([...themeState.completedChunkFiles, currentChunk])),
+              },
+            },
+          }
+        : updatedProgress
+
+      const isLastChunk = currentChunkIdx >= chunkFiles.length - 1
 
       if (isLastChunk) {
-        const next = {
-          ...updatedProgress,
+        const completedThemeProgress: TrainerProgress = {
+          ...progressedWithCompletion,
           themes: {
-            ...updatedProgress.themes,
+            ...progressedWithCompletion.themes,
             [currentThemeId]: {
-              ...themeState,
+              ...progressedWithCompletion.themes[currentThemeId],
               mastered: true,
-              completedChunkFiles: currentChunk
-                ? Array.from(new Set([...themeState.completedChunkFiles, currentChunk]))
-                : themeState.completedChunkFiles,
             },
           },
         }
 
-        setProgress(next)
+        setProgress(completedThemeProgress)
+
+        const nextThemeIndex = updatedProgress.currentThemeIndex + 1
+        if (nextThemeIndex >= (progression?.order.length ?? 0)) {
+          setAllComplete(true)
+          setStatus('All chunks complete')
+          setMessage('')
+          setInputLocked(true)
+          return
+        }
+
         setStatus('Theme mastered.')
-        setMessage(`Completed ${currentThemeConfig?.label ?? currentThemeId}. Moving to next theme...`)
+        setMessage(`Completed ${currentThemeConfig.label ?? currentThemeId}. Loading next theme...`)
 
         feedbackTimeoutRef.current = window.setTimeout(() => {
           setInputLocked(false)
@@ -1034,23 +1361,20 @@ export default function BNMateTrainer() {
         return
       }
 
-      const nextChunkIndex = Math.min(themeState.currentChunkIndex + 1, chunkFiles.length - 1)
+      const nextChunkIndex = Math.min(currentChunkIdx + 1, chunkFiles.length - 1)
 
-      const next = {
-        ...updatedProgress,
+      const nextProgress: TrainerProgress = {
+        ...progressedWithCompletion,
         themes: {
-          ...updatedProgress.themes,
+          ...progressedWithCompletion.themes,
           [currentThemeId]: {
-            ...themeState,
+            ...progressedWithCompletion.themes[currentThemeId],
             currentChunkIndex: nextChunkIndex,
-            completedChunkFiles: currentChunk
-              ? Array.from(new Set([...themeState.completedChunkFiles, currentChunk]))
-                : themeState.completedChunkFiles,
           },
         },
       }
 
-      setProgress(next)
+      setProgress(nextProgress)
       setStatus('Chunk complete.')
       setMessage('Loading next chunk...')
       setInputLocked(false)
@@ -1071,16 +1395,14 @@ export default function BNMateTrainer() {
     loadRandomNextPosition(progress, currentPosition?.id ?? null)
   }
 
-  function resetCurrentChunk() {
-    if (!progress) return
+  async function restartCurrentChunk() {
+    if (!progress || positions.length === 0) return
 
     const nextPositions = { ...progress.positions }
-    for (const p of positions) {
-      nextPositions[p.id] = {
-        fastSolves: 0,
-        totalSolves: 0,
-        mastered: false,
-      }
+    const ids = positions.map((p) => p.id)
+
+    for (const id of ids) {
+      delete nextPositions[id]
     }
 
     const updated = {
@@ -1090,9 +1412,26 @@ export default function BNMateTrainer() {
 
     setProgress(updated)
 
+    const { data: authData } = await supabase.auth.getUser()
+    const user = authData.user
+
+    if (user && ids.length > 0) {
+      const { error } = await supabase
+        .from('training_progress')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('course', 'endgame')
+        .eq('theme', 'bn')
+        .in('item_id', ids)
+
+      if (error) {
+        console.error('Failed to restart BN chunk:', error)
+      }
+    }
+
     const nextIndex = chooseRandomUnmasteredIndex(positions, updated, null)
     loadPosition(nextIndex)
-    setStatus('Chunk reset.')
+    setStatus('Chunk restarted.')
     setMessage('')
   }
 
@@ -1101,7 +1440,26 @@ export default function BNMateTrainer() {
 
     clearPendingFeedbackTimeout()
     const fresh = createEmptyTrainerProgress(progression.order ?? [])
+
+    void (async () => {
+      const { data: authData } = await supabase.auth.getUser()
+      const user = authData.user
+      if (!user) return
+
+      const { error } = await supabase
+        .from('training_progress')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('course', 'endgame')
+        .eq('theme', 'bn')
+
+      if (error) {
+        console.error('Failed to reset BN progress:', error)
+      }
+    })()
+
     localStorage.removeItem(PROGRESS_KEY)
+    setAllComplete(false)
     setProgress(fresh)
     setPositions([])
     setCurrentIndex(0)
@@ -1382,7 +1740,7 @@ export default function BNMateTrainer() {
 
   function onDrop(sourceSquare: string, targetSquare: string) {
     if (!currentPosition || !progress || !currentThemeConfig) return false
-    if (loadingChunk || loadError || inputLocked) return false
+    if (loadingChunk || loadError || inputLocked || allComplete) return false
 
     const beforeFen = game.fen()
     const nextGame = new Chess(beforeFen)
@@ -1485,6 +1843,68 @@ export default function BNMateTrainer() {
     )
   }
 
+  if (allComplete) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          background: '#262421',
+          color: '#ffffff',
+          padding: '24px',
+          boxSizing: 'border-box',
+          fontFamily: 'Arial, sans-serif',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '900px',
+            margin: '0 auto',
+            background: '#312e2b',
+            borderRadius: '16px',
+            padding: '24px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+          }}
+        >
+          <div
+            style={{
+              display: 'inline-block',
+              background: '#4b4847',
+              borderRadius: '12px',
+              padding: '12px 18px',
+              fontWeight: 700,
+              marginBottom: '18px',
+            }}
+          >
+            B+N Mate Trainer
+          </div>
+
+          <div style={{ fontSize: '30px', fontWeight: 800, marginBottom: '12px' }}>
+            All chunks complete
+          </div>
+
+          <div style={{ color: '#d6d6d6', marginBottom: '18px', lineHeight: 1.5 }}>
+            You finished the full Bishop + Knight progression.
+          </div>
+
+          <button
+            onClick={resetWholeProgression}
+            style={{
+              background: '#7a3d3d',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '10px',
+              padding: '12px 18px',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            Reset All
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!progression || !progress || !currentThemeId || !currentThemeConfig || !currentThemeProgress || !currentPosition) {
     return (
       <div style={{ minHeight: '100vh', background: '#262421', color: '#ffffff', padding: '24px', fontFamily: 'Arial, sans-serif' }}>
@@ -1499,551 +1919,373 @@ export default function BNMateTrainer() {
   const topEvalLabel = getTopEvalLabel(engineInfo)
   const bottomEvalLabel = getBottomEvalLabel(engineInfo)
 
-  return (
+  const sideToMoveText = game.turn() === 'b' ? 'Black' : 'White'
+  const sideSquareColor = game.turn() === 'b' ? '#111111' : '#ffffff'
+  const currentFastSolves = currentStats?.fastSolves ?? 0
+  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3
+
+  const boardLeft = (
     <div
       style={{
-        minHeight: '100vh',
-        background: '#262421',
-        color: '#ffffff',
-        padding: '24px',
-        boxSizing: 'border-box',
-        fontFamily: 'Arial, sans-serif',
+        width: 38,
+        height: boardWidth,
+        borderRadius: 10,
+        overflow: 'hidden',
+        background: '#111',
+        border: '1px solid #3a3a3a',
+        position: 'relative',
+        flexShrink: 0,
       }}
     >
       <div
         style={{
-          maxWidth: '1360px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'minmax(620px, auto) 360px 1fr',
-          gap: '12px',
-          alignItems: 'start',
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <div>
-          <div
-            style={{
-              display: 'inline-block',
-              background: '#4b4847',
-              borderRadius: '12px',
-              padding: '12px 18px',
-              fontWeight: 700,
-              marginBottom: '12px',
-            }}
-          >
-            B+N Mate Trainer
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'stretch', gap: '10px' }}>
-            <div
-              style={{
-                width: '38px',
-                height: `${boardWidth}px`,
-                borderRadius: '10px',
-                overflow: 'hidden',
-                background: '#111',
-                border: '1px solid #3a3a3a',
-                position: 'relative',
-                flexShrink: 0,
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <div
-                  style={{
-                    flex: evalSplit,
-                    background: '#f5f5f5',
-                    transition: 'all 0.25s ease',
-                  }}
-                />
-                <div
-                  style={{
-                    flex: 100 - evalSplit,
-                    background: '#2a2a2a',
-                    transition: 'all 0.25s ease',
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
-                  position: 'relative',
-                  zIndex: 1,
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '8px 4px',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                }}
-              >
-                <div style={{ color: '#111' }}>{topEvalLabel}</div>
-                <div style={{ color: '#fff' }}>{bottomEvalLabel}</div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                background: justMated ? '#3a2a1c' : '#312e2b',
-                borderRadius: '16px',
-                padding: '16px',
-                width: 'fit-content',
-                boxShadow: justMated
-                  ? '0 0 0 2px rgba(255,179,71,0.8), 0 8px 28px rgba(255,179,71,0.35)'
-                  : '0 8px 24px rgba(0,0,0,0.25)',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <Chessboard
-                id="BNMateTrainerBoard"
-                position={game.fen()}
-                onPieceDrop={onDrop}
-                boardWidth={boardWidth}
-                boardOrientation={boardOrientation}
-                customSquareStyles={getCustomSquareStyles(
-                  lastMove,
-                  markedSquare,
-                  correctSquares,
-                  escapeSquares,
-                  hintSquares
-                )}
-                arePiecesDraggable={!loadingChunk && !inputLocked}
-              />
-            </div>
-          </div>
-
-          <div
-            style={{
-              marginTop: '14px',
-              display: 'flex',
-              gap: '10px',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-            }}
-          >
-            <button
-              onClick={resetCurrentPosition}
-              style={{
-                background: '#4b4847',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '10px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Restart
-            </button>
-
-            <button
-              onClick={nextPuzzle}
-              style={{
-                background: '#81b64c',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '10px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Next Puzzle
-            </button>
-
-            <button
-              onClick={showHintAction}
-              style={{
-                background: '#3d6d8a',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '10px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Hint
-            </button>
-
-            <button
-              onClick={resetCurrentChunk}
-              style={{
-                background: '#4b4847',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '10px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Reset Chunk
-            </button>
-
-            <button
-              onClick={resetWholeProgression}
-              style={{
-                background: '#7a3d3d',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '10px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Reset All
-            </button>
-
-            <button
-              onClick={() => goToTheme((progress?.currentThemeIndex ?? 0) - 1)}
-              style={{
-                background: '#555',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '10px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Prev Chunk
-            </button>
-
-            <button
-              onClick={() => goToTheme((progress?.currentThemeIndex ?? 0) + 1)}
-              style={{
-                background: '#555',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '10px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Next Chunk
-            </button>
-
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                value={jumpChunkInput}
-                onChange={(e) => setJumpChunkInput(e.target.value)}
-                placeholder="Chunk #"
-                style={{
-                  width: '82px',
-                  padding: '10px',
-                  borderRadius: '8px',
-                  border: '1px solid #555',
-                  background: '#222',
-                  color: '#fff',
-                }}
-              />
-              <button
-                onClick={() => jumpToChunkByNumber(jumpChunkInput)}
-                style={{
-                  background: '#666',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '10px',
-                  padding: '10px 14px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                Jump Chunk
-              </button>
-            </div>
-          </div>
-        </div>
-
         <div
           style={{
-            background: '#312e2b',
-            borderRadius: '16px',
-            padding: '14px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+            flex: evalSplit,
+            background: '#f5f5f5',
+            transition: 'all 0.25s ease',
           }}
-        >
-          <div
-            style={{
-              background: '#4b4847',
-              borderRadius: '12px',
-              padding: '12px 14px',
-              fontWeight: 700,
-              fontSize: '18px',
-              marginBottom: '10px',
-            }}
-          >
-            ☐ {game.turn() === 'b' ? 'Black to Move' : 'White to Move'}
-          </div>
+        />
+        <div
+          style={{
+            flex: 100 - evalSplit,
+            background: '#2a2a2a',
+            transition: 'all 0.25s ease',
+          }}
+        />
+      </div>
 
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontSize: '14px',
-              padding: '0 2px',
-              marginBottom: '8px',
-            }}
-          >
-            <span>{currentThemeConfig.label ?? currentThemeId}</span>
-            <span>{currentIndex + 1} / {positions.length}</span>
-          </div>
-
-          <div style={{ background: '#262421', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
-            <div style={{ fontWeight: 700, marginBottom: '8px' }}>Chunk mastery</div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '6px' }}>
-              <span>{chunkFastSolveCount} / {chunkTarget}</span>
-              <span>{Math.round(progressPercent)}%</span>
-            </div>
-            <div
-              style={{
-                width: '100%',
-                height: '10px',
-                background: '#4b4847',
-                borderRadius: '999px',
-                overflow: 'hidden',
-                marginBottom: '6px',
-              }}
-            >
-              <div
-                style={{
-                  width: `${progressPercent}%`,
-                  height: '100%',
-                  background: '#81b64c',
-                }}
-              />
-            </div>
-            <div style={{ fontSize: '13px', color: '#cfcfcf', display: 'flex', justifyContent: 'space-between' }}>
-              <span>{chunkMasteredCount} / {positions.length} puzzles at 5/5</span>
-              <span>Chunk {currentGlobalChunkNumber ?? currentThemeProgress.currentChunkIndex + 1}</span>
-            </div>
-          </div>
-
-          <div style={{ background: '#262421', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
-            <div style={{ fontWeight: 700, marginBottom: '8px' }}>This puzzle</div>
-            <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
-              {Array.from({ length: POSITION_FAST_SOLVES_TO_MASTER }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    flex: 1,
-                    height: '8px',
-                    borderRadius: '999px',
-                    background: i < (currentStats?.fastSolves ?? 0) ? '#81b64c' : '#4b4847',
-                  }}
-                />
-              ))}
-            </div>
-            <div style={{ fontSize: '13px', color: '#cfcfcf', display: 'flex', justifyContent: 'space-between' }}>
-              <span>{currentStats?.fastSolves ?? 0} / 5 fast solves</span>
-              <span>Fast = ≤ {(currentThemeConfig.maxSecondsPerMove ?? 3)}s</span>
-            </div>
-          </div>
-
-          <div
-            style={{
-              textAlign: 'center',
-              fontSize: '34px',
-              fontWeight: 700,
-              color: '#ffb347',
-              margin: '8px 0 6px',
-            }}
-          >
-            🔥 {chunkFastSolveCount}
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(10, 1fr)',
-              gap: '4px',
-              marginBottom: '14px',
-            }}
-          >
-            {positions.map((p, i) => {
-              const stats = getPositionStats(progress, p.id)
-              const isCurrent = i === currentIndex
-              const isMastered = stats.mastered
-              const isFlashingSolved = flashSolvedPositionId === p.id
-
-              let background = '#4b4847'
-              let border = '1px solid transparent'
-              let boxShadow = 'none'
-
-              if (isMastered) {
-                background = '#81b64c'
-              } else if (isFlashingSolved) {
-                background = '#d8ff8a'
-                boxShadow = '0 0 10px rgba(216,255,138,0.65)'
-              }
-
-              if (isCurrent) {
-                border = '1px solid #ffd54a'
-                if (!isMastered && !isFlashingSolved) {
-                  background = '#6a6238'
-                }
-              }
-
-              return (
-                <div
-                  key={p.id}
-                  title={`${i + 1}. ${p.label} | fast ${stats.fastSolves}/5${stats.mastered ? ' | mastered' : ''}`}
-                  style={{
-                    height: '14px',
-                    borderRadius: '3px',
-                    background,
-                    border,
-                    boxShadow,
-                    transition: 'all 0.2s ease',
-                  }}
-                />
-              )
-            })}
-          </div>
-
-          <div
-            style={{
-              textAlign: 'center',
-              fontWeight: 700,
-              fontSize: '26px',
-              marginBottom: '14px',
-            }}
-          >
-            {currentInstruction}
-          </div>
-
-          <div style={{ background: '#262421', borderRadius: '12px', padding: '14px', marginBottom: '14px', fontSize: '14px', lineHeight: 1.45 }}>
-            <div><strong>Puzzle {currentIndex + 1}</strong></div>
-            <div>Category: B+N</div>
-            <div>Theme: {currentThemeConfig.label ?? currentThemeId}</div>
-            <div>Puzzle ID: {currentPosition.id.slice(0, 18)}</div>
-            <div>User moves: {moveTimesMs.length}</div>
-            <div>Time: {(currentMoveElapsedMs / 1000).toFixed(1)}s</div>
-            <div>Theme #: {(progress?.currentThemeIndex ?? 0) + 1}</div>
-            <div>Chunk: {currentGlobalChunkNumber ?? currentThemeProgress.currentChunkIndex + 1}</div>
-            <div>Chunk file: {currentChunkFile}</div>
-            <div>Theme progress: {themeDoneCount} / {progression.order.length}</div>
-            <div>Engine: {engineReady ? 'ready' : 'loading'}</div>
-            <div>
-              Eval:{' '}
-              {engineInfo?.mate !== null && engineInfo?.mate !== undefined
-                ? 'Forced mate'
-                : engineInfo?.eval !== null && engineInfo?.eval !== undefined
-                  ? `${engineInfo.eval > 0 ? '+' : ''}${engineInfo.eval}`
-                  : '-'}
-            </div>
-            <div>Best: {engineInfo?.bestMove ?? '-'}</div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-            <button
-              onClick={resetCurrentPosition}
-              style={{
-                flex: 1,
-                background: '#4b4847',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '12px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Restart
-            </button>
-
-            <button
-              onClick={showHintAction}
-              style={{
-                flex: 1,
-                background: '#3d6d8a',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '12px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Hint
-            </button>
-
-            <button
-              onClick={nextPuzzle}
-              style={{
-                flex: 1,
-                background: '#81b64c',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '12px 16px',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Next Puzzle
-            </button>
-          </div>
-
-          <div style={{ fontSize: '13px', color: '#bfbfbf', display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span>{currentThemeConfig.label ?? currentThemeId}</span>
-            <span>{boardWidth}px</span>
-          </div>
-
-          <input
-            type="range"
-            min={420}
-            max={760}
-            step={10}
-            value={boardWidth}
-            onChange={(e) => setBoardWidth(Number(e.target.value))}
-            style={{ width: '100%' }}
-          />
-
-          <div style={{ background: '#262421', borderRadius: '12px', padding: '12px', marginTop: '14px' }}>
-            <div style={{ fontWeight: 700, marginBottom: '6px' }}>
-              {loadingChunk ? 'Loading chunk...' : status}
-            </div>
-
-            {justMated ? (
-              <div
-                style={{
-                  marginBottom: '8px',
-                  padding: '10px 12px',
-                  borderRadius: '10px',
-                  background: '#3a2a1c',
-                  border: '1px solid #ffb347',
-                  color: '#ffd28a',
-                  fontWeight: 800,
-                  textAlign: 'center',
-                  fontSize: '18px',
-                }}
-              >
-                CHECKMATE
-              </div>
-            ) : null}
-
-            {message ? <div style={{ color: '#d6d6d6', lineHeight: 1.5 }}>{message}</div> : null}
-
-            <div style={{ color: '#9e9e9e', marginTop: '8px', fontSize: '12px' }}>
-              {currentChunkFile}
-            </div>
-          </div>
-        </div>
-
-        <div />
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '8px 4px',
+          fontSize: 11,
+          fontWeight: 800,
+        }}
+      >
+        <div style={{ color: '#111' }}>{topEvalLabel}</div>
+        <div style={{ color: '#fff' }}>{bottomEvalLabel}</div>
       </div>
     </div>
+  )
+
+  const boardOverlay = justMated ? (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 20,
+      }}
+    >
+      <div
+        style={{
+          padding: '12px 20px',
+          borderRadius: '12px',
+          background: 'rgba(58,42,28,0.88)',
+          border: '1px solid #ffb347',
+          color: '#ffd28a',
+          fontWeight: 800,
+          fontSize: '28px',
+          letterSpacing: 1,
+          boxShadow: '0 8px 28px rgba(0,0,0,0.35)',
+        }}
+      >
+        CHECKMATE
+      </div>
+    </div>
+  ) : null
+
+  return (
+    <TrainerShell
+      title="B+N Mate Trainer"
+      subtitle={currentChunkFile ?? currentThemeConfig.label ?? currentThemeId ?? ''}
+      boardSize={boardWidth}
+      isDragging={isDragging}
+      isHandleHovered={isHandleHovered}
+      setIsDragging={setIsDragging}
+      setIsHandleHovered={setIsHandleHovered}
+      containerRef={containerRef}
+      footerLeft={currentThemeConfig.label ?? currentThemeId}
+      footerRight={`${boardWidth}px`}
+      boardId="BNMateTrainerBoard"
+      fen={game.fen()}
+      onPieceDrop={onDrop}
+      getLegalTargets={getLegalTargets}
+      boardOrientation={boardOrientation}
+      customDarkSquareStyle={{ backgroundColor: '#769656' }}
+      customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
+      customBoardStyle={{
+        borderRadius: '8px',
+        overflow: 'hidden',
+      }}
+      customSquareStyles={getCustomSquareStyles(
+        lastMove,
+        markedSquare,
+        correctSquares,
+        escapeSquares,
+        hintSquares
+      )}
+      arePiecesDraggable={!loadingChunk && !inputLocked && !allComplete}
+      boardLeft={boardLeft}
+      boardOverlay={boardOverlay}
+      sidePanel={
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            minHeight: boardWidth,
+          }}
+        >
+          <PanelCard style={{ padding: '14px 12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div
+                style={{
+                  width: 18,
+                  height: 18,
+                  border: '2px solid #bdbdbd',
+                  boxSizing: 'border-box',
+                  background: sideSquareColor,
+                }}
+              />
+              <div style={{ fontSize: 16, fontWeight: 700 }}>
+                {`${sideToMoveText} to Move`}
+              </div>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: 10,
+                fontSize: 13,
+                marginBottom: 8,
+              }}
+            >
+              <div style={{ color: '#e6e6e6', fontWeight: 700 }}>
+                {currentThemeConfig.label ?? currentThemeId}
+              </div>
+              <div style={{ color: '#d3d3d3' }}>
+                {currentIndex + 1} / {positions.length}
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: 10,
+                fontSize: 12,
+                color: '#c5c5c5',
+              }}
+            >
+              <div>{currentChunkFile}</div>
+              <div>Chunk {currentGlobalChunkNumber ?? currentThemeProgress.currentChunkIndex + 1}</div>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 13,
+                marginBottom: 6,
+              }}
+            >
+              <div style={{ color: '#dcdcdc', fontWeight: 700 }}>Chunk mastery</div>
+              <div style={{ color: '#f1f1f1', fontWeight: 700 }}>
+                {chunkFastSolveCount} / {chunkTarget}
+              </div>
+            </div>
+
+            <ProgressBar percent={progressPercent} style={{ marginBottom: 8 }} />
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 12,
+                color: '#c5c5c5',
+              }}
+            >
+              <div>{Math.round(progressPercent)}% stage mastery</div>
+              <div>{chunkMasteredCount} / {positions.length} puzzles at 5/5</div>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>This puzzle</SectionTitle>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, 1fr)',
+                gap: 6,
+                marginBottom: 8,
+              }}
+            >
+              {Array.from({ length: POSITION_FAST_SOLVES_TO_MASTER }).map((_, i) => {
+                const filled = i < currentFastSolves
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      height: 8,
+                      borderRadius: 999,
+                      background: filled ? '#7fa650' : '#5a5552',
+                    }}
+                  />
+                )
+              })}
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 12,
+                color: '#c5c5c5',
+              }}
+            >
+              <div>{currentFastSolves} / {POSITION_FAST_SOLVES_TO_MASTER} fast solves</div>
+              <div>Fast = ≤ {maxSecondsPerMove}s</div>
+            </div>
+          </PanelCard>
+
+          <BigMessage streak={`🔥 ${chunkFastSolveCount}`} message={status || currentInstruction} />
+
+          <PanelCard>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 8,
+                flexWrap: 'wrap',
+              }}
+            >
+              {positions.map((p, i) => {
+                const stats = getPositionStats(progress, p.id)
+                const mastered = stats.mastered
+                const done = i === currentIndex && flashSolvedPositionId === p.id
+
+                return (
+                  <div
+                    key={p.id}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: 3,
+                      background: mastered ? '#8bc34a' : done ? '#b3d98a' : '#5b5652',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: mastered || done ? '#fff' : 'transparent',
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    ✓
+                  </div>
+                )
+              })}
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Puzzle info</SectionTitle>
+            <div style={{ fontSize: 12, color: '#d0d0d0', lineHeight: 1.55 }}>
+              <div>Category: Endgame</div>
+              <div>Theme: {currentThemeConfig.label ?? currentThemeId}</div>
+              <div>Puzzle ID: {currentPosition.id}</div>
+              <div>Label: {currentPosition.label}</div>
+              <div>Mate distance: {currentPosition.mateDistance ?? '-'}</div>
+              <div>Allowed moves: {currentPosition.allowedMoves.length}</div>
+              <div>Current move time: {(currentMoveElapsedMs / 1000).toFixed(1)}s</div>
+              <div>Engine: {engineReady ? 'ready' : 'loading'}</div>
+              <div>Completed themes: {themeDoneCount} / {progression.order.length}</div>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Actions</SectionTitle>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <HintButton onClick={() => void showHintAction()}>
+                Hint
+              </HintButton>
+
+              <PrimaryButton onClick={resetCurrentPosition}>
+                Restart position
+              </PrimaryButton>
+
+              <SecondaryButton onClick={nextPuzzle}>
+                Next puzzle
+              </SecondaryButton>
+
+              <SecondaryButton onClick={() => void restartCurrentChunk()}>
+                Restart chunk
+              </SecondaryButton>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Chunk navigation</SectionTitle>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <SecondaryButton onClick={goToPrevChunk}>
+                  Prev
+                </SecondaryButton>
+                <SecondaryButton onClick={goToNextChunk}>
+                  Next
+                </SecondaryButton>
+              </div>
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                <ShellInput
+                  value={jumpChunkInput}
+                  onChange={(e) => setJumpChunkInput(e.target.value)}
+                  placeholder="Jump to chunk #"
+                />
+                <PrimaryButton onClick={() => jumpToChunkByNumber(jumpChunkInput)}>
+                  Go
+                </PrimaryButton>
+              </div>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Message</SectionTitle>
+            <div style={{ fontSize: 12, color: '#d0d0d0', lineHeight: 1.55, minHeight: 36 }}>
+              {message || '—'}
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Danger zone</SectionTitle>
+            <SecondaryButton onClick={resetWholeProgression}>
+              Reset all progression
+            </SecondaryButton>
+          </PanelCard>
+        </div>
+      }
+    />
   )
 }

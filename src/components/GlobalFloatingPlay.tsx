@@ -1,6 +1,7 @@
 import React, { useCallback } from "react"
 import { useLocation } from "react-router-dom"
 import { useBoardUiContext } from "../context/BoardUiContext"
+import { supabase } from "../lib/supabase"
 
 function buildPlayUrl(params: {
   fen?: string | null
@@ -29,6 +30,10 @@ export default function GlobalFloatingPlay() {
     window.location.href = "/"
   }, [])
 
+  const goAccount = useCallback(() => {
+    window.location.href = "/account"
+  }, [])
+
   const goPlay = useCallback(() => {
     const url = buildPlayUrl({
       fen: hasBoard ? boardState.fen : undefined,
@@ -55,6 +60,23 @@ export default function GlobalFloatingPlay() {
     boardState.onFlip?.()
   }, [boardState.onFlip])
 
+  // ✅ FIXED logout (real fix)
+  const handleLogout = useCallback(async () => {
+    try {
+      const { error } = await supabase.auth.signOut({ scope: "local" })
+
+      if (error) {
+        console.error("Logout failed", error)
+        return
+      }
+
+      // important: go to auth, not home (home may auto-detect session)
+      window.location.replace("/auth")
+    } catch (err) {
+      console.error("Logout failed", err)
+    }
+  }, [])
+
   return (
     <div
       style={{
@@ -67,12 +89,26 @@ export default function GlobalFloatingPlay() {
         gap: 10,
       }}
     >
-      {/* Home always visible */}
       <button type="button" onClick={goHome} style={btnStyle}>
         🏠 Home
       </button>
 
-      {/* Only when board available */}
+      <button type="button" onClick={goAccount} style={btnStyle}>
+        👤 Account
+      </button>
+
+      {/* ✅ Logout */}
+      <button
+        type="button"
+        onClick={handleLogout}
+        style={{
+          ...btnStyle,
+          background: "#6b3d3d",
+        }}
+      >
+        ⎋ Logout
+      </button>
+
       {hasBoard && (
         <>
           <button

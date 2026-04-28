@@ -1,13 +1,21 @@
+import {
+  BigMessage,
+  PanelCard,
+  SectionTitle,
+} from './components/trainer/ui'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Chess } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
-import phase1Data from '../two_bishop_mate/two_bishops_phase1_chunks.json'
-import phase2Data from '../two_bishop_mate/two_bishops_phase2.json'
-import phase3Data from '../two_bishop_mate/two_bishops_phase3.json'
-import { BNEngine } from './lib/bnEngine'
+
+import phase1Data from "../two_bishop_mate/two_bishops_phase1_chunks.json"
+import phase2Data from "../two_bishop_mate/two_bishops_phase2.json"
+import phase3Data from "../two_bishop_mate/two_bishops_phase3.json"
+
+import { BNEngine } from "./lib/bnEngine"
 import type { EngineResult } from './lib/bnEngine'
-import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
+import { useRegisterPlayableBoard } from "./hooks/useRegisterPlayableBoard"
+import { supabase } from "./lib/supabase"
+import TrainerShell from './components/trainer/TrainerShell'
 
 type ChunkPosition = {
   line_number: number
@@ -109,7 +117,6 @@ const MAX_SECONDS_PER_MOVE = 3
 const CORRECT_DELAY_MS = 1300
 const WRONG_DELAY_MS = 1800
 const ENGINE_REPLY_DELAY_MS = 650
-const BOARD_ANIMATION_MS = 500
 
 const ENGINE_DEPTH_PHASE2 = 12
 const ENGINE_DEPTH_PHASE3 = 14
@@ -380,18 +387,22 @@ function buildCustomWaitingFirstStep(puzzle: Phase1Puzzle, chosenUci: string): W
   return [step0, step1, ...rest]
 }
 
+function chunk_idMatch(chunkId: string) {
+  return chunkId.match(/^phase1_m(\d+)$/)?.[1]
+}
+
 function buildPhase1TrainerChunks(): Phase1TrainerChunk[] {
   const file = phase1Data as RawFile
 
   const mateChunks = file.chunks
     .filter((chunk) => /^phase1_m\d+$/.test(chunk.chunk_id))
     .sort((a, b) => {
-      const ma = Number(a.chunk_id.match(/^phase1_m(\d+)$/)?.[1] ?? 999)
-      const mb = Number(b.chunk_id.match(/^phase1_m(\d+)$/)?.[1] ?? 999)
+      const ma = Number(chunk_idMatch(a.chunk_id) ?? 999)
+      const mb = Number(chunk_idMatch(b.chunk_id) ?? 999)
       return ma - mb
     })
     .filter((chunk) => {
-      const mate = Number(chunk.chunk_id.match(/^phase1_m(\d+)$/)?.[1] ?? 999)
+      const mate = Number(chunk_idMatch(chunk.chunk_id) ?? 999)
       return mate >= 1 && mate <= 10
     })
 
@@ -422,7 +433,7 @@ function buildPhase1TrainerChunks(): Phase1TrainerChunk[] {
         (p) =>
           p.distance_from_mate === pos.distance_from_mate &&
           fenKey4(p.fen) === fenKey4(pos.fen) &&
-          p.move === pos.move
+          p.move === pos.move,
       )
       if (startIndex < 0) continue
 
@@ -582,6 +593,81 @@ function getPuzzleProgress(map: Record<string, PuzzleProgress>, id: string): Puz
   return map[id] ?? { fastSolves: 0, totalSolves: 0, mastered: false }
 }
 
+async function loadStoredProgress(): Promise<Record<string, PuzzleProgress>> {
+  let localProgress: Record<string, PuzzleProgress> = {}
+
+  const raw = localStorage.getItem(PROGRESS_KEY)
+  if (raw) {
+    try {
+      localProgress = JSON.parse(raw) as Record<string, PuzzleProgress>
+    } catch {
+      localProgress = {}
+    }
+  }
+
+  const { data: authData } = await supabase.auth.getUser()
+  const user = authData.user
+
+  if (!user) return localProgress
+
+  const { data, error } = await supabase
+    .from('training_progress')
+    .select('item_id, mastery')
+    .eq('user_id', user.id)
+    .eq('course', 'endgame')
+    .eq('theme', 'kbbk')
+
+  if (error || !data) return localProgress
+
+  const merged = { ...localProgress }
+
+  for (const row of data) {
+    const itemId = String(row.item_id ?? '')
+    const mastery = Number(row.mastery ?? 0)
+    if (!itemId) continue
+
+    const localStats = merged[itemId]
+    const bestMastery = Math.max(localStats?.fastSolves ?? 0, mastery)
+
+    merged[itemId] = {
+      fastSolves: bestMastery,
+      totalSolves: Math.max(localStats?.totalSolves ?? 0, bestMastery),
+      mastered: bestMastery >= FAST_SOLVES_TO_MASTER,
+    }
+  }
+
+  return merged
+}
+
+async function saveProgress(progressMap: Record<string, PuzzleProgress>) {
+  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressMap))
+
+  const { data: authData } = await supabase.auth.getUser()
+  const user = authData.user
+  if (!user) return
+
+  const rows = Object.entries(progressMap).map(([itemId, stats]) => ({
+    user_id: user.id,
+    course: 'endgame',
+    theme: 'kbbk',
+    item_id: itemId,
+    mastery: stats.fastSolves,
+    updated_at: new Date().toISOString(),
+  }))
+
+  if (rows.length === 0) return
+
+  const { error } = await supabase
+    .from('training_progress')
+    .upsert(rows, {
+      onConflict: 'user_id,course,theme,item_id',
+    })
+
+  if (error) {
+    console.error('Failed to save KBBK progress:', error)
+  }
+}
+
 function getEvalBarSplit(engineInfo: EngineResult | null) {
   if (engineInfo?.mate !== null && engineInfo?.mate !== undefined) {
     return engineInfo.mate > 0 ? 92 : 8
@@ -628,7 +714,7 @@ function getCustomSquareStyles(
   lastMove?: { from?: string; to?: string },
   markedSquares: string[] = [],
   hintSquares: string[] = [],
-  correctSquares: string[] = []
+  correctSquares: string[] = [],
 ) {
   const styles: Record<string, CSSProperties> = {}
 
@@ -705,19 +791,22 @@ export default function TwoBishopsFinalTrainer() {
   const engineRef = useRef<BNEngine | null>(null)
   const analysisTokenRef = useRef(0)
   const moveStartedAtRef = useRef<number>(Date.now())
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   const [mode, setMode] = useState<Mode>({ kind: 'phase1', chunkIndex: 0 })
-  const [progressMap, setProgressMap] = useState<Record<string, PuzzleProgress>>(() => {
-    try {
-      const raw = localStorage.getItem(PROGRESS_KEY)
-      return raw ? (JSON.parse(raw) as Record<string, PuzzleProgress>) : {}
-    } catch {
-      return {}
-    }
-  })
+  const [progressMap, setProgressMap] = useState<Record<string, PuzzleProgress>>({})
+  const [progressLoaded, setProgressLoaded] = useState(false)
   const [order, setOrder] = useState<number[]>([])
   const [queueIndex, setQueueIndex] = useState(0)
   const [game, setGame] = useState<Chess>(() => new Chess())
+
+  function getLegalTargets(fromSquare: string) {
+    const moves = game.moves({ verbose: true }) as Array<{ from: string; to: string }>
+
+    return moves
+      .filter((m) => m.from === fromSquare)
+      .map((m) => m.to)
+  }
   const [stepIndex, setStepIndex] = useState(0)
   const [message, setMessage] = useState('Loading...')
   const [status, setStatus] = useState('Loading trainer...')
@@ -739,6 +828,8 @@ export default function TwoBishopsFinalTrainer() {
   const [moveTimesMs, setMoveTimesMs] = useState<number[]>([])
   const [justSolved, setJustSolved] = useState(false)
   const [flashSolvedId, setFlashSolvedId] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [isHandleHovered, setIsHandleHovered] = useState(false)
 
   const isPhase1 = mode.kind === 'phase1'
   const currentChunk = isPhase1 ? phase1Chunks[mode.chunkIndex] : null
@@ -757,8 +848,19 @@ export default function TwoBishopsFinalTrainer() {
   }, [boardWidth])
 
   useEffect(() => {
-    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressMap))
-  }, [progressMap])
+    async function bootProgress() {
+      const stored = await loadStoredProgress()
+      setProgressMap(stored)
+      setProgressLoaded(true)
+    }
+
+    void bootProgress()
+  }, [])
+
+  useEffect(() => {
+    if (!progressLoaded) return
+    void saveProgress(progressMap)
+  }, [progressMap, progressLoaded])
 
   useEffect(() => {
     engineRef.current = new BNEngine()
@@ -775,6 +877,35 @@ export default function TwoBishopsFinalTrainer() {
     }, 100)
     return () => window.clearInterval(interval)
   }, [locked])
+
+  useEffect(() => {
+    function onMouseMove(e: MouseEvent) {
+      if (!isDragging || !containerRef.current) return
+
+      const rect = containerRef.current.getBoundingClientRect()
+      const leftPadding = 16
+      const rightPanelWidth = 340
+      const dividerWidth = 18
+      const minBoard = 420
+      const maxBoard = Math.min(950, rect.width - rightPanelWidth - dividerWidth - leftPadding)
+
+      const nextSize = e.clientX - rect.left - leftPadding
+      const clamped = Math.max(minBoard, Math.min(maxBoard, nextSize))
+      setBoardWidth(clamped)
+    }
+
+    function onMouseUp() {
+      setIsDragging(false)
+    }
+
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [isDragging])
 
   async function evaluatePosition(fen: string, depth: number) {
     if (!engineRef.current) return null
@@ -836,7 +967,8 @@ export default function TwoBishopsFinalTrainer() {
       excludePuzzleId?: string | null
       preserveOrder?: boolean
       nextIndexInOrder?: number
-    }
+      allowCompletedChunk?: boolean
+    },
   ) {
     const safe = Math.max(0, Math.min(phase1Chunks.length - 1, chunkIndex))
     const chunk = phase1Chunks[safe]
@@ -852,11 +984,7 @@ export default function TwoBishopsFinalTrainer() {
     let nextOrder: number[] = []
     let nextQueueIndex = 0
 
-    if (
-      options?.preserveOrder &&
-      isSameChunk &&
-      order.length > 0
-    ) {
+    if (options?.preserveOrder && isSameChunk && order.length > 0) {
       const stillValid = order.filter((i) => {
         const puzzle = chunk.puzzles[i]
         return puzzle && !isMastered(puzzle.id)
@@ -883,15 +1011,47 @@ export default function TwoBishopsFinalTrainer() {
     }
 
     if (nextOrder.length === 0) {
-      setOrder([])
-      setQueueIndex(0)
-      setGame(new Chess())
-      setStepIndex(0)
-      setActiveSteps([])
-      setLocked(true)
-      setLastMove({})
-      setStatus(`${chunk.label} complete`)
-      setMessage('')
+      if (options?.allowCompletedChunk) {
+        const reviewOrder = chunk.puzzles.map((_, i) => i)
+
+        if (reviewOrder.length === 0) {
+          setOrder([])
+          setQueueIndex(0)
+          setGame(new Chess())
+          setStepIndex(0)
+          setActiveSteps([])
+          setLocked(true)
+          setLastMove({})
+          setStatus(`${chunk.label} complete`)
+          setMessage('')
+          setAllComplete(false)
+          return
+        }
+
+        const reviewPuzzle = chunk.puzzles[0]
+
+        setOrder(reviewOrder)
+        setQueueIndex(0)
+        setGame(new Chess(reviewPuzzle.fen))
+        setStepIndex(0)
+        setActiveSteps(reviewPuzzle.steps)
+        setLocked(false)
+        setLastMove({})
+        setStatus(chunk.isFullLines ? chunk.label : `Find mate in ${chunk.mateDistance}`)
+        setMessage('Review mode')
+        setAllComplete(false)
+        setMoveTimesMs([])
+        beginMoveTimer()
+        await setEngineForCurrentPosition(reviewPuzzle.fen)
+        return
+      }
+
+      if (safe < phase1Chunks.length - 1) {
+        await loadPhase1Chunk(safe + 1)
+        return
+      }
+
+      await loadFreeplay('phase2')
       return
     }
 
@@ -922,7 +1082,7 @@ export default function TwoBishopsFinalTrainer() {
       setData.positions
         .map((fen, i) => ({ id: `${setData.id}::${fen}`, i }))
         .filter(({ id }) => !isMastered(id))
-        .map(({ i }) => i)
+        .map(({ i }) => i),
     )
 
     if (options?.excludePuzzleId && nextOrder.length > 1) {
@@ -962,10 +1122,20 @@ export default function TwoBishopsFinalTrainer() {
   }
 
   useEffect(() => {
-    if (phase1Chunks.length === 0) return
-    void loadPhase1Chunk(0)
+    if (phase1Chunks.length === 0 || !progressLoaded) return
+
+    const firstIncompleteChunkIndex = phase1Chunks.findIndex((chunk) =>
+      chunk.puzzles.some((p) => !getPuzzleProgress(progressMap, p.id).mastered)
+    )
+
+    if (firstIncompleteChunkIndex === -1) {
+      void loadFreeplay('phase2')
+      return
+    }
+
+    void loadPhase1Chunk(firstIncompleteChunkIndex)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase1Chunks.length])
+  }, [phase1Chunks.length, progressLoaded])
 
   function shouldAllowWaitingMoveOverride() {
     if (mode.kind !== 'phase1') return false
@@ -987,7 +1157,7 @@ export default function TwoBishopsFinalTrainer() {
   function getFreeplayResult(
     gameToCheck: Chess,
     setData: FreeplaySet,
-    engineEval?: EngineResult | null
+    engineEval?: EngineResult | null,
   ): FreeplayResult {
     if (gameToCheck.isStalemate()) return 'fail'
     if (gameToCheck.isDraw()) return 'fail'
@@ -1003,6 +1173,36 @@ export default function TwoBishopsFinalTrainer() {
     if (gameToCheck.isCheckmate()) return 'success'
     if (phase3Escaped(engineEval ?? null, gameToCheck)) return 'fail'
     return 'continue'
+  }
+
+  async function restartChunk() {
+    if (mode.kind !== 'phase1' || !currentChunk) return
+
+    const restarted = { ...progressMap }
+
+    for (const puzzle of currentChunk.puzzles) {
+      delete restarted[puzzle.id]
+    }
+
+    setProgressMap(restarted)
+
+    const { data } = await supabase.auth.getUser()
+    const user = data.user
+
+    if (user) {
+      const ids = currentChunk.puzzles.map((p) => p.id)
+      if (ids.length > 0) {
+        await supabase
+          .from('training_progress')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('course', 'endgame')
+          .eq('theme', 'kbbk')
+          .in('item_id', ids)
+      }
+    }
+
+    await loadPhase1Chunk(mode.chunkIndex, { allowCompletedChunk: true })
   }
 
   async function resetPuzzle() {
@@ -1076,16 +1276,18 @@ export default function TwoBishopsFinalTrainer() {
       return
     }
     if (mode.kind === 'phase2') {
-      await loadPhase1Chunk(0)
+      await loadPhase1Chunk(0, { allowCompletedChunk: true })
       return
     }
-    await loadPhase1Chunk(Math.max(0, mode.chunkIndex - 1))
+    await loadPhase1Chunk(Math.max(0, mode.chunkIndex - 1), {
+      allowCompletedChunk: true,
+    })
   }
 
   async function nextModeOrChunk() {
     if (mode.kind === 'phase1') {
       if (mode.chunkIndex < phase1Chunks.length - 1) {
-        await loadPhase1Chunk(mode.chunkIndex + 1)
+        await loadPhase1Chunk(mode.chunkIndex + 1, { allowCompletedChunk: true })
       } else {
         await loadFreeplay('phase2')
       }
@@ -1108,13 +1310,10 @@ export default function TwoBishopsFinalTrainer() {
 
     const oldStats = getPuzzleProgress(progressMap, currentPuzzleId)
     const solveTimes =
-      typeof finalMoveElapsedMs === 'number'
-        ? [...moveTimesMs, finalMoveElapsedMs]
-        : moveTimesMs
+      typeof finalMoveElapsedMs === 'number' ? [...moveTimesMs, finalMoveElapsedMs] : moveTimesMs
 
     const wasFast =
-      solveTimes.length > 0 &&
-      solveTimes.every((ms) => ms <= MAX_SECONDS_PER_MOVE * 1000)
+      solveTimes.length > 0 && solveTimes.every((ms) => ms <= MAX_SECONDS_PER_MOVE * 1000)
 
     const nextFastSolves = wasFast
       ? Math.min(FAST_SOLVES_TO_MASTER, oldStats.fastSolves + 1)
@@ -1153,7 +1352,7 @@ export default function TwoBishopsFinalTrainer() {
     setMessage(
       wasFast
         ? `Fast solve ${nextStats?.fastSolves ?? 0}/${FAST_SOLVES_TO_MASTER} for this puzzle.`
-        : `Solved, but one or more moves were slower than ${MAX_SECONDS_PER_MOVE} seconds.`
+        : `Solved, but one or more moves were slower than ${MAX_SECONDS_PER_MOVE} seconds.`,
     )
 
     await sleep(CORRECT_DELAY_MS)
@@ -1199,7 +1398,7 @@ export default function TwoBishopsFinalTrainer() {
     if (!setData) return
 
     const allMastered = setData.positions.every((fen) =>
-      getPuzzleProgress(nextMap, `${setData.id}::${fen}`).mastered
+      getPuzzleProgress(nextMap, `${setData.id}::${fen}`).mastered,
     )
 
     if (allMastered) {
@@ -1222,7 +1421,7 @@ export default function TwoBishopsFinalTrainer() {
     nextGame: Chess,
     move: { from: string; to: string; promotion?: string },
     nextStatus: string,
-    nextMessage: string
+    nextMessage: string,
   ) {
     const bk = getBlackKingSquare(nextGame)
     const escapes = getLegalBlackKingMoves(nextGame)
@@ -1257,7 +1456,7 @@ export default function TwoBishopsFinalTrainer() {
       engineInfo ??
       (await evaluatePosition(
         game.fen(),
-        mode.kind === 'phase3' ? ENGINE_DEPTH_PHASE3 : ENGINE_DEPTH_PHASE2
+        mode.kind === 'phase3' ? ENGINE_DEPTH_PHASE3 : ENGINE_DEPTH_PHASE2,
       ))
 
     const parsed = parseUci(info?.bestMove)
@@ -1308,7 +1507,7 @@ export default function TwoBishopsFinalTrainer() {
 
     const afterBlackEval = await evaluatePosition(
       replyGame.fen(),
-      mode.kind === 'phase3' ? ENGINE_DEPTH_PHASE3 : ENGINE_DEPTH_PHASE2
+      mode.kind === 'phase3' ? ENGINE_DEPTH_PHASE3 : ENGINE_DEPTH_PHASE2,
     )
     setEngineInfo(afterBlackEval)
 
@@ -1332,7 +1531,7 @@ export default function TwoBishopsFinalTrainer() {
           promotion: blackMove.promotion,
         },
         'Failed',
-        mode.kind === 'phase2' ? 'Failed — draw or stalemate' : 'Failed — king escaped the net'
+        mode.kind === 'phase2' ? 'Failed — draw or stalemate' : 'Failed — king escaped the net',
       )
       return
     }
@@ -1382,7 +1581,7 @@ export default function TwoBishopsFinalTrainer() {
           nextGame,
           { from: moveObj.from, to: moveObj.to, promotion: moveObj.promotion },
           'Wrong move.',
-          `Expected ${step.whiteSan}`
+          `Expected ${step.whiteSan}`,
         )
         return true
       }
@@ -1427,7 +1626,7 @@ export default function TwoBishopsFinalTrainer() {
               setMessage(
                 currentChunk.isFullLines
                   ? `Move ${nextWhiteIndex + 1} of ${stepsToUse.length}`
-                  : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`
+                  : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`,
               )
               beginMoveTimer()
               await setEngineForCurrentPosition(replyGame.fen())
@@ -1460,7 +1659,7 @@ export default function TwoBishopsFinalTrainer() {
                 setMessage(
                   currentChunk.isFullLines
                     ? `Move ${nextWhiteIndex + 1} of ${stepsToUse.length}`
-                    : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`
+                    : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`,
                 )
                 beginMoveTimer()
                 await setEngineForCurrentPosition(replyGame.fen())
@@ -1478,7 +1677,7 @@ export default function TwoBishopsFinalTrainer() {
           setMessage(
             currentChunk.isFullLines
               ? `Move ${nextWhiteIndex + 1} of ${stepsToUse.length}`
-              : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`
+              : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`,
           )
           beginMoveTimer()
           await setEngineForCurrentPosition(acceptedStep.nextFen)
@@ -1513,7 +1712,7 @@ export default function TwoBishopsFinalTrainer() {
     void (async () => {
       const afterWhiteEval = await evaluatePosition(
         nextGame.fen(),
-        mode.kind === 'phase3' ? ENGINE_DEPTH_PHASE3 : ENGINE_DEPTH_PHASE2
+        mode.kind === 'phase3' ? ENGINE_DEPTH_PHASE3 : ENGINE_DEPTH_PHASE2,
       )
       setEngineInfo(afterWhiteEval)
 
@@ -1522,7 +1721,7 @@ export default function TwoBishopsFinalTrainer() {
       if (whiteResult === 'success') {
         await finishSuccess(
           mode.kind === 'phase2' ? 'Success — king reached 8th rank!' : 'CHECKMATE!',
-          elapsed
+          elapsed,
         )
         return
       }
@@ -1532,7 +1731,7 @@ export default function TwoBishopsFinalTrainer() {
           nextGame,
           { from: whiteMove.from, to: whiteMove.to, promotion: whiteMove.promotion },
           'Failed',
-          mode.kind === 'phase2' ? 'Failed — draw or stalemate' : 'Failed — king escaped the net'
+          mode.kind === 'phase2' ? 'Failed — draw or stalemate' : 'Failed — king escaped the net',
         )
         return
       }
@@ -1546,7 +1745,6 @@ export default function TwoBishopsFinalTrainer() {
   useRegisterPlayableBoard({
     fen: game.fen(),
     orientation: boardOrientation,
-    setOrientation: setBoardOrientation,
     suggestedColor: boardOrientation,
     canFlip: true,
   })
@@ -1569,6 +1767,14 @@ export default function TwoBishopsFinalTrainer() {
   const topEvalLabel = getTopEvalLabel(engineInfo)
   const bottomEvalLabel = getBottomEvalLabel(engineInfo)
 
+  if (!progressLoaded) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#262421', color: '#ffffff', padding: '24px', fontFamily: 'Arial, sans-serif' }}>
+        Loading progress...
+      </div>
+    )
+  }
+
   if (!engineReady) {
     return (
       <div style={{ minHeight: '100vh', background: '#262421', color: '#ffffff', padding: '24px', fontFamily: 'Arial, sans-serif' }}>
@@ -1577,361 +1783,346 @@ export default function TwoBishopsFinalTrainer() {
     )
   }
 
-  return (
+  const boardLeft = (
     <div
       style={{
-        minHeight: '100vh',
-        background: '#262421',
-        color: '#ffffff',
-        padding: '24px',
-        boxSizing: 'border-box',
-        fontFamily: 'Arial, sans-serif',
+        width: 38,
+        height: boardWidth,
+        borderRadius: 10,
+        overflow: 'hidden',
+        background: '#111',
+        border: '1px solid #3a3a3a',
+        position: 'relative',
+        flexShrink: 0,
       }}
     >
       <div
         style={{
-          maxWidth: '1360px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'minmax(620px, auto) 360px 1fr',
-          gap: '12px',
-          alignItems: 'start',
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        <div>
-          <div
-            style={{
-              display: 'inline-block',
-              background: '#4b4847',
-              borderRadius: '12px',
-              padding: '12px 18px',
-              fontWeight: 700,
-              marginBottom: '12px',
-            }}
-          >
-            Two Bishops Trainer
-          </div>
+        <div style={{ flex: evalSplit, background: '#f5f5f5', transition: 'all 0.25s ease' }} />
+        <div style={{ flex: 100 - evalSplit, background: '#2a2a2a', transition: 'all 0.25s ease' }} />
+      </div>
 
-          <div style={{ display: 'flex', alignItems: 'stretch', gap: '10px' }}>
-            <div
-              style={{
-                width: '38px',
-                height: `${boardWidth}px`,
-                borderRadius: '10px',
-                overflow: 'hidden',
-                background: '#111',
-                border: '1px solid #3a3a3a',
-                position: 'relative',
-                flexShrink: 0,
-              }}
-            >
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <div style={{ flex: evalSplit, background: '#f5f5f5', transition: 'all 0.25s ease' }} />
-                <div style={{ flex: 100 - evalSplit, background: '#2a2a2a', transition: 'all 0.25s ease' }} />
-              </div>
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '8px 4px',
+          fontSize: '11px',
+          fontWeight: 800,
+        }}
+      >
+        <div style={{ color: '#111' }}>{topEvalLabel}</div>
+        <div style={{ color: '#fff' }}>{bottomEvalLabel}</div>
+      </div>
+    </div>
+  )
 
-              <div
-                style={{
-                  position: 'relative',
-                  zIndex: 1,
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '8px 4px',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                }}
-              >
-                <div style={{ color: '#111' }}>{topEvalLabel}</div>
-                <div style={{ color: '#fff' }}>{bottomEvalLabel}</div>
-              </div>
-            </div>
+  const boardOverlay = justSolved ? (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 20,
+      }}
+    >
+      <div
+        style={{
+          padding: '12px 20px',
+          borderRadius: '12px',
+          background: 'rgba(58,42,28,0.88)',
+          border: '1px solid #ffb347',
+          color: '#ffd28a',
+          fontWeight: 800,
+          fontSize: '28px',
+          letterSpacing: 1,
+          boxShadow: '0 8px 28px rgba(0,0,0,0.35)',
+        }}
+      >
+        CHECKMATE
+      </div>
+    </div>
+  ) : null
 
-            <div
-              style={{
-                background: justSolved ? '#3a2a1c' : '#312e2b',
-                borderRadius: '16px',
-                padding: '16px',
-                width: 'fit-content',
-                boxShadow: justSolved
-                  ? '0 0 0 2px rgba(255,179,71,0.8), 0 8px 28px rgba(255,179,71,0.35)'
-                  : '0 8px 24px rgba(0,0,0,0.25)',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <Chessboard
-                id="TwoBishopsTrainerBoard"
-                position={game.fen()}
-                onPieceDrop={onDrop}
-                boardWidth={boardWidth}
-                boardOrientation={boardOrientation}
-                customSquareStyles={getCustomSquareStyles(lastMove, markedSquares, hintSquares, correctSquares)}
-                arePiecesDraggable={!locked && !allComplete}
-                animationDuration={BOARD_ANIMATION_MS}
-                customBoardStyle={{
-                  transition: 'all 0.3s ease-in-out',
-                }}
-              />
-            </div>
-          </div>
-
-          <div
-            style={{
-              marginTop: '14px',
-              display: 'flex',
-              gap: '10px',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-            }}
-          >
-            <button onClick={() => void resetPuzzle()} style={primaryButton('#4b4847')}>
-              Restart
-            </button>
-            <button onClick={() => void nextPuzzle()} style={primaryButton('#81b64c')}>
-              Next Puzzle
-            </button>
-            <button onClick={() => void showHint()} style={primaryButton('#3d6d8a')}>
-              Hint
-            </button>
-            <button onClick={() => void shuffleCurrent()} style={primaryButton('#4b4847')}>
-              Shuffle
-            </button>
-            <button onClick={() => void prevModeOrChunk()} style={primaryButton('#666')}>
-              Prev Chunk
-            </button>
-            <button onClick={() => void nextModeOrChunk()} style={primaryButton('#666')}>
-              Next Chunk
-            </button>
-          </div>
-        </div>
-
+  return (
+    <TrainerShell
+      title="Two Bishops Trainer"
+      subtitle={phaseTitle(mode, currentChunk)}
+      boardSize={boardWidth}
+      isDragging={isDragging}
+      isHandleHovered={isHandleHovered}
+      setIsDragging={setIsDragging}
+      setIsHandleHovered={setIsHandleHovered}
+      containerRef={containerRef}
+      footerLeft={phaseTitle(mode, currentChunk)}
+      footerRight={`${boardWidth}px`}
+      boardId="TwoBishopsTrainerBoard"
+      fen={game.fen()}
+      onPieceDrop={onDrop}
+      getLegalTargets={getLegalTargets}
+      boardOrientation={boardOrientation}
+      customSquareStyles={getCustomSquareStyles(lastMove, markedSquares, hintSquares, correctSquares)}
+      arePiecesDraggable={!locked && !allComplete}
+      boardLeft={boardLeft}
+      boardOverlay={boardOverlay}
+      sidePanel={
         <div
           style={{
-            background: '#312e2b',
-            borderRadius: '16px',
-            padding: '14px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            minHeight: boardWidth,
           }}
         >
-          <div
-            style={{
-              background: '#4b4847',
-              borderRadius: '12px',
-              padding: '12px 14px',
-              fontWeight: 700,
-              fontSize: '18px',
-              marginBottom: '10px',
-            }}
-          >
-            ☐ {game.turn() === 'b' ? 'Black to Move' : 'White to Move'}
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontSize: '14px',
-              padding: '0 2px',
-              marginBottom: '8px',
-            }}
-          >
-            <span>{phaseTitle(mode, currentChunk)}</span>
-            <span>{currentPoolTotal === 0 ? 0 : queueIndex + 1} / {Math.max(currentPoolTotal, 0)}</span>
-          </div>
-
-          <div style={panelCardStyle}>
-            <div style={{ fontWeight: 700, marginBottom: '8px' }}>Chunk mastery</div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '6px' }}>
-              <span>{chunkFastSolveCount} / {chunkTarget}</span>
-              <span>{Math.round(progressPercent)}%</span>
+          <PanelCard style={{ padding: '14px 12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div
+                style={{
+                  width: 18,
+                  height: 18,
+                  border: '2px solid #bdbdbd',
+                  boxSizing: 'border-box',
+                  background: game.turn() === 'b' ? '#111111' : '#ffffff',
+                }}
+              />
+              <div style={{ fontSize: 16, fontWeight: 700 }}>
+                {game.turn() === 'b' ? 'Black to Move' : 'White to Move'}
+              </div>
             </div>
+          </PanelCard>
+
+          <PanelCard>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: 10,
+                fontSize: 13,
+                marginBottom: 8,
+              }}
+            >
+              <div style={{ color: '#e6e6e6', fontWeight: 700 }}>
+                {phaseTitle(mode, currentChunk)}
+              </div>
+              <div style={{ color: '#d3d3d3' }}>
+                {currentPoolTotal === 0 ? 0 : queueIndex + 1} / {Math.max(currentPoolTotal, 0)}
+              </div>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 13,
+                marginBottom: 6,
+              }}
+            >
+              <div style={{ color: '#dcdcdc', fontWeight: 700 }}>Chunk mastery</div>
+              <div style={{ color: '#f1f1f1', fontWeight: 700 }}>
+                {chunkFastSolveCount} / {chunkTarget}
+              </div>
+            </div>
+
             <div style={progressTrackStyle}>
               <div style={{ width: `${progressPercent}%`, height: '100%', background: '#81b64c' }} />
             </div>
-            <div style={{ fontSize: '13px', color: '#cfcfcf', display: 'flex', justifyContent: 'space-between' }}>
-              <span>{solvedInCurrent} / {currentPoolTotal} puzzles mastered</span>
-              <span>5 fast solves each</span>
-            </div>
-          </div>
 
-          <div style={panelCardStyle}>
-            <div style={{ fontWeight: 700, marginBottom: '8px' }}>This puzzle</div>
-            <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 12,
+                color: '#c5c5c5',
+              }}
+            >
+              <div>{solvedInCurrent} / {currentPoolTotal} puzzles mastered</div>
+              <div>5 fast solves each</div>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>This puzzle</SectionTitle>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, 1fr)',
+                gap: 6,
+                marginBottom: 8,
+              }}
+            >
               {Array.from({ length: FAST_SOLVES_TO_MASTER }).map((_, i) => (
                 <div
                   key={i}
                   style={{
-                    flex: 1,
-                    height: '8px',
+                    height: 8,
                     borderRadius: '999px',
                     background: i < (currentProgress?.fastSolves ?? 0) ? '#81b64c' : '#4b4847',
                   }}
                 />
               ))}
             </div>
-            <div style={{ fontSize: '13px', color: '#cfcfcf', display: 'flex', justifyContent: 'space-between' }}>
-              <span>{currentProgress?.fastSolves ?? 0} / {FAST_SOLVES_TO_MASTER} fast solves</span>
-              <span>Fast = every move ≤ {MAX_SECONDS_PER_MOVE}s</span>
+
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 12,
+                color: '#c5c5c5',
+              }}
+            >
+              <div>{currentProgress?.fastSolves ?? 0} / {FAST_SOLVES_TO_MASTER} fast solves</div>
+              <div>Fast = every move ≤ {MAX_SECONDS_PER_MOVE}s</div>
             </div>
-          </div>
+          </PanelCard>
 
-          <div
-            style={{
-              textAlign: 'center',
-              fontSize: '34px',
-              fontWeight: 700,
-              color: currentMoveElapsedMs <= MAX_SECONDS_PER_MOVE * 1000 ? '#ffb347' : '#ff6b6b',
-              margin: '8px 0 6px',
-            }}
-          >
-            {(currentMoveElapsedMs / 1000).toFixed(1)}s
-          </div>
-
-          <div
-            style={{
-              textAlign: 'center',
-              fontSize: '14px',
-              color: '#cfcfcf',
-              marginBottom: '14px',
-            }}
-          >
-            Timer for current move
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(10, 1fr)',
-              gap: '4px',
-              marginBottom: '14px',
-            }}
-          >
-            {poolIds.map((id, i) => {
-              const stats = getPuzzleProgress(progressMap, id)
-              const isCurrent = i === currentPuzzleIndex
-              const isFlashing = flashSolvedId === id
-
-              let background = '#4b4847'
-              let border = '1px solid transparent'
-              let boxShadow = 'none'
-
-              if (stats.mastered) background = '#81b64c'
-              else if (isFlashing) {
-                background = '#d8ff8a'
-                boxShadow = '0 0 10px rgba(216,255,138,0.65)'
-              }
-
-              if (isCurrent) {
-                border = '1px solid #ffd54a'
-                if (!stats.mastered && !isFlashing) background = '#6a6238'
-              }
-
-              return (
-                <div
-                  key={id}
-                  title={`${i + 1} | fast ${stats.fastSolves}/5${stats.mastered ? ' | mastered' : ''}`}
-                  style={{
-                    height: '14px',
-                    borderRadius: '3px',
-                    background,
-                    border,
-                    boxShadow,
-                    transition: 'all 0.2s ease',
-                  }}
-                />
-              )
-            })}
-          </div>
-
-          <div
-            style={{
-              textAlign: 'center',
-              fontWeight: 700,
-              fontSize: '26px',
-              marginBottom: '14px',
-            }}
-          >
-            {status || getCurrentPrompt()}
-          </div>
-
-          <div style={panelCardStyle}>
-            <div><strong>Section:</strong> {mode.kind === 'phase1' ? currentChunk?.label : currentFreeplaySet?.label}</div>
-            <div><strong>Mode:</strong> {phaseTitle(mode, currentChunk)}</div>
-            <div><strong>Puzzle solves:</strong> {currentProgress?.fastSolves ?? 0} / 5</div>
-            <div><strong>Total solves:</strong> {currentProgress?.totalSolves ?? 0}</div>
-            {mode.kind === 'phase1' ? (
-              <>
-                <div><strong>Step:</strong> {activeSteps.length > 0 ? `${stepIndex + 1} / ${activeSteps.length}` : '-'}</div>
-                <div><strong>Line:</strong> {currentPuzzle?.lineId ?? '-'}</div>
-              </>
-            ) : (
-              <div><strong>Freeplay:</strong> real engine</div>
-            )}
-            <div><strong>Engine:</strong> {engineReady ? 'ready' : 'loading'}</div>
-            <div>
-              <strong>Eval:</strong>{' '}
-              {engineInfo?.mate !== null && engineInfo?.mate !== undefined
-                ? `Mate ${engineInfo.mate}`
-                : engineInfo?.eval !== null && engineInfo?.eval !== undefined
-                  ? `${engineInfo.eval > 0 ? '+' : ''}${engineInfo.eval}`
-                  : '-'}
-            </div>
-            <div><strong>Best:</strong> {engineInfo?.bestMove ?? '-'}</div>
-            <div><strong>Mate distance:</strong> {getEngineMateDistanceText(engineInfo)}</div>
-            <div><strong>WK:</strong> {wkSquare || '-'} | <strong>BK:</strong> {bkSquare || '-'}</div>
-            <div><strong>Bishops:</strong> {bishopSquares.join(', ') || '-'}</div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-            <button onClick={() => void resetPuzzle()} style={{ ...primaryButton('#4b4847'), flex: 1 }}>
-              Restart
-            </button>
-            <button onClick={() => void showHint()} style={{ ...primaryButton('#3d6d8a'), flex: 1 }}>
-              Hint
-            </button>
-            <button onClick={() => void nextPuzzle()} style={{ ...primaryButton('#81b64c'), flex: 1 }}>
-              Next
-            </button>
-          </div>
-
-          <div style={{ fontSize: '13px', color: '#bfbfbf', display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span>{phaseTitle(mode, currentChunk)}</span>
-            <span>{boardWidth}px</span>
-          </div>
-
-          <input
-            type="range"
-            min={420}
-            max={760}
-            step={10}
-            value={boardWidth}
-            onChange={(e) => setBoardWidth(Number(e.target.value))}
-            style={{ width: '100%' }}
+          <BigMessage
+            streak={`⏱ ${(currentMoveElapsedMs / 1000).toFixed(1)}s`}
+            message={status || getCurrentPrompt()}
           />
 
-          <div style={panelCardStyle}>
-            <div style={{ fontWeight: 700, marginBottom: '6px' }}>{getCurrentPrompt()}</div>
+          <PanelCard>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(10, 1fr)',
+                gap: 4,
+              }}
+            >
+              {poolIds.map((id, i) => {
+                const stats = getPuzzleProgress(progressMap, id)
+                const isCurrent = i === currentPuzzleIndex
+                const isFlashing = flashSolvedId === id
+
+                let background = '#4b4847'
+                let border = '1px solid transparent'
+                let boxShadow = 'none'
+
+                if (stats.mastered) background = '#81b64c'
+                else if (isFlashing) {
+                  background = '#d8ff8a'
+                  boxShadow = '0 0 10px rgba(216,255,138,0.65)'
+                }
+
+                if (isCurrent) {
+                  border = '1px solid #ffd54a'
+                  if (!stats.mastered && !isFlashing) background = '#6a6238'
+                }
+
+                return (
+                  <div
+                    key={id}
+                    title={`${i + 1} | fast ${stats.fastSolves}/5${stats.mastered ? ' | mastered' : ''}`}
+                    style={{
+                      height: 14,
+                      borderRadius: 3,
+                      background,
+                      border,
+                      boxShadow,
+                      transition: 'all 0.2s ease',
+                    }}
+                  />
+                )
+              })}
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Puzzle info</SectionTitle>
+            <div style={{ fontSize: 12, color: '#d0d0d0', lineHeight: 1.55 }}>
+              <div>Section: {mode.kind === 'phase1' ? currentChunk?.label : currentFreeplaySet?.label}</div>
+              <div>Mode: {phaseTitle(mode, currentChunk)}</div>
+              <div>Puzzle solves: {currentProgress?.fastSolves ?? 0} / 5</div>
+              <div>Total solves: {currentProgress?.totalSolves ?? 0}</div>
+              {mode.kind === 'phase1' ? (
+                <>
+                  <div>Step: {activeSteps.length > 0 ? `${stepIndex + 1} / ${activeSteps.length}` : '-'}</div>
+                  <div>Line: {currentPuzzle?.lineId ?? '-'}</div>
+                </>
+              ) : (
+                <div>Freeplay: real engine</div>
+              )}
+              <div>Engine: {engineReady ? 'ready' : 'loading'}</div>
+              <div>
+                Eval:{' '}
+                {engineInfo?.mate !== null && engineInfo?.mate !== undefined
+                  ? `Mate ${engineInfo.mate}`
+                  : engineInfo?.eval !== null && engineInfo?.eval !== undefined
+                    ? `${engineInfo.eval > 0 ? '+' : ''}${engineInfo.eval}`
+                    : '-'}
+              </div>
+              <div>Best: {engineInfo?.bestMove ?? '-'}</div>
+              <div>Mate distance: {getEngineMateDistanceText(engineInfo)}</div>
+              <div>WK: {wkSquare || '-'} | BK: {bkSquare || '-'}</div>
+              <div>Bishops: {bishopSquares.join(', ') || '-'}</div>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Actions</SectionTitle>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <button onClick={() => void showHint()} style={primaryButton('#3d6d8a')}>
+                Hint
+              </button>
+
+              <button onClick={() => void resetPuzzle()} style={primaryButton('#4b4847')}>
+                Restart position
+              </button>
+
+              <button onClick={() => void nextPuzzle()} style={primaryButton('#81b64c')}>
+                Next puzzle
+              </button>
+
+              <button onClick={() => void shuffleCurrent()} style={primaryButton('#4b4847')}>
+                Shuffle
+              </button>
+
+              <button onClick={() => void restartChunk()} style={primaryButton('#8a5a3d')}>
+                Restart chunk
+              </button>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Navigation</SectionTitle>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => void prevModeOrChunk()} style={{ ...primaryButton('#666'), flex: 1 }}>
+                Prev chunk
+              </button>
+              <button onClick={() => void nextModeOrChunk()} style={{ ...primaryButton('#666'), flex: 1 }}>
+                Next chunk
+              </button>
+            </div>
+          </PanelCard>
+
+          <PanelCard>
+            <SectionTitle>Message</SectionTitle>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>{getCurrentPrompt()}</div>
             {message ? <div style={{ color: '#d6d6d6', lineHeight: 1.5 }}>{message}</div> : null}
             {shouldAllowWaitingMoveOverride() ? (
-              <div style={{ color: '#9e9e9e', marginTop: '8px', fontSize: '12px' }}>
+              <div style={{ color: '#9e9e9e', marginTop: 8, fontSize: 12 }}>
                 Long-line rule: first move may be any bishop waiting move to a1, b2, c3, d4, e5, or h8.
               </div>
             ) : null}
-          </div>
+          </PanelCard>
         </div>
-
-        <div />
-      </div>
-    </div>
+      }
+    />
   )
 }
 

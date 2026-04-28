@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { Chessboard } from 'react-chessboard'
+import { supabase } from './lib/supabase'
 
 type SideMode = 'white' | 'black'
 type TrainerMode = 'find-square' | 'name-square' | 'name-color'
-type Status = 'idle' | 'correct' | 'wrong' | 'chunk-complete' | 'course-complete'
+type Status =
+  | 'idle'
+  | 'correct'
+  | 'wrong'
+  | 'chunk-complete'
+  | 'course-complete'
 
 type Chunk = {
   id: string
@@ -22,6 +28,9 @@ const ODD_FILES = ['b', 'd', 'f', 'h']
 
 const FAST_SECONDS = 1.5
 const FAST_SOLVES_TO_MASTER = 5
+const COURSE_NAME = 'vision'
+const PROGRESS_KEY_PREFIX = 'boardvision_progress_v2'
+const SIDE_STORAGE_KEY = `${PROGRESS_KEY_PREFIX}::active-side`
 
 function sq(file: string, rank: number) {
   return `${file}${rank}`
@@ -62,7 +71,11 @@ function shuffleArray<T>(items: T[]) {
   return arr
 }
 
-function pickRandomSquare(pool: string[], exclude?: string | null, weakestSquares?: string[]) {
+function pickRandomSquare(
+  pool: string[],
+  exclude?: string | null,
+  weakestSquares?: string[]
+) {
   let candidates = [...pool]
 
   if (weakestSquares && weakestSquares.length > 0) {
@@ -91,8 +104,21 @@ function rankLabel(ranks: number[]) {
   return ranks.join('')
 }
 
-function getProgressKey(mode: TrainerMode, chunkId: string, squareName: string) {
-  return `${mode}::${chunkId}::${squareName}`
+function getProgressKey(
+  mode: TrainerMode,
+  side: SideMode,
+  chunkId: string,
+  squareName: string
+) {
+  return `${mode}::${side}::${chunkId}::${squareName}`
+}
+
+function getStorageKey(mode: TrainerMode, side: SideMode) {
+  return `${PROGRESS_KEY_PREFIX}::${mode}::${side}`
+}
+
+function getSupabaseTheme(mode: TrainerMode, side: SideMode) {
+  return `boardvision_${mode}_${side}`
 }
 
 function shouldSkipChunkInNameColor(chunk: Chunk) {
@@ -265,10 +291,18 @@ function buildRankQuadChunks(): Chunk[] {
 
 function buildColorChunks(): Chunk[] {
   const allSquares = FILES.flatMap((file) => RANKS.map((rank) => sq(file, rank)))
-  const lightSquares = allSquares.filter((squareName) => getSquareColor(squareName) === 'white')
-  const darkSquares = allSquares.filter((squareName) => getSquareColor(squareName) === 'black')
-  const queenside = allSquares.filter((squareName) => ['a', 'b', 'c', 'd'].includes(squareName[0]))
-  const kingside = allSquares.filter((squareName) => ['e', 'f', 'g', 'h'].includes(squareName[0]))
+  const lightSquares = allSquares.filter(
+    (squareName) => getSquareColor(squareName) === 'white'
+  )
+  const darkSquares = allSquares.filter(
+    (squareName) => getSquareColor(squareName) === 'black'
+  )
+  const queenside = allSquares.filter((squareName) =>
+    ['a', 'b', 'c', 'd'].includes(squareName[0])
+  )
+  const kingside = allSquares.filter((squareName) =>
+    ['e', 'f', 'g', 'h'].includes(squareName[0])
+  )
 
   return [
     {
@@ -318,34 +352,50 @@ function buildHalfChunks(): Chunk[] {
       id: 'half-queenside',
       label: 'Queenside',
       phase: 'Halves',
-      squares: allSquares.filter((squareName) => ['a', 'b', 'c', 'd'].includes(squareName[0])),
+      squares: allSquares.filter((squareName) =>
+        ['a', 'b', 'c', 'd'].includes(squareName[0])
+      ),
     },
     {
       id: 'half-kingside',
       label: 'Kingside',
       phase: 'Halves',
-      squares: allSquares.filter((squareName) => ['e', 'f', 'g', 'h'].includes(squareName[0])),
+      squares: allSquares.filter((squareName) =>
+        ['e', 'f', 'g', 'h'].includes(squareName[0])
+      ),
     },
     {
       id: 'half-top',
       label: 'Top half',
       phase: 'Halves',
-      squares: allSquares.filter((squareName) => ['5', '6', '7', '8'].includes(squareName[1])),
+      squares: allSquares.filter((squareName) =>
+        ['5', '6', '7', '8'].includes(squareName[1])
+      ),
     },
     {
       id: 'half-bottom',
       label: 'Bottom half',
       phase: 'Halves',
-      squares: allSquares.filter((squareName) => ['1', '2', '3', '4'].includes(squareName[1])),
+      squares: allSquares.filter((squareName) =>
+        ['1', '2', '3', '4'].includes(squareName[1])
+      ),
     },
   ]
 }
 
 function buildQuadrantChunks(): Chunk[] {
-  const topLeft = ['a', 'b', 'c', 'd'].flatMap((file) => [5, 6, 7, 8].map((rank) => sq(file, rank)))
-  const topRight = ['e', 'f', 'g', 'h'].flatMap((file) => [5, 6, 7, 8].map((rank) => sq(file, rank)))
-  const bottomLeft = ['a', 'b', 'c', 'd'].flatMap((file) => [1, 2, 3, 4].map((rank) => sq(file, rank)))
-  const bottomRight = ['e', 'f', 'g', 'h'].flatMap((file) => [1, 2, 3, 4].map((rank) => sq(file, rank)))
+  const topLeft = ['a', 'b', 'c', 'd'].flatMap((file) =>
+    [5, 6, 7, 8].map((rank) => sq(file, rank))
+  )
+  const topRight = ['e', 'f', 'g', 'h'].flatMap((file) =>
+    [5, 6, 7, 8].map((rank) => sq(file, rank))
+  )
+  const bottomLeft = ['a', 'b', 'c', 'd'].flatMap((file) =>
+    [1, 2, 3, 4].map((rank) => sq(file, rank))
+  )
+  const bottomRight = ['e', 'f', 'g', 'h'].flatMap((file) =>
+    [1, 2, 3, 4].map((rank) => sq(file, rank))
+  )
 
   return [
     {
@@ -533,7 +583,12 @@ function buildDiagonalChunks(): Chunk[] {
       id: `diag-quad-${i + 1}`,
       label: `Diagonal group ${i + 1}`,
       phase: 'Diagonals · groups of 4',
-      squares: uniqueSquares([...lines[i], ...lines[i + 1], ...lines[i + 2], ...lines[i + 3]]),
+      squares: uniqueSquares([
+        ...lines[i],
+        ...lines[i + 1],
+        ...lines[i + 2],
+        ...lines[i + 3],
+      ]),
     })
   }
 
@@ -543,7 +598,9 @@ function buildDiagonalChunks(): Chunk[] {
 function buildGeometryChunks(): Chunk[] {
   const allSquares = FILES.flatMap((file) => RANKS.map((rank) => sq(file, rank)))
   const fourCenter = ['d4', 'd5', 'e4', 'e5']
-  const sixteenCenter = ['c', 'd', 'e', 'f'].flatMap((file) => [3, 4, 5, 6].map((rank) => sq(file, rank)))
+  const sixteenCenter = ['c', 'd', 'e', 'f'].flatMap((file) =>
+    [3, 4, 5, 6].map((rank) => sq(file, rank))
+  )
   const corners = ['a1', 'a8', 'h1', 'h8']
   const edges = allSquares.filter(
     (squareName) =>
@@ -688,13 +745,20 @@ function buildCourseChunks(): Chunk[] {
 const COURSE_CHUNKS = buildCourseChunks()
 
 export default function BoardVisionPage() {
-  const [sideMode, setSideMode] = useState<SideMode>('white')
+  const [sideMode, setSideMode] = useState<SideMode>(() => {
+    try {
+      const saved = localStorage.getItem(SIDE_STORAGE_KEY)
+      return saved === 'black' ? 'black' : 'white'
+    } catch {
+      return 'white'
+    }
+  })
   const [trainerMode, setTrainerMode] = useState<TrainerMode>('find-square')
   const [chunkIndex, setChunkIndex] = useState(0)
   const [targetSquare, setTargetSquare] = useState('')
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
   const [status, setStatus] = useState<Status>('idle')
-  const [statusText, setStatusText] = useState('Click Start to begin')
+  const [statusText, setStatusText] = useState('Loading progress...')
   const [isStarted, setIsStarted] = useState(false)
   const [targetVisible, setTargetVisible] = useState(true)
   const [solveStartedAt, setSolveStartedAt] = useState<number | null>(null)
@@ -702,6 +766,7 @@ export default function BoardVisionPage() {
   const [totalAttempts, setTotalAttempts] = useState(0)
   const [totalCorrect, setTotalCorrect] = useState(0)
   const [progressMap, setProgressMap] = useState<Record<string, number>>({})
+  const [progressLoaded, setProgressLoaded] = useState(false)
   const [jumpValue, setJumpValue] = useState('')
   const [typedAnswer, setTypedAnswer] = useState('')
   const [expandedPhases, setExpandedPhases] = useState<Record<string, boolean>>({})
@@ -711,13 +776,19 @@ export default function BoardVisionPage() {
   const targetSwapTimerRef = useRef<number | null>(null)
 
   const chunks = useMemo(() => COURSE_CHUNKS, [])
-  const visibleChunks = useMemo(() => getVisibleChunks(chunks, trainerMode), [chunks, trainerMode])
+  const visibleChunks = useMemo(
+    () => getVisibleChunks(chunks, trainerMode),
+    [chunks, trainerMode]
+  )
 
   const currentChunk = visibleChunks[chunkIndex]
   const currentPool = currentChunk?.squares ?? []
 
   const groupedChunks = useMemo(() => {
-    const map = new Map<string, { phase: string; items: Array<{ chunk: Chunk; index: number }> }>()
+    const map = new Map<
+      string,
+      { phase: string; items: Array<{ chunk: Chunk; index: number }> }
+    >()
 
     visibleChunks.forEach((chunk, index) => {
       if (!map.has(chunk.phase)) {
@@ -738,43 +809,64 @@ export default function BoardVisionPage() {
   const currentChunkFastTotal = useMemo(() => {
     if (!currentChunk) return 0
     return currentPool.reduce((sum, squareName) => {
-      return sum + (progressMap[getProgressKey(trainerMode, currentChunk.id, squareName)] ?? 0)
+      return (
+        sum +
+        (progressMap[getProgressKey(trainerMode, sideMode, currentChunk.id, squareName)] ??
+          0)
+      )
     }, 0)
-  }, [currentChunk, currentPool, progressMap, trainerMode])
+  }, [currentChunk, currentPool, progressMap, trainerMode, sideMode])
 
   const weakestSquares = useMemo(() => {
     if (!currentChunk || currentPool.length === 0) return []
 
     const minValue = Math.min(
       ...currentPool.map(
-        (squareName) => progressMap[getProgressKey(trainerMode, currentChunk.id, squareName)] ?? 0
+        (squareName) =>
+          progressMap[getProgressKey(trainerMode, sideMode, currentChunk.id, squareName)] ??
+          0
       )
     )
 
     return shuffleArray(
       currentPool.filter(
         (squareName) =>
-          (progressMap[getProgressKey(trainerMode, currentChunk.id, squareName)] ?? 0) === minValue
+          (progressMap[
+            getProgressKey(trainerMode, sideMode, currentChunk.id, squareName)
+          ] ?? 0) === minValue
       )
     )
-  }, [currentChunk, currentPool, progressMap, trainerMode])
+  }, [currentChunk, currentPool, progressMap, trainerMode, sideMode])
 
   const masteredSquaresCount = useMemo(() => {
     if (!currentChunk) return 0
     return currentPool.filter(
       (squareName) =>
-        (progressMap[getProgressKey(trainerMode, currentChunk.id, squareName)] ?? 0) >=
-        FAST_SOLVES_TO_MASTER
+        (progressMap[
+          getProgressKey(trainerMode, sideMode, currentChunk.id, squareName)
+        ] ?? 0) >= FAST_SOLVES_TO_MASTER
     ).length
-  }, [currentChunk, currentPool, progressMap, trainerMode])
+  }, [currentChunk, currentPool, progressMap, trainerMode, sideMode])
 
   const chunkPercent =
     totalNeededForChunk === 0
       ? 0
       : Math.min(100, Math.round((currentChunkFastTotal / totalNeededForChunk) * 100))
 
+  const completedChunkCount = useMemo(() => {
+    return visibleChunks.filter((chunk) =>
+      chunk.squares.every(
+        (squareName) =>
+          (progressMap[getProgressKey(trainerMode, sideMode, chunk.id, squareName)] ??
+            0) >= FAST_SOLVES_TO_MASTER
+      )
+    ).length
+  }, [visibleChunks, progressMap, trainerMode, sideMode])
+
   const coursePercent =
-    visibleChunks.length === 0 ? 0 : Math.round((chunkIndex / visibleChunks.length) * 100)
+    visibleChunks.length === 0
+      ? 0
+      : Math.round((completedChunkCount / visibleChunks.length) * 100)
 
   const squareStyles = useMemo(() => {
     const styles: Record<string, CSSProperties> = {}
@@ -798,6 +890,14 @@ export default function BoardVisionPage() {
   }, [selectedSquare, status, targetSquare, trainerMode])
 
   useEffect(() => {
+    try {
+      localStorage.setItem(SIDE_STORAGE_KEY, sideMode)
+    } catch {
+      // ignore
+    }
+  }, [sideMode])
+
+  useEffect(() => {
     return () => {
       if (flashTimerRef.current) window.clearTimeout(flashTimerRef.current)
       if (revealTimerRef.current) window.clearTimeout(revealTimerRef.current)
@@ -806,12 +906,143 @@ export default function BoardVisionPage() {
   }, [])
 
   useEffect(() => {
+    async function bootModeProgress() {
+      clearFlashTimer()
+      clearTargetTimers()
+      setTypedAnswer('')
+      setSelectedSquare(null)
+      setLastSolveSeconds(null)
+      setStatus('idle')
+      setTargetSquare('')
+      setSolveStartedAt(null)
+      setIsStarted(false)
+      setChunkIndex(0)
+      setProgressLoaded(false)
+      setStatusText('Loading progress...')
+
+      let localProgress: Record<string, number> = {}
+      const storageKey = getStorageKey(trainerMode, sideMode)
+      const raw = localStorage.getItem(storageKey)
+
+      if (raw) {
+        try {
+          localProgress = JSON.parse(raw) as Record<string, number>
+        } catch {
+          localProgress = {}
+        }
+      }
+
+      const mergedProgress: Record<string, number> = { ...localProgress }
+
+      const { data: authData } = await supabase.auth.getUser()
+      const user = authData.user
+
+      if (user) {
+        const { data, error } = await supabase
+          .from('training_progress')
+          .select('item_id, mastery')
+          .eq('user_id', user.id)
+          .eq('course', COURSE_NAME)
+          .eq('theme', getSupabaseTheme(trainerMode, sideMode))
+
+        if (!error && data) {
+          for (const row of data) {
+            const itemId = String(row.item_id ?? '')
+            const mastery = Number(row.mastery ?? 0)
+            if (!itemId) continue
+            mergedProgress[itemId] = Math.max(mergedProgress[itemId] ?? 0, mastery)
+          }
+        }
+      }
+
+      setProgressMap(mergedProgress)
+      setProgressLoaded(true)
+    }
+
+    void bootModeProgress()
+  }, [trainerMode, sideMode])
+
+  useEffect(() => {
+    if (!progressLoaded) return
+
+    const storageKey = getStorageKey(trainerMode, sideMode)
+    localStorage.setItem(storageKey, JSON.stringify(progressMap))
+
+    async function saveProgressToSupabase() {
+      const { data: authData } = await supabase.auth.getUser()
+      const user = authData.user
+      if (!user) return
+
+      const rows = Object.entries(progressMap).map(([itemId, mastery]) => ({
+        user_id: user.id,
+        course: COURSE_NAME,
+        theme: getSupabaseTheme(trainerMode, sideMode),
+        item_id: itemId,
+        mastery,
+        updated_at: new Date().toISOString(),
+      }))
+
+      if (rows.length === 0) return
+
+      const { error } = await supabase.from('training_progress').upsert(rows, {
+        onConflict: 'user_id,course,theme,item_id',
+      })
+
+      if (error) {
+        console.error('Failed to save BoardVision progress:', error)
+      }
+    }
+
+    void saveProgressToSupabase()
+  }, [progressMap, progressLoaded, trainerMode, sideMode])
+
+  useEffect(() => {
+    if (!progressLoaded || visibleChunks.length === 0) return
+
+    const firstIncomplete = visibleChunks.findIndex((chunk) =>
+      chunk.squares.some(
+        (squareName) =>
+          (progressMap[getProgressKey(trainerMode, sideMode, chunk.id, squareName)] ??
+            0) < FAST_SOLVES_TO_MASTER
+      )
+    )
+
+    clearFlashTimer()
+    clearTargetTimers()
     setTypedAnswer('')
     setSelectedSquare(null)
     setLastSolveSeconds(null)
+
+    if (firstIncomplete === -1) {
+      if (sideMode === 'white') {
+        setSideMode('black')
+        setStatusText('White course complete. Switching to Black...')
+        return
+      }
+
+      setChunkIndex(Math.max(0, visibleChunks.length - 1))
+      setTargetSquare('')
+      setSolveStartedAt(null)
+      setIsStarted(true)
+      setStatus('course-complete')
+      setStatusText('Course complete')
+      return
+    }
+
+    const nextChunk = visibleChunks[firstIncomplete]
+    const nextTarget = pickRandomSquare(nextChunk.squares)
+
+    setChunkIndex(firstIncomplete)
+    setTargetSquare(nextTarget)
+    setSolveStartedAt(performance.now())
+    setIsStarted(true)
+    setTargetVisible(true)
     setStatus('idle')
-    setChunkIndex(0)
-  }, [trainerMode])
+    setStatusText(
+      `Resumed: ${nextChunk.label} (${sideMode === 'white' ? 'White' : 'Black'})`
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progressLoaded, trainerMode, sideMode, visibleChunks.length])
 
   useEffect(() => {
     function onKeyDown(event: globalThis.KeyboardEvent) {
@@ -915,7 +1146,22 @@ export default function BoardVisionPage() {
 
     if (!chunk || pool.length === 0) return
 
-    const picked = nextTarget ?? pickRandomSquare(pool, targetSquare, weakestSquares)
+    const chunkWeakestSquares = shuffleArray(
+      pool.filter((squareName) => {
+        const minValue = Math.min(
+          ...pool.map(
+            (item) => progressMap[getProgressKey(trainerMode, sideMode, chunk.id, item)] ?? 0
+          )
+        )
+        return (
+          (progressMap[getProgressKey(trainerMode, sideMode, chunk.id, squareName)] ??
+            0) === minValue
+        )
+      })
+    )
+
+    const picked =
+      nextTarget ?? pickRandomSquare(pool, targetSquare, chunkWeakestSquares)
 
     clearTargetTimers()
     resetPerQuestionUi()
@@ -937,7 +1183,7 @@ export default function BoardVisionPage() {
     setProgressMap((prev) => {
       const next = { ...prev }
       for (const squareName of currentChunk.squares) {
-        next[getProgressKey(trainerMode, currentChunk.id, squareName)] = 0
+        next[getProgressKey(trainerMode, sideMode, currentChunk.id, squareName)] = 0
       }
       return next
     })
@@ -973,7 +1219,9 @@ export default function BoardVisionPage() {
   function jumpToChunk(index: number) {
     beginChunk(
       index,
-      `Jumped to chunk ${index + 1}: ${visibleChunks[Math.max(0, Math.min(index, visibleChunks.length - 1))].label}`
+      `Jumped to chunk ${index + 1}: ${
+        visibleChunks[Math.max(0, Math.min(index, visibleChunks.length - 1))].label
+      }`
     )
   }
 
@@ -990,10 +1238,34 @@ export default function BoardVisionPage() {
   }
 
   function handleStart() {
+    if (!progressLoaded) return
+
+    const firstIncomplete = visibleChunks.findIndex((chunk) =>
+      chunk.squares.some(
+        (squareName) =>
+          (progressMap[getProgressKey(trainerMode, sideMode, chunk.id, squareName)] ??
+            0) < FAST_SOLVES_TO_MASTER
+      )
+    )
+
+    if (firstIncomplete === -1) {
+      if (sideMode === 'white') {
+        setSideMode('black')
+        return
+      }
+
+      setStatus('course-complete')
+      setStatusText('Course complete')
+      setTargetSquare('')
+      setSelectedSquare(null)
+      setSolveStartedAt(null)
+      setIsStarted(true)
+      return
+    }
+
     setTotalAttempts(0)
     setTotalCorrect(0)
-    setProgressMap({})
-    beginChunk(0, 'Course started')
+    beginChunk(firstIncomplete, 'Course started')
   }
 
   function handleRestartChunk() {
@@ -1004,6 +1276,16 @@ export default function BoardVisionPage() {
   function goToNextChunk() {
     const nextIndex = chunkIndex + 1
     if (nextIndex >= visibleChunks.length) {
+      if (sideMode === 'white') {
+        setStatus('chunk-complete')
+        setStatusText('White course complete. Switching to Black...')
+        clearFlashTimer()
+        flashTimerRef.current = window.setTimeout(() => {
+          setSideMode('black')
+        }, 900)
+        return
+      }
+
       setStatus('course-complete')
       setStatusText('Course complete')
       setTargetSquare('')
@@ -1012,7 +1294,10 @@ export default function BoardVisionPage() {
       return
     }
 
-    beginChunk(nextIndex, `Next chunk started: ${visibleChunks[nextIndex].label}`)
+    beginChunk(
+      nextIndex,
+      `Next chunk started: ${visibleChunks[nextIndex].label}`
+    )
   }
 
   function completeAttempt(correct: boolean, wrongMessage: string, selected?: string) {
@@ -1047,7 +1332,7 @@ export default function BoardVisionPage() {
       return
     }
 
-    const key = getProgressKey(trainerMode, currentChunk.id, targetSquare)
+    const key = getProgressKey(trainerMode, sideMode, currentChunk.id, targetSquare)
     const currentFast = progressMap[key] ?? 0
     const nextFast = Math.min(FAST_SOLVES_TO_MASTER, currentFast + 1)
 
@@ -1058,13 +1343,33 @@ export default function BoardVisionPage() {
 
     const chunkCompleted = currentPool.every(
       (squareValue) =>
-        (nextMap[getProgressKey(trainerMode, currentChunk.id, squareValue)] ?? 0) >=
-        FAST_SOLVES_TO_MASTER
+        (nextMap[
+          getProgressKey(trainerMode, sideMode, currentChunk.id, squareValue)
+        ] ?? 0) >= FAST_SOLVES_TO_MASTER
     )
 
     setProgressMap(nextMap)
 
     if (chunkCompleted) {
+      if (chunkIndex >= visibleChunks.length - 1) {
+        if (sideMode === 'white') {
+          setStatus('chunk-complete')
+          setStatusText('White course complete. Switching to Black...')
+          clearFlashTimer()
+          flashTimerRef.current = window.setTimeout(() => {
+            setSideMode('black')
+          }, 900)
+          return
+        }
+
+        setStatus('course-complete')
+        setStatusText('Course complete')
+        setTargetSquare('')
+        setSelectedSquare(null)
+        setSolveStartedAt(null)
+        return
+      }
+
       setStatus('chunk-complete')
       setStatusText(`Chunk complete: ${currentChunk.label}`)
       clearFlashTimer()
@@ -1150,7 +1455,8 @@ export default function BoardVisionPage() {
     completeAttempt(true, '', targetSquare)
   }
 
-  const accuracy = totalAttempts === 0 ? 0 : Math.round((totalCorrect / totalAttempts) * 100)
+  const accuracy =
+    totalAttempts === 0 ? 0 : Math.round((totalCorrect / totalAttempts) * 100)
 
   const promptTitle =
     trainerMode === 'find-square'
@@ -1317,29 +1623,65 @@ export default function BoardVisionPage() {
               }}
             >
               <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  onClick={() => setSideMode('white')}
+                <div
                   style={{
                     ...pillStyle,
-                    ...(sideMode === 'white' ? activePillStyle : {}),
+                    ...activePillStyle,
+                    cursor: 'default',
                   }}
                 >
-                  White
-                </button>
-
-                <button
-                  onClick={() => setSideMode('black')}
-                  style={{
-                    ...pillStyle,
-                    ...(sideMode === 'black' ? activePillStyle : {}),
-                  }}
-                >
-                  Black
-                </button>
+                  {sideMode === 'white' ? 'White course' : 'Black course'}
+                </div>
               </div>
 
               <div style={{ color: '#94a3b8', fontSize: 13 }}>
-                Black course = same course, flipped board
+                Full White pass first, then full Black pass
+              </div>
+            </div>
+
+            <div
+              style={{
+                marginBottom: 14,
+                padding: '14px 16px',
+                borderRadius: 16,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  color: '#94a3b8',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  marginBottom: 6,
+                }}
+              >
+                Current chunk
+              </div>
+
+              <div
+                style={{
+                  color: '#f9fafb',
+                  fontSize: 28,
+                  fontWeight: 900,
+                  lineHeight: 1.1,
+                }}
+              >
+                {currentChunk?.label ?? '—'}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 6,
+                  color: '#cbd5e1',
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              >
+                {currentChunk?.phase ?? '—'}
               </div>
             </div>
 
@@ -1378,7 +1720,9 @@ export default function BoardVisionPage() {
                   }}
                 >
                   <span>{typedAnswer || 'Type directly: file + rank'}</span>
-                  <span style={{ color: '#94a3b8', fontSize: 12 }}>Enter = submit</span>
+                  <span style={{ color: '#94a3b8', fontSize: 12 }}>
+                    Enter = submit
+                  </span>
                 </div>
 
                 <div style={{ marginTop: 10, color: '#9ca3af', fontSize: 13 }}>
@@ -1448,8 +1792,10 @@ export default function BoardVisionPage() {
               </div>
 
               <div style={infoRowStyle}>
-                <span style={labelStyle}>Side</span>
-                <span style={valueStyle}>{sideMode === 'white' ? 'White' : 'Black'}</span>
+                <span style={labelStyle}>Course side</span>
+                <span style={valueStyle}>
+                  {sideMode === 'white' ? 'White' : 'Black'}
+                </span>
               </div>
 
               <div style={infoRowStyle}>
@@ -1565,17 +1911,21 @@ export default function BoardVisionPage() {
               >
                 {currentPool.map((squareName) => {
                   const count = currentChunk
-                    ? progressMap[getProgressKey(trainerMode, currentChunk.id, squareName)] ?? 0
+                    ? progressMap[
+                        getProgressKey(trainerMode, sideMode, currentChunk.id, squareName)
+                      ] ?? 0
                     : 0
                   const done = count >= FAST_SOLVES_TO_MASTER
 
                   return (
                     <div
-                      key={`${trainerMode}-${currentChunk?.id ?? 'chunk'}-${squareName}`}
+                      key={`${trainerMode}-${sideMode}-${currentChunk?.id ?? 'chunk'}-${squareName}`}
                       style={{
                         padding: '10px 12px',
                         borderRadius: 12,
-                        background: done ? 'rgba(20,83,45,0.5)' : 'rgba(255,255,255,0.04)',
+                        background: done
+                          ? 'rgba(20,83,45,0.5)'
+                          : 'rgba(255,255,255,0.04)',
                         border: done
                           ? '1px solid rgba(34,197,94,0.35)'
                           : '1px solid rgba(255,255,255,0.08)',
@@ -1619,7 +1969,7 @@ export default function BoardVisionPage() {
 
               <div style={progressHeaderStyle}>
                 <span>
-                  {Math.min(chunkIndex + 1, visibleChunks.length)} / {visibleChunks.length}
+                  {completedChunkCount} / {visibleChunks.length}
                 </span>
                 <span>{coursePercent}%</span>
               </div>
@@ -1667,8 +2017,16 @@ export default function BoardVisionPage() {
               >
                 {groupedChunks.map((group) => {
                   const isOpen =
-                    expandedPhases[group.phase] ?? group.items.some((item) => item.index === chunkIndex)
-                  const doneCount = group.items.filter((item) => item.index < chunkIndex).length
+                    expandedPhases[group.phase] ??
+                    group.items.some((item) => item.index === chunkIndex)
+                  const doneCount = group.items.filter(({ chunk }) =>
+                    chunk.squares.every(
+                      (squareName) =>
+                        (progressMap[
+                          getProgressKey(trainerMode, sideMode, chunk.id, squareName)
+                        ] ?? 0) >= FAST_SOLVES_TO_MASTER
+                    )
+                  ).length
 
                   return (
                     <div
@@ -1712,7 +2070,12 @@ export default function BoardVisionPage() {
                         >
                           {group.items.map(({ chunk, index }) => {
                             const active = index === chunkIndex
-                            const completed = index < chunkIndex
+                            const completed = chunk.squares.every(
+                              (squareName) =>
+                                (progressMap[
+                                  getProgressKey(trainerMode, sideMode, chunk.id, squareName)
+                                ] ?? 0) >= FAST_SOLVES_TO_MASTER
+                            )
 
                             return (
                               <button
@@ -1739,13 +2102,21 @@ export default function BoardVisionPage() {
                                 }}
                               >
                                 <span>
-                                  <span style={{ color: '#9ca3af', marginRight: 8 }}>{index + 1}.</span>
-                                  <span style={{ fontWeight: active ? 800 : 600 }}>{chunk.label}</span>
+                                  <span style={{ color: '#9ca3af', marginRight: 8 }}>
+                                    {index + 1}.
+                                  </span>
+                                  <span style={{ fontWeight: active ? 800 : 600 }}>
+                                    {chunk.label}
+                                  </span>
                                 </span>
 
                                 <span
                                   style={{
-                                    color: completed ? '#86efac' : active ? '#93c5fd' : '#9ca3af',
+                                    color: completed
+                                      ? '#86efac'
+                                      : active
+                                      ? '#93c5fd'
+                                      : '#9ca3af',
                                     fontSize: 12,
                                     fontWeight: 700,
                                     textTransform: 'uppercase',
@@ -1767,10 +2138,16 @@ export default function BoardVisionPage() {
 
             <div style={cardStyle}>
               <div style={sectionTitleStyle}>Inside</div>
-              <div style={noteStyle}>Files: single, pairs, triplets, groups of 4, full board</div>
-              <div style={noteStyle}>Ranks: single, pairs, triplets, groups of 4, full board</div>
+              <div style={noteStyle}>
+                Files: single, pairs, triplets, groups of 4, full board
+              </div>
+              <div style={noteStyle}>
+                Ranks: single, pairs, triplets, groups of 4, full board
+              </div>
               <div style={noteStyle}>Colors, halves, quadrants</div>
-              <div style={noteStyle}>Diagonals, geometry, mixed review, final full board</div>
+              <div style={noteStyle}>
+                Diagonals, geometry, mixed review, final full board
+              </div>
             </div>
           </div>
         </div>

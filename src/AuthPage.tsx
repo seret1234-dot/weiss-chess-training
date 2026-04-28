@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties, FormEvent } from "react"
+import { supabase } from "./lib/supabase"
+import { runChessComImport } from "./training/chesscomImport"
 
 type AuthMode = "login" | "signup"
 
@@ -57,7 +59,7 @@ function buttonStyle(background: string): CSSProperties {
 }
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<AuthMode>("signup")
+  const [mode, setMode] = useState<AuthMode>("login")
 
   const [form, setForm] = useState<FormState>({
     email: "",
@@ -66,12 +68,39 @@ export default function AuthPage() {
     lichessUsername: "",
   })
 
-  const [status, setStatus] = useState("Ready for Supabase connection")
+  const [status, setStatus] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const isSubmittingRef = useRef(false)
 
   const title = useMemo(
     () => (mode === "signup" ? "Create your account" : "Log in"),
     [mode]
   )
+
+  useEffect(() => {
+    async function checkSession() {
+      const { data } = await supabase.auth.getSession()
+
+      if (data.session?.user && !isSubmittingRef.current) {
+        window.location.assign("/")
+      }
+    }
+
+    checkSession()
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user && !isSubmittingRef.current) {
+          window.location.assign("/")
+        }
+      }
+    )
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
+  }, [])
 
   function updateField<K extends keyof FormState>(
     key: K,
@@ -80,19 +109,95 @@ export default function AuthPage() {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function runImportAfterSession(username: string) {
+    for (let i = 0; i < 10; i++) {
+      const { data } = await supabase.auth.getSession()
+      const userId = data.session?.user?.id
+
+      if (userId) {
+        await runChessComImport(username, userId)
+        return true
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    }
+
+    return false
+  }
+
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    if (!form.email || !form.password) {
+    if (!form.email.trim() || !form.password) {
       setStatus("Enter email and password")
       return
     }
 
-    setStatus(
-      mode === "signup"
-        ? "Signup ready — connect Supabase next"
-        : "Login ready — connect Supabase next"
-    )
+    setLoading(true)
+    setStatus("")
+    isSubmittingRef.current = true
+
+    try {
+      if (mode === "signup") {
+        const chessComUsername = form.chessComUsername.trim()
+        const lichessUsername = form.lichessUsername.trim()
+
+        const { data, error } = await supabase.auth.signUp({
+          email: form.email.trim(),
+          password: form.password,
+          options: {
+            data: {
+              chessComUsername: chessComUsername || null,
+              lichessUsername: lichessUsername || null,
+            },
+            emailRedirectTo: window.location.origin,
+          },
+        })
+
+        if (error) {
+          setStatus(error.message)
+          return
+        }
+
+        const userId = data.user?.id
+
+        if (chessComUsername) {
+          setStatus("Preparing your Chess.com training data...")
+
+          if (data.session?.user?.id || userId) {
+            const success = await runImportAfterSession(chessComUsername)
+
+            if (!success) {
+              console.warn("Chess.com import skipped because no session was available yet.")
+            }
+          }
+        }
+
+        if (data.session) {
+          setStatus("Signup successful. Opening your training dashboard...")
+          window.location.assign("/")
+        } else {
+          setStatus("Signup successful. Check your email to confirm your account.")
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: form.email.trim(),
+          password: form.password,
+        })
+
+        if (error) {
+          setStatus(error.message)
+          return
+        }
+
+        window.location.assign("/")
+      }
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : "Something went wrong")
+    } finally {
+      setLoading(false)
+      isSubmittingRef.current = false
+    }
   }
 
   return (
@@ -119,6 +224,7 @@ export default function AuthPage() {
 
           <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
             <button
+              type="button"
               onClick={() => setMode("signup")}
               style={buttonStyle(mode === "signup" ? "#81b64c" : "#4b4847")}
             >
@@ -126,6 +232,7 @@ export default function AuthPage() {
             </button>
 
             <button
+              type="button"
               onClick={() => setMode("login")}
               style={buttonStyle(mode === "login" ? "#81b64c" : "#4b4847")}
             >
@@ -155,6 +262,16 @@ export default function AuthPage() {
 
             {mode === "signup" && (
               <>
+                <div
+                  style={{
+                    marginBottom: "8px",
+                    color: "#cfcfcf",
+                    fontSize: "12px",
+                  }}
+                >
+                  Add your account to get personalized course adjustments
+                </div>
+
                 <div style={{ marginBottom: "14px" }}>
                   <label style={labelStyle()}>
                     Chess.com username (optional)
@@ -185,26 +302,28 @@ export default function AuthPage() {
 
             <button
               type="submit"
+              disabled={loading}
               style={{
                 ...buttonStyle("#81b64c"),
                 width: "100%",
+                opacity: loading ? 0.7 : 1,
               }}
             >
-              {mode === "signup" ? "Create account" : "Log in"}
+              {loading
+                ? "Please wait..."
+                : mode === "signup"
+                ? "Create account"
+                : "Log in"}
             </button>
           </form>
 
-          <div style={{ marginTop: "16px", color: "#cfcfcf" }}>
-            {status}
-          </div>
+          <div style={{ marginTop: "16px", color: "#cfcfcf" }}>{status}</div>
         </div>
 
         <div style={panelStyle("#262421")}>
           <h2>Personalized course</h2>
 
-          <p>
-            Connect your chess usernames to get:
-          </p>
+          <p>Connect your chess usernames to get:</p>
 
           <ul>
             <li>Skill based starting level</li>

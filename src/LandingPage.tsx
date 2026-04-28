@@ -1,7 +1,12 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { supabase } from './lib/supabase'
+import { trainingCatalog } from './trainingCatalog'
+import SemiStudyBanner from './components/SemiStudyBanner'
+import { getOrCreateAutoProfile } from './training/getOrCreateAutoProfile'
 
 type LandingPageProps = {
-  onSelectCategory?: (category: 'mates' | 'tactics' | 'endgame' | 'master-games') => void
+  onSelectCategory?: (category: string) => void
 }
 
 function CategoryCard({
@@ -102,6 +107,53 @@ function StatCard({ value, label }: { value: string; label: string }) {
 
 export default function LandingPage({ onSelectCategory }: LandingPageProps) {
   const navigate = useNavigate()
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+
+  useEffect(() => {
+    async function loadInitial() {
+      const { data } = await supabase.auth.getSession()
+      const u = data.session?.user ?? null
+      setUser(u)
+
+      if (u) {
+        await getOrCreateAutoProfile(u.id)
+
+        const { data: p } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', u.id)
+          .single()
+
+        setProfile(p ?? null)
+      } else {
+        setProfile(null)
+      }
+    }
+
+    loadInitial()
+
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_e, session) => {
+      const u = session?.user ?? null
+      setUser(u)
+
+      if (u) {
+        await getOrCreateAutoProfile(u.id)
+
+        const { data: p } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', u.id)
+          .single()
+
+        setProfile(p ?? null)
+      } else {
+        setProfile(null)
+      }
+    })
+
+    return () => listener.subscription.unsubscribe()
+  }, [])
 
   return (
     <div
@@ -118,45 +170,15 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            gap: 16,
-            flexWrap: 'wrap',
             marginBottom: 30,
           }}
         >
-          <div style={{ fontSize: 26, fontWeight: 800 }}>Chess Trainer</div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div
-              style={{
-                padding: '10px 14px',
-                borderRadius: 999,
-                background: '#1f1d1c',
-                fontSize: 14,
-                color: '#d0d0d0',
-                border: '1px solid rgba(255,255,255,0.05)',
-              }}
-            >
-              Pattern-first training
-            </div>
-
-            <button
-              onClick={() => navigate('/auth')}
-              style={{
-                padding: '10px 16px',
-                borderRadius: 999,
-                background: '#81b64c',
-                color: '#fff',
-                border: 'none',
-                fontSize: 14,
-                fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-              }}
-            >
-              Sign in
-            </button>
+          <div style={{ fontSize: 26, fontWeight: 800 }}>
+            Weiss Chess Trainer
           </div>
         </div>
+
+        <SemiStudyBanner user={user} profile={profile} />
 
         <div
           style={{
@@ -165,99 +187,55 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
             borderRadius: 28,
             padding: 34,
             border: '1px solid rgba(255,255,255,0.06)',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.22)',
-            marginBottom: 26,
+            marginBottom: 20,
           }}
         >
-          <div
-            style={{
-              display: 'inline-block',
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#f2c14e',
-              background: 'rgba(0,0,0,0.22)',
-              padding: '8px 12px',
-              borderRadius: 999,
-              marginBottom: 16,
-            }}
-          >
-            Choose your training category
-          </div>
-
-          <h1
-            style={{
-              fontSize: 52,
-              lineHeight: 1.05,
-              margin: '0 0 16px',
-              maxWidth: 780,
-            }}
-          >
+          <h1 style={{ fontSize: 48, margin: '0 0 16px' }}>
             Build automatic pattern recognition
           </h1>
 
-          <p
+          <p style={{ fontSize: 18, color: '#d7d7d7', marginBottom: 20 }}>
+            Train mates, tactics, endgames, openings and memory using structured chunks.
+          </p>
+
+          <button
+            onClick={() => navigate('/auto')}
             style={{
-              fontSize: 18,
-              lineHeight: 1.7,
-              color: '#d7d7d7',
-              maxWidth: 800,
-              margin: 0,
+              padding: '14px 22px',
+              borderRadius: 999,
+              background: '#f2c14e',
+              color: '#1f1d1c',
+              border: 'none',
+              fontSize: 16,
+              fontWeight: 800,
+              cursor: 'pointer',
             }}
           >
-            Start by choosing what you want to train. Mates for direct king attacks,
-            tactics for combinations and calculation, endgame for technical winning
-            and drawing patterns, master games for memorizing great games move by move,
-            and board vision for instant square recognition.
-          </p>
+            Start Auto Training
+          </button>
         </div>
 
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(5, minmax(0, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: 20,
             marginBottom: 28,
           }}
         >
-          <CategoryCard
-            title="Mates"
-            subtitle="Train mate patterns by distance and motif."
-            icon="♚"
-            accent="linear-gradient(135deg, #7fa650 0%, #5d7f38 100%)"
-            onClick={() => navigate('/mates')}
-          />
-
-          <CategoryCard
-            title="Tactics"
-            subtitle="Train forks, pins, skewers, sacrifices and combinations."
-            icon="⚔️"
-            accent="linear-gradient(135deg, #c57b57 0%, #9b5939 100%)"
-            onClick={() => {}}
-          />
-
-          <CategoryCard
-            title="End Game"
-            subtitle="Train technical endgames and conversion technique."
-            icon="♟️"
-            accent="linear-gradient(135deg, #4f7cac 0%, #35597d 100%)"
-            onClick={() => navigate('/endgame')}
-          />
-
-          <CategoryCard
-            title="Master Games"
-            subtitle="Replay famous games and build memory."
-            icon="👑"
-            accent="linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)"
-            onClick={() => navigate('/master-games')}
-          />
-
-          <CategoryCard
-            title="Board Vision"
-            subtitle="Train instant recognition of squares, colors, diagonals and board geometry."
-            icon="🎯"
-            accent="linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)"
-            onClick={() => navigate('/board-vision')}
-          />
+          {trainingCatalog.map((item) => (
+            <CategoryCard
+              key={item.path}
+              title={item.title}
+              subtitle={item.subtitle}
+              icon={item.icon}
+              accent={item.accent}
+              onClick={() => {
+                onSelectCategory?.(item.title)
+                navigate(item.path)
+              }}
+            />
+          ))}
         </div>
 
         <div
@@ -269,8 +247,8 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
         >
           <StatCard value="30" label="Puzzles per chunk" />
           <StatCard value="5" label="Fast solves per puzzle" />
-          <StatCard value="150" label="Fast solves to master chunk" />
-          <StatCard value="≤ 10s" label="Fast solve target" />
+          <StatCard value="<3s" label="Fast per move" />
+          <StatCard value="Auto" label="Adaptive training" />
         </div>
       </div>
     </div>

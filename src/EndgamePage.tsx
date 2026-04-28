@@ -169,12 +169,13 @@ export default function EndgamePage() {
           </p>
         </div>
 
+        {/* ✅ FIXED GRID (2 columns) */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
             gap: 20,
-            maxWidth: 520,
+            maxWidth: 700,
           }}
         >
           <EndgameCard
@@ -183,6 +184,15 @@ export default function EndgamePage() {
             icon="♟️"
             accent="linear-gradient(135deg, #4f7cac 0%, #35597d 100%)"
             onClick={() => navigate('/endgame/piece-mates')}
+          />
+
+          {/* ✅ NEW CARD */}
+          <EndgameCard
+            title="Endgame Studies"
+            subtitle="Study advanced theoretical endgames like KQ vs KR, pawn races, zugzwang, and fortress positions."
+            icon="📚"
+            accent="linear-gradient(135deg, #8f6a3e 0%, #5c4326 100%)"
+            onClick={() => navigate('/endgame-studies')}
           />
         </div>
       </div>
