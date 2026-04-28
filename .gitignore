@@ -1,39 +1,45 @@
 # dependencies
 node_modules
+.pnp
+.pnp.js
 
-# build output
+# production
 dist
 build
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.*.local
 
 # logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# env
-.env
-.env.local
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # OS
-.DS_Store
 Thumbs.db
 
-# IDE
-.vscode
-.idea
+# Python (your scripts)
+__pycache__/
+*.pyc
 
-# large puzzle datasets
-*.csv
-*.json
-two_bishop_mate/
-two_rooks_mate/
-theme_exports/
+# temp files
+*.tsv
+*.txt
 
-# stockfish binaries (too large for GitHub)
-public/stockfish/stockfish.wasm
-stockfish-windows-x86-64-avx2/
-*.exe
-*.wasm
-
-# misc
-*.log
+# DO NOT IGNORE THESE:
+!package.json
+!package-lock.json
