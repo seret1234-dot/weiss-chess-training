@@ -1,45 +1,47 @@
-# dependencies
-node_modules
-.pnp
-.pnp.js
+# IMPORTANT: allow package files
+!package.json
+!package-lock.json
 
-# production
-dist
-build
+# Node
+node_modules/
+dist/
+.vite/
 
-# misc
-.DS_Store
-.env
-.env.local
-.env.*.local
-
-# logs
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 
-# editor
-.vscode/*
-!.vscode/extensions.json
-.idea
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# OS
-Thumbs.db
-
-# Python (your scripts)
+# Python scripts (your generators)
 __pycache__/
 *.pyc
 
-# temp files
+# Temp / data files
 *.tsv
 *.txt
 
-# DO NOT IGNORE THESE:
-!package.json
-!package-lock.json
+# Large datasets (optional — keeps repo light)
+lichess_db_puzzle.csv
+
+# Local folders you don’t want in repo (optional)
+pgn_import/
+pgn_import_one/
+pgn_rebuild/
+stockfish-windows-x86-64-avx2/
+
+# KEEP your app code and public assets
+!src/
+!public/
