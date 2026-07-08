@@ -73,7 +73,6 @@ export default function EndgameStudiesPage() {
       }}
     >
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '28px 20px 60px' }}>
-        {/* Top */}
         <div
           style={{
             display: 'flex',
@@ -104,13 +103,12 @@ export default function EndgameStudiesPage() {
           </button>
         </div>
 
-        {/* Grid */}
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
             gap: 20,
-            maxWidth: 900,
+            maxWidth: 1200,
           }}
         >
           <StudyCard
@@ -130,6 +128,14 @@ export default function EndgameStudiesPage() {
           />
 
           <StudyCard
+            title="KR vs KP"
+            subtitle="Convert rook vs pawn or hold defensive setups."
+            icon="♖"
+            accent="linear-gradient(135deg, #4a7c59 0%, #2e4f38 100%)"
+            onClick={() => navigate('/endgame-studies/krkp')}
+          />
+
+          <StudyCard
             title="KNN vs KP"
             subtitle="Win with two knights only when a pawn exists."
             icon="♞"
@@ -139,10 +145,42 @@ export default function EndgameStudiesPage() {
 
           <StudyCard
             title="KPK"
-            subtitle="Opposition, key squares, triangulation, critical theory."
+            subtitle="Convert basic king and pawn endings."
             icon="♔"
             accent="linear-gradient(135deg, #a98245 0%, #6e532a 100%)"
             onClick={() => navigate('/endgame-studies/kpk')}
+          />
+
+          <StudyCard
+            title="Stalemate"
+            subtitle="Control critical squares with king stalemate."
+            icon="⚔️"
+            accent="linear-gradient(135deg, #8a5a44 0%, #5a392b 100%)"
+            onClick={() => navigate('/endgame-studies/stalemate')}
+          />
+
+          <StudyCard
+            title="Lucena"
+            subtitle="Build a bridge. Essential rook endgame win."
+            icon="🌉"
+            accent="linear-gradient(135deg, #5c7cfa 0%, #364fc7 100%)"
+            onClick={() => navigate('/endgame-studies/lucena')}
+          />
+
+          <StudyCard
+            title="Philidor"
+            subtitle="Defend rook endgames with the third-rank defense."
+            icon="🛡️"
+            accent="linear-gradient(135deg, #495057 0%, #212529 100%)"
+            onClick={() => navigate('/endgame-studies/philidor')}
+          />
+
+          <StudyCard
+            title="Pawn Races"
+            subtitle="Count tempi, promote first, and stop passed pawns."
+            icon="♙"
+            accent="linear-gradient(135deg, #3e8f7a 0%, #245a4f 100%)"
+            onClick={() => navigate('/endgame-studies/pawns')}
           />
 
           <StudyCard
@@ -154,11 +192,19 @@ export default function EndgameStudiesPage() {
           />
 
           <StudyCard
-            title="Pawn Endgames"
-            subtitle="Passed pawns, races, breakthroughs, outside pawn."
-            icon="♙"
-            accent="linear-gradient(135deg, #3e8f7a 0%, #245a4f 100%)"
-            onClick={() => navigate('/endgame-studies/pawns')}
+            title="Fortress"
+            subtitle="Hold difficult positions with perfect defensive setup."
+            icon="🏰"
+            accent="linear-gradient(135deg, #6c757d 0%, #343a40 100%)"
+            onClick={() => navigate('/endgame-studies/fortress')}
+          />
+
+          <StudyCard
+            title="Shouldering"
+            subtitle="Use your king to block and push the opponent away."
+            icon="🚧"
+            accent="linear-gradient(135deg, #c77dff 0%, #7b2cbf 100%)"
+            onClick={() => navigate('/endgame-studies/shouldering')}
           />
         </div>
       </div>

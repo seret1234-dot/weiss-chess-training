@@ -1,0 +1,80 @@
+{
+  "order": [
+    "evaluation",
+    "rook-pawn",
+    "bishop-pawn",
+    "knight-pawn",
+    "central-pawn",
+    "mixed"
+  ],
+  "masteryFastSolves": 5,
+  "maxSecondsPerMove": 3,
+  "themes": {
+    "evaluation": {
+      "label": "Win or Draw?",
+      "mode": "evaluate",
+      "chunks": [
+        "evaluation_chunk_1.json",
+        "evaluation_chunk_2.json",
+        "evaluation_chunk_3.json",
+        "evaluation_chunk_4.json",
+        "evaluation_chunk_5.json",
+        "evaluation_chunk_6.json",
+        "evaluation_chunk_7.json",
+        "evaluation_chunk_8.json"
+      ],
+      "maxSecondsPerMove": 3
+    },
+    "rook-pawn": {
+      "label": "Rook pawn conversion",
+      "mode": "convert",
+      "chunks": [
+        "rook-pawn_chunk_1.json",
+        "rook-pawn_chunk_2.json",
+        "rook-pawn_chunk_3.json"
+      ],
+      "maxSecondsPerMove": 3
+    },
+    "bishop-pawn": {
+      "label": "Bishop pawn conversion",
+      "mode": "convert",
+      "chunks": [
+        "bishop-pawn_chunk_1.json",
+        "bishop-pawn_chunk_2.json",
+        "bishop-pawn_chunk_3.json"
+      ],
+      "maxSecondsPerMove": 3
+    },
+    "knight-pawn": {
+      "label": "Knight pawn conversion",
+      "mode": "convert",
+      "chunks": [
+        "knight-pawn_chunk_1.json",
+        "knight-pawn_chunk_2.json",
+        "knight-pawn_chunk_3.json"
+      ],
+      "maxSecondsPerMove": 3
+    },
+    "central-pawn": {
+      "label": "Central pawn conversion",
+      "mode": "convert",
+      "chunks": [
+        "central-pawn_chunk_1.json",
+        "central-pawn_chunk_2.json",
+        "central-pawn_chunk_3.json"
+      ],
+      "maxSecondsPerMove": 3
+    },
+    "mixed": {
+      "label": "Mixed conversion",
+      "mode": "convert",
+      "chunks": [
+        "mixed_chunk_1.json",
+        "mixed_chunk_2.json",
+        "mixed_chunk_3.json",
+        "mixed_chunk_4.json"
+      ],
+      "maxSecondsPerMove": 3
+    }
+  }
+}

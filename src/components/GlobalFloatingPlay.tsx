@@ -3,161 +3,163 @@ import { useLocation } from "react-router-dom"
 import { useBoardUiContext } from "../context/BoardUiContext"
 import { supabase } from "../lib/supabase"
 
+function sideToMoveFromFen(fen?: string | null): "white" | "black" | undefined {
+ if (!fen) return undefined
+ return fen.split(" ")[1] === "b" ? "black" : "white"
+}
+
 function buildPlayUrl(params: {
-  fen?: string | null
-  suggestedColor?: "white" | "black"
-  mode?: "play" | "analyze"
-  source?: string
+ fen?: string | null
+ suggestedColor?: "white" | "black"
+ source?: string
 }) {
-  const search = new URLSearchParams()
+ const search = new URLSearchParams()
 
-  if (params.fen) search.set("fen", params.fen)
-  if (params.suggestedColor) search.set("color", params.suggestedColor)
-  if (params.mode) search.set("mode", params.mode)
-  if (params.source) search.set("source", params.source)
+ if (params.fen) search.set("fen", params.fen)
+ if (params.suggestedColor) search.set("color", params.suggestedColor)
+ search.set("mode", "play")
+ if (params.source) search.set("source", params.source)
 
-  const qs = search.toString()
-  return qs ? `/play-vs-computer?${qs}` : "/play-vs-computer"
+ const qs = search.toString()
+ return qs ? `/play-vs-computer?${qs}` : "/play-vs-computer"
+}
+
+function buildAnalyzeUrl(fen?: string | null) {
+ if (!fen) return "/analyze"
+ return `/analyze/board?fen=${encodeURIComponent(fen)}`
 }
 
 export default function GlobalFloatingPlay() {
-  const location = useLocation()
-  const { boardState } = useBoardUiContext()
+ const location = useLocation()
+ const { boardState } = useBoardUiContext()
 
-  const hasBoard = boardState.isAvailable && !!boardState.fen
+ const fenFromUrl = new URLSearchParams(location.search).get("fen")
+ const currentFen = boardState.isAvailable && boardState.fen ? boardState.fen : fenFromUrl
+ const hasBoard = !!currentFen
 
-  const goHome = useCallback(() => {
-    window.location.href = "/"
-  }, [])
+ const suggestedColor =
+ boardState.isAvailable && boardState.suggestedColor
+ ? boardState.suggestedColor
+ : sideToMoveFromFen(currentFen)
 
-  const goAccount = useCallback(() => {
-    window.location.href = "/account"
-  }, [])
+ const goHome = useCallback(() => {
+ window.location.href = "/"
+ }, [])
 
-  const goPlay = useCallback(() => {
-    const url = buildPlayUrl({
-      fen: hasBoard ? boardState.fen : undefined,
-      suggestedColor: boardState.suggestedColor,
-      mode: "play",
-      source: "global",
-    })
+ const goFunChess = useCallback(() => {
+ window.location.href = "/museum"
+ }, [])
 
-    window.location.href = url
-  }, [hasBoard, boardState.fen, boardState.suggestedColor])
+ const goAnalyze = useCallback(() => {
+ window.location.href = buildAnalyzeUrl(currentFen)
+ }, [currentFen])
 
-  const goAnalyze = useCallback(() => {
-    const url = buildPlayUrl({
-      fen: hasBoard ? boardState.fen : undefined,
-      suggestedColor: boardState.suggestedColor,
-      mode: "analyze",
-      source: "global-analyze",
-    })
+ const goPlayComputer = useCallback(() => {
+ const url = buildPlayUrl({
+ fen: currentFen,
+ suggestedColor,
+ source: hasBoard ? "current-board" : "global",
+ })
 
-    window.location.href = url
-  }, [hasBoard, boardState.fen, boardState.suggestedColor])
+ window.location.href = url
+ }, [currentFen, suggestedColor, hasBoard])
 
-  const flipBoard = useCallback(() => {
-    boardState.onFlip?.()
-  }, [boardState.onFlip])
+ const goAccount = useCallback(() => {
+ window.location.href = "/account"
+ }, [])
 
-  // ✅ FIXED logout (real fix)
-  const handleLogout = useCallback(async () => {
-    try {
-      const { error } = await supabase.auth.signOut({ scope: "local" })
+ const flipBoard = useCallback(() => {
+ boardState.onFlip?.()
+ }, [boardState.onFlip])
 
-      if (error) {
-        console.error("Logout failed", error)
-        return
-      }
+ const handleLogout = useCallback(async () => {
+ try {
+ const { error } = await supabase.auth.signOut({ scope: "local" })
+ if (error) {
+ console.error("Logout failed", error)
+ return
+ }
+ window.location.replace("/auth")
+ } catch (err) {
+ console.error("Logout failed", err)
+ }
+ }, [])
 
-      // important: go to auth, not home (home may auto-detect session)
-      window.location.replace("/auth")
-    } catch (err) {
-      console.error("Logout failed", err)
-    }
-  }, [])
+ return (
+ <div
+ style={{
+ position: "fixed",
+ right: 20,
+ bottom: 20,
+ zIndex: 99999,
+ display: "flex",
+ flexDirection: "column",
+ gap: 10,
+ }}
+ >
+ <button type="button" onClick={goHome} style={btnStyle}>
+ Home
+ </button>
 
-  return (
-    <div
-      style={{
-        position: "fixed",
-        right: 20,
-        bottom: 20,
-        zIndex: 99999,
-        display: "flex",
-        flexDirection: "column",
-        gap: 10,
-      }}
-    >
-      <button type="button" onClick={goHome} style={btnStyle}>
-        🏠 Home
-      </button>
+ <button type="button" onClick={goFunChess} style={btnStyle}>
+ Fun Chess
+ </button>
 
-      <button type="button" onClick={goAccount} style={btnStyle}>
-        👤 Account
-      </button>
+ <button type="button" onClick={goAnalyze} style={btnStyle}>
+ {hasBoard ? "Analyze Position" : "Analyze"}
+ </button>
 
-      {/* ✅ Logout */}
-      <button
-        type="button"
-        onClick={handleLogout}
-        style={{
-          ...btnStyle,
-          background: "#6b3d3d",
-        }}
-      >
-        ⎋ Logout
-      </button>
+ <button
+ type="button"
+ onClick={goPlayComputer}
+ style={{
+ ...btnStyle,
+ background: "linear-gradient(180deg,#78b84c,#5f9c3d)",
+ }}
+ >
+ {hasBoard ? "Play Position" : "Play Computer"}
+ </button>
 
-      {hasBoard && (
-        <>
-          <button
-            type="button"
-            onClick={goPlay}
-            style={{
-              ...btnStyle,
-              background: "linear-gradient(180deg,#78b84c,#5f9c3d)",
-            }}
-          >
-            🤖 Play This Position
-          </button>
+ {boardState.isAvailable && (
+ <button
+ type="button"
+ onClick={flipBoard}
+ disabled={!boardState.canFlip}
+ style={{
+ ...btnStyle,
+ opacity: boardState.canFlip ? 1 : 0.45,
+ cursor: boardState.canFlip ? "pointer" : "not-allowed",
+ }}
+ >
+ Flip
+ </button>
+ )}
 
-          <button
-            type="button"
-            onClick={goAnalyze}
-            style={{
-              ...btnStyle,
-              background: "linear-gradient(180deg,#4f8dd6,#356fb3)",
-            }}
-          >
-            📊 Analyze This Position
-          </button>
+ <button type="button" onClick={goAccount} style={btnStyle}>
+ Account
+ </button>
 
-          <button
-            type="button"
-            onClick={flipBoard}
-            disabled={!boardState.canFlip}
-            style={{
-              ...btnStyle,
-              opacity: boardState.canFlip ? 1 : 0.45,
-              cursor: boardState.canFlip ? "pointer" : "not-allowed",
-            }}
-          >
-            🔄 Flip
-          </button>
-        </>
-      )}
-    </div>
-  )
+ <button
+ type="button"
+ onClick={handleLogout}
+ style={{
+ ...btnStyle,
+ background: "#6b3d3d",
+ }}
+ >
+ Logout
+ </button>
+ </div>
+ )
 }
 
 const btnStyle: React.CSSProperties = {
-  border: "none",
-  borderRadius: 14,
-  padding: "12px 16px",
-  color: "white",
-  fontWeight: 800,
-  cursor: "pointer",
-  background: "#3a3936",
-  boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
+ border: "none",
+ borderRadius: 14,
+ padding: "12px 16px",
+ color: "white",
+ fontWeight: 800,
+ cursor: "pointer",
+ background: "#3a3936",
+ boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
 }

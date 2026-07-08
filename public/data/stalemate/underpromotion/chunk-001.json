@@ -1,0 +1,80 @@
+[
+ {
+ "id": "underpromotion-rook-saavedra-01",
+ "piece": "rook",
+ "title": "Rook underpromotion: Saavedra finish",
+ "fen": "8/2P5/8/8/3r4/8/2K5/k7 w - 0 1",
+ "from": "c7",
+ "to": "c8",
+ "correctPromotion": "r",
+ "sideToMove": "w",
+ "resultKind": "win",
+ "queenResult": "c8=Q? allows ...Rc4+! and after Qxc4 Black is stalemated.",
+ "explanation": "Promote to a rook. The rook avoids the stalemate trick and keeps the winning net."
+ },
+ {
+ "id": "underpromotion-rook-saavedra-02",
+ "piece": "rook",
+ "title": "Rook underpromotion: mirrored Saavedra finish",
+ "fen": "8/5P2/8/8/4r3/8/5K2/7k w - 0 1",
+ "from": "f7",
+ "to": "f8",
+ "correctPromotion": "r",
+ "sideToMove": "w",
+ "resultKind": "win",
+ "queenResult": "f8=Q? allows ...Re4+! and after Qxe4 Black is stalemated.",
+ "explanation": "Promote to a rook. The queen allows the stalemate resource; the rook wins."
+ },
+ {
+ "id": "underpromotion-bishop-capture-01",
+ "piece": "bishop",
+ "title": "Bishop underpromotion: queen is stalemate",
+ "fen": "1r5K/2P5/8/k1N5/8/8/8/8 w - 0 1",
+ "from": "c7",
+ "to": "b8",
+ "correctPromotion": "b",
+ "sideToMove": "w",
+ "resultKind": "win",
+ "queenResult": "cxb8=Q? is stalemate. Rook promotion also stalemates.",
+ "explanation": "Capture on b8 and promote to a bishop. Queen and rook are too strong and freeze the black king."
+ },
+ {
+ "id": "underpromotion-bishop-capture-02",
+ "piece": "bishop",
+ "title": "Bishop underpromotion: mirrored",
+ "fen": "K5r1/5P2/8/5N1k/8/8/8/8 w - 0 1",
+ "from": "f7",
+ "to": "g8",
+ "correctPromotion": "b",
+ "sideToMove": "w",
+ "resultKind": "win",
+ "queenResult": "fxg8=Q? is stalemate. Rook promotion also stalemates.",
+ "explanation": "Capture on g8 and promote to a bishop. Queen and rook stalemate, bishop keeps the win."
+ },
+ {
+ "id": "underpromotion-knight-mate-01",
+ "piece": "knight",
+ "title": "Knight underpromotion mate",
+ "fen": "8/1P6/k1K5/7R/8/8/8/6B1 w - 0 1",
+ "from": "b7",
+ "to": "b8",
+ "correctPromotion": "n",
+ "sideToMove": "w",
+ "resultKind": "mate",
+ "queenResult": "b8=Q? is stalemate. Rook and bishop promotions also stalemate.",
+ "explanation": "Promote to a knight. The knight gives checkmate; the stronger pieces stalemate."
+ },
+ {
+ "id": "underpromotion-knight-mate-02",
+ "piece": "knight",
+ "title": "Knight underpromotion mate: mirrored",
+ "fen": "8/6P1/5K1k/R7/8/8/8/1B6 w - 0 1",
+ "from": "g7",
+ "to": "g8",
+ "correctPromotion": "n",
+ "sideToMove": "w",
+ "resultKind": "mate",
+ "queenResult": "g8=Q? is stalemate. Rook and bishop promotions also stalemate.",
+ "explanation": "Promote to a knight. The knight gives mate while the queen stalemates."
+ }
+]

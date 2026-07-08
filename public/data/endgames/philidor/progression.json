@@ -1,0 +1,53 @@
+{
+    "name":  "Philidor",
+    "order":  [
+                  "basic_philidor",
+                  "checking_distance",
+                  "side_checks",
+                  "rook_behind_pawn"
+              ],
+    "themes":  {
+                   "basic_philidor":  {
+                                          "label":  "Basic Philidor",
+                                          "chunks":  [
+                                                         "basic_philidor_chunk_001.json",
+                                                         "basic_philidor_chunk_002.json"
+                                                     ],
+                                          "mode":  "convert",
+                                          "goal":  "hold_draw",
+                                          "maxSecondsPerMove":  3
+                                      },
+                   "checking_distance":  {
+                                             "label":  "Checking Distance",
+                                             "chunks":  [
+                                                            "checking_distance_chunk_001.json",
+                                                            "checking_distance_chunk_002.json"
+                                                        ],
+                                             "mode":  "convert",
+                                             "goal":  "hold_draw",
+                                             "maxSecondsPerMove":  3
+                                         },
+                   "side_checks":  {
+                                       "label":  "Side Checks",
+                                       "chunks":  [
+                                                      "side_checks_chunk_001.json",
+                                                      "side_checks_chunk_002.json",
+                                                      "side_checks_chunk_003.json"
+                                                  ],
+                                       "mode":  "convert",
+                                       "goal":  "hold_draw",
+                                       "maxSecondsPerMove":  3
+                                   },
+                   "rook_behind_pawn":  {
+                                            "label":  "Rook Behind Pawn",
+                                            "chunks":  [
+                                                           "rook_behind_pawn_chunk_001.json",
+                                                           "rook_behind_pawn_chunk_002.json",
+                                                           "rook_behind_pawn_chunk_003.json"
+                                                       ],
+                                            "mode":  "convert",
+                                            "goal":  "hold_draw",
+                                            "maxSecondsPerMove":  3
+                                        }
+               }
+}

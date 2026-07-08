@@ -1,0 +1,104 @@
+import fs from "fs";
+
+const file = "src/KQKP7Trainer.tsx";
+
+let s = fs.readFileSync(file, "utf8");
+
+const helperAnchor = `  function isClearlyWinningForWhite(info: EngineResult | null) {
+    if (!info) return false
+
+    if (typeof info.mate === 'number') {
+      return true
+    }
+
+    if (typeof info.eval === 'number') {
+      return Math.abs(info.eval) >= 3
+    }
+
+    return false
+  }
+`;
+
+const helpers = `
+  function whiteKingMovesCloserToBlackKing(beforeFen: string, afterFen: string, attemptedUci: string) {
+    const parsed = parseUciMove(attemptedUci)
+    if (!parsed) return false
+
+    const beforeGame = new Chess(beforeFen)
+    const afterGame = new Chess(afterFen)
+
+    const beforeWhiteKing = getPieceSquare(beforeGame, 'k', 'w')
+    const beforeBlackKing = getPieceSquare(beforeGame, 'k', 'b')
+    const afterWhiteKing = getPieceSquare(afterGame, 'k', 'w')
+    const afterBlackKing = getPieceSquare(afterGame, 'k', 'b')
+
+    if (!beforeWhiteKing || !beforeBlackKing || !afterWhiteKing || !afterBlackKing) return false
+    if (parsed.from !== beforeWhiteKing) return false
+
+    const beforeDistance = kingDistance(beforeWhiteKing, beforeBlackKing)
+    const afterDistance = kingDistance(afterWhiteKing, afterBlackKing)
+
+    return afterDistance < beforeDistance
+  }
+
+  function blackKingBlocksOrProtectsPawn(gameToCheck: Chess) {
+    const blackPawnSquare = getPieceSquare(gameToCheck, 'p', 'b')
+    const blackKingSquare = getPieceSquare(gameToCheck, 'k', 'b')
+
+    if (!blackPawnSquare || !blackKingSquare) return false
+    return kingDistance(blackKingSquare, blackPawnSquare) <= 1
+  }
+`;
+
+if (!s.includes("function whiteKingMovesCloserToBlackKing(")) {
+  if (!s.includes(helperAnchor)) {
+    throw new Error("Could not find isClearlyWinningForWhite helper block.");
+  }
+  s = s.replace(helperAnchor, helperAnchor + helpers);
+}
+
+const oldBlock = `    const moveIsBest = before.bestMove === attemptedUci
+
+    if (moveIsBest) {
+      return { ok: true, reason: '', afterUser }
+    }
+
+    if (isClearlyWinningForWhite(afterUser)) {
+      return { ok: true, reason: '', afterUser }
+    }
+`;
+
+const newBlock = `    const moveIsBest = before.bestMove === attemptedUci
+
+    if (moveIsBest) {
+      return { ok: true, reason: '', afterUser }
+    }
+
+    // KQ vs KP7 conversion rule:
+    // If the black king is blocking/protecting the pawn, White often must bring
+    // the king closer. This is correct even when it is not a queen check.
+    if (
+      whiteKingMovesCloserToBlackKing(beforeFen, afterFen, attemptedUci)
+      && blackKingBlocksOrProtectsPawn(new Chess(beforeFen))
+      && isClearlyWinningForWhite(afterUser)
+    ) {
+      return {
+        ok: true,
+        reason: 'Bring the king closer. The black king blocks the pawn.',
+        afterUser,
+      }
+    }
+
+    if (isClearlyWinningForWhite(afterUser)) {
+      return { ok: true, reason: '', afterUser }
+    }
+`;
+
+if (!s.includes(oldBlock)) {
+  throw new Error("Could not find validateByEngine acceptance block.");
+}
+
+s = s.replace(oldBlock, newBlock);
+
+fs.writeFileSync(file, s);
+console.log("Fixed KQKP7 king-approach rule in:", file);

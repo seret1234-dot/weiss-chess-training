@@ -4,64 +4,65 @@ import { Chessboard } from 'react-chessboard'
 import { supabase } from './lib/supabase'
 
 export default function OpeningTrainerTest() {
-  const [game, setGame] = useState(new Chess())
-  const [moves, setMoves] = useState<string[]>([])
-  const [index, setIndex] = useState(0)
+ const [game, setGame] = useState(new Chess())
+ const [moves, setMoves] = useState<string[]>([])
+ const [index, setIndex] = useState(0)
 
-  useEffect(() => {
-    load()
-  }, [])
+ useEffect(() => {
+ load()
+ }, [])
 
-  async function load() {
-    const { data, error } = await supabase
-      .from('opening_lines')
-      .select('*')
-      .limit(1)
-      .single()
+ async function load() {
+ const { data, error } = await supabase
+ .from('opening_lines')
+ .select('*')
+ .limit(1)
+ .single()
 
-    if (error) {
-      console.error(error)
-      return
-    }
+ if (error) {
+ console.error(error)
+ return
+ }
 
-    setMoves(data.uci_moves ?? [])
-    setGame(new Chess())
-    setIndex(0)
-  }
+ setMoves(data.uci_moves ?? [])
+ setGame(new Chess())
+ setIndex(0)
+ }
 
-  function onDrop(source: string, target: string) {
-    const move = source + target
-    const expectedMove = moves[index]
+ function onDrop(source: string, target: string) {
+ const move = source + target
+ const expectedMove = moves[index]
 
-    if (!expectedMove || move !== expectedMove) {
-      return false
-    }
+ if (!expectedMove || move !== expectedMove) {
+ return false
+ }
 
-    const newGame = new Chess(game.fen())
+ const newGame = new Chess(game.fen())
 
-    try {
-      newGame.move({
-        from: source,
-        to: target,
-        promotion: 'q',
-      })
-    } catch {
-      return false
-    }
+ try {
+ newGame.move({
+ from: source,
+ to: target,
+ promotion: 'q',
+ })
+ } catch {
+ return false
+ }
 
-    setGame(newGame)
-    setIndex((i) => i + 1)
+ setGame(newGame)
+ setIndex((i) => i + 1)
 
-    return true
-  }
+ return true
+ }
 
-  return (
-    <div>
-      <Chessboard
-        position={game.fen()}
-        onPieceDrop={onDrop}
-      />
-      <div>Move: {index}/{moves.length}</div>
-    </div>
-  )
+ return (
+ <div>
+ <Chessboard
+ position={game.fen()}
+ onPieceDrop={onDrop}
+ promotionDialogVariant="modal"
+/>
+ <div>Move: {index}/{moves.length}</div>
+ </div>
+ )
 }

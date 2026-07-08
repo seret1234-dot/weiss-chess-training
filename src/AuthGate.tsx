@@ -4,65 +4,65 @@ import { supabase } from './lib/supabase'
 import { getOrCreateAutoProfile } from './training/getOrCreateAutoProfile'
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true)
-  const navigate = useNavigate()
-  const location = useLocation()
+ const [loading, setLoading] = useState(true)
+ const navigate = useNavigate()
+ const location = useLocation()
 
-  useEffect(() => {
-    let cancelled = false
+ useEffect(() => {
+ let cancelled = false
 
-    async function check() {
-      const { data, error } = await supabase.auth.getSession()
+ async function check() {
+ const { data, error } = await supabase.auth.getSession()
 
-      if (error) {
-        if (!cancelled) {
-          setLoading(false)
-        }
-        return
-      }
+ if (error) {
+ if (!cancelled) {
+ setLoading(false)
+ }
+ return
+ }
 
-      const user = data.session?.user ?? null
+ const user = data.session?.user ?? null
 
-      if (!user) {
-        if (!cancelled) {
-          setLoading(false)
-        }
-        return
-      }
+ if (!user) {
+ if (!cancelled) {
+ setLoading(false)
+ }
+ return
+ }
 
-      const autoProfile = await getOrCreateAutoProfile(user.id)
+ const autoProfile = await getOrCreateAutoProfile(user.id)
 
-      if (!autoProfile) {
-        if (!cancelled) {
-          setLoading(false)
-        }
-        return
-      }
+ if (!autoProfile) {
+ if (!cancelled) {
+ setLoading(false)
+ }
+ return
+ }
 
-      const isOnboardingPage = location.pathname === '/onboarding'
+ const isOnboardingPage = location.pathname === '/onboarding'
 
-      // Only force onboarding when incomplete.
-      // Do not auto-redirect completed users anywhere here.
-      if (!autoProfile.onboarding_complete && !isOnboardingPage) {
-        navigate('/onboarding', { replace: true })
-        return
-      }
+ // Only force onboarding when incomplete.
+ // Do not auto-redirect completed users anywhere here.
+ if (!autoProfile.onboarding_complete && !isOnboardingPage) {
+ navigate('/onboarding', { replace: true })
+ return
+ }
 
-      if (!cancelled) {
-        setLoading(false)
-      }
-    }
+ if (!cancelled) {
+ setLoading(false)
+ }
+ }
 
-    check()
+ check()
 
-    return () => {
-      cancelled = true
-    }
-  }, [navigate, location.pathname])
+ return () => {
+ cancelled = true
+ }
+ }, [navigate, location.pathname])
 
-  if (loading) {
-    return <div style={{ color: '#fff', padding: 20 }}>Loading...</div>
-  }
+ if (loading) {
+ return <div style={{ color: '#fff', padding: 20 }}>Loading...</div>
+ }
 
-  return <>{children}</>
+ return <>{children}</>
 }

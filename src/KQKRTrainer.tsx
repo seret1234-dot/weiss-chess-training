@@ -15,6 +15,7 @@ import {
   SecondaryButton,
 } from './components/trainer/ui'
 import kqkrData from './kqkr_positions.json'
+import { showCoachMistake } from './services/coach/coachPopup'
 
 type RawPosition = {
   fen: string
@@ -974,42 +975,11 @@ export default function KQKRTrainer({ group = "all" }: { group?: string }) {
     }
 
     if (!blackMove) {
-      const legalMoves = replyGame.moves({ verbose: true }) as Array<{
-        from: string
-        to: string
-        promotion?: string
-      }>
-
-      if (legalMoves.length === 0) {
-        return {
-          info,
-          replyGame: null as Chess | null,
-          blackMove: null as ReturnType<Chess['move']> | null,
-          afterBlackEval: null as EngineResult | null,
-        }
-      }
-
-      // Prefer king moves as fallback because they usually create more realistic KQKR defense.
-      const kingMoves = legalMoves.filter((m) => {
-        const piece = replyGame.get(m.from)
-        return piece?.type === 'k'
-      })
-
-      const fallback = kingMoves.length > 0 ? kingMoves[0] : legalMoves[0]
-
-      blackMove = replyGame.move({
-        from: fallback.from,
-        to: fallback.to,
-        promotion: fallback.promotion,
-      })
-    }
-
-    if (!blackMove) {
       return {
         info,
-        replyGame: null,
-        blackMove: null,
-        afterBlackEval: null,
+        replyGame: null as Chess | null,
+        blackMove: null as ReturnType<Chess['move']> | null,
+        afterBlackEval: null as EngineResult | null,
       }
     }
 
@@ -1133,6 +1103,36 @@ export default function KQKRTrainer({ group = "all" }: { group?: string }) {
       }
 
       if (!accepted) {
+        const bestMoveSan = (() => {
+          const parsedBest = parseUci(startBestUci)
+          if (!parsedBest) return undefined
+
+          try {
+            const sanGame = new Chess(beforeFen)
+            return sanGame.move(parsedBest)?.san
+          } catch {
+            return undefined
+          }
+        })()
+
+        try {
+          showCoachMistake({
+            fenBefore: beforeFen,
+            userMoveSan: whiteMove.san,
+            userMoveUci: attemptedUci,
+            bestMoveSan,
+            bestMoveUci: startBestUci ?? undefined,
+            evalLossCp: group === 'fork-1' ? 220 : 180,
+            phase: 'endgame',
+            source: 'trainer',
+            trainerId: 'kqkr',
+            theme: currentChunk.id,
+            goal: currentChunk.label,
+          })
+        } catch {
+          // Coach popup should never block trainer play.
+        }
+
         setEngineInfo(afterWhiteInfo)
         await showWrongAndReset(
           nextGame,

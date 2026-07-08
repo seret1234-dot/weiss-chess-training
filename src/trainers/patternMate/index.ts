@@ -1,33 +1,33 @@
 export { default as PatternMateTrainer } from "./PatternMateTrainer"
 
 export {
-  createPatternMatePage,
+ createPatternMatePage,
 } from "./createPatternMatePage"
 
 export {
-  createPatternMateRoute,
-  createPatternMateRoutes,
+ createPatternMateRoute,
+ createPatternMateRoutes,
 } from "./createPatternMateRoute"
 
 export {
-  patternMateRoutes,
+ patternMateRoutes,
 } from "./patternMateRoutes"
 
 export {
-  registerPatternMateRoutes,
+ registerPatternMateRoutes,
 } from "./registerPatternMateRoutes"
 
 export { default as PatternMateRoutesInjector } from "./PatternMateRoutesInjector"
 
 export type {
-  PatternMatePageConfig,
+ PatternMatePageConfig,
 } from "./createPatternMatePage"
 
 export type {
-  PatternMateRouteConfig,
+ PatternMateRouteConfig,
 } from "./createPatternMateRoute"
 
 export {
-  patternMatePageConfigs,
-  getPatternMatePageConfig,
+ patternMatePageConfigs,
+ getPatternMatePageConfig,
 } from "./pageConfigs"

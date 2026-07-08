@@ -85,113 +85,87 @@ export default function MateDistancePage() {
     )
   }
 
-  const themes = [
+  let themes = [
     {
       title: 'Back Rank',
       subtitle: 'Classic back rank mating patterns',
-      icon: '♜',
+      icon: '♟',
       accent: 'linear-gradient(135deg, #7fa650 0%, #5d7f38 100%)',
       href: `/mates/${level}/back-rank`,
     },
     {
       title: 'Arabian',
       subtitle: 'Knight and rook mating motif',
-      icon: '♞',
+      icon: '♟',
       accent: 'linear-gradient(135deg, #c57b57 0%, #9b5939 100%)',
       href: `/mates/${level}/arabian`,
     },
     {
       title: 'Anastasia',
       subtitle: 'Knight and rook net against the king',
-      icon: '♞',
+      icon: '♟',
       accent: 'linear-gradient(135deg, #4f8cc9 0%, #2c5e91 100%)',
       href: `/mates/${level}/anastasia`,
     },
-    {
+    ...(level === 'm5'
+      ? []
+      : [
+          {
       title: 'Boden',
       subtitle: 'Crossed bishops mating pattern',
-      icon: '♝',
+      icon: '♟',
       accent: 'linear-gradient(135deg, #a96acb 0%, #7c3fa1 100%)',
       href: `/mates/${level}/boden`,
     },
-    {
+        ]),
+    ...(level === 'm5'
+      ? []
+      : [
+          {
       title: 'Smothered',
       subtitle: 'Knight mate with trapped king',
-      icon: '♞',
+      icon: '♟',
       accent: 'linear-gradient(135deg, #e27d60 0%, #b45137 100%)',
       href: `/mates/${level}/smothered`,
     },
+        ]),
     {
       title: 'Hook',
       subtitle: 'Hook mate attacking pattern',
-      icon: '♜',
+      icon: '♟',
       accent: 'linear-gradient(135deg, #6bc1a3 0%, #3d8f75 100%)',
       href: `/mates/${level}/hook`,
     },
     {
-      title: 'Greco',
-      subtitle: 'Classic Greco mating pattern',
-      icon: '♛',
-      accent: 'linear-gradient(135deg, #d1a94a 0%, #9b7a27 100%)',
-      href: `/mates/${level}/greco`,
-    },
-    {
-      title: 'Corridor',
-      subtitle: 'Horizontal and vertical king restriction mate',
-      icon: '♜',
-      accent: 'linear-gradient(135deg, #d85c8a 0%, #a02f5a 100%)',
-      href: `/mates/${level}/corridor`,
-    },
-    {
       title: 'Dovetail',
       subtitle: 'Queen-supported boxed king mate',
-      icon: '♛',
+      icon: '♟',
       accent: 'linear-gradient(135deg, #7fa650 0%, #5d7f38 100%)',
       href: `/mates/${level}/dovetail`,
     },
     {
-      title: 'Epaulette',
-      subtitle: 'King trapped by its own pieces',
-      icon: '♛',
-      accent: 'linear-gradient(135deg, #c57b57 0%, #9b5939 100%)',
-      href: `/mates/${level}/epaulette`,
-    },
-    {
-      title: 'Lolli',
-      subtitle: 'Typical Lolli mating net',
-      icon: '♛',
-      accent: 'linear-gradient(135deg, #4f8cc9 0%, #2c5e91 100%)',
-      href: `/mates/${level}/lolli`,
-    },
-    {
-      title: 'Morphy',
-      subtitle: 'Open-line attacking mating pattern',
-      icon: '♜',
-      accent: 'linear-gradient(135deg, #a96acb 0%, #7c3fa1 100%)',
-      href: `/mates/${level}/morphy`,
-    },
-    {
-      title: 'Damiano',
-      subtitle: 'Damiano mate pattern',
-      icon: '♛',
-      accent: 'linear-gradient(135deg, #e27d60 0%, #b45137 100%)',
-      href: `/mates/${level}/damiano`,
-    },
-    {
-      title: 'Blackburne',
-      subtitle: 'Blackburne mating construction',
-      icon: '♝',
-      accent: 'linear-gradient(135deg, #6bc1a3 0%, #3d8f75 100%)',
-      href: `/mates/${level}/blackburne`,
-    },
-    {
       title: 'Kill Box',
       subtitle: 'King boxed in for the final mate',
-      icon: '♚',
+      icon: '♟',
       accent: 'linear-gradient(135deg, #d1a94a 0%, #9b7a27 100%)',
       href: `/mates/${level}/kill-box`,
     },
-    {
+    
+    ...(level === 'm4' || level === 'm5'
+      ? []
+      : [
+          {
+            title: level === 'm3' ? 'Double Bishop 3+' : 'Double Bishop',
+            subtitle: level === 'm3'
+              ? 'Double bishop mates in 3, 4, and 5'
+              : 'Two bishops mating pattern',
+            icon: 'B',
+            accent: 'linear-gradient(135deg, #4f8cff, #9b5cff)',
+            href: `/mates/${level}/double-bishop`,
+          },
+        ]),
+
+{
       title: 'Mixed',
       subtitle: 'Mixed mating themes together',
       icon: '♟',
@@ -311,7 +285,7 @@ export default function MateDistancePage() {
             gap: 20,
           }}
         >
-          {themes.map((theme) => (
+          {themes.filter((theme) => (Number(String(level).replace('m', '')) <= 5 || theme.title !== 'Anastasia') && !(level === 'm4' && theme.title === 'Boden')).map((theme) => (
             <Card
               key={theme.title}
               title={theme.title}
@@ -326,3 +300,6 @@ export default function MateDistancePage() {
     </div>
   )
 }
+
+
+

@@ -1,0 +1,134 @@
+.analyze-page {
+  min-height: 100vh;
+  background: #242321;
+  color: #eee;
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.analyze-main {
+  display: grid;
+  grid-template-columns: minmax(650px, 760px) 430px;
+  gap: 28px;
+  align-items: start;
+}
+
+.analyze-board-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.analyze-player {
+  width: 620px;
+  font-weight: 700;
+  margin: 8px 0;
+}
+
+.analyze-board-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.analyze-eval-bar {
+  width: 28px;
+  background: #111;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.analyze-eval-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50%;
+  background: #f4f4f4;
+}
+
+.analyze-eval-bar span {
+  position: relative;
+  color: #222;
+  z-index: 2;
+  margin-bottom: 6px;
+}
+
+.analyze-board {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+}
+
+.analyze-panel {
+  background: #181817;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+}
+
+.analyze-panel h1 {
+  text-align: center;
+  font-size: 20px;
+  margin: 0 0 18px;
+}
+
+.analyze-big-button,
+.analyze-small-button,
+.analyze-grid button {
+  width: 100%;
+  background: linear-gradient(#3d3c3a, #2d2c2a);
+  color: #eee;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.analyze-input {
+  width: 100%;
+  height: 260px;
+  resize: vertical;
+  box-sizing: border-box;
+  background: #302f2d;
+  color: #eee;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 4px 0 12px;
+}
+
+.analyze-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.analyze-grid button {
+  margin-bottom: 0;
+}
+
+.analyze-start {
+  width: 100%;
+  margin-top: 14px;
+  background: linear-gradient(#86c44b, #5da331);
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  padding: 18px;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 1100px) {
+  .analyze-main {
+    grid-template-columns: 1fr;
+  }
+}

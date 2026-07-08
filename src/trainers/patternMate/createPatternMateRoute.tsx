@@ -3,24 +3,24 @@ import createPatternMatePage from "./createPatternMatePage"
 import type { PatternMatePageConfig } from "./createPatternMatePage"
 
 export type PatternMateRouteConfig = PatternMatePageConfig & {
-  path: string
+ path: string
 }
 
 export function createPatternMateRoute(
-  config: PatternMateRouteConfig
+ config: PatternMateRouteConfig
 ): RouteObject {
-  const Page = createPatternMatePage(config)
+ const Page = createPatternMatePage(config)
 
-  return {
-    path: config.path,
-    element: <Page />,
-  }
+ return {
+ path: config.path,
+ element: <Page />,
+ }
 }
 
 export function createPatternMateRoutes(
-  configs: PatternMateRouteConfig[]
+ configs: PatternMateRouteConfig[]
 ): RouteObject[] {
-  return configs.map((config) => createPatternMateRoute(config))
+ return configs.map((config) => createPatternMateRoute(config))
 }
 
 export default createPatternMateRoute

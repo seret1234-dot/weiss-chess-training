@@ -5,6 +5,65 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weiss Chess Trainer</title>
+  
+    <script>
+      (function cleanEndgameBrokenText() {
+        function isEndgamePage() {
+          return location.pathname.startsWith("/endgame-studies/") ||
+                 location.pathname.startsWith("/endgame/");
+        }
+
+        function cleanTextValue(text) {
+          return text
+            .replace(/[Â�□♙♟♔♚♕♛♖♜♗♝♘♞™]/g, "")
+            .replace(/[–—−]/g, "-")
+            .replace(/\s+-\s+-\s*/g, " - ")
+            .replace(/\s+-\s+([0-9])/g, " - $1")
+            .replace(/\s{2,}/g, " ");
+        }
+
+        function cleanNode(node) {
+          if (!isEndgamePage()) return;
+
+          if (node.nodeType === Node.TEXT_NODE) {
+            var next = cleanTextValue(node.nodeValue || "");
+            if (next !== node.nodeValue) node.nodeValue = next;
+            return;
+          }
+
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+            var textNode;
+            while ((textNode = walker.nextNode())) {
+              var nextText = cleanTextValue(textNode.nodeValue || "");
+              if (nextText !== textNode.nodeValue) textNode.nodeValue = nextText;
+            }
+          }
+        }
+
+        function run() {
+          cleanNode(document.body);
+        }
+
+        var observer = new MutationObserver(function(mutations) {
+          if (!isEndgamePage()) return;
+          for (var i = 0; i < mutations.length; i++) {
+            for (var j = 0; j < mutations[i].addedNodes.length; j++) {
+              cleanNode(mutations[i].addedNodes[j]);
+            }
+          }
+          run();
+        });
+
+        window.addEventListener("DOMContentLoaded", function() {
+          run();
+          observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+        });
+
+        window.addEventListener("popstate", run);
+        setInterval(run, 1000);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
