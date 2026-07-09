@@ -125,11 +125,11 @@ type PieceCode =
 const FAST_SOLVES_TO_MASTER = 5
 const FAST_SOLVE_SECONDS_PER_MOVE = 3
 
-const AUTO_NEXT_DELAY_MS = 1500
+const AUTO_NEXT_DELAY_MS = 2000
 const BOARD_ANIMATION_MS = 140
 const REPLY_PAUSE_AFTER_MS = 80
-const PREMOVE_START_DELAY_MS = 800
-const PREMOVE_AFTER_PLAY_DELAY_MS = 1000
+const PREMOVE_START_DELAY_MS = 160
+const PREMOVE_AFTER_PLAY_DELAY_MS = 450
 
 type SavedState = {
  currentChunkIndex: number
@@ -448,6 +448,16 @@ export default function PatternMateTrainer({
  const [currentIndex, setCurrentIndex] = useState(0)
 
  const [game, setGame] = useState(new Chess())
+ const [boardFen, setBoardFen] = useState(() => new Chess().fen())
+ const [transitionCover, setTransitionCover] = useState<null | {
+ fen: string
+ orientation: 'white' | 'black'
+ }>(null)
+
+ function setGameAndBoardFen(nextGame: Chess) {
+ setGame(nextGame)
+ setBoardFen(nextGame.fen())
+ }
  const [message, setMessage] = useState('Loading puzzles...')
  const [phase, setPhase] = useState<Phase>('loading')
  const [solved, setSolved] = useState(false)
@@ -640,14 +650,16 @@ export default function PatternMateTrainer({
  }
 
  function swapToPuzzlePosition(nextGame: Chess) {
+ setTransitionCover({ fen: boardFen, orientation: boardOrientation })
  setDisableBoardAnimation(true)
- setGame(nextGame)
+ setGameAndBoardFen(nextGame)
 
- requestAnimationFrame(() => {
+ window.setTimeout(() => {
  requestAnimationFrame(() => {
  setDisableBoardAnimation(false)
+ setTransitionCover(null)
  })
- })
+ }, 130)
  }
 
  async function loadChunkByIndex(
@@ -774,7 +786,7 @@ export default function PatternMateTrainer({
  setPuzzles([])
  setChunkProgress([])
  setCurrentIndex(0)
- setGame(new Chess())
+ setGameAndBoardFen(new Chess())
  setBoardLocked(true)
  setPhase('finished')
  setDisplayTurn('w')
@@ -965,7 +977,6 @@ export default function PatternMateTrainer({
  
  useEffect(() => {
  if (phase !== 'solving') return
- setBoardOrientation(displayTurn === 'b' ? 'black' : 'white')
  }, [displayTurn, phase])
 useEffect(() => {
  if (!currentChunkFileName || puzzles.length === 0 || chunkProgress.length === 0)
@@ -1045,8 +1056,21 @@ useEffect(() => {
  setPhase('solving')
 
  setCurrentIndex(index)
- swapToPuzzlePosition(startChess)
- setDisplayTurn(startChess.turn())
+    const afterPreMoveForOrientation = new Chess(puzzle.fen)
+    let userTurn: 'w' | 'b' = startChess.turn()
+
+    if (puzzle.preMove) {
+      try {
+        afterPreMoveForOrientation.move(parseUci(puzzle.preMove!))
+        userTurn = afterPreMoveForOrientation.turn()
+      } catch {
+        userTurn = startChess.turn()
+      }
+    }
+
+    setBoardOrientation(userTurn === 'b' ? 'black' : 'white')
+    swapToPuzzlePosition(startChess)
+    setDisplayTurn(userTurn)
 
  if (puzzle.preMove) {
  setBoardLocked(true)
@@ -1065,8 +1089,8 @@ useEffect(() => {
  return
  }
 
- setGame(afterPreMove)
- setDisplayTurn(afterPreMove.turn())
+ setGameAndBoardFen(afterPreMove)
+ setDisplayTurn(userTurn)
  setLastMoveHighlight(puzzle.preMove!)
 
  preMoveTimerRef.current = window.setTimeout(() => {
@@ -1171,7 +1195,7 @@ useEffect(() => {
  getUserMoveCount(currentPuzzle) * FAST_SOLVE_SECONDS_PER_MOVE
  const wasFast = solvedInSeconds !== null && solvedInSeconds <= fastThreshold
 
- setGame(solvedGame)
+ setGameAndBoardFen(solvedGame)
  setDisplayTurn(solvedGame.turn())
  setSolved(true)
  setBoardLocked(true)
@@ -1257,7 +1281,7 @@ useEffect(() => {
  )
 
  if (autoMoves.length === 0) {
- setGame(testGame)
+ setGameAndBoardFen(testGame)
  setDisplayTurn(testGame.turn())
 
  if (solvedUserMoveCountAfter >= totalUserMoves) {
@@ -1279,12 +1303,12 @@ useEffect(() => {
  animationMs: BOARD_ANIMATION_MS,
  pauseAfterMs: REPLY_PAUSE_AFTER_MS,
  onPosition: (nextGame) => {
- setGame(new Chess(nextGame.fen()))
+ setGameAndBoardFen(new Chess(nextGame.fen()))
  setDisplayTurn(nextGame.turn())
  },
  onMessage: () => {},
  onDone: (finalGame) => {
- setGame(new Chess(finalGame.fen()))
+ setGameAndBoardFen(new Chess(finalGame.fen()))
  setDisplayTurn(finalGame.turn())
 
  if (solvedUserMoveCountAfter >= totalUserMoves) {
@@ -1380,13 +1404,13 @@ useEffect(() => {
  if (options?.allowWrongMoveToShow) {
  const resetFen = game.fen()
 
- setGame(testGame)
+ setGameAndBoardFen(testGame)
  setDisplayTurn(testGame.turn())
  setLastMoveHighlight(playedUci)
 
  wrongMoveTimerRef.current = window.setTimeout(() => {
  const resetGame = new Chess(resetFen)
- setGame(resetGame)
+ setGameAndBoardFen(resetGame)
  setDisplayTurn(resetGame.turn())
  setLastMoveHighlight(null)
  setPhase('solving')
@@ -1653,11 +1677,14 @@ return attemptUserMove(sourceSquare, targetSquare, {
  position: 'relative',
  width: boardSize,
  height: boardSize,
- }}
+ overflow: 'hidden',
+
+}}
  >
  <Chessboard
+
  id={`${config.trainerKey}-board`}
- position={globalFen}
+ position={boardFen}
  boardOrientation={boardOrientation}
  onPieceDrop={onDrop}
  onSquareClick={onSquareClick}
@@ -1677,6 +1704,31 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }
  promotionDialogVariant="vertical"
 />
+ {transitionCover && (
+ <div
+ style={{
+ position: 'absolute',
+ inset: 0,
+ zIndex: 30,
+ pointerEvents: 'none',
+ }}
+ >
+ <Chessboard
+ id={`${config.trainerKey}-transition-cover-board`}
+ position={transitionCover.fen}
+ boardOrientation={transitionCover.orientation}
+ boardWidth={boardSize}
+ customPieces={customPieces}
+ customDarkSquareStyle={{ backgroundColor: '#769656' }}
+ customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
+ customBoardStyle={{
+ borderRadius: '8px',
+ overflow: 'hidden',
+ }}
+ animationDuration={0}
+ />
+ </div>
+ )}
 
  {animatedReply && animatedReplyStyle && (
  <div style={animatedReplyStyle}>
