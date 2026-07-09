@@ -128,7 +128,7 @@ const FAST_SOLVE_SECONDS_PER_MOVE = 3
 const AUTO_NEXT_DELAY_MS = 2000
 const BOARD_ANIMATION_MS = 140
 const REPLY_PAUSE_AFTER_MS = 80
-const PREMOVE_START_DELAY_MS = 160
+const PREMOVE_START_DELAY_MS = 320
 const PREMOVE_AFTER_PLAY_DELAY_MS = 450
 
 type SavedState = {
@@ -659,7 +659,7 @@ export default function PatternMateTrainer({
  setDisableBoardAnimation(false)
  setTransitionCover(null)
  })
- }, 130)
+ }, 260)
  }
 
  async function loadChunkByIndex(
@@ -1744,8 +1744,8 @@ return attemptUserMove(sourceSquare, targetSquare, {
  style={{
  position: 'absolute',
  pointerEvents: 'none',
- fontSize: boardSize / 12,
- color: '#4caf50',
+ fontSize: Math.max(14, correctPos.squareSize * 0.28),
+ color: '#22c55e',
  fontWeight: 900,
  left: correctPos.left,
  top: correctPos.top,
@@ -1758,7 +1758,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  zIndex: 30,
  }}
  >
- OK
+ ✓
  </div>
  )}
  {wrongBoardMessage && (
@@ -1969,7 +1969,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  fontWeight: 700,
  }}
  >
- OK
+ ✓
  </div>
  )
  })}

@@ -128,8 +128,8 @@ const FAST_SOLVE_SECONDS_PER_MOVE = 3
 const AUTO_NEXT_DELAY_MS = 1500
 const BOARD_ANIMATION_MS = 140
 const REPLY_PAUSE_AFTER_MS = 80
-const PREMOVE_START_DELAY_MS = 800
-const PREMOVE_AFTER_PLAY_DELAY_MS = 1000
+const PREMOVE_START_DELAY_MS = 320
+const PREMOVE_AFTER_PLAY_DELAY_MS = 450
 
 type SavedState = {
  currentChunkIndex: number
@@ -658,7 +658,7 @@ export default function PatternTacticTrainer({
  setDisableBoardAnimation(false)
  setTransitionCover(null)
  })
- }, 130)
+ }, 260)
  }
 
  async function loadChunkByIndex(
@@ -1051,8 +1051,21 @@ export default function PatternTacticTrainer({
  setPhase('solving')
 
  setCurrentIndex(index)
- swapToPuzzlePosition(startChess)
- setDisplayTurn(startChess.turn())
+    const afterPreMoveForOrientation = new Chess(puzzle.fen)
+    let userTurn: 'w' | 'b' = startChess.turn()
+
+    if (puzzle.preMove) {
+      try {
+        afterPreMoveForOrientation.move(parseUci(puzzle.preMove!))
+        userTurn = afterPreMoveForOrientation.turn()
+      } catch {
+        userTurn = startChess.turn()
+      }
+    }
+
+    setBoardOrientation(userTurn === 'b' ? 'black' : 'white')
+    swapToPuzzlePosition(startChess)
+    setDisplayTurn(userTurn)
 
  if (puzzle.preMove) {
  setBoardLocked(true)
@@ -1072,7 +1085,7 @@ export default function PatternTacticTrainer({
  }
 
  setGameAndBoardFen(afterPreMove)
- setDisplayTurn(afterPreMove.turn())
+ setDisplayTurn(userTurn)
  setLastMoveHighlight(puzzle.preMove!)
 
  preMoveTimerRef.current = window.setTimeout(() => {
@@ -1660,8 +1673,8 @@ return attemptUserMove(sourceSquare, targetSquare, {
  style={{
  position: 'absolute',
  pointerEvents: 'none',
- fontSize: boardSize / 12,
- color: '#4caf50',
+ fontSize: Math.max(14, correctPos.squareSize * 0.28),
+ color: '#22c55e',
  fontWeight: 900,
  left: correctPos.left,
  top: correctPos.top,
@@ -1674,7 +1687,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  zIndex: 30,
  }}
  >
- OK
+ ✓
  </div>
  )}
  </div>
@@ -1857,7 +1870,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  fontWeight: 700,
  }}
  >
- OK
+ ✓
  </div>
  )
  })}
