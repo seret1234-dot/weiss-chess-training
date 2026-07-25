@@ -195,11 +195,12 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  </h1>
 
  <p style={{ fontSize: 18, color: '#d7d7d7', marginBottom: 20 }}>
- Train mates, tactics, endgames, openings and memory using structured chunks.
+ Train tactics, openings and endgames with structured repetition instead of random puzzles.
  </p>
 
+ <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
  <button
- onClick={() => navigate('/auto')}
+ onClick={() => navigate('/sample-training')}
  style={{
  padding: '14px 22px',
  borderRadius: 999,
@@ -211,8 +212,24 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  cursor: 'pointer',
  }}
  >
+ Try a 2-minute training session
+ </button>
+ <button
+ onClick={() => navigate('/auto')}
+ style={{
+ padding: '14px 22px',
+ borderRadius: 999,
+ background: 'transparent',
+ color: '#f3f3f3',
+ border: '1px solid rgba(255,255,255,0.16)',
+ fontSize: 16,
+ fontWeight: 800,
+ cursor: 'pointer',
+ }}
+ >
  Start Auto Training
  </button>
+ </div>
  </div>
 
  <div

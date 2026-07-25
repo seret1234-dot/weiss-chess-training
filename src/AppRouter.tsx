@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 
 import LandingPage from "./LandingPage"
+import SampleTrainingPage from "./SampleTrainingPage"
 import MatesPage from "./MatesPage"
 import MateDistancePage from "./MateDistancePage"
 import NavGridPage from "./NavGridPage"
@@ -142,6 +143,7 @@ export default function AppRouter() {
  <Routes>
  <Route path="/stalemate/underpromotion" element={<StalemateUnderpromotionPage />} />
  <Route path="/" element={<LandingPage onSelectCategory={() => {}} />} />
+ <Route path="/sample-training" element={<SampleTrainingPage />} />
 
  <Route path="/auth" element={<AuthPage />} />
  <Route path="/account" element={<AccountPage />} />

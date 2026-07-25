@@ -164,6 +164,10 @@ export default function AuthPage() {
  confirmation_required: !data.session,
  })
 
+ if (!data.session) {
+ trackAnalyticsEvent("email_verification_required")
+ }
+
  const userId = data.user?.id
 
  if (chessComUsername) {

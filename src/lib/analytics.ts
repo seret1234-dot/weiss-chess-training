@@ -7,6 +7,11 @@ export type AnalyticsEventName =
   | 'subscription_page_viewed'
   | 'checkout_started'
   | 'subscription_activated'
+  | 'sample_training_started'
+  | 'sample_training_completed'
+  | 'signup_prompt_viewed'
+  | 'signup_prompt_clicked'
+  | 'email_verification_required'
   | 'page_view';
 
 type AnalyticsProperties = Record<string, string | number | boolean | null | undefined>;
