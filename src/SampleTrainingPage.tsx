@@ -19,7 +19,10 @@ function getBoardWidth() {
 export default function SampleTrainingPage() {
   const navigate = useNavigate()
   const [boardWidth, setBoardWidth] = useState(getBoardWidth)
-  const [game, setGame] = useState(() => new Chess(samplePuzzle.fen))
+  // The bundled sample comes from legacy Lichess data whose en-passant field
+  // is not accepted by the current chess.js validator. It has no bearing on
+  // this position's legal move, so retain the original board while loading it.
+  const [game, setGame] = useState(() => new Chess(samplePuzzle.fen, { skipValidation: true }))
   const [feedback, setFeedback] = useState('Find the best move.')
   const [completed, setCompleted] = useState(false)
 
