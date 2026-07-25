@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties, FormEvent } from "react"
 import { supabase } from "./lib/supabase"
+import { trackAnalyticsEvent } from "./lib/analytics"
 import { runChessComImport } from "./training/chesscomImport"
 
 type AuthMode = "login" | "signup"
@@ -159,6 +160,10 @@ export default function AuthPage() {
  return
  }
 
+ trackAnalyticsEvent("sign_up_completed", {
+ confirmation_required: !data.session,
+ })
+
  const userId = data.user?.id
 
  if (chessComUsername) {
@@ -225,7 +230,10 @@ export default function AuthPage() {
  <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
  <button
  type="button"
- onClick={() => setMode("signup")}
+ onClick={() => {
+ if (mode !== "signup") trackAnalyticsEvent("sign_up_started")
+ setMode("signup")
+ }}
  style={buttonStyle(mode === "signup" ? "#81b64c" : "#4b4847")}
  >
  Sign up

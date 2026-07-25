@@ -82,7 +82,7 @@ export default function EndgameStudiesPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 26, fontWeight: 800 }}>Endgame Studies</div>
+            <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>Endgame Studies</h1>
             <div style={{ color: '#cfcfcf', fontSize: 14 }}>
               Advanced theoretical and tablebase-style endgames
             </div>

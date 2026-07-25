@@ -1513,8 +1513,9 @@ export default function BoardVisionPage() {
  }}
  >
  <div>
- <div
+ <h1
  style={{
+ margin: 0,
  fontSize: 30,
  fontWeight: 800,
  letterSpacing: '-0.02em',
@@ -1522,7 +1523,7 @@ export default function BoardVisionPage() {
  }}
  >
  Board Vision Trainer
- </div>
+ </h1>
  <div
  style={{
  marginTop: 6,

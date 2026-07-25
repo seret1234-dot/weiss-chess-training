@@ -3,6 +3,8 @@ import EndgameExplanationOverlay from "./pages/endgames/EndgameExplanationOverla
 import CoachMistakeOverlay from "./components/coach/CoachMistakeOverlay"
 import React from "react"
 import ReactDOM from "react-dom/client"
+import SeoHead from "./components/SeoHead"
+import SiteAnalytics from "./components/SiteAnalytics"
 import AppRouter from "./AppRouter"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -10,6 +12,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
  <>
  <AppRouter />
  <EndgameExplanationOverlay />
+ <SeoHead />
+ <SiteAnalytics />
  <OpeningExplanationOverlay />
  <CoachMistakeOverlay />
  </>
