@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Chess } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from "./theme/ThemedChessboard"
 import phase1Data from '../two_bishop_mate/two_bishops_phase1_chunks.json'
 import phase2Data from '../two_bishop_mate/two_bishops_phase2.json'
 import phase3Data from '../two_bishop_mate/two_bishops_phase3.json'
@@ -1322,7 +1322,7 @@ export default function TwoBishopsSimpleTrainer() {
  {getCurrentPrompt()}
  </div>
 
- <Chessboard
+ <ThemedChessboard
  id="TwoBishopsTrainerBoard"
  position={game.fen()}
  onPieceDrop={onDrop}

@@ -1,0 +1,154 @@
+/* The free-line player is a desktop-first standalone screen. Keep its wide
+ * board/panel arrangement above 768px and turn it into a normal, dock-aware
+ * document flow below that point. */
+.free-line-play-page,
+.free-line-play-page *,
+.free-line-play-page *::before,
+.free-line-play-page *::after {
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .free-line-play-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 100dvh;
+    padding: var(--site-global-back-clearance) 8px 16px !important;
+    overflow-x: clip;
+  }
+
+  .free-line-play-page__content,
+  .free-line-play-page__header,
+  .free-line-play-page__layout,
+  .free-line-play-page__board-card,
+  .free-line-play-page__side-panel,
+  .free-line-play-page__moves {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .free-line-play-page__header {
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .free-line-play-page__header h1 {
+    font-size: clamp(1.28rem, 7vw, 1.75rem) !important;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .free-line-play-page__header > div:first-child {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .free-line-play-page__header > div:first-child > div {
+    overflow-wrap: anywhere;
+  }
+
+  .free-line-play-page__mode-actions {
+    width: 100%;
+    flex-wrap: wrap !important;
+    justify-content: stretch;
+  }
+
+  .free-line-play-page__mode-actions > * {
+    flex: 1 1 132px;
+    min-width: 0;
+    text-align: center;
+  }
+
+  .free-line-play-page__layout {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .free-line-play-page__board-card {
+    flex: 0 0 auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .free-line-play-page__player-bar {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0;
+    margin-left: 0 !important;
+    padding: 8px 10px !important;
+    gap: 8px !important;
+  }
+
+  .free-line-play-page__player-bar > * {
+    min-width: 0;
+  }
+
+  .free-line-play-page__player-bar [data-name='free-play-player-name'] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .free-line-play-page__board-row {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+
+  .free-line-play-page__eval-bar {
+    flex: 0 0 18px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 18px !important;
+  }
+
+  .free-line-play-page__board-row > [data-name='themed-chessboard-wrapper'],
+  .free-line-play-page__board-row > div:has(> [data-name='themed-chessboard-wrapper']) {
+    width: min(calc(100vw - 16px), 760px) !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-inline: auto;
+  }
+
+  .free-line-play-page__side-panel {
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+  }
+
+  .free-line-play-page__actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .free-line-play-page__actions button {
+    flex: 1 1 138px !important;
+    min-width: 0;
+  }
+
+  .free-line-play-page button {
+    min-height: 44px;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .free-line-play-page__moves,
+  .free-line-play-page__moves * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .free-line-play-page__moves > div:last-child > div {
+    grid-template-columns: 30px minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+}

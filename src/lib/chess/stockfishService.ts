@@ -1,267 +1,390 @@
-import type { EvalInfo } from './playComputerTypes'
+import type { EvalInfo } from "./playComputerTypes"
 
 export type EngineConfig = {
- skillLevel: number
- depth?: number
- moveTime?: number
+  skillLevel: number
+  depth?: number
+  moveTime?: number
 }
 
 export type BestMoveResult = {
- bestMove: string
- ponder?: string
- eval?: EvalInfo
+  bestMove: string
+  ponder?: string
+  eval?: EvalInfo
+}
+
+export type EngineLine = {
+  multipv: number
+  bestMove: string
+  pv: string[]
+  scoreCp?: number
+  mate?: number
+  depth?: number
 }
 
 type PendingBestMove = {
- resolve: (value: BestMoveResult) => void
- reject: (reason?: unknown) => void
- eval: EvalInfo
+  resolve: (value: BestMoveResult) => void
+  reject: (reason?: unknown) => void
+  eval: EvalInfo
 }
 
 type PendingEval = {
- resolve: (value: EvalInfo) => void
- reject: (reason?: unknown) => void
- eval: EvalInfo
+  resolve: (value: EvalInfo) => void
+  reject: (reason?: unknown) => void
+  eval: EvalInfo
+}
+
+type PendingLines = {
+  resolve: (value: EngineLine[]) => void
+  reject: (reason?: unknown) => void
+  lines: Record<number, EngineLine>
 }
 
 function createWorker(): Worker {
- return new Worker('/stockfish/stockfish.js')
+  return new Worker("/stockfish/stockfish.js")
+}
+
+function isUciMove(value: string): boolean {
+  return /^[a-h][1-8][a-h][1-8][qrbn]?$/.test(value)
 }
 
 export class StockfishService {
- private worker: Worker | null = null
- private isReady = false
- private currentConfig: EngineConfig = {
- skillLevel: 20,
- depth: 18,
- moveTime: 800,
- }
+  private worker: Worker | null = null
+  private isReady = false
+  private currentConfig: EngineConfig = {
+    skillLevel: 20,
+    depth: 18,
+    moveTime: 800,
+  }
 
- private pendingBestMove: PendingBestMove | null = null
- private pendingEval: PendingEval | null = null
- private pendingLines: PendingLines | null = null
+  private pendingBestMove: PendingBestMove | null = null
+  private pendingEval: PendingEval | null = null
+  private pendingLines: PendingLines | null = null
 
- async init(): Promise<void> {
- if (this.worker && this.isReady) return
+  async init(): Promise<void> {
+    if (this.worker && this.isReady) return
 
- this.worker = createWorker()
+    this.worker = createWorker()
 
- await new Promise<void>((resolve, reject) => {
- if (!this.worker) {
- reject(new Error('Failed to create Stockfish worker'))
- return
- }
+    await new Promise<void>((resolve, reject) => {
+      if (!this.worker) {
+        reject(new Error("Failed to create Stockfish worker"))
+        return
+      }
 
- const timeout = window.setTimeout(() => {
- reject(new Error('Stockfish init timeout'))
- }, 10000)
+      const timeout = window.setTimeout(() => {
+        reject(new Error("Stockfish init timeout"))
+      }, 10000)
 
- this.worker.onmessage = (event: MessageEvent) => {
- const line = String(event.data || '')
+      this.worker.onmessage = (event: MessageEvent) => {
+        const line = String(event.data || "")
 
- if (line === 'readyok') {
- window.clearTimeout(timeout)
- this.isReady = true
- resolve()
- return
- }
+        if (line === "readyok") {
+          window.clearTimeout(timeout)
+          this.isReady = true
+          resolve()
+          return
+        }
 
- this.handleEngineLine(line)
- }
+        this.handleEngineLine(line)
+      }
 
- this.worker.onerror = (err) => {
- window.clearTimeout(timeout)
- reject(err)
- }
+      this.worker.onerror = (err) => {
+        window.clearTimeout(timeout)
+        reject(err)
+      }
 
- this.send('uci')
- this.send('isready')
- })
- }
+      this.send("uci")
+      this.send("isready")
+    })
+  }
 
- private handleEngineLine(line: string) {
- if (line.startsWith('info ')) {
- const evalInfo = this.parseInfoLine(line)
+  private handleEngineLine(line: string) {
+    if (line.startsWith("info ")) {
+      const evalInfo = this.parseInfoLine(line)
 
- if (this.pendingBestMove) {
- this.pendingBestMove.eval = {
- ...this.pendingBestMove.eval,
- ...evalInfo,
- }
- }
+      if (this.pendingBestMove) {
+        this.pendingBestMove.eval = {
+          ...this.pendingBestMove.eval,
+          ...evalInfo,
+        }
+      }
 
- if (this.pendingEval) {
- this.pendingEval.eval = {
- ...this.pendingEval.eval,
- ...evalInfo,
- }
- }
+      if (this.pendingEval) {
+        this.pendingEval.eval = {
+          ...this.pendingEval.eval,
+          ...evalInfo,
+        }
+      }
 
- return
- }
+      if (this.pendingLines) {
+        const parsed = this.parseMultiPvLine(line)
 
- if (line.startsWith('bestmove ')) {
- const parts = line.split(/\s+/)
- const bestMove = parts[1] || ''
- const ponder = parts[3] || undefined
+        if (parsed) {
+          const previous = this.pendingLines.lines[parsed.multipv]
+          const previousDepth = previous?.depth ?? -1
+          const nextDepth = parsed.depth ?? -1
 
- if (this.pendingBestMove) {
- const pending = this.pendingBestMove
- this.pendingBestMove = null
- pending.resolve({
- bestMove,
- ponder,
- eval: pending.eval,
- })
- return
- }
+          if (!previous || nextDepth >= previousDepth) {
+            this.pendingLines.lines[parsed.multipv] = parsed
+          }
+        }
+      }
 
- if (this.pendingEval) {
- const pending = this.pendingEval
- this.pendingEval = null
- pending.resolve(pending.eval)
- }
- }
- }
+      return
+    }
 
- private parseInfoLine(line: string): EvalInfo {
- const depthMatch = line.match(/\bdepth\s+(\d+)/)
- const mateMatch = line.match(/\bscore mate\s+(-?\d+)/)
- const cpMatch = line.match(/\bscore cp\s+(-?\d+)/)
- const pvMatch = line.match(/\bpv\s+([a-h][1-8][a-h][1-8][qrbn]?)/)
+    if (!line.startsWith("bestmove ")) return
 
- const info: EvalInfo = {}
+    const parts = line.split(/\s+/)
+    const bestMove = parts[1] || ""
+    const ponder = parts[3] || undefined
 
- if (depthMatch) info.depth = Number(depthMatch[1])
- if (mateMatch) info.mate = Number(mateMatch[1])
- if (cpMatch) info.scoreCp = Number(cpMatch[1])
- if (pvMatch) info.bestMove = pvMatch[1]
+    if (this.pendingBestMove) {
+      const pending = this.pendingBestMove
+      this.pendingBestMove = null
+      pending.resolve({
+        bestMove,
+        ponder,
+        eval: {
+          ...pending.eval,
+          bestMove: pending.eval.bestMove || bestMove,
+        },
+      })
+      return
+    }
 
- return info
- }
+    if (this.pendingEval) {
+      const pending = this.pendingEval
+      this.pendingEval = null
+      pending.resolve({
+        ...pending.eval,
+        bestMove: pending.eval.bestMove || bestMove,
+      })
+      return
+    }
 
- private parseMultiPvLine(line: string): EngineLine | null {
- const multipvMatch = line.match(/\bmultipv\s+(\d+)/)
- const depthMatch = line.match(/\bdepth\s+(\d+)/)
- const mateMatch = line.match(/\bscore mate\s+(-?\d+)/)
- const cpMatch = line.match(/\bscore cp\s+(-?\d+)/)
- const pvMatch = line.match(/\bpv\s+([a-h][1-8][a-h][1-8][qrbn]?)/)
+    if (this.pendingLines) {
+      const pending = this.pendingLines
+      this.pendingLines = null
 
- if (!pvMatch) return null
+      const lines = Object.values(pending.lines).sort(
+        (a, b) => a.multipv - b.multipv,
+      )
 
- return {
- multipv: multipvMatch ? Number(multipvMatch[1]) : 1,
- bestMove: pvMatch[1],
- scoreCp: cpMatch ? Number(cpMatch[1]) : undefined,
- mate: mateMatch ? Number(mateMatch[1]) : undefined,
- depth: depthMatch ? Number(depthMatch[1]) : undefined,
- }
- }
+      if (lines.length === 0 && isUciMove(bestMove)) {
+        lines.push({
+          multipv: 1,
+          bestMove,
+          pv: [bestMove],
+        })
+      }
 
- private send(command: string) {
- if (!this.worker) return
- this.worker.postMessage(command)
- }
+      pending.resolve(lines)
+    }
+  }
 
- setPosition(fen: string, moves?: string[]) {
- if (fen === 'start') {
- const movePart = moves && moves.length ? ` moves ${moves.join(' ')}` : ''
- this.send(`position startpos${movePart}`)
- return
- }
+  private parseInfoLine(line: string): EvalInfo {
+    const depthMatch = line.match(/\bdepth\s+(\d+)/)
+    const mateMatch = line.match(/\bscore mate\s+(-?\d+)/)
+    const cpMatch = line.match(/\bscore cp\s+(-?\d+)/)
+    const pvMatch = line.match(/\bpv\s+(.+)$/)
 
- const movePart = moves && moves.length ? ` moves ${moves.join(' ')}` : ''
- this.send(`position fen ${fen}${movePart}`)
- }
+    const pv = (pvMatch?.[1] || "")
+      .trim()
+      .split(/\s+/)
+      .filter(isUciMove)
 
- setSkill(config: EngineConfig) {
- this.currentConfig = config
- this.send(`setoption name Skill Level value ${config.skillLevel}`)
- }
+    const info: EvalInfo = {}
 
- async getBestMove(fen: string): Promise<BestMoveResult> {
- if (!this.isReady) {
- throw new Error('Stockfish is not ready')
- }
+    if (depthMatch) info.depth = Number(depthMatch[1])
+    if (mateMatch) info.mate = Number(mateMatch[1])
+    if (cpMatch) info.scoreCp = Number(cpMatch[1])
+    if (pv.length > 0) {
+      info.bestMove = pv[0]
+      info.pv = pv
+    }
 
- this.setPosition(fen)
+    return info
+  }
 
- return new Promise<BestMoveResult>((resolve, reject) => {
- this.pendingBestMove = {
- resolve,
- reject,
- eval: {},
- }
+  private parseMultiPvLine(line: string): EngineLine | null {
+    const multipvMatch = line.match(/\bmultipv\s+(\d+)/)
+    const depthMatch = line.match(/\bdepth\s+(\d+)/)
+    const mateMatch = line.match(/\bscore mate\s+(-?\d+)/)
+    const cpMatch = line.match(/\bscore cp\s+(-?\d+)/)
+    const pvMatch = line.match(/\bpv\s+(.+)$/)
 
- if (this.currentConfig.depth) {
- this.send(`go depth ${this.currentConfig.depth}`)
- } else {
- this.send(`go movetime ${this.currentConfig.moveTime ?? 800}`)
- }
- })
- }
+    const pv = (pvMatch?.[1] || "")
+      .trim()
+      .split(/\s+/)
+      .filter(isUciMove)
 
- async getEvaluation(
- fen: string,
- options?: { depth?: number; moveTime?: number },
- ): Promise<EvalInfo> {
- if (!this.isReady) {
- throw new Error('Stockfish is not ready')
- }
+    if (pv.length === 0) return null
 
- this.stop()
- this.setPosition(fen)
+    return {
+      multipv: multipvMatch ? Number(multipvMatch[1]) : 1,
+      bestMove: pv[0],
+      pv,
+      scoreCp: cpMatch ? Number(cpMatch[1]) : undefined,
+      mate: mateMatch ? Number(mateMatch[1]) : undefined,
+      depth: depthMatch ? Number(depthMatch[1]) : undefined,
+    }
+  }
 
- return new Promise<EvalInfo>((resolve, reject) => {
- this.pendingEval = {
- resolve,
- reject,
- eval: {},
- }
+  send(command: string) {
+    if (!this.worker) return
+    this.worker.postMessage(command)
+  }
 
- if (options?.moveTime) {
- this.send(`go movetime ${options.moveTime}`)
- } else if (options?.depth) {
- this.send(`go depth ${options.depth}`)
- } else {
- this.send(`go depth ${Math.min(this.currentConfig.depth ?? 18, 14)}`)
- }
- })
- }
+  private cancelPending(reason = "Stockfish search replaced") {
+    const error = new Error(reason)
 
- async getTopLines(fen: string, count = 3): Promise<EngineLine[]> {
- if (!this.isReady) {
- throw new Error("Stockfish is not ready")
- }
+    if (this.pendingBestMove) {
+      this.pendingBestMove.reject(error)
+      this.pendingBestMove = null
+    }
 
- this.setPosition(fen)
+    if (this.pendingEval) {
+      this.pendingEval.reject(error)
+      this.pendingEval = null
+    }
 
- return new Promise<EngineLine[]>((resolve, reject) => {
- this.pendingLines = {
- resolve,
- reject,
- lines: {},
- }
+    if (this.pendingLines) {
+      this.pendingLines.reject(error)
+      this.pendingLines = null
+    }
+  }
 
- this.send(`setoption name MultiPV value ${count}`)
- this.send(`go depth ${Math.max(8, this.currentConfig.depth ?? 8)}`)
- }).finally(() => {
- this.send("setoption name MultiPV value 1")
- })
- }
+  private beginSearch() {
+    if (
+      this.pendingBestMove ||
+      this.pendingEval ||
+      this.pendingLines
+    ) {
+      this.send("stop")
+      this.cancelPending()
+    }
+  }
 
- stop() {
- this.send('stop')
- }
+  setPosition(fen: string, moves?: string[]) {
+    if (fen === "start") {
+      const movePart =
+        moves && moves.length ? ` moves ${moves.join(" ")}` : ""
+      this.send(`position startpos${movePart}`)
+      return
+    }
 
- quit() {
- this.send('quit')
- this.worker?.terminate()
- this.worker = null
- this.isReady = false
- this.pendingBestMove = null
- this.pendingEval = null
- }
+    const movePart =
+      moves && moves.length ? ` moves ${moves.join(" ")}` : ""
+    this.send(`position fen ${fen}${movePart}`)
+  }
+
+  setSkill(config: EngineConfig) {
+    this.currentConfig = config
+    this.send(`setoption name Skill Level value ${config.skillLevel}`)
+  }
+
+  async getBestMove(fen: string): Promise<BestMoveResult> {
+    if (!this.isReady) {
+      throw new Error("Stockfish is not ready")
+    }
+
+    this.beginSearch()
+    this.setPosition(fen)
+
+    return new Promise<BestMoveResult>((resolve, reject) => {
+      this.pendingBestMove = {
+        resolve,
+        reject,
+        eval: {},
+      }
+
+      if (this.currentConfig.depth) {
+        this.send(`go depth ${this.currentConfig.depth}`)
+      } else {
+        this.send(`go movetime ${this.currentConfig.moveTime ?? 800}`)
+      }
+    })
+  }
+
+  async getEvaluation(
+    fen: string,
+    options?: { depth?: number; moveTime?: number },
+  ): Promise<EvalInfo> {
+    if (!this.isReady) {
+      throw new Error("Stockfish is not ready")
+    }
+
+    this.beginSearch()
+    this.setPosition(fen)
+
+    return new Promise<EvalInfo>((resolve, reject) => {
+      this.pendingEval = {
+        resolve,
+        reject,
+        eval: {},
+      }
+
+      if (options?.moveTime) {
+        this.send(`go movetime ${options.moveTime}`)
+      } else if (options?.depth) {
+        this.send(`go depth ${options.depth}`)
+      } else {
+        this.send(
+          `go depth ${Math.min(this.currentConfig.depth ?? 18, 14)}`,
+        )
+      }
+    })
+  }
+
+  async getTopLines(
+    fen: string,
+    count = 3,
+    options?: { depth?: number; moveTime?: number },
+  ): Promise<EngineLine[]> {
+    if (!this.isReady) {
+      throw new Error("Stockfish is not ready")
+    }
+
+    const safeCount = Math.max(1, Math.min(5, Math.round(count)))
+    this.beginSearch()
+    this.setPosition(fen)
+
+    return new Promise<EngineLine[]>((resolve, reject) => {
+      this.pendingLines = {
+        resolve,
+        reject,
+        lines: {},
+      }
+
+      this.send(`setoption name MultiPV value ${safeCount}`)
+
+      if (options?.moveTime) {
+        this.send(`go movetime ${options.moveTime}`)
+      } else {
+        this.send(
+          `go depth ${Math.max(
+            8,
+            options?.depth ?? this.currentConfig.depth ?? 12,
+          )}`,
+        )
+      }
+    }).finally(() => {
+      this.send("setoption name MultiPV value 1")
+    })
+  }
+
+  stop() {
+    this.send("stop")
+  }
+
+  quit() {
+    this.send("quit")
+    this.cancelPending("Stockfish was closed")
+    this.worker?.terminate()
+    this.worker = null
+    this.isReady = false
+  }
 }
 
 export const stockfishService = new StockfishService()

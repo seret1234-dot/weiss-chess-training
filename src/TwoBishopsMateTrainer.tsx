@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, MutableRefObject } from 'react'
 import { Chess } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from "./theme/ThemedChessboard"
 import { BNEngine } from './lib/bnEngine'
 import type { EngineResult } from './lib/bnEngine'
 
@@ -1635,7 +1635,7 @@ export default function TwoBishopsMateTrainer() {
  transition: 'all 0.2s ease',
  }}
  >
- <Chessboard
+ <ThemedChessboard
  id="TwoBishopsMateTrainerBoard"
  position={game.fen()}
  onPieceDrop={onDrop}
@@ -1725,7 +1725,7 @@ export default function TwoBishopsMateTrainer() {
  marginBottom: '10px',
  }}
  >
- - ˜ {game.turn() === 'b' ? 'Black to Move' : 'White to Move'}
+Side to move: {game.turn() === 'b' ? 'Black to Move' : 'White to Move'}
  </div>
 
  <div

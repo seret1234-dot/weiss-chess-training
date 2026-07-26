@@ -1,0 +1,96 @@
+/* Shared responsive shell for catalog and landing pages that otherwise use
+ * desktop-first inline styles. It deliberately affects only the page hooks
+ * below, leaving trainer and board layouts untouched. */
+.catalog-page,
+.catalog-page *,
+.catalog-page *::before,
+.catalog-page *::after {
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .catalog-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 100dvh !important;
+    padding: 0 !important;
+    overflow-x: clip;
+  }
+
+  .catalog-page__content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0 !important;
+    padding: var(--site-global-back-clearance) 8px
+      calc(var(--site-fixed-bottom-clearance) + 16px) !important;
+  }
+
+  .catalog-page--home .catalog-page__content {
+    padding-top: 8px !important;
+  }
+
+  .catalog-page__hero {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .catalog-page h1 {
+    max-width: 100%;
+    font-size: clamp(30px, 9vw, 42px) !important;
+    line-height: 1.1 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .catalog-page [style*='display: flex'] {
+    flex-wrap: wrap;
+  }
+
+  .catalog-page button,
+  .catalog-page input,
+  .catalog-page select,
+  .catalog-page a {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+  }
+
+  .catalog-page button,
+  .catalog-page a {
+    min-height: 44px;
+  }
+
+  .catalog-page__grid,
+  .catalog-page__grid > * {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .catalog-page__grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .catalog-page__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .catalog-page__filter-input {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+  }
+}
+
+@media (min-width: 560px) and (max-width: 768px) {
+  .catalog-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

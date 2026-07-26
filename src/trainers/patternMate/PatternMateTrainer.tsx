@@ -4,7 +4,8 @@ import type { CSSProperties } from 'react'
 import { Chess } from 'chess.js'
 import { hideCoachMistake, showCoachMistake } from '../../services/coach/coachPopup'
 import type { Square } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from "../../theme/ThemedChessboard"
+import ThemePiece from "../../theme/ThemePiece"
 import { supabase } from '../../lib/supabase'
 import {
  saveTrainingProgress,
@@ -17,6 +18,7 @@ import TrainerShell from '../../components/trainer/TrainerShell'
 import { SiteExplanationBox } from '../../components/SiteExplanationBox'
 import { siteExplanations } from '../../content/siteExplanations'
 import type { SiteExplanationKey } from '../../content/siteExplanations'
+import './patternMateLayout.css'
 import {
  BigMessage,
  HintButton,
@@ -27,6 +29,8 @@ import {
  SecondaryButton,
  ShellInput,
 } from '../../components/trainer/ui'
+
+import { reportTrainingItemCompleted } from "../../lib/trainingQuotaEvents"
 
 type ManifestFile = {
  category?: string
@@ -124,6 +128,29 @@ type PieceCode =
 
 const FAST_SOLVES_TO_MASTER = 5
 const FAST_SOLVE_SECONDS_PER_MOVE = 3
+const MATE_CHUNK_REVIEW_INTERVALS_DAYS = [1, 2, 3, 5, 8, 15, 30, 60, 100, 140, 170, 270, 365] as const
+
+function addMateReviewDays(date: Date, days: number) {
+ const next = new Date(date)
+ next.setDate(next.getDate() + days)
+ return next
+}
+
+function isMateChunkReviewDue(
+ nextReviewAt: string | null | undefined,
+ now = new Date()
+) {
+ if (!nextReviewAt) return false
+ const dueTime = new Date(nextReviewAt).getTime()
+ if (!Number.isFinite(dueTime)) return false
+
+ const tomorrow = new Date(
+ now.getFullYear(),
+ now.getMonth(),
+ now.getDate() + 1
+ )
+ return dueTime < tomorrow.getTime()
+}
 
 const AUTO_NEXT_DELAY_MS = 2000
 const BOARD_ANIMATION_MS = 140
@@ -138,18 +165,18 @@ type SavedState = {
 }
 
 const PIECE_URLS: Record<PieceCode, string> = {
- wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
- wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
- wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
- wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
- wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
- wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
- bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
- bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
- bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
- bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
- bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
- bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png',
+ wP: '/pieces/react-chessboard-default/wp.svg',
+ wN: '/pieces/react-chessboard-default/wn.svg',
+ wB: '/pieces/react-chessboard-default/wb.svg',
+ wR: '/pieces/react-chessboard-default/wr.svg',
+ wQ: '/pieces/react-chessboard-default/wq.svg',
+ wK: '/pieces/react-chessboard-default/wk.svg',
+ bP: '/pieces/react-chessboard-default/bp.svg',
+ bN: '/pieces/react-chessboard-default/bn.svg',
+ bB: '/pieces/react-chessboard-default/bb.svg',
+ bR: '/pieces/react-chessboard-default/br.svg',
+ bQ: '/pieces/react-chessboard-default/bq.svg',
+ bK: '/pieces/react-chessboard-default/bk.svg',
 }
 
 function renderPieceImage(code: PieceCode, size: number) {
@@ -415,6 +442,10 @@ export default function PatternMateTrainer({
  const preMoveTimerRef = useRef<number | null>(null)
  const solveStartedAtRef = useRef<number | null>(null)
  const currentUserMoveIndexRef = useRef(0)
+ const chunkProgressRef = useRef<PuzzleMastery[]>([])
+ const chunkCanBeCompletedRef = useRef(true)
+ const chunkMasterySaveKeyRef = useRef<string | null>(null)
+ const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
 
  const {
  lastMoveHighlight,
@@ -585,10 +616,42 @@ export default function PatternMateTrainer({
  userId: string,
  chunkIndexZeroBased: number,
  masteredCount: number
- ) {
+): Promise<boolean> {
  try {
- const nowIso = new Date().toISOString()
+ const now = new Date()
+ const nowIso = now.toISOString()
  const chunkNumber = chunkIndexZeroBased + 1
+
+ const { data: existing, error: existingError } = await supabase
+ .from('user_chunk_progress')
+ .select('review_stage, next_review_at, mastered_at')
+ .eq('user_id', userId)
+ .eq('trainer_key', config.trainerKey)
+ .eq('chunk_index', chunkNumber)
+ .maybeSingle()
+
+ if (existingError) {
+ console.error('Could not load chunk review stage', existingError)
+ return false
+ }
+
+ const currentStage = Math.max(
+ 0,
+ Math.min(
+ MATE_CHUNK_REVIEW_INTERVALS_DAYS.length,
+ Number(existing?.review_stage ?? 0)
+ )
+ )
+ const nextStage = Math.min(
+ MATE_CHUNK_REVIEW_INTERVALS_DAYS.length,
+ currentStage + 1
+ )
+ const intervalDays =
+ MATE_CHUNK_REVIEW_INTERVALS_DAYS[nextStage - 1] ??
+ MATE_CHUNK_REVIEW_INTERVALS_DAYS[
+ MATE_CHUNK_REVIEW_INTERVALS_DAYS.length - 1
+ ]
+ const nextReviewAt = addMateReviewDays(now, intervalDays).toISOString()
 
  const { error } = await supabase.from('user_chunk_progress').upsert({
  user_id: userId,
@@ -596,31 +659,69 @@ export default function PatternMateTrainer({
  chunk_index: chunkNumber,
  mastered_puzzles_count: masteredCount,
  is_mastered: true,
- mastered_at: nowIso,
+ mastered_at: existing?.mastered_at ?? nowIso,
+ review_stage: nextStage,
  last_reviewed_at: nowIso,
+ next_review_at: nextReviewAt,
  updated_at: nowIso,
  })
 
  if (error) {
  console.error('Could not mark chunk mastered', error)
- return
+ return false
  }
 
- console.log('Chunk mastered:', {
+ console.log('Chunk mastered and review scheduled:', {
  trainerKey: config.trainerKey,
  chunkIndex: chunkNumber,
  masteredCount,
+ reviewStage: nextStage,
+ nextReviewAt,
  })
 
  const nextChunkNumber = chunkNumber + 1
  if (nextChunkNumber <= chunkFiles.length) {
  await ensureNextChunkExists(userId, nextChunkNumber)
  }
+
+ return true
  } catch (error) {
  console.error('Unexpected markChunkMastered error', error)
+ return false
  }
+}
+
+function startChunkMasterySave(masteredCount: number) {
+ if (!currentUserId || !chunkCanBeCompletedRef.current) {
+ return Promise.resolve(true)
  }
 
+ const saveKey = `${config.trainerKey}:${currentChunkIndex}:${masteredCount}`
+ if (
+ chunkMasterySaveKeyRef.current === saveKey &&
+ chunkMasteryPromiseRef.current
+ ) {
+ return chunkMasteryPromiseRef.current
+ }
+
+ chunkMasterySaveKeyRef.current = saveKey
+ const promise = markChunkMastered(
+ currentUserId,
+ currentChunkIndex,
+ masteredCount
+ ).then((success) => {
+ if (success) {
+ chunkCanBeCompletedRef.current = false
+ } else {
+ chunkMasterySaveKeyRef.current = null
+ chunkMasteryPromiseRef.current = null
+ }
+ return success
+ })
+
+ chunkMasteryPromiseRef.current = promise
+ return promise
+}
  useEffect(() => {
  if (!currentUserId) return
  void ensureChunkExists(currentUserId, 1)
@@ -650,16 +751,15 @@ export default function PatternMateTrainer({
  }
 
  function swapToPuzzlePosition(nextGame: Chess) {
- setTransitionCover({ fen: boardFen, orientation: boardOrientation })
- setDisableBoardAnimation(true)
- setGameAndBoardFen(nextGame)
+  setTransitionCover(null)
+  setDisableBoardAnimation(true)
+  setGameAndBoardFen(nextGame)
 
- window.setTimeout(() => {
- requestAnimationFrame(() => {
- setDisableBoardAnimation(false)
- setTransitionCover(null)
- })
- }, 260)
+  requestAnimationFrame(() => {
+   requestAnimationFrame(() => {
+    setDisableBoardAnimation(false)
+   })
+  })
  }
 
  async function loadChunkByIndex(
@@ -716,7 +816,61 @@ export default function PatternMateTrainer({
  }
  }
 
- const restoredChunkProgress = normalized.map((puzzle, i) => {
+ let chunkReviewDue = false
+ let chunkCanBeCompleted = true
+
+ if (currentUserId) {
+ const chunkNumber = chunkIndex + 1
+ const { data: chunkRow, error: chunkRowError } = await supabase
+ .from('user_chunk_progress')
+ .select('is_mastered, review_stage, next_review_at')
+ .eq('user_id', currentUserId)
+ .eq('trainer_key', config.trainerKey)
+ .eq('chunk_index', chunkNumber)
+ .maybeSingle()
+
+ if (chunkRowError) {
+ console.error('Could not load chunk review state', chunkRowError)
+ } else if (chunkRow) {
+ const hasDueDate = Boolean(chunkRow.next_review_at)
+ const reviewIsDue =
+ hasDueDate && isMateChunkReviewDue(chunkRow.next_review_at)
+ const legacyMasteryWithoutDate =
+ chunkRow.is_mastered === true && !hasDueDate
+
+ if (
+ chunkRow.is_mastered === true &&
+ (reviewIsDue || legacyMasteryWithoutDate)
+ ) {
+ const { error: reopenError } = await supabase
+ .from('user_chunk_progress')
+ .update({
+ is_mastered: false,
+ updated_at: new Date().toISOString(),
+ })
+ .eq('user_id', currentUserId)
+ .eq('trainer_key', config.trainerKey)
+ .eq('chunk_index', chunkNumber)
+
+ if (reopenError) {
+ console.error('Could not reopen due mate chunk', reopenError)
+ chunkCanBeCompleted = false
+ } else {
+ chunkReviewDue = true
+ }
+ } else if (
+ chunkRow.is_mastered === false &&
+ Number(chunkRow.review_stage ?? 0) > 0 &&
+ reviewIsDue
+ ) {
+ chunkReviewDue = true
+ } else if (chunkRow.is_mastered === true) {
+ chunkCanBeCompleted = false
+ }
+ }
+ }
+
+ let restoredChunkProgress = normalized.map((puzzle, i) => {
  const localValue = savedProgress[i] ?? 0
  const supaValue = supaProgress[puzzle.id] ?? 0
 
@@ -727,6 +881,20 @@ export default function PatternMateTrainer({
  ),
  }
  })
+
+ if (chunkReviewDue) {
+ restoredChunkProgress = restoredChunkProgress.map((item) => ({
+ fastSolves: Math.min(
+ item.fastSolves,
+ Math.max(0, FAST_SOLVES_TO_MASTER - 1)
+ ),
+ }))
+ }
+
+ chunkCanBeCompletedRef.current = chunkCanBeCompleted
+ chunkMasterySaveKeyRef.current = null
+ chunkMasteryPromiseRef.current = null
+ chunkProgressRef.current = restoredChunkProgress
 
  let desiredPuzzleIndex =
  puzzleIndexOverride ??
@@ -917,11 +1085,22 @@ export default function PatternMateTrainer({
  function setInitialBoardSize() {
  const width = window.innerWidth
  const height = window.innerHeight
- const rightPanelWidth = 340
+ const desktopMaxBoard = 820
+
+ if (width <= 768) {
+ const mobileBoard = Math.min(desktopMaxBoard, width - 16)
+ setBoardSize(Math.max(1, Math.floor(mobileBoard)))
+ return
+ }
+
+ const rightPanelWidth = 610
  const pagePadding = 80
  const availableWidth = width - rightPanelWidth - pagePadding
  const availableHeight = height - 80
- const size = Math.max(320, Math.min(820, availableWidth, availableHeight))
+ const size = Math.max(
+ 320,
+ Math.min(desktopMaxBoard, availableWidth, availableHeight)
+ )
  setBoardSize(size)
  }
 
@@ -936,7 +1115,7 @@ export default function PatternMateTrainer({
 
  const rect = containerRef.current.getBoundingClientRect()
  const leftPadding = 16
- const rightPanelWidth = 340
+ const rightPanelWidth = 610
  const dividerWidth = 18
  const minBoard = 320
  const maxBoard = Math.min(
@@ -991,7 +1170,10 @@ useEffect(() => {
  ])
 
  useEffect(() => {
+ chunkProgressRef.current = chunkProgress
+
  if (!currentUserId) return
+ if (!chunkCanBeCompletedRef.current) return
  if (puzzles.length === 0) return
  if (chunkProgress.length !== puzzles.length) return
 
@@ -1001,8 +1183,14 @@ useEffect(() => {
 
  if (!allMasteredNow) return
 
- void markChunkMastered(currentUserId, currentChunkIndex, chunkProgress.length)
- }, [currentUserId, currentChunkIndex, chunkProgress, puzzles.length])
+ void startChunkMasterySave(chunkProgress.length)
+ }, [
+ currentUserId,
+ currentChunkIndex,
+ currentChunkFileName,
+ chunkProgress,
+ puzzles.length,
+ ])
 
  function clearTimers() {
  if (wrongMoveTimerRef.current) {
@@ -1021,8 +1209,8 @@ useEffect(() => {
  }
 
  function incrementFastSolve(puzzleIndex: number) {
- setChunkProgress((prev) =>
- prev.map((item, i) =>
+ setChunkProgress((prev) => {
+ const next = prev.map((item, i) =>
  i === puzzleIndex
  ? {
  ...item,
@@ -1030,7 +1218,9 @@ useEffect(() => {
  }
  : item
  )
- )
+ chunkProgressRef.current = next
+ return next
+ })
  }
 
  function loadPuzzleImmediate(
@@ -1085,7 +1275,7 @@ useEffect(() => {
  } catch {
  setBoardLocked(false)
  solveStartedAtRef.current = performance.now()
- setMessage(`Find the mate in ${getUserMoveCount(puzzle)}`)
+ setMessage(config.trainerKey === "stalemate-underpromotion" ? "Find the correct underpromotion" : `Find the mate in ${getUserMoveCount(puzzle)}`)
  return
  }
 
@@ -1096,7 +1286,7 @@ useEffect(() => {
  preMoveTimerRef.current = window.setTimeout(() => {
  setBoardLocked(false)
  solveStartedAtRef.current = performance.now()
- setMessage(`Find the mate in ${getUserMoveCount(puzzle)}`)
+ setMessage(config.trainerKey === "stalemate-underpromotion" ? "Find the correct underpromotion" : `Find the mate in ${getUserMoveCount(puzzle)}`)
  }, PREMOVE_AFTER_PLAY_DELAY_MS)
  }, PREMOVE_START_DELAY_MS)
 
@@ -1105,7 +1295,7 @@ useEffect(() => {
 
  setBoardLocked(false)
  solveStartedAtRef.current = performance.now()
- setMessage(`Find the mate in ${getUserMoveCount(puzzle)}`)
+ setMessage(config.trainerKey === "stalemate-underpromotion" ? "Find the correct underpromotion" : `Find the mate in ${getUserMoveCount(puzzle)}`)
  }
 
  function allPuzzlesMastered() {
@@ -1141,7 +1331,18 @@ useEffect(() => {
  void loadChunkByIndex(targetIndex, undefined, 0)
  }
 
- function completeChunk() {
+ async function completeChunk() {
+ const latestProgress = chunkProgressRef.current
+ const chunkIsMastered =
+ latestProgress.length > 0 &&
+ latestProgress.every(
+ (item) => item.fastSolves >= FAST_SOLVES_TO_MASTER
+ )
+
+ if (chunkIsMastered) {
+ await startChunkMasterySave(latestProgress.length)
+ }
+
  window.location.assign('/auto')
  }
 
@@ -1153,7 +1354,7 @@ useEffect(() => {
  nextChunkProgress.every((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER)
 
  if (chunkIsMastered) {
- completeChunk()
+ void completeChunk()
  return
  }
 
@@ -1244,6 +1445,11 @@ useEffect(() => {
  timeMs,
  })
  }
+
+ reportTrainingItemCompleted(
+  "puzzle",
+  `${config.trainerKey}:${currentPuzzle?.id ?? currentIndex}`,
+ )
 
  config.onPuzzleSolved?.({
  puzzleId: currentPuzzle?.id ?? '',
@@ -1625,7 +1831,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  return (
  <div
  style={{
- minHeight: '100vh',
+ minHeight: '100dvh',
  background: '#161512',
  color: '#f3f3f3',
  display: 'flex',
@@ -1645,7 +1851,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  return (
  <div
  style={{
- minHeight: '100vh',
+ minHeight: '100dvh',
  background: '#161512',
  color: '#f3f3f3',
  padding: 40,
@@ -1663,6 +1869,9 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <TrainerShell
  title={config.trainerTitle}
  subtitle={currentChunkFileName || 'chunk'}
+ sidePanelWidth={610}
+ maxWidth={1720}
+ preventPageScroll
  boardSize={boardSize}
  isDragging={isDragging}
  isHandleHovered={isHandleHovered}
@@ -1681,7 +1890,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
 }}
  >
- <Chessboard
+ <ThemedChessboard
 
  id={`${config.trainerKey}-board`}
  position={boardFen}
@@ -1690,7 +1899,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  onSquareClick={onSquareClick}
  arePiecesDraggable={!solved && !boardLocked && phase === 'solving'}
  boardWidth={boardSize}
- customPieces={customPieces}
+
  customSquareStyles={customSquareStyles}
  customArrows={hintArrow}
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
@@ -1713,12 +1922,12 @@ return attemptUserMove(sourceSquare, targetSquare, {
  pointerEvents: 'none',
  }}
  >
- <Chessboard
+ <ThemedChessboard
  id={`${config.trainerKey}-transition-cover-board`}
  position={transitionCover.fen}
  boardOrientation={transitionCover.orientation}
  boardWidth={boardSize}
- customPieces={customPieces}
+
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
  customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
  customBoardStyle={{
@@ -1732,10 +1941,10 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
  {animatedReply && animatedReplyStyle && (
  <div style={animatedReplyStyle}>
- {renderPieceImage(
- animatedReply.piece,
- animatedReplyStartPos?.squareSize ?? boardSize / 8
- )}
+ <ThemePiece
+ code={animatedReply.piece}
+ size={animatedReplyStartPos?.squareSize ?? boardSize / 8}
+ />
  </div>
  )}
 
@@ -1793,16 +2002,15 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }
  sidePanel={
  <div
- style={{
- display: 'flex',
- flexDirection: 'column',
- gap: 16,
- minHeight: boardSize,
- }}
+ className={
+ trainerExplanation
+ ? 'pattern-mate-panel-layout'
+ : 'pattern-mate-panel-layout pattern-mate-panel-layout--single'
+ }
+ style={{ minHeight: boardSize }}
  >
- {trainerExplanation && <SiteExplanationBox explanation={trainerExplanation} />}
-
- <PanelCard style={{ padding: '14px 12px' }}>
+ <div className="pattern-mate-panel-left">
+ <PanelCard style={{ padding: '12px 11px' }}>
  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
  <div
  style={{
@@ -1813,7 +2021,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  background: sideSquareColor,
  }}
  />
- <div style={{ fontSize: 16, fontWeight: 700 }}>
+ <div style={{ fontSize: 15, fontWeight: 700 }}>
  {phase === 'finished' ? sideToMoveText : `${sideToMoveText} to Move`}
  </div>
  </div>
@@ -1826,7 +2034,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  justifyContent: 'space-between',
  gap: 10,
  fontSize: 13,
- marginBottom: 8,
+ marginBottom: 6,
  }}
  >
  <div style={{ color: '#e6e6e6', fontWeight: 700 }}>
@@ -1857,9 +2065,9 @@ return attemptUserMove(sourceSquare, targetSquare, {
  background: '#46302f',
  color: '#ffd6d3',
  borderRadius: 10,
- padding: 12,
+ padding: 10,
  fontSize: 13,
- lineHeight: 1.5,
+ lineHeight: 1.4,
  }}
  >
  {loadError}
@@ -1872,7 +2080,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  display: 'flex',
  justifyContent: 'space-between',
  fontSize: 13,
- marginBottom: 6,
+ marginBottom: 5,
  }}
  >
  <div style={{ color: '#dcdcdc', fontWeight: 700 }}>Chunk mastery</div>
@@ -1883,14 +2091,15 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
  <ProgressBar
  percent={currentChunkTarget > 0 ? (totalFastSolves / currentChunkTarget) * 100 : 0}
- style={{ marginBottom: 8 }}
+ style={{ marginBottom: 6 }}
  />
 
  <div
  style={{
  display: 'flex',
  justifyContent: 'space-between',
- fontSize: 12,
+ gap: 8,
+ fontSize: 11,
  color: '#c5c5c5',
  }}
  >
@@ -1907,7 +2116,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  display: 'grid',
  gridTemplateColumns: 'repeat(5, 1fr)',
  gap: 6,
- marginBottom: 8,
+ marginBottom: 7,
  }}
  >
  {Array.from({ length: FAST_SOLVES_TO_MASTER }).map((_, i) => {
@@ -1929,7 +2138,8 @@ return attemptUserMove(sourceSquare, targetSquare, {
  style={{
  display: 'flex',
  justifyContent: 'space-between',
- fontSize: 12,
+ gap: 8,
+ fontSize: 11,
  color: '#c5c5c5',
  }}
  >
@@ -1938,14 +2148,14 @@ return attemptUserMove(sourceSquare, targetSquare, {
  </div>
  </PanelCard>
 
- <BigMessage streak={"Fast "} message={message} />
+ <BigMessage streak={'Fast '} message={message} />
 
  <PanelCard>
  <div
  style={{
  display: 'flex',
  justifyContent: 'center',
- gap: 8,
+ gap: 7,
  flexWrap: 'wrap',
  }}
  >
@@ -1957,15 +2167,15 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <div
  key={i}
  style={{
- width: 18,
- height: 18,
+ width: 17,
+ height: 17,
  borderRadius: 3,
  background: mastered ? '#8bc34a' : done ? '#b3d98a' : '#5b5652',
  display: 'flex',
  alignItems: 'center',
  justifyContent: 'center',
  color: mastered || done ? '#fff' : 'transparent',
- fontSize: 12,
+ fontSize: 11,
  fontWeight: 700,
  }}
  >
@@ -1978,7 +2188,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
  <PanelCard>
  <SectionTitle>Puzzle info</SectionTitle>
- <div style={{ fontSize: 12, color: '#d0d0d0', lineHeight: 1.55 }}>
+ <div style={{ fontSize: 11, color: '#d0d0d0', lineHeight: 1.45 }}>
  <div>Category: Mates</div>
  <div>Theme: {currentPuzzle?.theme || 'mate'}</div>
  <div>Puzzle ID: {currentPuzzle?.id || '-'}</div>
@@ -1986,7 +2196,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <div>Line length: {currentPuzzle?.solutionLine.length || 0}</div>
  <div>Chunk: {currentChunkIndex + 1} / {chunkFiles.length}</div>
  {hintMoveUci && phase !== 'finished' && (
- <div style={{ marginTop: 8, color: '#f2c14e' }}>Hint shown on board</div>
+ <div style={{ marginTop: 6, color: '#f2c14e' }}>Hint shown on board</div>
  )}
  </div>
  </PanelCard>
@@ -1994,10 +2204,11 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <PanelCard>
  <SectionTitle>Chunk navigation</SectionTitle>
 
- <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+ <div style={{ display: 'flex', gap: 8, marginBottom: 7 }}>
  <SecondaryButton
  onClick={goToPreviousChunk}
  disabled={loading || currentChunkIndex <= 0}
+ style={{ padding: '9px 10px' }}
  >
  Previous
  </SecondaryButton>
@@ -2005,6 +2216,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <SecondaryButton
  onClick={goToNextChunkManual}
  disabled={loading || currentChunkIndex >= chunkFiles.length - 1}
+ style={{ padding: '9px 10px' }}
  >
  Next
  </SecondaryButton>
@@ -2020,13 +2232,14 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }
  }}
  placeholder={`1-${Math.max(1, chunkFiles.length)}`}
+ style={{ padding: '8px 9px' }}
  />
 
  <SecondaryButton
  onClick={jumpToChunk}
  disabled={loading || chunkFiles.length === 0}
  fullWidth={false}
- style={{ padding: '10px 14px' }}
+ style={{ padding: '8px 12px' }}
  >
  Jump
  </SecondaryButton>
@@ -2034,8 +2247,8 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
  <div
  style={{
- marginTop: 8,
- fontSize: 12,
+ marginTop: 6,
+ fontSize: 11,
  color: '#c5c5c5',
  }}
  >
@@ -2043,11 +2256,25 @@ return attemptUserMove(sourceSquare, targetSquare, {
  </div>
  </PanelCard>
 
- <div style={{ marginTop: 'auto', display: 'flex', gap: 10 }}>
+ <div className="pattern-mate-panel-actions">
  {!solved && phase !== 'finished' && (
  <HintButton
- onClick={() => setHintMoveUci(getExpectedUserMove(currentPuzzle, currentUserMoveIndexRef.current))}
+ getHintMove={() => {
+ const uci = getExpectedUserMove(currentPuzzle, currentUserMoveIndexRef.current)
+ return uci ? { from: uci.slice(0, 2), to: uci.slice(2, 4) } : null
+ }}
+ onHintStage={(move, stage) => {
+ setHintMoveUci(stage === 'square' ? `${move.from}${move.to}` : null)
+ setMessage(
+ stage === 'piece'
+ ? 'The piece to move is highlighted.'
+ : 'The destination square is highlighted.',
+ )
+ }}
+ onHintReset={() => setHintMoveUci(null)}
+ hintResetKey={`${currentPuzzle?.id ?? ''}:${boardFen}:${currentUserMoveIndexRef.current}`}
  disabled={boardLocked}
+ style={{ padding: '10px 9px' }}
  >
  Hint
  </HintButton>
@@ -2056,20 +2283,32 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <PrimaryButton
  onClick={() => {
  if (allPuzzlesMastered()) {
- completeChunk()
+ void completeChunk()
  } else {
  goToNextPuzzle()
  }
  }}
+ style={{ padding: '10px 9px' }}
  >
  {allPuzzlesMastered() ? 'Continue Auto' : 'Next Puzzle'}
  </PrimaryButton>
 
- <SecondaryButton onClick={() => void restartWholeProgression()}>
+ <SecondaryButton
+ onClick={() => void restartWholeProgression()}
+ style={{ padding: '10px 9px' }}
+ >
  Restart progression
  </SecondaryButton>
  </div>
  </div>
+
+ {trainerExplanation && (
+ <div className="pattern-mate-panel-right">
+ <SiteExplanationBox explanation={trainerExplanation} />
+ </div>
+ )}
+ </div>
+
  }
  />
  )

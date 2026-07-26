@@ -1,5 +1,40 @@
 {
+  "functions": {
+    "api/coach-explanation.js": {
+      "maxDuration": 20
+    },
+    "api/verify-paypal-subscription.js": {
+      "maxDuration": 20
+    },
+    "api/paypal-webhook.js": {
+      "maxDuration": 20
+    },
+    "api/image-to-position.js": {
+      "maxDuration": 60
+    },
+    "api/cancel-paypal-subscription.js": {
+      "maxDuration": 20
+    }
+  },
+  "headers": [
+    {
+      "source": "/((?!pricing(?:/|$)).*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "require-corp"
+        }
+      ]
+    }
+  ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
   ]
 }

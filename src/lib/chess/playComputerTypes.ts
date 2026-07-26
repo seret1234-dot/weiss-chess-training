@@ -12,6 +12,7 @@ export type EvalInfo = {
  mate?: number
  depth?: number
  bestMove?: string
+ pv?: string[]
 }
 
 export type PlayedMove = {

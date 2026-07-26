@@ -1,6 +1,6 @@
 import StalemateUnderpromotionPage from './pages/StalemateUnderpromotionPage';
 import { useEffect, useState } from "react"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 
 import LandingPage from "./LandingPage"
@@ -40,6 +40,7 @@ import KQKRTrainer from "./KQKRTrainer"
 import KQKRTrainerPage from "./pages/KQKRTrainerPage"
 import KQKP7Trainer from "./KQKP7Trainer"
 import KRKPTrainer from "./pages/endgames/KRKPTrainer"
+import KNNKPTrainer from "./pages/endgames/KNNKPTrainer"
 import KNNKPForcedMateTrainer from "./pages/endgames/KNNKPForcedMateTrainer"
 import KPKTrainer from "./pages/endgames/KPKTrainer"
 import StalemateTrainer from "./pages/endgames/StalemateTrainer"
@@ -51,10 +52,12 @@ import ShoulderingTrainer from "./pages/endgames/ShoulderingTrainer"
 import FortressTrainer from "./pages/endgames/FortressTrainer"
 
 import AuthPage from "./AuthPage"
+import ResetPasswordPage from "./ResetPasswordPage"
 import MasterGamesPage from "./MasterGamesPage"
 import MasterGamesLibraryPage from "./MasterGamesLibraryPage"
 
 import OpeningTrainerPage from "./OpeningTrainerPage"
+import FreeLinePlayPage from "./FreeLinePlayPage"
 import OpeningsLibraryPage from "./OpeningsLibraryPage"
 import OpeningFamilyPage from "./OpeningFamilyPage"
 
@@ -66,9 +69,18 @@ import AutoStudyPage from "./pages/AutoStudyPage"
 import OnboardingPage from "./pages/OnboardingPage"
 
 import AccountPage from "./AccountPage"
+import PricingPage from "./PricingPage"
 
+import GlobalBackButton from "./components/GlobalBackButton"
 import GlobalFloatingPlay from "./components/GlobalFloatingPlay"
+import AutoTrainingController from "./components/AutoTrainingController"
 import { BoardUiProvider } from "./context/BoardUiContext"
+import { SubscriptionProvider } from "./context/SubscriptionContext"
+import { HintActionProvider } from "./context/HintActionContext"
+import {
+ TrainingQuotaProvider,
+ TrainingQuotaRouteGate,
+} from "./context/TrainingQuotaContext"
 
 import AnastasiaMateIn1PatternPage from "./pages/pattern/AnastasiaMateIn1PatternPage"
 import SmotheredMateIn1Page from "./SmotheredMateIn1Page"
@@ -105,13 +117,51 @@ import AnalyzeBoardPage from "./pages/analyze/AnalyzeBoardPage";
 import SetupPositionPage from "./pages/analyze/SetupPositionPage";
 import AnalyzeReviewPage from "./pages/analyze/AnalyzeReviewPage";
 import ImageToPositionPage from "./pages/analyze/ImageToPositionPage";
+import EndgameExplanationOverlay from "./pages/endgames/EndgameExplanationOverlay"
+import NotFoundPage from "./NotFoundPage"
+
+function EndgameTrainerHelpOverlay() {
+ const { pathname } = useLocation()
+ const isEndgameTrainer =
+  /^\/endgame\/piece-mates\/[^/]+$/.test(pathname) ||
+  /^\/endgame-studies\/[^/]+(?:\/[^/]+)?$/.test(pathname)
+
+ return isEndgameTrainer ? (
+  <EndgameExplanationOverlay key={pathname} routePath={pathname} />
+ ) : null
+}
+
+function LegacyThemeRedirect({ to }: { to: string }) {
+ const location = useLocation()
+
+ return <Navigate replace to={`${to}${location.search}${location.hash}`} />
+}
 
 export default function AppRouter() {
  const [user, setUser] = useState<any>(null)
  const [authReady, setAuthReady] = useState(false)
 
  useEffect(() => {
- let cancelled = false
+    const authQueryParams = new URLSearchParams(window.location.search)
+    const authHashParams = new URLSearchParams(
+      window.location.hash.replace(/^#/, "")
+    )
+
+    const hasAuthRedirectError = Boolean(
+      authQueryParams.get("error") ||
+      authQueryParams.get("error_code") ||
+      authHashParams.get("error") ||
+      authHashParams.get("error_code")
+    )
+
+    if (hasAuthRedirectError && window.location.pathname !== "/auth") {
+      window.location.replace(
+        `/auth${window.location.search}${window.location.hash}`
+      )
+      return
+    }
+
+    let cancelled = false
 
  const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
  if (cancelled) return
@@ -137,16 +187,25 @@ export default function AppRouter() {
 
  return (
  <BrowserRouter>
+ <HintActionProvider>
  <BoardUiProvider>
- <GlobalFloatingPlay />
+  <SubscriptionProvider user={user}>
+  <TrainingQuotaProvider user={user}>
+ <GlobalBackButton />
+ <GlobalFloatingPlay isLoggedIn={!!user} />
+ <EndgameTrainerHelpOverlay />
+ <AutoTrainingController user={user} />
 
+ <TrainingQuotaRouteGate>
  <Routes>
  <Route path="/stalemate/underpromotion" element={<StalemateUnderpromotionPage />} />
  <Route path="/" element={<LandingPage onSelectCategory={() => {}} />} />
  <Route path="/sample-training" element={<SampleTrainingPage />} />
 
  <Route path="/auth" element={<AuthPage />} />
+  <Route path="/reset-password" element={<ResetPasswordPage />} />
  <Route path="/account" element={<AccountPage />} />
+  <Route path="/pricing" element={<PricingPage />} />
  <Route path="/onboarding" element={<OnboardingPage />} />
  <Route path="/auto" element={<AutoStudyPage user={user} />} />
 
@@ -190,6 +249,7 @@ export default function AppRouter() {
 
  <Route path="/openings" element={<OpeningsLibraryPage />} />
  <Route path="/openings/family/:familySlug" element={<OpeningFamilyPage />} />
+ <Route path="/free-play/:kind/:itemId" element={<FreeLinePlayPage />} />
  <Route path="/openings/:openingId" element={<OpeningTrainerPage />} />
 
  <Route path="/book-trainer" element={<NavGridPage />} />
@@ -200,9 +260,9 @@ export default function AppRouter() {
  <Route path="/analyze/review" element={<AnalyzeReviewPage />} />
  <Route path="/analyze/image" element={<ImageToPositionPage />} />
  <Route path="/museum" element={<MuseumPage />} />
- <Route path="/board-vision/:theme" element={<BoardVisionPage />} />
- <Route path="/book-trainer/:theme" element={<NavGridPage />} />
- <Route path="/play-computer/:theme" element={<PlayComputerPage />} />
+ <Route path="/board-vision/:theme" element={<LegacyThemeRedirect to="/board-vision" />} />
+ <Route path="/book-trainer/:theme" element={<LegacyThemeRedirect to="/book-trainer" />} />
+ <Route path="/play-computer/:theme" element={<LegacyThemeRedirect to="/play-computer" />} />
 
  <Route path="/backrank" element={<BackRankPage />} />
  <Route path="/anastasia" element={<AnastasiaMatePage />} />
@@ -228,7 +288,7 @@ export default function AppRouter() {
 
  <Route
  path="/endgame-studies/knnkp"
- element={<KNNKPForcedMateTrainer />}
+ element={<KNNKPTrainer />}
  />
 
  <Route
@@ -252,9 +312,7 @@ export default function AppRouter() {
  <Route path="/endgame-studies/zugzwang" element={<ZugzwangTrainer />} />
  <Route path="/endgame-studies/shouldering" element={<ShoulderingTrainer />} />
  <Route path="/endgame-studies/fortress" element={<FortressTrainer />} />
- <Route path="/endgame-studies/shouldering" element={<div>Shouldering coming soon</div>} />
-
- <Route path="/endgame/strategy" element={<NavGridPage />} />
+<Route path="/endgame/strategy" element={<NavGridPage />} />
 
  <Route path="/board-vision-old" element={<BoardVisionPage />} />
  <Route path="/master-games-old" element={<MasterGamesLibraryPage />} />
@@ -289,8 +347,13 @@ export default function AppRouter() {
  <Route path="/tactics" element={<TacticsPage />} />
  <Route path="/tactics/:level" element={<TacticDistancePage />} />
  <Route path="/tactics/:level/:theme" element={<TacticTrainerRoutePage />} />
+ <Route path="*" element={<NotFoundPage />} />
  </Routes>
+ </TrainingQuotaRouteGate>
+  </TrainingQuotaProvider>
+   </SubscriptionProvider>
  </BoardUiProvider>
+ </HintActionProvider>
  </BrowserRouter>
  )
 }

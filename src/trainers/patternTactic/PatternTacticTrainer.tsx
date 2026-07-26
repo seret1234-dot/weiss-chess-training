@@ -4,7 +4,8 @@ import type { CSSProperties } from 'react'
 import { Chess } from 'chess.js'
 import { hideCoachMistake, showCoachMistake } from '../../services/coach/coachPopup'
 import type { Square } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from "../../theme/ThemedChessboard"
+import ThemePiece from "../../theme/ThemePiece"
 import { supabase } from '../../lib/supabase'
 import {
  saveTrainingProgress,
@@ -27,6 +28,8 @@ import {
  SecondaryButton,
  ShellInput,
 } from '../../components/trainer/ui'
+
+import { reportTrainingItemCompleted } from "../../lib/trainingQuotaEvents"
 
 type ManifestFile = {
  category?: string
@@ -124,6 +127,29 @@ type PieceCode =
 
 const FAST_SOLVES_TO_MASTER = 5
 const FAST_SOLVE_SECONDS_PER_MOVE = 3
+const TACTIC_CHUNK_REVIEW_INTERVALS_DAYS = [1, 2, 3, 5, 8, 15, 30, 60, 100, 140, 170, 270, 365] as const
+
+function addTacticReviewDays(date: Date, days: number) {
+ const next = new Date(date)
+ next.setDate(next.getDate() + days)
+ return next
+}
+
+function isTacticChunkReviewDue(
+ nextReviewAt: string | null | undefined,
+ now = new Date()
+) {
+ if (!nextReviewAt) return false
+ const dueTime = new Date(nextReviewAt).getTime()
+ if (!Number.isFinite(dueTime)) return false
+
+ const tomorrow = new Date(
+ now.getFullYear(),
+ now.getMonth(),
+ now.getDate() + 1
+ )
+ return dueTime < tomorrow.getTime()
+}
 
 const AUTO_NEXT_DELAY_MS = 1500
 const BOARD_ANIMATION_MS = 140
@@ -138,18 +164,18 @@ type SavedState = {
 }
 
 const PIECE_URLS: Record<PieceCode, string> = {
- wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
- wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
- wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
- wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
- wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
- wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
- bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
- bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
- bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
- bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
- bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
- bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png',
+ wP: '/pieces/react-chessboard-default/wp.svg',
+ wN: '/pieces/react-chessboard-default/wn.svg',
+ wB: '/pieces/react-chessboard-default/wb.svg',
+ wR: '/pieces/react-chessboard-default/wr.svg',
+ wQ: '/pieces/react-chessboard-default/wq.svg',
+ wK: '/pieces/react-chessboard-default/wk.svg',
+ bP: '/pieces/react-chessboard-default/bp.svg',
+ bN: '/pieces/react-chessboard-default/bn.svg',
+ bB: '/pieces/react-chessboard-default/bb.svg',
+ bR: '/pieces/react-chessboard-default/br.svg',
+ bQ: '/pieces/react-chessboard-default/bq.svg',
+ bK: '/pieces/react-chessboard-default/bk.svg',
 }
 
 function renderPieceImage(code: PieceCode, size: number) {
@@ -282,7 +308,7 @@ function normalizePuzzle(
  label: raw.label || `Puzzle ${index + 1}`,
  theme: raw.theme
  ? normalizeThemeName(raw.theme)
- : normalizeThemeName(raw.subtheme || raw.Themes || 'mate'),
+ : normalizeThemeName(raw.subtheme || raw.Themes || 'tactic'),
  fen,
  preMove: raw.preMove,
  solutionLine,
@@ -415,6 +441,10 @@ export default function PatternTacticTrainer({
  const preMoveTimerRef = useRef<number | null>(null)
  const solveStartedAtRef = useRef<number | null>(null)
  const currentUserMoveIndexRef = useRef(0)
+ const chunkProgressRef = useRef<PuzzleMastery[]>([])
+ const chunkCanBeCompletedRef = useRef(true)
+ const chunkMasterySaveKeyRef = useRef<string | null>(null)
+ const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
 
  const {
  lastMoveHighlight,
@@ -584,10 +614,42 @@ export default function PatternTacticTrainer({
  userId: string,
  chunkIndexZeroBased: number,
  masteredCount: number
- ) {
+): Promise<boolean> {
  try {
- const nowIso = new Date().toISOString()
+ const now = new Date()
+ const nowIso = now.toISOString()
  const chunkNumber = chunkIndexZeroBased + 1
+
+ const { data: existing, error: existingError } = await supabase
+ .from('user_chunk_progress')
+ .select('review_stage, next_review_at, mastered_at')
+ .eq('user_id', userId)
+ .eq('trainer_key', config.trainerKey)
+ .eq('chunk_index', chunkNumber)
+ .maybeSingle()
+
+ if (existingError) {
+ console.error('Could not load tactic review stage', existingError)
+ return false
+ }
+
+ const currentStage = Math.max(
+ 0,
+ Math.min(
+ TACTIC_CHUNK_REVIEW_INTERVALS_DAYS.length,
+ Number(existing?.review_stage ?? 0)
+ )
+ )
+ const nextStage = Math.min(
+ TACTIC_CHUNK_REVIEW_INTERVALS_DAYS.length,
+ currentStage + 1
+ )
+ const intervalDays =
+ TACTIC_CHUNK_REVIEW_INTERVALS_DAYS[nextStage - 1] ??
+ TACTIC_CHUNK_REVIEW_INTERVALS_DAYS[
+ TACTIC_CHUNK_REVIEW_INTERVALS_DAYS.length - 1
+ ]
+ const nextReviewAt = addTacticReviewDays(now, intervalDays).toISOString()
 
  const { error } = await supabase.from('user_chunk_progress').upsert({
  user_id: userId,
@@ -595,29 +657,60 @@ export default function PatternTacticTrainer({
  chunk_index: chunkNumber,
  mastered_puzzles_count: masteredCount,
  is_mastered: true,
- mastered_at: nowIso,
+ mastered_at: existing?.mastered_at ?? nowIso,
+ review_stage: nextStage,
  last_reviewed_at: nowIso,
+ next_review_at: nextReviewAt,
  updated_at: nowIso,
  })
 
  if (error) {
- console.error('Could not mark chunk mastered', error)
- return
+ console.error('Could not mark tactic chunk mastered', error)
+ return false
  }
-
- console.log('Chunk mastered:', {
- trainerKey: config.trainerKey,
- chunkIndex: chunkNumber,
- masteredCount,
- })
 
  const nextChunkNumber = chunkNumber + 1
  if (nextChunkNumber <= chunkFiles.length) {
  await ensureNextChunkExists(userId, nextChunkNumber)
  }
+
+ return true
  } catch (error) {
  console.error('Unexpected markChunkMastered error', error)
+ return false
  }
+ }
+
+ function startChunkMasterySave(masteredCount: number) {
+ if (!currentUserId || !chunkCanBeCompletedRef.current) {
+ return Promise.resolve(true)
+ }
+
+ const saveKey = `${config.trainerKey}:${currentChunkIndex}:${masteredCount}`
+ if (
+ chunkMasterySaveKeyRef.current === saveKey &&
+ chunkMasteryPromiseRef.current
+ ) {
+ return chunkMasteryPromiseRef.current
+ }
+
+ chunkMasterySaveKeyRef.current = saveKey
+ const promise = markChunkMastered(
+ currentUserId,
+ currentChunkIndex,
+ masteredCount
+ ).then((success) => {
+ if (success) {
+ chunkCanBeCompletedRef.current = false
+ } else {
+ chunkMasterySaveKeyRef.current = null
+ chunkMasteryPromiseRef.current = null
+ }
+ return success
+ })
+
+ chunkMasteryPromiseRef.current = promise
+ return promise
  }
 
  useEffect(() => {
@@ -715,7 +808,62 @@ export default function PatternTacticTrainer({
  }
  }
 
- const restoredChunkProgress = normalized.map((puzzle, i) => {
+ let chunkReviewDue = false
+ let chunkCanBeCompleted = true
+
+ if (currentUserId) {
+ const chunkNumber = chunkIndex + 1
+ const { data: chunkRow, error: chunkRowError } = await supabase
+ .from('user_chunk_progress')
+ .select('is_mastered, review_stage, next_review_at')
+ .eq('user_id', currentUserId)
+ .eq('trainer_key', config.trainerKey)
+ .eq('chunk_index', chunkNumber)
+ .maybeSingle()
+
+ if (chunkRowError) {
+ console.error('Could not load tactic chunk review state', chunkRowError)
+ } else if (chunkRow) {
+ const hasDueDate = Boolean(chunkRow.next_review_at)
+ const reviewIsDue =
+ hasDueDate &&
+ isTacticChunkReviewDue(String(chunkRow.next_review_at))
+ const legacyMasteryWithoutDate =
+ chunkRow.is_mastered === true && !hasDueDate
+
+ if (
+ chunkRow.is_mastered === true &&
+ (reviewIsDue || legacyMasteryWithoutDate)
+ ) {
+ const { error: reopenError } = await supabase
+ .from('user_chunk_progress')
+ .update({
+ is_mastered: false,
+ updated_at: new Date().toISOString(),
+ })
+ .eq('user_id', currentUserId)
+ .eq('trainer_key', config.trainerKey)
+ .eq('chunk_index', chunkNumber)
+
+ if (reopenError) {
+ console.error('Could not reopen due tactic chunk', reopenError)
+ chunkCanBeCompleted = false
+ } else {
+ chunkReviewDue = true
+ }
+ } else if (
+ chunkRow.is_mastered === false &&
+ Number(chunkRow.review_stage ?? 0) > 0 &&
+ reviewIsDue
+ ) {
+ chunkReviewDue = true
+ } else if (chunkRow.is_mastered === true) {
+ chunkCanBeCompleted = false
+ }
+ }
+ }
+
+ let restoredChunkProgress = normalized.map((puzzle, i) => {
  const localValue = savedProgress[i] ?? 0
  const supaValue = supaProgress[puzzle.id] ?? 0
 
@@ -726,6 +874,20 @@ export default function PatternTacticTrainer({
  ),
  }
  })
+
+ if (chunkReviewDue) {
+ restoredChunkProgress = restoredChunkProgress.map((item) => ({
+ fastSolves: Math.min(
+ item.fastSolves,
+ Math.max(0, FAST_SOLVES_TO_MASTER - 1)
+ ),
+ }))
+ }
+
+ chunkCanBeCompletedRef.current = chunkCanBeCompleted
+ chunkMasterySaveKeyRef.current = null
+ chunkMasteryPromiseRef.current = null
+ chunkProgressRef.current = restoredChunkProgress
 
  let desiredPuzzleIndex =
  puzzleIndexOverride ??
@@ -986,7 +1148,10 @@ export default function PatternTacticTrainer({
  ])
 
  useEffect(() => {
+ chunkProgressRef.current = chunkProgress
+
  if (!currentUserId) return
+ if (!chunkCanBeCompletedRef.current) return
  if (puzzles.length === 0) return
  if (chunkProgress.length !== puzzles.length) return
 
@@ -996,7 +1161,7 @@ export default function PatternTacticTrainer({
 
  if (!allMasteredNow) return
 
- void markChunkMastered(currentUserId, currentChunkIndex, chunkProgress.length)
+ void startChunkMasterySave(chunkProgress.length)
  }, [currentUserId, currentChunkIndex, chunkProgress, puzzles.length])
 
  function clearTimers() {
@@ -1016,8 +1181,8 @@ export default function PatternTacticTrainer({
  }
 
  function incrementFastSolve(puzzleIndex: number) {
- setChunkProgress((prev) =>
- prev.map((item, i) =>
+ setChunkProgress((prev) => {
+ const next = prev.map((item, i) =>
  i === puzzleIndex
  ? {
  ...item,
@@ -1025,7 +1190,9 @@ export default function PatternTacticTrainer({
  }
  : item
  )
- )
+ chunkProgressRef.current = next
+ return next
+ })
  }
 
  function loadPuzzleImmediate(
@@ -1136,7 +1303,18 @@ export default function PatternTacticTrainer({
  void loadChunkByIndex(targetIndex, undefined, 0)
  }
 
- function completeChunk() {
+ async function completeChunk() {
+ const latestProgress = chunkProgressRef.current
+ const chunkIsMastered =
+ latestProgress.length > 0 &&
+ latestProgress.every(
+ (item) => item.fastSolves >= FAST_SOLVES_TO_MASTER
+ )
+
+ if (chunkIsMastered) {
+ await startChunkMasterySave(latestProgress.length)
+ }
+
  window.location.assign('/auto')
  }
 
@@ -1148,7 +1326,7 @@ export default function PatternTacticTrainer({
  nextChunkProgress.every((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER)
 
  if (chunkIsMastered) {
- completeChunk()
+ void completeChunk()
  return
  }
 
@@ -1240,6 +1418,11 @@ export default function PatternTacticTrainer({
  })
  }
 
+ reportTrainingItemCompleted(
+  "puzzle",
+  `${config.trainerKey}:${currentPuzzle?.id ?? currentIndex}`,
+ )
+
  config.onPuzzleSolved?.({
  puzzleId: currentPuzzle?.id ?? '',
  wasFast,
@@ -1318,10 +1501,59 @@ export default function PatternTacticTrainer({
  })
  }
 
+ // TACTICS UNDERPROMOTION V2
+ type TacticPromotionPiece =
+  | 'q'
+  | 'r'
+  | 'b'
+  | 'n'
+
+ function tacticPromotionCode(
+  piece?: string | null
+ ): TacticPromotionPiece | undefined {
+  if (!piece) return undefined
+
+  const code = piece
+   .slice(-1)
+   .toLowerCase()
+
+  if (
+   code === 'q' ||
+   code === 'r' ||
+   code === 'b' ||
+   code === 'n'
+  ) {
+   return code
+  }
+
+  return undefined
+ }
+
+ function isTacticPromotionAttempt(
+  sourceSquare: string,
+  targetSquare: string
+ ) {
+  const pawn = game.get(sourceSquare as Square)
+
+  if (!pawn || pawn.type !== 'p') {
+   return false
+  }
+
+  const rank = Number(targetSquare[1])
+
+  return (
+   (pawn.color === 'w' && rank === 8) ||
+   (pawn.color === 'b' && rank === 1)
+  )
+ }
+
  function attemptUserMove(
  sourceSquare: string,
  targetSquare: string,
- options?: { allowWrongMoveToShow?: boolean }
+ options?: {
+  allowWrongMoveToShow?: boolean
+  promotion?: TacticPromotionPiece
+ }
  ) {
  if (solved || boardLocked || !currentPuzzle || phase !== 'solving') return false
 
@@ -1339,7 +1571,7 @@ export default function PatternTacticTrainer({
  move = testGame.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: expected.promotion,
+ promotion: options?.promotion,
  })
  } catch {
  return false
@@ -1402,7 +1634,7 @@ export default function PatternTacticTrainer({
  setLastMoveHighlight(null)
  setPhase('solving')
  setMessage(`Find the tactic in ${getUserMoveCount(currentPuzzle)}`)
- }, 700)
+ }, 2000)
 
  return true
  }
@@ -1434,15 +1666,35 @@ export default function PatternTacticTrainer({
  .map((m) => m.to)
  }
 
- function onDrop(sourceSquare: string, targetSquare: string) {
- 
- hideCoachMistake();
-return attemptUserMove(sourceSquare, targetSquare, {
- allowWrongMoveToShow: true,
- })
+ function onDrop(
+ sourceSquare: string,
+ targetSquare: string
+) {
+ // Returning false lets react-chessboard open its
+ // queen/rook/bishop/knight promotion selector.
+ if (
+  isTacticPromotionAttempt(
+   sourceSquare,
+   targetSquare
+  )
+ ) {
+  return false
  }
 
- function onSquareClick(square: string) {
+ // Keep the newly created promotion coach notice alive.
+  // Only clear the previous notice for an ordinary move.
+  hideCoachMistake()
+
+  return attemptUserMove(
+  sourceSquare,
+  targetSquare,
+  {
+   allowWrongMoveToShow: true,
+  }
+ )
+}
+
+function onSquareClick(square: string) {
  if (solved || boardLocked || !currentPuzzle || phase !== 'solving') return
 
  const clickedPiece = game.get(square as Square)
@@ -1463,8 +1715,48 @@ return attemptUserMove(sourceSquare, targetSquare, {
  return
  }
 
- const moveWorked = attemptUserMove(selectedSquare, square)
- if (moveWorked) return
+ if (
+  isTacticPromotionAttempt(
+   selectedSquare,
+   square
+  )
+ ) {
+  const selectedPromotion =
+   window.prompt(
+    'Promote to q, r, b, or n:',
+    'q'
+   )
+
+  const promotion =
+   tacticPromotionCode(selectedPromotion)
+
+  if (!promotion) {
+   setMessage(
+    'Promotion cancelled. Choose q, r, b, or n.'
+   )
+   return
+  }
+
+  const promotionWorked =
+   attemptUserMove(
+    selectedSquare,
+    square,
+    {
+     allowWrongMoveToShow: true,
+     promotion,
+    }
+   )
+
+  if (promotionWorked) return
+ } else {
+  const moveWorked =
+   attemptUserMove(
+    selectedSquare,
+    square
+   )
+
+  if (moveWorked) return
+ }
 
  if (clickedPiece && clickedPiece.color === sideToMove) {
  const targets = getLegalTargets(square)
@@ -1636,15 +1928,49 @@ return attemptUserMove(sourceSquare, targetSquare, {
  height: boardSize,
  }}
  >
- <Chessboard
+ <ThemedChessboard
  id={`${config.trainerKey}-board`}
  position={boardFen}
  boardOrientation={boardOrientation}
  onPieceDrop={onDrop}
+ onPromotionCheck={(
+  sourceSquare,
+  targetSquare
+ ) =>
+  isTacticPromotionAttempt(
+   sourceSquare,
+   targetSquare
+  )
+ }
+ onPromotionPieceSelect={(
+  piece,
+  sourceSquare,
+  targetSquare
+ ) => {
+  if (!sourceSquare || !targetSquare) {
+   return false
+  }
+
+  const promotion =
+   tacticPromotionCode(piece)
+
+  if (!promotion) return false
+
+  hideCoachMistake()
+
+  return attemptUserMove(
+   sourceSquare,
+   targetSquare,
+   {
+    allowWrongMoveToShow: true,
+    promotion,
+   }
+  )
+ }}
  onSquareClick={onSquareClick}
  arePiecesDraggable={!solved && !boardLocked && phase === 'solving'}
  boardWidth={boardSize}
- customPieces={customPieces}
+
  customSquareStyles={customSquareStyles}
  customArrows={hintArrow}
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
@@ -1658,13 +1984,12 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }
  promotionDialogVariant="modal"
 />
-
  {animatedReply && animatedReplyStyle && (
  <div style={animatedReplyStyle}>
- {renderPieceImage(
- animatedReply.piece,
- animatedReplyStartPos?.squareSize ?? boardSize / 8
- )}
+ <ThemePiece
+ code={animatedReply.piece}
+ size={animatedReplyStartPos?.squareSize ?? boardSize / 8}
+ />
  </div>
  )}
 
@@ -1731,7 +2056,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }}
  >
  <div style={{ color: '#e6e6e6', fontWeight: 700 }}>
- {currentPuzzle?.theme || 'mate'}
+ {currentPuzzle?.theme || 'tactic'}
  </div>
  <div style={{ color: '#d3d3d3' }}>
  {Math.min(currentIndex + 1, puzzles.length)} / {puzzles.length}
@@ -1880,8 +2205,8 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <PanelCard>
  <SectionTitle>Puzzle info</SectionTitle>
  <div style={{ fontSize: 12, color: '#d0d0d0', lineHeight: 1.55 }}>
- <div>Category: Mates</div>
- <div>Theme: {currentPuzzle?.theme || 'mate'}</div>
+ <div>Category: Tactics</div>
+ <div>Theme: {currentPuzzle?.theme || 'tactic'}</div>
  <div>Puzzle ID: {currentPuzzle?.id || '-'}</div>
  <div>User moves: {getUserMoveCount(currentPuzzle)}</div>
  <div>Line length: {currentPuzzle?.solutionLine.length || 0}</div>
@@ -1947,7 +2272,20 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <div style={{ marginTop: 'auto', display: 'flex', gap: 10 }}>
  {!solved && phase !== 'finished' && (
  <HintButton
- onClick={() => setHintMoveUci(getExpectedUserMove(currentPuzzle, currentUserMoveIndexRef.current))}
+ getHintMove={() => {
+ const uci = getExpectedUserMove(currentPuzzle, currentUserMoveIndexRef.current)
+ return uci ? { from: uci.slice(0, 2), to: uci.slice(2, 4) } : null
+ }}
+ onHintStage={(move, stage) => {
+ setHintMoveUci(stage === 'square' ? `${move.from}${move.to}` : null)
+ setMessage(
+ stage === 'piece'
+ ? 'The piece to move is highlighted.'
+ : 'The destination square is highlighted.',
+ )
+ }}
+ onHintReset={() => setHintMoveUci(null)}
+ hintResetKey={`${currentPuzzle?.id ?? ''}:${boardFen}:${currentUserMoveIndexRef.current}`}
  disabled={boardLocked}
  >
  Hint
@@ -1957,7 +2295,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <PrimaryButton
  onClick={() => {
  if (allPuzzlesMastered()) {
- completeChunk()
+ void completeChunk()
  } else {
  goToNextPuzzle()
  }

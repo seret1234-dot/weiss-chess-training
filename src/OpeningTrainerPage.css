@@ -1,0 +1,187 @@
+.opening-trainer-page,
+.opening-trainer-content,
+.opening-trainer-mode-switcher-row,
+.opening-trainer-mode-switcher,
+.opening-trainer-library-actions,
+.opening-trainer-header,
+.opening-trainer-workspace,
+.opening-trainer-board-column,
+.opening-trainer-board-frame,
+.opening-trainer-panel,
+.opening-trainer-move-list,
+.opening-trainer-actions {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.opening-trainer-content,
+.opening-trainer-workspace,
+.opening-trainer-panel {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .opening-trainer-page.site-mobile-dock-scroll {
+    min-height: 0 !important;
+    padding: var(--site-global-back-clearance) 8px 8px !important;
+    overflow-x: clip !important;
+  }
+
+  .opening-trainer-content {
+    margin: 0 !important;
+  }
+
+  .opening-trainer-mode-switcher-row,
+  .opening-trainer-library-actions {
+    width: 100%;
+    justify-content: stretch !important;
+    flex-wrap: wrap;
+  }
+
+  .opening-trainer-mode-switcher,
+  .opening-trainer-library-actions > * {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .opening-trainer-mode-switcher {
+    justify-content: stretch !important;
+    flex-wrap: wrap;
+  }
+
+  .opening-trainer-mode-switcher > * {
+    flex: 1 1 120px;
+    min-width: 0;
+    min-height: 44px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .opening-trainer-library-actions button,
+  .opening-trainer-mode-switcher button,
+  .opening-trainer-panel button {
+    min-height: 44px;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
+  }
+
+  .opening-trainer-header {
+    width: 100%;
+    max-width: 100% !important;
+    margin-bottom: 12px !important;
+    padding: 12px !important;
+  }
+
+  .opening-trainer-header > div:first-child {
+    font-size: clamp(22px, 7vw, 26px) !important;
+    overflow-wrap: anywhere;
+  }
+
+  .opening-trainer-workspace {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .opening-trainer-board-column {
+    width: 100%;
+    flex: 0 0 auto !important;
+    order: 1;
+  }
+
+  .opening-trainer-board-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  .opening-trainer-board-frame > * {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .opening-trainer-board,
+  .opening-trainer-board > div,
+  .opening-trainer-board [data-testid="Chessboard"] {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .opening-trainer-resize-handle {
+    display: none !important;
+  }
+
+  .opening-trainer-panel {
+    display: contents;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .opening-trainer-panel > * {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .opening-trainer-moves-card {
+    order: 2;
+    margin-bottom: 0 !important;
+  }
+
+  .opening-trainer-timer,
+  .opening-trainer-status {
+    order: 3;
+  }
+
+  .opening-trainer-timer {
+    margin-bottom: 0 !important;
+  }
+
+  .opening-trainer-opening-summary,
+  .opening-trainer-opening-info,
+  .opening-trainer-next-move {
+    order: 4;
+  }
+
+  .opening-trainer-replay-card {
+    order: 5;
+  }
+
+  .opening-trainer-stage-progress,
+  .opening-trainer-run-progress,
+  .opening-trainer-actions {
+    order: 6;
+  }
+
+  .opening-trainer-panel [style*="display: flex"] {
+    flex-wrap: wrap;
+  }
+
+  .opening-trainer-move-list {
+    max-height: none !important;
+    overflow: visible !important;
+    padding-right: 0 !important;
+  }
+
+  .opening-trainer-move-list > div {
+    grid-template-columns: 32px minmax(0, 1fr) minmax(0, 1fr) !important;
+    overflow-wrap: anywhere;
+  }
+
+  .opening-trainer-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

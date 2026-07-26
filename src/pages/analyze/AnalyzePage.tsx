@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
-import { Chessboard } from "react-chessboard";
+import ThemedChessboard from "../../theme/ThemedChessboard"
 import TrainerShell from "../../components/trainer/TrainerShell";
+import "./AnalyzePage.css";
 import {
  PanelCard,
  PrimaryButton,
@@ -10,20 +11,30 @@ import {
 } from "../../components/trainer/ui";
 
 const START_FEN = new Chess().fen();
+const ANALYZE_MOBILE_BREAKPOINT = 768;
+const ANALYZE_DESKTOP_MAX_BOARD_SIZE = 760;
+
+function getAnalyzeBoardSize() {
+ if (typeof window !== "undefined" && window.innerWidth <= ANALYZE_MOBILE_BREAKPOINT) {
+ return Math.min(ANALYZE_DESKTOP_MAX_BOARD_SIZE, Math.max(0, window.innerWidth - 16));
+ }
+
+ return 720;
+}
 
 const PIECE_URLS: Record<string, string> = {
- wP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
- wN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
- wB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
- wR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
- wQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
- wK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
- bP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
- bN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
- bB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
- bR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
- bQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
- bK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png",
+ wP: "/pieces/react-chessboard-default/wp.svg",
+ wN: "/pieces/react-chessboard-default/wn.svg",
+ wB: "/pieces/react-chessboard-default/wb.svg",
+ wR: "/pieces/react-chessboard-default/wr.svg",
+ wQ: "/pieces/react-chessboard-default/wq.svg",
+ wK: "/pieces/react-chessboard-default/wk.svg",
+ bP: "/pieces/react-chessboard-default/bp.svg",
+ bN: "/pieces/react-chessboard-default/bn.svg",
+ bB: "/pieces/react-chessboard-default/bb.svg",
+ bR: "/pieces/react-chessboard-default/br.svg",
+ bQ: "/pieces/react-chessboard-default/bq.svg",
+ bK: "/pieces/react-chessboard-default/bk.svg",
 };
 
 const toolButtonStyle: React.CSSProperties = {
@@ -41,7 +52,7 @@ const toolButtonStyle: React.CSSProperties = {
 
 export default function AnalyzePage() {
  const containerRef = useRef<HTMLDivElement | null>(null);
- const [boardSize, setBoardSize] = useState(720);
+ const [boardSize, setBoardSize] = useState(getAnalyzeBoardSize);
  const [isDragging, setIsDragging] = useState(false);
  const [isHandleHovered, setIsHandleHovered] = useState(false);
  const [inputText, setInputText] = useState("");
@@ -49,9 +60,18 @@ export default function AnalyzePage() {
 
  useEffect(() => {
  function resize() {
+ if (window.innerWidth <= ANALYZE_MOBILE_BREAKPOINT) {
+ setBoardSize(
+ Math.min(ANALYZE_DESKTOP_MAX_BOARD_SIZE, Math.max(0, window.innerWidth - 16)),
+ );
+ return;
+ }
+
  const availableWidth = window.innerWidth - 720;
  const availableHeight = window.innerHeight - 150;
- setBoardSize(Math.max(420, Math.min(760, availableWidth, availableHeight)));
+ setBoardSize(
+ Math.max(420, Math.min(ANALYZE_DESKTOP_MAX_BOARD_SIZE, availableWidth, availableHeight)),
+ );
  }
 
  resize();
@@ -116,8 +136,9 @@ export default function AnalyzePage() {
  }
 
  const board = (
- <div>
+ <div className="analyze-home-board">
  <div
+ className="analyze-home-player-row"
  style={{
  width: boardSize,
  minHeight: 30,
@@ -139,11 +160,11 @@ export default function AnalyzePage() {
  <span>Black</span>
  </div>
 
- <Chessboard
+ <ThemedChessboard
  id="AnalyzeHomeBoard"
  position={START_FEN}
  boardWidth={boardSize}
- customPieces={pieces}
+
  arePiecesDraggable={false}
  showBoardNotation={true}
  customDarkSquareStyle={{ backgroundColor: "#769656" }}
@@ -152,6 +173,7 @@ export default function AnalyzePage() {
  />
 
  <div
+ className="analyze-home-player-row"
  style={{
  width: boardSize,
  minHeight: 30,
@@ -176,6 +198,7 @@ export default function AnalyzePage() {
  );
 
  const sidePanel = (
+ <div className="analyze-home-panel">
  <PanelCard>
  <div style={{ textAlign: "center", marginBottom: 12 }}>
  <SectionTitle>🔍 Analysis</SectionTitle>
@@ -201,7 +224,7 @@ export default function AnalyzePage() {
  }}
  style={toolButtonStyle}
  >
- 🧠 Game Review
+ 🧠 Game Analysis
  </button>
 
  <button
@@ -213,6 +236,7 @@ export default function AnalyzePage() {
  </div>
 
  <textarea
+ className="analyze-home-input"
  value={inputText}
  onChange={(e) => setInputText(e.target.value)}
  placeholder="Paste your FEN or PGN here."
@@ -232,11 +256,11 @@ export default function AnalyzePage() {
  }}
  />
 
- <div style={{ marginTop: 10 }}>
+ <div className="analyze-home-primary-control" style={{ marginTop: 10 }}>
  <PrimaryButton onClick={startAnalysis}>Start Analysis</PrimaryButton>
  </div>
 
- <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+ <div className="analyze-home-final-controls" style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
  <SecondaryButton onClick={() => setInputText("")}>New</SecondaryButton>
  <SecondaryButton onClick={() => setInputText(START_FEN)}>Start FEN</SecondaryButton>
  </div>
@@ -245,6 +269,7 @@ export default function AnalyzePage() {
  {message}
  </div>
  </PanelCard>
+ </div>
  );
 
  return (

@@ -299,6 +299,7 @@ export default function ImageToPositionPanel({
 
  return (
  <div
+ className="analyze-image-position-modal"
  style={{
  position: "fixed",
  inset: 0,
@@ -312,6 +313,7 @@ export default function ImageToPositionPanel({
  }}
  >
  <div
+ className="analyze-image-position-modal__dialog"
  style={{
  width: "min(1180px, 96vw)",
  maxHeight: "94vh",
@@ -328,8 +330,9 @@ export default function ImageToPositionPanel({
  boxSizing: "border-box",
  }}
  >
- <div>
+ <div className="analyze-image-position-modal__board-column">
  <div
+ className="analyze-image-position-modal__header"
  style={{
  display: "flex",
  alignItems: "center",
@@ -347,6 +350,7 @@ export default function ImageToPositionPanel({
  </div>
 
  <div
+ className="analyze-image-position-modal__board"
  style={{
  position: "relative",
  width: "min(66vh, 620px)",
@@ -374,6 +378,7 @@ export default function ImageToPositionPanel({
  />
  ) : (
  <div
+ className="analyze-image-position-modal__controls"
  style={{
  position: "absolute",
  inset: 0,

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chess } from "chess.js";
-import { Chessboard } from "react-chessboard";
+import ThemedChessboard from "../theme/ThemedChessboard"
 
 type Goal = "stalemate" | "avoid-stalemate" | "underpromotion";
 
@@ -475,7 +475,7 @@ export default function StalemateTrainer() {
  </div>
  </div>
 
- <Chessboard
+ <ThemedChessboard
  position={game.fen()}
  onPieceDrop={onDrop}
  boardWidth={boardWidth}

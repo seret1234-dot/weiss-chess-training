@@ -1,0 +1,272 @@
+.board-vision-page,
+.board-vision-content,
+.board-vision-header,
+.board-vision-heading,
+.board-vision-header-actions,
+.board-vision-layout,
+.board-vision-main,
+.board-vision-sidebar,
+.board-vision-session,
+.board-vision-session-settings,
+.board-vision-board,
+.board-vision-answer,
+.board-vision-feedback,
+.board-vision-jump,
+.board-vision-chunk-progress,
+.board-vision-course-progress,
+.board-vision-current-order,
+.board-vision-current-order-list,
+.board-vision-inside,
+.board-vision-explanation {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.board-vision-page,
+.board-vision-content,
+.board-vision-layout {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .board-vision-page {
+    width: 100%;
+    max-width: 100%;
+    height: auto !important;
+    min-height: 100dvh;
+    padding: var(--site-global-back-clearance) 8px calc(var(--site-fixed-bottom-clearance, 108px) + 16px) !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+  }
+
+  .board-vision-content {
+    margin: 0 !important;
+  }
+
+  .board-vision-header {
+    width: 100%;
+    align-items: stretch !important;
+    flex-direction: column;
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .board-vision-title {
+    font-size: clamp(24px, 8vw, 30px) !important;
+    line-height: 1.12 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .board-vision-heading > div:last-child {
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .board-vision-header-actions {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .board-vision-header-actions button {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 9px 10px !important;
+    box-sizing: border-box;
+    white-space: normal;
+  }
+
+  .board-vision-layout {
+    display: flex !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px !important;
+    overflow: visible !important;
+  }
+
+  .board-vision-main,
+  .board-vision-sidebar,
+  .board-vision-session {
+    display: contents !important;
+  }
+
+  .board-vision-prompt,
+  .board-vision-course-status,
+  .board-vision-current-chunk,
+  .board-vision-answer,
+  .board-vision-feedback,
+  .board-vision-session-settings,
+  .board-vision-jump,
+  .board-vision-chunk-progress,
+  .board-vision-course-progress,
+  .board-vision-current-order,
+  .board-vision-inside,
+  .board-vision-explanation {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: visible !important;
+    box-sizing: border-box;
+  }
+
+  .board-vision-prompt,
+  .board-vision-course-status,
+  .board-vision-current-chunk,
+  .board-vision-answer,
+  .board-vision-feedback,
+  .board-vision-session-settings {
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background: rgba(17, 24, 39, 0.92);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  }
+
+  .board-vision-prompt {
+    order: 10;
+    margin: 0 !important;
+  }
+
+  .board-vision-prompt > div:first-child > div:last-child {
+    font-size: clamp(32px, 12vw, 42px) !important;
+  }
+
+  .board-vision-prompt button,
+  .board-vision-course-status button,
+  .board-vision-current-order button,
+  .board-vision-jump button {
+    min-height: 44px;
+    max-width: 100%;
+    box-sizing: border-box;
+    white-space: normal;
+  }
+
+  .board-vision-course-status {
+    order: 20;
+    margin: 0 !important;
+  }
+
+  .board-vision-course-status > div:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .board-vision-current-chunk {
+    order: 30;
+    margin: 0 !important;
+  }
+
+  .board-vision-current-chunk > div:nth-child(2) {
+    font-size: clamp(22px, 8vw, 28px) !important;
+    overflow-wrap: anywhere;
+  }
+
+  .board-vision-board {
+    order: 40;
+    width: 100% !important;
+    max-width: min(100%, 900px) !important;
+    margin: 0 auto !important;
+    aspect-ratio: 1 / 1;
+    overflow: visible !important;
+  }
+
+  .board-vision-board > *,
+  .board-vision-board > * > *,
+  .board-vision-board [data-testid="Chessboard"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .board-vision-answer {
+    order: 50;
+    margin: 0 !important;
+  }
+
+  .board-vision-feedback {
+    order: 60;
+    margin: 0 !important;
+  }
+
+  .board-vision-feedback > div {
+    overflow-wrap: anywhere;
+  }
+
+  .board-vision-chunk-progress {
+    order: 70;
+  }
+
+  .board-vision-session-settings {
+    order: 80;
+  }
+
+  .board-vision-session-settings > div:not(:first-child) {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .board-vision-session-settings > div:not(:first-child) > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .board-vision-jump {
+    order: 90;
+  }
+
+  .board-vision-jump > div:last-child {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  .board-vision-jump input {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .board-vision-course-progress {
+    order: 100;
+  }
+
+  .board-vision-current-order {
+    order: 110;
+  }
+
+  .board-vision-current-order-list {
+    max-height: none !important;
+    padding-right: 0 !important;
+    overflow: visible !important;
+  }
+
+  .board-vision-current-order-list button {
+    flex-wrap: wrap;
+    gap: 8px;
+    overflow-wrap: anywhere;
+  }
+
+  .board-vision-inside {
+    order: 120;
+  }
+
+  .board-vision-explanation {
+    order: 130;
+  }
+
+  .board-vision-explanation + .board-vision-explanation {
+    order: 140;
+  }
+
+  .board-vision-layout input,
+  .board-vision-layout button,
+  .board-vision-layout select,
+  .board-vision-layout textarea {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+}

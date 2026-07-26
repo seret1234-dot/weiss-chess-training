@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useParams } from 'react-router-dom'
 import { Chess, Move } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from "./theme/ThemedChessboard"
 import { supabase, getMasterGamePgnUrl } from './lib/supabase'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
-import { loadTrainingProgressMap, saveTrainingProgress } from './lib/trainingProgress'
+import { saveTrainingProgress } from './lib/trainingProgress'
+import { HintButton } from './components/trainer/ui'
+import './MasterGamesPage.css'
+
+import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
 
 type MasterGame = {
  id: number
@@ -60,18 +64,18 @@ const SLIDE_STEP = 10
 const MESSAGE_DELAY_MS = 3000
 
 const PIECE_URLS: Record<PieceCode, string> = {
- wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
- wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
- wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
- wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
- wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
- wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
- bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
- bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
- bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
- bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
- bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
- bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png',
+ wP: '/pieces/react-chessboard-default/wp.svg',
+ wN: '/pieces/react-chessboard-default/wn.svg',
+ wB: '/pieces/react-chessboard-default/wb.svg',
+ wR: '/pieces/react-chessboard-default/wr.svg',
+ wQ: '/pieces/react-chessboard-default/wq.svg',
+ wK: '/pieces/react-chessboard-default/wk.svg',
+ bP: '/pieces/react-chessboard-default/bp.svg',
+ bN: '/pieces/react-chessboard-default/bn.svg',
+ bB: '/pieces/react-chessboard-default/bb.svg',
+ bR: '/pieces/react-chessboard-default/br.svg',
+ bQ: '/pieces/react-chessboard-default/bq.svg',
+ bK: '/pieces/react-chessboard-default/bk.svg',
 }
 
 function renderPieceImage(code: PieceCode, size: number) {
@@ -267,39 +271,180 @@ function playerBarStyle(): CSSProperties {
  }
 }
 
-function calculateNextReview(mastery: number) {
- const now = new Date()
+const MASTER_GAME_REVIEW_INTERVALS_DAYS = [1, 2, 3, 5, 8, 15, 30, 60, 100, 140, 170, 270, 365] as const
 
- const intervals = [1, 3, 7, 14, 30]
- const index = Math.min(Math.max(mastery - 1, 0), intervals.length - 1)
- const days = mastery <= 0 ? 0 : intervals[index]
+function isMasterGameReviewDue(
+ nextReviewAt: string | null | undefined,
+ now = new Date()
+) {
+ if (!nextReviewAt) return false
+ const dueTime = new Date(nextReviewAt).getTime()
+ if (!Number.isFinite(dueTime)) return false
 
- const next = new Date(now)
- next.setDate(now.getDate() + days)
+ const tomorrow = new Date(
+ now.getFullYear(),
+ now.getMonth(),
+ now.getDate() + 1
+ )
+ return dueTime < tomorrow.getTime()
+}
 
- return {
- review_count: mastery,
- last_reviewed_at: now.toISOString(),
- next_review_at: mastery > 0 ? next.toISOString() : null,
- interval_days: days,
+function getMasterGameReviewInterval(reviewCount: number) {
+ const safeCount = Math.max(1, Math.floor(reviewCount))
+ const index = Math.min(
+ safeCount - 1,
+ MASTER_GAME_REVIEW_INTERVALS_DAYS.length - 1
+ )
+ return MASTER_GAME_REVIEW_INTERVALS_DAYS[index]
+}
+
+async function loadGameProgress(
+  gameTheme: string
+): Promise<Record<string, number>> {
+  const { data: authData, error: authError } =
+    await supabase.auth.getUser()
+
+  if (authError || !authData.user) {
+    if (authError) {
+      console.error('Failed to load current user:', authError)
+    }
+    return {}
+  }
+
+  const { data, error } = await supabase
+    .from('training_progress')
+    .select('item_id, mastery, next_review_at')
+    .eq('user_id', authData.user.id)
+    .eq('course', 'master_games')
+    .eq('theme', gameTheme)
+
+  if (error) {
+    console.error('Failed to load Master Game progress:', error)
+    return {}
+  }
+
+  const now = new Date()
+ const reviewDeadline = new Date(
+ now.getFullYear(),
+ now.getMonth(),
+ now.getDate() + 1
+ ).getTime()
+
+ const map: Record<string, number> = {}
+
+ for (const row of data ?? []) {
+ const itemId = String(row.item_id ?? '')
+ if (!itemId) continue
+
+ const savedMastery = Math.max(
+ 0,
+ Math.min(REQUIRED_FAST_RUNS, Number(row.mastery ?? 0))
+ )
+ const dueTime = row.next_review_at
+ ? new Date(String(row.next_review_at)).getTime()
+ : Number.POSITIVE_INFINITY
+ const isDue =
+ Number.isFinite(dueTime) &&
+ dueTime < reviewDeadline
+
+ map[itemId] =
+ isDue && savedMastery >= REQUIRED_FAST_RUNS
+ ? REQUIRED_FAST_RUNS - 1
+ : savedMastery
  }
+
+ return map
 }
 
-async function loadGameProgress(gameTheme: string) {
- return loadTrainingProgressMap('master_games', gameTheme)
-}
+async function saveStageProgress(
+ gameTheme: string,
+ stageId: string,
+ mastery: number
+) {
+ const safeMastery = Math.max(0, Math.min(REQUIRED_FAST_RUNS, mastery))
+ const { data: authData, error: authError } = await supabase.auth.getUser()
+ const user = authData.user
 
-async function saveStageProgress(gameTheme: string, stageId: string, mastery: number) {
- const sr = calculateNextReview(mastery)
+ if (authError || !user) {
+ if (authError) console.error('Master Games review user load failed:', authError)
+ return
+ }
+
+ const { data: existing, error: existingError } = await supabase
+ .from('training_progress')
+ .select('mastery, next_review_at, review_count, interval_days')
+ .eq('user_id', user.id)
+ .eq('course', 'master_games')
+ .eq('theme', gameTheme)
+ .eq('item_id', stageId)
+ .maybeSingle()
+
+ if (existingError) {
+ console.error('Master Games review progress load failed:', existingError)
+ return
+ }
+
+ const existingMastery = Math.max(
+ 0,
+ Math.min(REQUIRED_FAST_RUNS, Number(existing?.mastery ?? 0))
+ )
+ const storedReviewCount = Math.max(0, Number(existing?.review_count ?? 0))
+ const existingReviewCount =
+ existingMastery >= REQUIRED_FAST_RUNS &&
+ storedReviewCount === REQUIRED_FAST_RUNS &&
+ Number(existing?.interval_days ?? 0) === 30
+ ? 1
+ : storedReviewCount
+
+ if (safeMastery <= 0) {
+ await saveTrainingProgress({
+ course: 'master_games',
+ theme: gameTheme,
+ itemId: stageId,
+ mastery: 0,
+ nextReviewAt: null,
+ reviewCount: 0,
+ intervalDays: 0,
+ })
+ return
+ }
+
+ if (safeMastery < REQUIRED_FAST_RUNS) {
+ await saveTrainingProgress({
+ course: 'master_games',
+ theme: gameTheme,
+ itemId: stageId,
+ mastery: safeMastery,
+ nextReviewAt: null,
+ reviewCount: existingReviewCount,
+ intervalDays: Number(existing?.interval_days ?? 0),
+ })
+ return
+ }
+
+ const isNewMastery = existingMastery < REQUIRED_FAST_RUNS
+ const isCompletedDueReview =
+ existingMastery >= REQUIRED_FAST_RUNS &&
+ (!existing?.next_review_at ||
+ isMasterGameReviewDue(String(existing.next_review_at)))
+
+ if (!isNewMastery && !isCompletedDueReview) return
+
+ const reviewCount = isNewMastery
+ ? 1
+ : Math.max(1, existingReviewCount + 1)
+ const intervalDays = getMasterGameReviewInterval(reviewCount)
+ const nextReviewAt = new Date()
+ nextReviewAt.setDate(nextReviewAt.getDate() + intervalDays)
 
  await saveTrainingProgress({
  course: 'master_games',
  theme: gameTheme,
  itemId: stageId,
- mastery: Math.max(0, Math.min(REQUIRED_FAST_RUNS, mastery)),
- nextReviewAt: sr.next_review_at,
- reviewCount: sr.review_count,
- intervalDays: sr.interval_days,
+ mastery: REQUIRED_FAST_RUNS,
+ nextReviewAt: nextReviewAt.toISOString(),
+ reviewCount,
+ intervalDays,
  })
 }
 
@@ -392,6 +537,12 @@ export default function MasterGamesPage() {
  const [gameRecord, setGameRecord] = useState<MasterGame | null>(null)
  const [gameLoading, setGameLoading] = useState(true)
  const [gameError, setGameError] = useState('')
+ const [personalLibraryUserId, setPersonalLibraryUserId] =
+  useState<string | null>(null)
+ const [inPersonalLibrary, setInPersonalLibrary] =
+  useState(false)
+ const [personalLibraryBusy, setPersonalLibraryBusy] =
+  useState(false)
 
  const containerRef = useRef<HTMLDivElement | null>(null)
  const resetTimeoutRef = useRef<number | null>(null)
@@ -444,6 +595,11 @@ export default function MasterGamesPage() {
  const [fastSuccesses, setFastSuccesses] = useState(0)
  const [notationHidden, setNotationHidden] = useState(false)
  const [hintVisible, setHintVisible] = useState(false)
+ const [masterGameHintArrow, setMasterGameHintArrow] = useState<{
+ from: string
+ to: string
+ } | null>(null)
+ const [fullLineVisible, setFullLineVisible] = useState(false)
  const [hasFirstSuccessInStage, setHasFirstSuccessInStage] = useState(false)
  const [status, setStatus] = useState('Play the game moves exactly.')
  const [flash, setFlash] = useState<'idle' | 'good' | 'bad' | 'slow' | 'mastered'>('idle')
@@ -569,8 +725,62 @@ export default function MasterGamesPage() {
  }, [gameId])
 
  useEffect(() => {
+  let cancelled = false
+
+  async function loadPersonalLibraryState() {
+   if (!gameRecord) {
+    setInPersonalLibrary(false)
+    return
+   }
+
+   const { data: authData, error: authError } =
+    await supabase.auth.getUser()
+
+   if (cancelled) return
+
+   if (authError || !authData.user) {
+    setPersonalLibraryUserId(null)
+    setInPersonalLibrary(false)
+    return
+   }
+
+   setPersonalLibraryUserId(authData.user.id)
+
+   const { data, error } = await supabase
+    .from('user_master_games')
+    .select('game_id')
+    .eq('user_id', authData.user.id)
+    .eq('game_id', gameRecord.id)
+    .maybeSingle()
+
+   if (cancelled) return
+
+   if (error) {
+    console.error(
+     'Failed to load My Library state:',
+     error,
+    )
+    setInPersonalLibrary(false)
+    return
+   }
+
+   setInPersonalLibrary(Boolean(data))
+  }
+
+  void loadPersonalLibraryState()
+
+  return () => {
+   cancelled = true
+  }
+ }, [gameRecord?.id])
+
+ useEffect(() => {
  function setInitialBoardSize() {
  const width = window.innerWidth
+ if (width <= 768) {
+ setBoardSize(Math.max(0, Math.floor(width - 16)))
+ return
+ }
  const height = window.innerHeight
  const rightPanelWidth = 340
  const pagePadding = 80
@@ -586,6 +796,11 @@ export default function MasterGamesPage() {
  }, [])
 
  useEffect(() => {
+ if (window.innerWidth <= 768) {
+ setIsDragging(false)
+ return
+ }
+
  function onMouseMove(e: MouseEvent) {
  if (!isDragging || !containerRef.current) return
 
@@ -624,10 +839,40 @@ export default function MasterGamesPage() {
  [parsed.moves, stage.startPly, stage.endPly],
  )
 
+ const fullLineRows = useMemo(
+  () => getStageMoveRows(
+   parsed.moves,
+   0,
+   Math.max(0, parsed.moves.length - 1)
+  ),
+  [parsed.moves],
+ )
+
  const stagePlyCount = Math.max(0, stage.endPly - stage.startPly + 1)
  const fastLimitMs = Math.max(1000, stagePlyCount * MS_PER_MOVE)
 
  const gameTheme = gameRecord ? String(gameRecord.id) : ''
+
+ const currentExpected = parsed.moves[currentPly]
+ const positionTurn = (() => {
+ try {
+ return new Chess(position).turn()
+ } catch {
+ return null
+ }
+ })()
+ const canRequestHint = Boolean(
+ currentExpected &&
+ progressReady &&
+ !gameMastered &&
+ currentPly <= stage.endPly &&
+ positionTurn === currentExpected.color,
+ )
+ const masterGameHintResetKey = `${gameTheme}:${stage.id}:${position}:${currentPly}:${notationHidden}:${fullLineVisible}`
+
+ useEffect(() => {
+ if (!canRequestHint) setMasterGameHintArrow(null)
+ }, [canRequestHint])
 
  const topPlayer =
  boardOrientation === 'white'
@@ -686,6 +931,7 @@ export default function MasterGamesPage() {
  setFastSuccesses(0)
  setNotationHidden(false)
  setHintVisible(false)
+ setFullLineVisible(false)
  setSelectedSquare(null)
  setHasFirstSuccessInStage(false)
  setStatus(parsed.hasValidPgn ? 'Play the game moves exactly.' : 'PGN missing for this game.')
@@ -718,6 +964,7 @@ export default function MasterGamesPage() {
  setFastSuccesses(REQUIRED_FAST_RUNS)
  setNotationHidden(true)
  setHintVisible(false)
+ setFullLineVisible(false)
  setHasFirstSuccessInStage(true)
  setStatus('game mastered')
  setFlash('mastered')
@@ -726,19 +973,17 @@ export default function MasterGamesPage() {
  return
  }
 
- const startedStageIndexes = stages
- .map((s, index) => ({
- index,
- mastery: progressMap[s.id] ?? 0,
- }))
- .filter((x) => x.mastery > 0)
+ const firstIncompleteStageIndex = stages.findIndex(
+      (candidateStage) =>
+        (progressMap[candidateStage.id] ?? 0) < REQUIRED_FAST_RUNS
+    )
 
- const resumeIndex =
- startedStageIndexes.length > 0
- ? startedStageIndexes[startedStageIndexes.length - 1].index
- : 0
+    const resumeIndex =
+      firstIncompleteStageIndex >= 0
+        ? firstIncompleteStageIndex
+        : 0
 
- const resumeStage = stages[resumeIndex]
+    const resumeStage = stages[resumeIndex]
  const savedMastery = Math.max(
  0,
  Math.min(REQUIRED_FAST_RUNS, progressMap[resumeStage.id] ?? 0),
@@ -752,6 +997,7 @@ export default function MasterGamesPage() {
  setFastSuccesses(savedMastery)
  setNotationHidden(savedMastery > 0)
  setHintVisible(false)
+ setFullLineVisible(false)
  setHasFirstSuccessInStage(savedMastery > 0)
  setStatus(parsed.hasValidPgn ? 'Play the game moves exactly.' : 'PGN missing for this game.')
  setFlash('idle')
@@ -784,6 +1030,7 @@ export default function MasterGamesPage() {
  setRunStartAt(null)
  setElapsedMs(0)
  setHintVisible(false)
+ setFullLineVisible(false)
  setSelectedSquare(null)
  setStatus(parsed.hasValidPgn ? 'Play the game moves exactly.' : 'PGN missing for this game.')
  setFlash('idle')
@@ -801,6 +1048,7 @@ export default function MasterGamesPage() {
  setFastSuccesses(0)
  setNotationHidden(false)
  setHintVisible(false)
+ setFullLineVisible(false)
  setHasFirstSuccessInStage(false)
  setGameMastered(false)
  void saveStageProgress(gameTheme, stage.id, 0)
@@ -829,6 +1077,7 @@ export default function MasterGamesPage() {
  setFastSuccesses(savedMastery)
  setNotationHidden(savedMastery > 0)
  setHintVisible(false)
+ setFullLineVisible(false)
  setHasFirstSuccessInStage(savedMastery > 0)
  setSelectedSquare(null)
  setPosition(nextStage.startFen)
@@ -855,6 +1104,10 @@ export default function MasterGamesPage() {
 
  function completeRun() {
  const finishedMs = runStartAt == null ? elapsedMs : Date.now() - runStartAt
+ reportTrainingItemCompleted(
+  "master_game",
+  `${gameTheme}:${stage.id}`,
+ )
 
  setElapsedMs(finishedMs)
  setRunStartAt(null)
@@ -865,6 +1118,7 @@ export default function MasterGamesPage() {
  setHasFirstSuccessInStage(true)
  setNotationHidden(true)
  setHintVisible(false)
+ setFullLineVisible(false)
  }
 
  if (wasFast) {
@@ -983,9 +1237,61 @@ export default function MasterGamesPage() {
  canFlip: true,
  })
 
+  async function togglePersonalLibrary() {
+  if (
+   !gameRecord ||
+   !personalLibraryUserId ||
+   personalLibraryBusy
+  ) {
+   return
+  }
+
+  setPersonalLibraryBusy(true)
+
+  try {
+   if (inPersonalLibrary) {
+    const { error } = await supabase
+     .from('user_master_games')
+     .delete()
+     .eq('user_id', personalLibraryUserId)
+     .eq('game_id', gameRecord.id)
+
+    if (error) throw error
+
+    setInPersonalLibrary(false)
+   } else {
+    const { error } = await supabase
+     .from('user_master_games')
+     .upsert(
+      {
+       user_id: personalLibraryUserId,
+       game_id: gameRecord.id,
+       source: 'manual',
+       is_favorite: true,
+      },
+      {
+       onConflict: 'user_id,game_id',
+      },
+     )
+
+    if (error) throw error
+
+    setInPersonalLibrary(true)
+   }
+  } catch (error) {
+   console.error(
+    'Failed to update My Library:',
+    error,
+   )
+  } finally {
+   setPersonalLibraryBusy(false)
+  }
+ }
+
  if (gameLoading) {
  return (
  <div
+ className="master-games-trainer-page site-mobile-dock-scroll"
  style={{
  minHeight: '100vh',
  background: '#161512',
@@ -1044,12 +1350,13 @@ export default function MasterGamesPage() {
  )
  }
 
- const currentExpected = parsed.moves[currentPly]
  const totalStages = stages.length
  const stageNumber = safeStageIndex + 1
  const isFinalStage = safeStageIndex === stages.length - 1
  const stageProgressPercent = Math.min(100, (fastSuccesses / REQUIRED_FAST_RUNS) * 100)
- const showMoveList = !notationHidden || hintVisible
+ const showMoveList = !notationHidden || hintVisible || fullLineVisible
+
+ const visibleMoveRows = fullLineVisible ? fullLineRows : stageRows
 
  const statusBg =
  flash === 'bad'
@@ -1077,6 +1384,7 @@ export default function MasterGamesPage() {
 
  return (
  <div
+ className="master-games-trainer-page site-mobile-dock-scroll"
  style={{
  minHeight: '100vh',
  background: '#161512',
@@ -1085,8 +1393,116 @@ export default function MasterGamesPage() {
  fontFamily: 'Arial, sans-serif',
  }}
  >
- <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+ <div className="master-games-trainer-content" style={{ maxWidth: 1280, margin: '0 auto' }}>
+   <div
+    style={{
+     display: 'flex',
+     justifyContent: 'flex-end',
+     marginBottom: 10,
+    }}
+   >
+    <div
+     style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      padding: 6,
+      borderRadius: 12,
+      background: '#24211f',
+      border: '1px solid rgba(255,255,255,0.07)',
+     }}
+    >
+     <span
+      style={{
+       borderRadius: 8,
+       padding: '9px 13px',
+       background: '#4d7c4d',
+       color: '#fff',
+       fontWeight: 800,
+      }}
+     >
+      Training
+     </span>
+     <button
+      type="button"
+      title="Play the complete master game once without repetitions or progress changes"
+      onClick={() => {
+       window.location.href =
+        '/free-play/master-game/' +
+        encodeURIComponent(gameRecord.slug || String(gameRecord.id))
+      }}
+      style={{
+       border: 0,
+       borderRadius: 8,
+       padding: '9px 13px',
+       background: '#2f4f73',
+       color: '#fff',
+       cursor: 'pointer',
+       fontWeight: 800,
+      }}
+     >
+      Free Play
+     </button>
+    </div>
+   </div>
+
+   {personalLibraryUserId ? (
+    <div
+     style={{
+      display: 'flex',
+      justifyContent: 'flex-end',
+      marginBottom: 10,
+     }}
+    >
+     <button
+        type="button"
+        onClick={() => {
+         window.location.href = '/master-games#my-library'
+        }}
+        style={{
+         border: '1px solid rgba(255,255,255,0.12)',
+         borderRadius: 10,
+         padding: '9px 14px',
+         marginRight: 10,
+         background: '#2f4f73',
+         color: '#fff',
+         cursor: 'pointer',
+         fontWeight: 800,
+        }}
+       >
+        Go to My Library
+       </button>
+
+       <button
+      type="button"
+      disabled={personalLibraryBusy}
+      onClick={() => void togglePersonalLibrary()}
+      style={{
+       border:
+        '1px solid rgba(255,255,255,0.12)',
+       borderRadius: 10,
+       padding: '9px 14px',
+       background: inPersonalLibrary
+        ? '#4d7c4d'
+        : '#302e2b',
+       color: '#fff',
+       cursor: personalLibraryBusy
+        ? 'wait'
+        : 'pointer',
+       fontWeight: 800,
+       opacity: personalLibraryBusy ? 0.65 : 1,
+      }}
+     >
+      {personalLibraryBusy
+       ? 'Saving...'
+       : inPersonalLibrary
+        ? '✓ In My Library'
+        : '+ Add to My Library'}
+     </button>
+    </div>
+   ) : null}
  <div
+ className="master-games-trainer-heading"
  style={{
  marginBottom: 12,
  display: 'inline-block',
@@ -1100,9 +1516,10 @@ export default function MasterGamesPage() {
  Master Games
  </div>
 
- <div ref={containerRef} style={{ display: 'flex', alignItems: 'flex-start', gap: 18 }}>
- <div style={{ flex: '0 0 auto' }}>
+ <div ref={containerRef} className="master-games-trainer-workspace" style={{ display: 'flex', alignItems: 'flex-start', gap: 18 }}>
+ <div className="master-games-trainer-board-column" style={{ flex: '0 0 auto' }}>
  <div
+ className="master-games-trainer-board-frame"
  style={{
  width: boardSize + 16,
  background: '#201d1b',
@@ -1151,16 +1568,22 @@ export default function MasterGamesPage() {
 
  <div style={{ height: 8 }} />
 
- <Chessboard
+ <ThemedChessboard
+ className="master-games-trainer-board"
  id="master-games-board"
  position={position}
  onPieceDrop={onPieceDrop}
  onSquareClick={onSquareClick}
  boardWidth={boardSize}
  boardOrientation={boardOrientation}
+ customArrows={
+ masterGameHintArrow
+ ? [[masterGameHintArrow.from, masterGameHintArrow.to, 'rgba(80, 180, 255, 0.9)']]
+ : []
+ }
  arePiecesDraggable={!gameMastered && progressReady}
  animationDuration={180}
- customPieces={customPieces}
+
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
  customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
  customSquareStyles={getCustomSquareStyles()}
@@ -1213,6 +1636,7 @@ export default function MasterGamesPage() {
  </div>
 
  <div
+ className="master-games-trainer-resize-handle"
  onMouseDown={() => setIsDragging(true)}
  onMouseEnter={() => setIsHandleHovered(true)}
  onMouseLeave={() => setIsHandleHovered(false)}
@@ -1239,6 +1663,7 @@ export default function MasterGamesPage() {
  </div>
 
  <div
+ className="master-games-trainer-panel"
  style={{
  width: 320,
  background: '#1b1816',
@@ -1249,6 +1674,7 @@ export default function MasterGamesPage() {
  }}
  >
  <div
+ className="master-games-trainer-replay-card"
  style={{
  ...panelCardStyle(),
  marginBottom: 12,
@@ -1270,7 +1696,7 @@ export default function MasterGamesPage() {
  </div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="master-games-trainer-game-summary" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div
  style={{
  display: 'flex',
@@ -1302,7 +1728,7 @@ export default function MasterGamesPage() {
  </div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="master-games-trainer-stage-progress" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div
  style={{
  display: 'flex',
@@ -1351,7 +1777,7 @@ export default function MasterGamesPage() {
  </div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="master-games-trainer-run-progress" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
  This stage
  </div>
@@ -1393,6 +1819,7 @@ export default function MasterGamesPage() {
  </div>
 
  <div
+ className="master-games-trainer-timer"
  style={{
  marginBottom: 12,
  textAlign: 'center',
@@ -1422,6 +1849,7 @@ export default function MasterGamesPage() {
  </div>
 
  <div
+ className="master-games-trainer-status"
  style={{
  ...panelCardStyle(),
  marginBottom: 12,
@@ -1433,8 +1861,9 @@ export default function MasterGamesPage() {
  <div style={{ fontSize: 13, lineHeight: 1.45 }}>{status}</div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="master-games-trainer-moves-card" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div
+ className="master-games-trainer-move-list"
  style={{
  display: 'flex',
  justifyContent: 'space-between',
@@ -1444,12 +1873,24 @@ export default function MasterGamesPage() {
  }}
  >
  <div style={{ fontSize: 13, fontWeight: 700 }}>
- {showMoveList ? 'Current stage moves' : 'Moves hidden'}
+ {fullLineVisible ? 'Full line' : showMoveList ? 'Current stage moves' : 'Moves hidden'}
  </div>
 
- {notationHidden && !hintVisible ? (
- <button
- onClick={() => setHintVisible(true)}
+ <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+ {canRequestHint ? (
+ <>
+ <HintButton
+ getHintMove={() =>
+ canRequestHint && currentExpected
+ ? { from: currentExpected.from, to: currentExpected.to }
+ : null
+ }
+ onHintStage={(move, hintStage) => {
+ setMasterGameHintArrow(hintStage === 'square' ? move : null)
+ }}
+ onHintReset={() => setMasterGameHintArrow(null)}
+ hintResetKey={masterGameHintResetKey}
+ fullWidth={false}
  style={{
  background: '#6d5a2c',
  color: '#fff4cf',
@@ -1462,8 +1903,29 @@ export default function MasterGamesPage() {
  }}
  >
  Hint
- </button>
+ </HintButton>
+ </>
  ) : null}
+
+ <button
+  onClick={() => {
+   setFullLineVisible((prev) => !prev)
+   setHintVisible(false)
+  }}
+  style={{
+   background: fullLineVisible ? '#4c4744' : '#38506d',
+   color: '#eaf3ff',
+   border: 'none',
+   borderRadius: 8,
+   padding: '6px 10px',
+   fontSize: 12,
+   fontWeight: 700,
+   cursor: 'pointer',
+  }}
+ >
+  {fullLineVisible ? 'Stage' : 'Full line'}
+ </button>
+ </div>
  </div>
 
  {showMoveList ? (
@@ -1474,7 +1936,7 @@ export default function MasterGamesPage() {
  paddingRight: 4,
  }}
  >
- {stageRows.map((row) => (
+ {visibleMoveRows.map((row) => (
  <div
  key={row.moveNumber}
  style={{
@@ -1505,7 +1967,7 @@ export default function MasterGamesPage() {
  )}
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="master-games-trainer-game-info" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
  Game info
  </div>
@@ -1518,12 +1980,12 @@ export default function MasterGamesPage() {
  </div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="master-games-trainer-next-move" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
  Next expected move
  </div>
  <div style={{ fontSize: 12, color: '#d0d0d0' }}>
- {notationHidden && !hintVisible
+ {notationHidden && !hintVisible && !fullLineVisible
  ? 'Hidden during memory runs.'
  : currentExpected
  ? currentExpected.san
@@ -1531,7 +1993,7 @@ export default function MasterGamesPage() {
  </div>
  </div>
 
- <div style={{ display: 'flex', gap: 10 }}>
+ <div className="master-games-trainer-actions" style={{ display: 'flex', gap: 10 }}>
  <button
  onClick={beginStageRun}
  style={{

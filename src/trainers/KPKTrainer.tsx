@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chess } from "chess.js";
-import { Chessboard } from "react-chessboard";
+import ThemedChessboard from "../theme/ThemedChessboard"
 import { BNEngine } from "../lib/bnEngine";
 import type { EngineResult } from "../lib/bnEngine";
 import { supabase } from "../lib/supabase";
@@ -646,7 +646,7 @@ export default function KPKTrainer() {
  </div>
  </div>
 
- <Chessboard
+ <ThemedChessboard
  position={game.fen()}
  onPieceDrop={onDrop}
  boardWidth={boardWidth}

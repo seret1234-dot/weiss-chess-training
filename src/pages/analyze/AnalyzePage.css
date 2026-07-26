@@ -132,3 +132,79 @@
     grid-template-columns: 1fr;
   }
 }
+
+.analyze-home-board,
+.analyze-home-panel,
+.analyze-home-input,
+.analyze-home-primary-control,
+.analyze-home-final-controls {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  html:has(.analyze-home-board),
+  body:has(.analyze-home-board),
+  #root:has(.analyze-home-board) {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip !important;
+  }
+
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-content,
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-layout,
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-board-column,
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-board-frame,
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-custom-board-slot,
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-side,
+  .analyze-home-board,
+  .analyze-home-board > div,
+  .analyze-home-board *,
+  .analyze-home-panel,
+  .analyze-home-panel > div,
+  .analyze-home-panel * {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-board-frame {
+    width: 100% !important;
+    padding: 7px !important;
+  }
+
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-custom-board-slot,
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-custom-board-slot > *,
+  .analyze-home-board,
+  .analyze-home-player-row {
+    width: 100% !important;
+  }
+
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-custom-board-slot > * {
+    min-width: 0;
+    max-width: 100%;
+    flex: 1 1 auto;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-page:has(.analyze-home-board) .trainer-shell-side {
+    max-width: calc(100% - 16px) !important;
+  }
+
+  .analyze-home-panel,
+  .analyze-home-panel > div,
+  .analyze-home-panel button,
+  .analyze-home-input,
+  .analyze-home-primary-control,
+  .analyze-home-final-controls {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .analyze-home-final-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

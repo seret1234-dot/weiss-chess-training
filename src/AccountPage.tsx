@@ -1,54 +1,170 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { supabase } from "./lib/supabase"
+import { useSubscription } from "./context/SubscriptionContext"
+import ThemeSelector from "./theme/ThemeSelector"
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime())
+    ? null
+    : date.toLocaleDateString()
+}
 
 export default function AccountPage() {
+ const navigate = useNavigate()
  const [email, setEmail] = useState("")
  const [chessCom, setChessCom] = useState("")
  const [lichess, setLichess] = useState("")
  const [message, setMessage] = useState("")
  const [error, setError] = useState("")
  const [saving, setSaving] = useState(false)
+ const [cancelling, setCancelling] = useState(false)
+ const [membershipMessage, setMembershipMessage] = useState("")
+ const [membershipActionError, setMembershipActionError] = useState("")
+ const {
+   subscription,
+   isPremium,
+   loading: subscriptionLoading,
+   error: subscriptionError,
+   refreshSubscription,
+ } = useSubscription()
+
+ const accessUntil = formatDate(subscription?.current_period_end)
+ const planLabel =
+   subscription?.plan === "monthly"
+     ? "Monthly Premium"
+     : subscription?.plan === "yearly"
+       ? "Yearly Premium"
+       : isPremium
+         ? "Premium"
+         : "Free"
+
+ const membershipDescription = (() => {
+   if (subscriptionLoading) return "Checking your membership..."
+
+   if (subscription?.cancel_at_period_end && accessUntil) {
+     return `Renewal is cancelled. Premium access remains active until ${accessUntil}.`
+   }
+
+   if (isPremium && accessUntil) {
+     return `Premium is active. The next billing date is ${accessUntil}.`
+   }
+
+   if (isPremium) return "Your Premium access is active."
+
+   if (subscription?.status === "past_due") {
+     return "A payment problem has paused Premium access. Check your PayPal account."
+   }
+
+   if (subscription?.status === "expired") {
+     return "Your previous Premium subscription has expired."
+   }
+
+   if (subscription?.status === "cancelled") {
+     return "Your previous Premium subscription is cancelled."
+   }
+
+   return "You currently have Free access."
+ })()
 
  useEffect(() => {
- async function load() {
- const { data, error } = await supabase.auth.getUser()
+   async function load() {
+     const { data, error } = await supabase.auth.getUser()
 
- if (error) {
- setError(error.message)
- return
- }
+     if (error) {
+       setError(error.message)
+       return
+     }
 
- const user = data.user
- const meta = user?.user_metadata
+     const user = data.user
+     const meta = user?.user_metadata
 
- setEmail(user?.email || "")
- setChessCom(meta?.chess_com_username || "")
- setLichess(meta?.lichess_username || "")
- }
+     setEmail(user?.email || "")
+     setChessCom(meta?.chess_com_username || "")
+     setLichess(meta?.lichess_username || "")
+   }
 
- load()
+   void load()
  }, [])
 
  async function save() {
- setSaving(true)
- setMessage("")
- setError("")
+   setSaving(true)
+   setMessage("")
+   setError("")
 
- const { error } = await supabase.auth.updateUser({
- data: {
- chess_com_username: chessCom.trim(),
- lichess_username: lichess.trim(),
- },
- })
+   const { error } = await supabase.auth.updateUser({
+     data: {
+       chess_com_username: chessCom.trim(),
+       lichess_username: lichess.trim(),
+     },
+   })
 
- setSaving(false)
+   setSaving(false)
 
- if (error) {
- setError(error.message)
- return
+   if (error) {
+     setError(error.message)
+     return
+   }
+
+   setMessage("Saved successfully")
  }
 
- setMessage("Saved successfully")
+ async function cancelRenewal() {
+   if (
+     !window.confirm(
+       "Cancel future PayPal renewals? Premium access will continue until the end of the paid period.",
+     )
+   ) {
+     return
+   }
+
+   setCancelling(true)
+   setMembershipMessage("")
+   setMembershipActionError("")
+
+   try {
+     const session = await supabase.auth.getSession()
+     const accessToken = session.data.session?.access_token
+
+     if (session.error || !accessToken) {
+       throw new Error("Please log in again before cancelling.")
+     }
+
+     const response = await fetch(
+       "/api/cancel-paypal-subscription",
+       {
+         method: "POST",
+         headers: {
+           Authorization: `Bearer ${accessToken}`,
+           "Content-Type": "application/json",
+         },
+         body: JSON.stringify({}),
+       },
+     )
+
+     const data = await response.json().catch(() => null)
+
+     if (!response.ok) {
+       throw new Error(
+         data?.error || "Could not cancel PayPal renewal.",
+       )
+     }
+
+     await refreshSubscription()
+     setMembershipMessage(
+       "Renewal has been cancelled. You keep Premium until the paid period ends.",
+     )
+   } catch (actionError) {
+     setMembershipActionError(
+       actionError instanceof Error
+         ? actionError.message
+         : "Could not cancel PayPal renewal.",
+     )
+   } finally {
+     setCancelling(false)
+   }
  }
 
  return (
@@ -60,9 +176,11 @@ export default function AccountPage() {
  <div style={eyebrowStyle}>Profile</div>
  <h1 style={titleStyle}>Account Settings</h1>
  <div style={subtitleStyle}>
- Update your chess usernames so your training can become more personal over time.
+ Update your chess usernames, appearance and membership.
  </div>
  </div>
+
+ <ThemeSelector />
 
  <div style={contentGridStyle}>
  <div style={mainCardStyle}>
@@ -105,6 +223,55 @@ export default function AccountPage() {
  </div>
 
  <div style={sideCardStyle}>
+ <div style={membershipBoxStyle}>
+ <div style={membershipEyebrowStyle}>Membership</div>
+
+ <div style={membershipPlanStyle}>
+ {subscriptionLoading ? "Loading..." : planLabel}
+ </div>
+
+ <div style={membershipTextStyle}>
+ {membershipDescription}
+ </div>
+
+ {subscription?.provider === "paypal" && (
+ <div style={membershipDetailStyle}>
+ Payment provider: PayPal
+ </div>
+ )}
+
+ {!subscriptionLoading && !isPremium && (
+ <button
+ style={membershipPrimaryButtonStyle}
+ onClick={() => navigate("/pricing")}
+ >
+ View Premium plans
+ </button>
+ )}
+
+ {subscription?.provider === "paypal" &&
+ isPremium &&
+ !subscription.cancel_at_period_end && (
+ <button
+ style={cancelButtonStyle}
+ onClick={cancelRenewal}
+ disabled={cancelling}
+ >
+ {cancelling ? "Cancelling..." : "Cancel renewal"}
+ </button>
+ )}
+
+ {membershipMessage && (
+ <div style={membershipSuccessStyle}>{membershipMessage}</div>
+ )}
+
+ {(subscriptionError || membershipActionError) && (
+ <div style={membershipErrorStyle}>
+ {membershipActionError || subscriptionError}
+ </div>
+ )}
+ </div>
+
  <div style={sideTitleStyle}>Why add usernames?</div>
 
  <ul style={listStyle}>
@@ -126,9 +293,9 @@ export default function AccountPage() {
 
 const pageStyle: React.CSSProperties = {
  minHeight: "100vh",
- background: "linear-gradient(180deg, #2b2623 0%, #231f1d 100%)",
+ background: "var(--theme-page-bg)",
  padding: "48px 20px 80px",
- fontFamily: "Arial, sans-serif",
+ fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
  position: "relative",
  overflow: "hidden",
 }
@@ -141,7 +308,7 @@ const glowStyle: React.CSSProperties = {
  width: 520,
  height: 520,
  borderRadius: "50%",
- background: "radial-gradient(circle, rgba(129,182,76,0.18) 0%, rgba(129,182,76,0) 70%)",
+ background: "radial-gradient(circle, color-mix(in srgb, var(--theme-accent) 20%, transparent) 0%, transparent 70%)",
  pointerEvents: "none",
 }
 
@@ -155,15 +322,15 @@ const shellStyle: React.CSSProperties = {
 }
 
 const headerCardStyle: React.CSSProperties = {
- background: "rgba(31,29,28,0.92)",
- border: "1px solid rgba(255,255,255,0.06)",
+ background: "var(--theme-panel)",
+ border: "1px solid var(--theme-border)",
  borderRadius: 24,
  padding: "28px 28px 24px",
- boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+ boxShadow: "var(--theme-shadow)",
 }
 
 const eyebrowStyle: React.CSSProperties = {
- color: "#81b64c",
+ color: "var(--theme-accent-strong)",
  fontSize: 12,
  fontWeight: 800,
  letterSpacing: 1.2,
@@ -172,7 +339,7 @@ const eyebrowStyle: React.CSSProperties = {
 }
 
 const titleStyle: React.CSSProperties = {
- color: "#f5f5f5",
+ color: "var(--theme-text)",
  fontSize: 34,
  lineHeight: 1.1,
  margin: 0,
@@ -180,7 +347,7 @@ const titleStyle: React.CSSProperties = {
 }
 
 const subtitleStyle: React.CSSProperties = {
- color: "#c9c9c9",
+ color: "var(--theme-muted)",
  fontSize: 15,
  lineHeight: 1.6,
  marginTop: 10,
@@ -194,25 +361,25 @@ const contentGridStyle: React.CSSProperties = {
 }
 
 const mainCardStyle: React.CSSProperties = {
- background: "#1f1d1c",
- border: "1px solid rgba(255,255,255,0.06)",
+ background: "var(--theme-panel)",
+ border: "1px solid var(--theme-border)",
  borderRadius: 24,
  padding: 28,
- boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+ boxShadow: "var(--theme-shadow)",
 }
 
 const sideCardStyle: React.CSSProperties = {
- background: "#1f1d1c",
- border: "1px solid rgba(255,255,255,0.06)",
+ background: "var(--theme-panel)",
+ border: "1px solid var(--theme-border)",
  borderRadius: 24,
  padding: 28,
- boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
- color: "#f3f3f3",
+ boxShadow: "var(--theme-shadow)",
+ color: "var(--theme-text)",
  alignSelf: "start",
 }
 
 const sectionTitleStyle: React.CSSProperties = {
- color: "#f3f3f3",
+ color: "var(--theme-text)",
  fontSize: 22,
  fontWeight: 800,
  marginBottom: 20,
@@ -225,7 +392,7 @@ const fieldBlockStyle: React.CSSProperties = {
 }
 
 const labelStyle: React.CSSProperties = {
- color: "#dbdbdb",
+ color: "var(--theme-text)",
  fontSize: 13,
  fontWeight: 700,
 }
@@ -233,9 +400,9 @@ const labelStyle: React.CSSProperties = {
 const inputStyle: React.CSSProperties = {
  padding: "14px 16px",
  borderRadius: 12,
- border: "1px solid rgba(255,255,255,0.08)",
- background: "#2a2523",
- color: "#fff",
+ border: "1px solid var(--theme-border)",
+ background: "var(--theme-panel-input)",
+ color: "var(--theme-text)",
  fontSize: 15,
  outline: "none",
 }
@@ -247,7 +414,7 @@ const disabledInputStyle: React.CSSProperties = {
 }
 
 const helperStyle: React.CSSProperties = {
- color: "#a7a7a7",
+ color: "var(--theme-muted)",
  fontSize: 12,
  lineHeight: 1.5,
 }
@@ -263,8 +430,8 @@ const saveButtonStyle: React.CSSProperties = {
  border: "none",
  borderRadius: 12,
  padding: "13px 18px",
- background: "#81b64c",
- color: "#fff",
+ background: "var(--theme-accent)",
+ color: "var(--theme-text)",
  fontWeight: 800,
  fontSize: 14,
  cursor: "pointer",
@@ -302,7 +469,7 @@ const sideTitleStyle: React.CSSProperties = {
 const listStyle: React.CSSProperties = {
  margin: 0,
  paddingLeft: 18,
- color: "#e9e9e9",
+ color: "var(--theme-text)",
  fontSize: 14,
  lineHeight: 1.7,
 }
@@ -311,9 +478,85 @@ const tipBoxStyle: React.CSSProperties = {
  marginTop: 18,
  borderRadius: 16,
  padding: "14px 16px",
- background: "#2a2523",
- border: "1px solid rgba(255,255,255,0.06)",
- color: "#d7d7d7",
+ background: "var(--theme-panel-input)",
+ border: "1px solid var(--theme-border)",
+ color: "var(--theme-muted)",
  fontSize: 13,
  lineHeight: 1.6,
+}
+const membershipBoxStyle: React.CSSProperties = {
+ marginBottom: 24,
+ padding: "18px",
+ borderRadius: 18,
+ background: "linear-gradient(135deg, rgba(129,182,76,0.18), rgba(129,182,76,0.06))",
+ border: "1px solid rgba(129,182,76,0.35)",
+}
+
+const membershipEyebrowStyle: React.CSSProperties = {
+ color: "#b9dd91",
+ fontSize: 11,
+ fontWeight: 800,
+ letterSpacing: 1.1,
+ textTransform: "uppercase",
+ marginBottom: 8,
+}
+
+const membershipPlanStyle: React.CSSProperties = {
+ color: "#ffffff",
+ fontSize: 26,
+ fontWeight: 800,
+ marginBottom: 8,
+}
+
+const membershipTextStyle: React.CSSProperties = {
+ color: "var(--theme-muted)",
+ fontSize: 13,
+ lineHeight: 1.55,
+}
+
+const membershipDetailStyle: React.CSSProperties = {
+ color: "var(--theme-muted)",
+ fontSize: 12,
+ marginTop: 10,
+}
+
+const membershipErrorStyle: React.CSSProperties = {
+ color: "#ff9d9d",
+ fontSize: 12,
+ marginTop: 10,
+}
+
+const membershipPrimaryButtonStyle: React.CSSProperties = {
+ width: "100%",
+ marginTop: 14,
+ border: "none",
+ borderRadius: 11,
+ padding: "11px 13px",
+ background: "var(--theme-accent)",
+ color: "#fff",
+ fontWeight: 800,
+ cursor: "pointer",
+}
+
+const cancelButtonStyle: React.CSSProperties = {
+ width: "100%",
+ marginTop: 14,
+ borderRadius: 11,
+ padding: "11px 13px",
+ background: "rgba(255,255,255,0.05)",
+ border: "1px solid rgba(255,170,120,0.35)",
+ color: "#ffd2b7",
+ fontWeight: 800,
+ cursor: "pointer",
+}
+
+const membershipSuccessStyle: React.CSSProperties = {
+ marginTop: 12,
+ padding: "10px 11px",
+ borderRadius: 10,
+ background: "rgba(129,182,76,0.13)",
+ border: "1px solid rgba(129,182,76,0.3)",
+ color: "#d7efb8",
+ fontSize: 12,
+ lineHeight: 1.45,
 }

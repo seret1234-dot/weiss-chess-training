@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
-import { Chessboard } from 'react-chessboard'
+import { useSearchParams } from 'react-router-dom'
+import ThemedChessboard from "./theme/ThemedChessboard"
 import { supabase } from './lib/supabase'
 import { SiteExplanationBox } from './components/SiteExplanationBox'
 import { siteExplanations } from './content/siteExplanations'
+import './BoardVisionPage.css'
+
+import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
 
 type SideMode = 'white' | 'black'
 type TrainerMode = 'find-square' | 'name-square' | 'name-color'
@@ -121,6 +125,175 @@ function getStorageKey(mode: TrainerMode, side: SideMode) {
 
 function getSupabaseTheme(mode: TrainerMode, side: SideMode) {
  return `boardvision_${mode}_${side}`
+}
+
+const BOARD_VISION_TRAINER_KEY = 'board-vision-basic'
+const BOARD_VISION_REVIEW_INTERVALS_DAYS = [30, 90, 180, 365] as const
+const BOARD_VISION_REVIEW_WHITE_CHUNK = 900001
+const BOARD_VISION_REVIEW_BLACK_CHUNK = 900002
+
+function addBoardVisionReviewDays(date: Date, days: number) {
+ const next = new Date(date)
+ next.setDate(next.getDate() + days)
+ return next
+}
+
+function getCanonicalBoardVisionReviewChunk(side: SideMode) {
+ return side === 'black'
+ ? BOARD_VISION_REVIEW_BLACK_CHUNK
+ : BOARD_VISION_REVIEW_WHITE_CHUNK
+}
+
+const BOARD_VISION_MODE_CHUNK_STRIDE = 20000
+const BOARD_VISION_SIDE_CHUNK_STRIDE = 10000
+
+const BOARD_VISION_MODE_INDEX: Record<TrainerMode, number> = {
+ 'find-square': 0,
+ 'name-square': 1,
+ 'name-color': 2,
+}
+
+const BOARD_VISION_INDEX_MODE: TrainerMode[] = [
+ 'find-square',
+ 'name-square',
+ 'name-color',
+]
+
+function getBoardVisionChunkNumber(
+ mode: TrainerMode,
+ side: SideMode,
+ chunkIndex: number
+) {
+ const modeOffset = BOARD_VISION_MODE_INDEX[mode] * BOARD_VISION_MODE_CHUNK_STRIDE
+ const sideOffset = side === 'black' ? BOARD_VISION_SIDE_CHUNK_STRIDE : 0
+ return modeOffset + sideOffset + chunkIndex + 1
+}
+
+function decodeBoardVisionUrlChunk(value: string | null) {
+ if (value === null || !/^\d+$/.test(value)) return null
+
+ const encodedIndex = Number(value)
+ if (!Number.isSafeInteger(encodedIndex) || encodedIndex < 0) return null
+
+ const modeIndex = Math.floor(encodedIndex / BOARD_VISION_MODE_CHUNK_STRIDE)
+ const mode = BOARD_VISION_INDEX_MODE[modeIndex]
+ if (!mode) return null
+
+ const withinMode = encodedIndex % BOARD_VISION_MODE_CHUNK_STRIDE
+ const side: SideMode =
+  withinMode >= BOARD_VISION_SIDE_CHUNK_STRIDE ? 'black' : 'white'
+ const chunkIndex = withinMode % BOARD_VISION_SIDE_CHUNK_STRIDE
+
+ return { mode, side, chunkIndex }
+}
+
+async function markBoardVisionChunkMastered(
+ chunkNumber: number,
+ masteredCount: number
+): Promise<boolean> {
+ const { data: authData, error: authError } = await supabase.auth.getUser()
+
+ if (authError) {
+ console.error('Could not get user for Board Vision chunk progress:', authError)
+ return false
+ }
+
+ const user = authData.user
+ if (!user) return false
+
+ const nowIso = new Date().toISOString()
+
+ const { error } = await supabase.from('user_chunk_progress').upsert({
+ user_id: user.id,
+ trainer_key: BOARD_VISION_TRAINER_KEY,
+ chunk_index: chunkNumber,
+ mastered_puzzles_count: masteredCount,
+ is_mastered: true,
+ mastered_at: nowIso,
+ review_stage: 0,
+ next_review_at: null,
+ last_reviewed_at: nowIso,
+ updated_at: nowIso,
+ })
+
+ if (error) {
+ console.error('Could not save Board Vision chunk progress:', error)
+ return false
+ }
+
+ return true
+}
+
+async function scheduleBoardVisionFullBoardReview(
+ side: SideMode,
+ masteredCount: number,
+ advanceExistingStage: boolean
+): Promise<boolean> {
+ const { data: authData, error: authError } = await supabase.auth.getUser()
+
+ if (authError) {
+ console.error('Could not get user for Board Vision review:', authError)
+ return false
+ }
+
+ const user = authData.user
+ if (!user) return false
+
+ const chunkNumber = getCanonicalBoardVisionReviewChunk(side)
+ const { data: existing, error: existingError } = await supabase
+ .from('user_chunk_progress')
+ .select('review_stage, mastered_at')
+ .eq('user_id', user.id)
+ .eq('trainer_key', BOARD_VISION_TRAINER_KEY)
+ .eq('chunk_index', chunkNumber)
+ .maybeSingle()
+
+ if (existingError) {
+ console.error('Could not load Board Vision review stage:', existingError)
+ return false
+ }
+
+ if (existing && !advanceExistingStage) return true
+
+ const now = new Date()
+ const nowIso = now.toISOString()
+ const currentStage = Math.max(
+ 0,
+ Math.min(
+ BOARD_VISION_REVIEW_INTERVALS_DAYS.length,
+ Number(existing?.review_stage ?? 0)
+ )
+ )
+ const nextStage = Math.min(
+ BOARD_VISION_REVIEW_INTERVALS_DAYS.length,
+ currentStage + 1
+ )
+ const intervalDays =
+ BOARD_VISION_REVIEW_INTERVALS_DAYS[nextStage - 1] ??
+ BOARD_VISION_REVIEW_INTERVALS_DAYS[
+ BOARD_VISION_REVIEW_INTERVALS_DAYS.length - 1
+ ]
+ const nextReviewAt = addBoardVisionReviewDays(now, intervalDays).toISOString()
+
+ const { error } = await supabase.from('user_chunk_progress').upsert({
+ user_id: user.id,
+ trainer_key: BOARD_VISION_TRAINER_KEY,
+ chunk_index: chunkNumber,
+ mastered_puzzles_count: masteredCount,
+ is_mastered: true,
+ mastered_at: existing?.mastered_at ?? nowIso,
+ review_stage: nextStage,
+ next_review_at: nextReviewAt,
+ last_reviewed_at: nowIso,
+ updated_at: nowIso,
+ })
+
+ if (error) {
+ console.error('Could not schedule Board Vision review:', error)
+ return false
+ }
+
+ return true
 }
 
 function shouldSkipChunkInNameColor(chunk: Chunk) {
@@ -747,7 +920,22 @@ function buildCourseChunks(): Chunk[] {
 const COURSE_CHUNKS = buildCourseChunks()
 
 export default function BoardVisionPage() {
+ const [searchParams] = useSearchParams()
+ const isAutoStudyLaunch = searchParams.get('auto') === '1'
+ const fullBoardReviewSide: SideMode | null =
+ searchParams.get('review') === 'full-board' &&
+ (searchParams.get('side') === 'white' || searchParams.get('side') === 'black')
+ ? (searchParams.get('side') as SideMode)
+ : null
+ const isFullBoardReview = fullBoardReviewSide !== null
+ const forcedBoardVisionChunk = decodeBoardVisionUrlChunk(searchParams.get('chunk'))
+ const forcedMode: TrainerMode | null =
+ isFullBoardReview ? 'find-square' : forcedBoardVisionChunk?.mode ?? null
+ const forcedSide: SideMode | null =
+ fullBoardReviewSide ?? forcedBoardVisionChunk?.side ?? null
+
  const [sideMode, setSideMode] = useState<SideMode>(() => {
+ if (forcedSide) return forcedSide
  try {
  const saved = localStorage.getItem(SIDE_STORAGE_KEY)
  return saved === 'black' ? 'black' : 'white'
@@ -755,7 +943,7 @@ export default function BoardVisionPage() {
  return 'white'
  }
  })
- const [trainerMode, setTrainerMode] = useState<TrainerMode>('find-square')
+ const [trainerMode, setTrainerMode] = useState<TrainerMode>(() => forcedMode ?? 'find-square')
  const [chunkIndex, setChunkIndex] = useState(0)
  const [targetSquare, setTargetSquare] = useState('')
  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
@@ -777,11 +965,29 @@ export default function BoardVisionPage() {
  const revealTimerRef = useRef<number | null>(null)
  const targetSwapTimerRef = useRef<number | null>(null)
 
+ useEffect(() => {
+  if (forcedMode && trainerMode !== forcedMode) setTrainerMode(forcedMode)
+  if (forcedSide && sideMode !== forcedSide) setSideMode(forcedSide)
+ }, [forcedMode, forcedSide, trainerMode, sideMode])
+
  const chunks = useMemo(() => COURSE_CHUNKS, [])
  const visibleChunks = useMemo(
  () => getVisibleChunks(chunks, trainerMode),
  [chunks, trainerMode]
  )
+
+ const fullBoardReviewChunkIndex = isFullBoardReview
+ ? visibleChunks.findIndex((chunk) => chunk.id === 'final-full-board-speed')
+ : -1
+
+ const forcedChunkIndex =
+ isFullBoardReview && fullBoardReviewChunkIndex >= 0
+ ? fullBoardReviewChunkIndex
+ : forcedBoardVisionChunk &&
+ forcedBoardVisionChunk.mode === trainerMode &&
+ forcedBoardVisionChunk.side === sideMode
+ ? forcedBoardVisionChunk.chunkIndex
+ : null
 
  const currentChunk = visibleChunks[chunkIndex]
  const currentPool = currentChunk?.squares ?? []
@@ -918,7 +1124,7 @@ export default function BoardVisionPage() {
  setTargetSquare('')
  setSolveStartedAt(null)
  setIsStarted(false)
- setChunkIndex(0)
+ setChunkIndex(forcedChunkIndex === null ? 0 : Math.max(0, Math.min(visibleChunks.length - 1, forcedChunkIndex)))
  setProgressLoaded(false)
  setStatusText('Loading progress...')
 
@@ -957,12 +1163,33 @@ export default function BoardVisionPage() {
  }
  }
 
+ if (isFullBoardReview && forcedChunkIndex !== null) {
+ const reviewChunk = visibleChunks[forcedChunkIndex]
+ if (reviewChunk) {
+ for (const squareName of reviewChunk.squares) {
+ const key = getProgressKey(
+ trainerMode,
+ sideMode,
+ reviewChunk.id,
+ squareName
+ )
+ mergedProgress[key] = Math.max(0, FAST_SOLVES_TO_MASTER - 1)
+ }
+ }
+ }
+
  setProgressMap(mergedProgress)
  setProgressLoaded(true)
  }
 
  void bootModeProgress()
- }, [trainerMode, sideMode])
+ }, [
+ trainerMode,
+ sideMode,
+ forcedChunkIndex,
+ visibleChunks,
+ isFullBoardReview,
+ ])
 
  useEffect(() => {
  if (!progressLoaded) return
@@ -1001,6 +1228,31 @@ export default function BoardVisionPage() {
  useEffect(() => {
  if (!progressLoaded || visibleChunks.length === 0) return
 
+ if (forcedChunkIndex !== null) {
+  const safeForcedChunkIndex = Math.max(
+   0,
+   Math.min(visibleChunks.length - 1, forcedChunkIndex)
+  )
+  const forcedChunk = visibleChunks[safeForcedChunkIndex]
+  const forcedTarget = pickRandomSquare(forcedChunk.squares)
+
+  clearFlashTimer()
+  clearTargetTimers()
+  setTypedAnswer('')
+  setSelectedSquare(null)
+  setLastSolveSeconds(null)
+  setChunkIndex(safeForcedChunkIndex)
+  setTargetSquare(forcedTarget)
+  setSolveStartedAt(performance.now())
+  setIsStarted(true)
+  setTargetVisible(true)
+  setStatus('idle')
+  setStatusText(
+   `AUTO review: ${forcedChunk.label} (${sideMode === 'white' ? 'White' : 'Black'})`
+  )
+  return
+ }
+
  const firstIncomplete = visibleChunks.findIndex((chunk) =>
  chunk.squares.some(
  (squareName) =>
@@ -1016,6 +1268,35 @@ export default function BoardVisionPage() {
  setLastSolveSeconds(null)
 
  if (firstIncomplete === -1) {
+ const fullBoardChunk = visibleChunks.find(
+ (chunk) => chunk.id === 'final-full-board-speed'
+ )
+ const masteredCount = fullBoardChunk?.squares.length ?? 64
+
+ if (isAutoStudyLaunch) {
+ setChunkIndex(Math.max(0, visibleChunks.length - 1))
+ setTargetSquare('')
+ setSolveStartedAt(null)
+ setIsStarted(true)
+ setStatus('course-complete')
+ setStatusText('Board Vision mastery saved')
+
+ void scheduleBoardVisionFullBoardReview(
+ sideMode,
+ masteredCount,
+ false
+ ).finally(() => {
+ window.location.assign('/auto')
+ })
+ return
+ }
+
+ void scheduleBoardVisionFullBoardReview(
+ sideMode,
+ masteredCount,
+ false
+ )
+
  if (sideMode === 'white') {
  setSideMode('black')
  setStatusText('White course complete. Switching to Black...')
@@ -1044,7 +1325,14 @@ export default function BoardVisionPage() {
  `Resumed: ${nextChunk.label} (${sideMode === 'white' ? 'White' : 'Black'})`
  )
  // eslint-disable-next-line react-hooks/exhaustive-deps
- }, [progressLoaded, trainerMode, sideMode, visibleChunks.length])
+ }, [
+ progressLoaded,
+ trainerMode,
+ sideMode,
+ visibleChunks,
+ forcedChunkIndex,
+ isAutoStudyLaunch,
+ ])
 
  useEffect(() => {
  function onKeyDown(event: globalThis.KeyboardEvent) {
@@ -1323,6 +1611,10 @@ export default function BoardVisionPage() {
 
  setLastSolveSeconds(elapsedSeconds)
  setTotalCorrect((v) => v + 1)
+ reportTrainingItemCompleted(
+  "board_vision",
+  `${trainerMode}:${sideMode}:${currentChunk.id}:${targetSquare}`,
+ )
 
  if (!isFast) {
  setStatus('correct')
@@ -1353,6 +1645,56 @@ export default function BoardVisionPage() {
  setProgressMap(nextMap)
 
  if (chunkCompleted) {
+ const isCanonicalFullBoard =
+ currentChunk.id === 'final-full-board-speed'
+
+ if (isFullBoardReview && isCanonicalFullBoard) {
+ setStatus('course-complete')
+ setStatusText('Full-board review complete')
+ setTargetSquare('')
+ setSelectedSquare(null)
+ setSolveStartedAt(null)
+
+ void scheduleBoardVisionFullBoardReview(
+ sideMode,
+ currentPool.length,
+ true
+ ).finally(() => {
+ window.location.assign('/auto')
+ })
+ return
+ }
+
+ if (isCanonicalFullBoard) {
+ if (isAutoStudyLaunch) {
+ setStatus('course-complete')
+ setStatusText('Full-board mastery saved')
+ setTargetSquare('')
+ setSelectedSquare(null)
+ setSolveStartedAt(null)
+
+ void scheduleBoardVisionFullBoardReview(
+ sideMode,
+ currentPool.length,
+ false
+ ).finally(() => {
+ window.location.assign('/auto')
+ })
+ return
+ }
+
+ void scheduleBoardVisionFullBoardReview(
+ sideMode,
+ currentPool.length,
+ false
+ )
+ } else {
+ void markBoardVisionChunkMastered(
+ getBoardVisionChunkNumber(trainerMode, sideMode, chunkIndex),
+ currentPool.length
+ )
+ }
+
  if (chunkIndex >= visibleChunks.length - 1) {
  if (sideMode === 'white') {
  setStatus('chunk-complete')
@@ -1492,6 +1834,7 @@ export default function BoardVisionPage() {
 
  return (
  <div
+ className="board-vision-page"
  style={{
  height: '100vh',
  overflow: 'hidden',
@@ -1501,8 +1844,9 @@ export default function BoardVisionPage() {
  padding: '12px',
  }}
  >
- <div style={{ maxWidth: 1760, margin: '0 auto' }}>
+ <div className="board-vision-content" style={{ maxWidth: 1760, margin: '0 auto' }}>
  <div
+ className="board-vision-header"
  style={{
  display: 'flex',
  alignItems: 'center',
@@ -1512,8 +1856,9 @@ export default function BoardVisionPage() {
  flexWrap: 'wrap',
  }}
  >
- <div>
+ <div className="board-vision-heading">
  <h1
+ className="board-vision-title"
  style={{
  margin: 0,
  fontSize: 30,
@@ -1535,7 +1880,7 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
- <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+ <div className="board-vision-header-actions" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
  <button onClick={handleStart} style={buttonPrimaryStyle}>
  Start Course
  </button>
@@ -1546,6 +1891,7 @@ export default function BoardVisionPage() {
  </div>
  </div>
  <div
+ className="board-vision-layout"
  style={{
  display: 'grid',
  gridTemplateColumns: 'minmax(760px, 1fr) 560px',
@@ -1555,8 +1901,9 @@ export default function BoardVisionPage() {
  minHeight: 0,
  }}
  >
- <div style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
+ <div className="board-vision-main" style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
  <div
+ className="board-vision-prompt"
  style={{
  display: 'flex',
  justifyContent: 'space-between',
@@ -1569,6 +1916,7 @@ export default function BoardVisionPage() {
  <div>
  <div style={eyebrowStyle}>{promptTitle}</div>
  <div
+ className="board-vision-prompt-value"
  style={{
  fontSize: 42,
  fontWeight: 900,
@@ -1618,6 +1966,7 @@ export default function BoardVisionPage() {
  </div>
 
  <div
+ className="board-vision-course-status"
  style={{
  display: 'flex',
  justifyContent: 'space-between',
@@ -1645,6 +1994,7 @@ export default function BoardVisionPage() {
  </div>
 
  <div
+ className="board-vision-current-chunk"
  style={{
  marginBottom: 14,
  padding: '14px 16px',
@@ -1690,8 +2040,8 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
- <div style={{ width: '100%', maxWidth: 900, margin: '0 auto' }}>
- <Chessboard
+ <div className="board-vision-board" style={{ width: '100%', maxWidth: 900, margin: '0 auto' }}>
+ <ThemedChessboard
  id="board-vision-board"
  position={createBlankPosition()}
  onSquareClick={handleSquareClick}
@@ -1710,7 +2060,7 @@ export default function BoardVisionPage() {
 />
  </div>
  {trainerMode === 'name-square' && (
- <div style={{ marginTop: 16 }}>
+ <div className="board-vision-answer" style={{ marginTop: 16 }}>
  <div style={sectionTitleStyle}>Answer</div>
 
  <div
@@ -1737,7 +2087,7 @@ export default function BoardVisionPage() {
  )}
 
  {trainerMode === 'name-color' && (
- <div style={{ marginTop: 16 }}>
+ <div className="board-vision-answer" style={{ marginTop: 16 }}>
  <div style={sectionTitleStyle}>Answer color</div>
  <div
  style={{
@@ -1781,8 +2131,9 @@ export default function BoardVisionPage() {
  )}
  </div>
 
- <div style={{ display: 'grid', gap: 12, alignContent: 'start', maxHeight: '100%', minHeight: 0, paddingRight: 4 }}>
- <div style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
+ <div className="board-vision-sidebar" style={{ display: 'grid', gap: 12, alignContent: 'start', maxHeight: '100%', minHeight: 0, paddingRight: 4 }}>
+ <div className="board-vision-session" style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
+ <div className="board-vision-session-settings">
  <div style={sectionTitleStyle}>Session</div>
 
  <div style={infoRowStyle}>
@@ -1829,8 +2180,10 @@ export default function BoardVisionPage() {
  <span style={labelStyle}>Need for mastery</span>
  <span style={valueStyle}>{FAST_SOLVES_TO_MASTER} fast solves each</span>
  </div>
+ </div>
 
  <div
+ className="board-vision-feedback"
  style={{
  marginTop: 14,
  padding: '12px 14px',
@@ -1860,7 +2213,7 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
- <div style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
+ <div className="board-vision-jump" style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
  <div style={sectionTitleStyle}>Jump to chunk</div>
 
  <div
@@ -1884,7 +2237,7 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
- <div style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
+ <div className="board-vision-chunk-progress" style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
  <div style={sectionTitleStyle}>Chunk progress</div>
 
  <div style={progressHeaderStyle}>
@@ -1906,7 +2259,6 @@ export default function BoardVisionPage() {
  <div
  style={{
  marginTop: 14,
- display: 'grid',
  gridTemplateColumns: 'repeat(2, minmax(0,1fr))',
  gap: 10,
  display: 'none',
@@ -1968,7 +2320,7 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
- <div style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
+ <div className="board-vision-course-progress" style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
  <div style={sectionTitleStyle}>Course progress</div>
 
  <div style={progressHeaderStyle}>
@@ -2007,10 +2359,11 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
- <div style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
+ <div className="board-vision-current-order" style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
  <div style={sectionTitleStyle}>Current order</div>
 
  <div
+ className="board-vision-current-order-list"
  style={{
  maxHeight: 'calc(100vh - 430px)',
  overflowY: 'auto',
@@ -2140,7 +2493,7 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
- <div style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
+ <div className="board-vision-inside" style={{ ...cardStyle, minHeight: 0, overflow: 'hidden' }}>
  <div style={sectionTitleStyle}>Inside</div>
  <div style={noteStyle}>
  Files: single, pairs, triplets, groups of 4, full board
@@ -2154,11 +2507,11 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
- <div style={{ gridColumn: '1 / -1' }}>
+ <div className="board-vision-explanation" style={{ gridColumn: '1 / -1' }}>
  <SiteExplanationBox explanation={siteExplanations.boardVision} />
  </div>
 
- <div style={{ gridColumn: '1 / -1' }}>
+ <div className="board-vision-explanation" style={{ gridColumn: '1 / -1' }}>
  <SiteExplanationBox explanation={siteExplanations.boardVision} />
  </div>
  </div>

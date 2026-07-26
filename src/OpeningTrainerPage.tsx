@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Chess, Move } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from "./theme/ThemedChessboard"
 import { supabase } from './lib/supabase'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
-import { loadTrainingProgressMap, saveTrainingProgress } from './lib/trainingProgress'
+import { saveTrainingProgress } from './lib/trainingProgress'
+import { HintButton } from './components/trainer/ui'
+import './OpeningTrainerPage.css'
+
+import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
 
 type OpeningLine = {
  id: string
@@ -53,21 +57,21 @@ const GROW_UNTIL = 15
 const SLIDE_FROM = 10
 const SLIDE_WINDOW = 16
 const SLIDE_STEP = 10
-const MESSAGE_DELAY_MS = 1000
+const MESSAGE_DELAY_MS = 2000
 
 const PIECE_URLS: Record<PieceCode, string> = {
- wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
- wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
- wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
- wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
- wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
- wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
- bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
- bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
- bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
- bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
- bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
- bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png',
+ wP: '/pieces/react-chessboard-default/wp.svg',
+ wN: '/pieces/react-chessboard-default/wn.svg',
+ wB: '/pieces/react-chessboard-default/wb.svg',
+ wR: '/pieces/react-chessboard-default/wr.svg',
+ wQ: '/pieces/react-chessboard-default/wq.svg',
+ wK: '/pieces/react-chessboard-default/wk.svg',
+ bP: '/pieces/react-chessboard-default/bp.svg',
+ bN: '/pieces/react-chessboard-default/bn.svg',
+ bB: '/pieces/react-chessboard-default/bb.svg',
+ bR: '/pieces/react-chessboard-default/br.svg',
+ bQ: '/pieces/react-chessboard-default/bq.svg',
+ bK: '/pieces/react-chessboard-default/bk.svg',
 }
 
 function renderPieceImage(code: PieceCode, size: number) {
@@ -335,22 +339,31 @@ function playerBarStyle(): CSSProperties {
  }
 }
 
-function calculateNextReview(mastery: number) {
- const now = new Date()
+const OPENING_REVIEW_INTERVALS_DAYS = [1, 2, 3, 5, 8, 15, 30, 60, 100, 140, 170, 270, 365] as const
 
- const intervals = [1, 3, 7, 14, 30]
- const index = Math.min(Math.max(mastery - 1, 0), intervals.length - 1)
- const days = mastery <= 0 ? 0 : intervals[index]
+function isOpeningReviewDue(
+ nextReviewAt: string | null | undefined,
+ now = new Date()
+) {
+ if (!nextReviewAt) return false
+ const dueTime = new Date(nextReviewAt).getTime()
+ if (!Number.isFinite(dueTime)) return false
 
- const next = new Date(now)
- next.setDate(now.getDate() + days)
+ const tomorrow = new Date(
+ now.getFullYear(),
+ now.getMonth(),
+ now.getDate() + 1
+ )
+ return dueTime < tomorrow.getTime()
+}
 
- return {
- review_count: mastery,
- last_reviewed_at: now.toISOString(),
- next_review_at: mastery > 0 ? next.toISOString() : null,
- interval_days: days,
- }
+function getOpeningReviewInterval(reviewCount: number) {
+ const safeCount = Math.max(1, Math.floor(reviewCount))
+ const index = Math.min(
+ safeCount - 1,
+ OPENING_REVIEW_INTERVALS_DAYS.length - 1
+ )
+ return OPENING_REVIEW_INTERVALS_DAYS[index]
 }
 
 
@@ -408,21 +421,155 @@ function parseSideParam(value: string | null): 'white' | 'black' | null {
  return null
 }
 
-async function loadOpeningProgress(openingTheme: string) {
- return loadTrainingProgressMap('openings', openingTheme)
+async function loadOpeningProgress(
+  openingTheme: string,
+): Promise<Record<string, number>> {
+  const { data: authData, error: authError } =
+    await supabase.auth.getUser()
+
+  if (authError || !authData.user) {
+    if (authError) {
+      console.error('Opening progress user load failed:', authError)
+    }
+    return {}
+  }
+
+  const { data, error } = await supabase
+    .from('training_progress')
+    .select('item_id, mastery, next_review_at')
+    .eq('user_id', authData.user.id)
+    .eq('course', 'openings')
+    .eq('theme', openingTheme)
+
+  if (error) {
+    console.error('Opening review progress load failed:', error)
+    return {}
+  }
+
+  const now = new Date()
+  const reviewDeadline = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+  ).getTime()
+
+  const map: Record<string, number> = {}
+
+  for (const row of data ?? []) {
+    const itemId = String(row.item_id ?? '')
+    if (!itemId) continue
+
+    const savedMastery = Math.max(
+      0,
+      Math.min(REQUIRED_FAST_RUNS, Number(row.mastery ?? 0)),
+    )
+
+    const dueTime = row.next_review_at
+      ? new Date(String(row.next_review_at)).getTime()
+      : Number.POSITIVE_INFINITY
+
+    const isDue =
+      Number.isFinite(dueTime) &&
+      dueTime < reviewDeadline
+
+    map[itemId] =
+      isDue && savedMastery >= REQUIRED_FAST_RUNS
+        ? REQUIRED_FAST_RUNS - 1
+        : savedMastery
+  }
+
+  return map
 }
 
-async function saveStageProgress(openingTheme: string, stageId: string, mastery: number) {
- const sr = calculateNextReview(mastery)
+async function saveStageProgress(
+ openingTheme: string,
+ stageId: string,
+ mastery: number
+) {
+ const safeMastery = Math.max(0, Math.min(REQUIRED_FAST_RUNS, mastery))
+ const { data: authData, error: authError } = await supabase.auth.getUser()
+ const user = authData.user
+
+ if (authError || !user) {
+ if (authError) console.error('Opening review user load failed:', authError)
+ return
+ }
+
+ const { data: existing, error: existingError } = await supabase
+ .from('training_progress')
+ .select('mastery, next_review_at, review_count, interval_days')
+ .eq('user_id', user.id)
+ .eq('course', 'openings')
+ .eq('theme', openingTheme)
+ .eq('item_id', stageId)
+ .maybeSingle()
+
+ if (existingError) {
+ console.error('Opening review progress load failed:', existingError)
+ return
+ }
+
+ const existingMastery = Math.max(
+ 0,
+ Math.min(REQUIRED_FAST_RUNS, Number(existing?.mastery ?? 0))
+ )
+ const storedReviewCount = Math.max(0, Number(existing?.review_count ?? 0))
+ const existingReviewCount =
+ existingMastery >= REQUIRED_FAST_RUNS &&
+ storedReviewCount === REQUIRED_FAST_RUNS &&
+ Number(existing?.interval_days ?? 0) === 30
+ ? 1
+ : storedReviewCount
+
+ if (safeMastery <= 0) {
+ await saveTrainingProgress({
+ course: 'openings',
+ theme: openingTheme,
+ itemId: stageId,
+ mastery: 0,
+ nextReviewAt: null,
+ reviewCount: 0,
+ intervalDays: 0,
+ })
+ return
+ }
+
+ if (safeMastery < REQUIRED_FAST_RUNS) {
+ await saveTrainingProgress({
+ course: 'openings',
+ theme: openingTheme,
+ itemId: stageId,
+ mastery: safeMastery,
+ nextReviewAt: null,
+ reviewCount: existingReviewCount,
+ intervalDays: Number(existing?.interval_days ?? 0),
+ })
+ return
+ }
+
+ const isNewMastery = existingMastery < REQUIRED_FAST_RUNS
+ const isCompletedDueReview =
+ existingMastery >= REQUIRED_FAST_RUNS &&
+ (!existing?.next_review_at ||
+ isOpeningReviewDue(String(existing.next_review_at)))
+
+ if (!isNewMastery && !isCompletedDueReview) return
+
+ const reviewCount = isNewMastery
+ ? 1
+ : Math.max(1, existingReviewCount + 1)
+ const intervalDays = getOpeningReviewInterval(reviewCount)
+ const nextReviewAt = new Date()
+ nextReviewAt.setDate(nextReviewAt.getDate() + intervalDays)
 
  await saveTrainingProgress({
  course: 'openings',
  theme: openingTheme,
  itemId: stageId,
- mastery: Math.max(0, Math.min(REQUIRED_FAST_RUNS, mastery)),
- nextReviewAt: sr.next_review_at,
- reviewCount: sr.review_count,
- intervalDays: sr.interval_days,
+ mastery: REQUIRED_FAST_RUNS,
+ nextReviewAt: nextReviewAt.toISOString(),
+ reviewCount,
+ intervalDays,
  })
 }
 
@@ -463,9 +610,18 @@ export default function OpeningTrainerPage() {
  const [openingLoading, setOpeningLoading] = useState(true)
  const [openingError, setOpeningError] = useState('')
 
+  const [personalLibraryUserId, setPersonalLibraryUserId] =
+    useState<string | null>(null)
+  const [inPersonalLibrary, setInPersonalLibrary] =
+    useState(false)
+  const [personalLibraryBusy, setPersonalLibraryBusy] =
+    useState(false)
+
+
  const containerRef = useRef<HTMLDivElement | null>(null)
  const resetTimeoutRef = useRef<number | null>(null)
  const nextStageTimeoutRef = useRef<number | null>(null)
+ const completionTimeoutRef = useRef<number | null>(null)
 
  const [boardSize, setBoardSize] = useState(720)
  const [isDragging, setIsDragging] = useState(false)
@@ -507,6 +663,10 @@ export default function OpeningTrainerPage() {
  const [fastSuccesses, setFastSuccesses] = useState(0)
  const [notationHidden, setNotationHidden] = useState(false)
  const [hintVisible, setHintVisible] = useState(false)
+ const [openingHintArrow, setOpeningHintArrow] = useState<{
+ from: string
+ to: string
+ } | null>(null)
  const [fullLineVisible, setFullLineVisible] = useState(false)
  const [hasFirstSuccessInStage, setHasFirstSuccessInStage] = useState(false)
  const [status, setStatus] = useState('Play the opening moves exactly.')
@@ -647,7 +807,60 @@ export default function OpeningTrainerPage() {
  }
  }, [openingId])
 
- useEffect(() => {
+   useEffect(() => {
+    let cancelled = false
+
+    async function loadPersonalLibraryState() {
+      const openingSlug = openingRecord?.slug?.trim()
+
+      if (!openingSlug) {
+        setPersonalLibraryUserId(null)
+        setInPersonalLibrary(false)
+        return
+      }
+
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser()
+
+      if (cancelled) return
+
+      if (authError || !authData.user) {
+        setPersonalLibraryUserId(null)
+        setInPersonalLibrary(false)
+        return
+      }
+
+      setPersonalLibraryUserId(authData.user.id)
+
+      const { data, error } = await supabase
+        .from('user_opening_library')
+        .select('opening_slug')
+        .eq('user_id', authData.user.id)
+        .eq('opening_slug', openingSlug)
+        .maybeSingle()
+
+      if (cancelled) return
+
+      if (error) {
+        console.error(
+          'Failed to load My Openings state:',
+          error,
+        )
+        setInPersonalLibrary(false)
+        return
+      }
+
+      setInPersonalLibrary(Boolean(data))
+    }
+
+    void loadPersonalLibraryState()
+
+    return () => {
+      cancelled = true
+    }
+  }, [openingRecord?.slug])
+
+useEffect(() => {
  if (!openingRecord) return
  setBoardOrientation(sideOverride ?? inferOpeningSide(openingRecord))
  }, [openingRecord, sideOverride])
@@ -694,6 +907,10 @@ export default function OpeningTrainerPage() {
  useEffect(() => {
  function setInitialBoardSize() {
  const width = window.innerWidth
+ if (width <= 768) {
+ setBoardSize(Math.max(0, Math.floor(width - 16)))
+ return
+ }
  const height = window.innerHeight
  const rightPanelWidth = 340
  const pagePadding = 80
@@ -709,6 +926,11 @@ export default function OpeningTrainerPage() {
  }, [])
 
  useEffect(() => {
+ if (window.innerWidth <= 768) {
+ setIsDragging(false)
+ return
+ }
+
  function onMouseMove(e: MouseEvent) {
  if (!isDragging || !containerRef.current) return
 
@@ -758,6 +980,27 @@ export default function OpeningTrainerPage() {
  ? `opening:${openingRecord.slug || openingRecord.id}`
  : ''
 
+ const currentExpected = parsed.moves[currentPly]
+ const positionTurn = (() => {
+ try {
+ return new Chess(position).turn()
+ } catch {
+ return null
+ }
+ })()
+ const canRequestHint = Boolean(
+ currentExpected &&
+ progressReady &&
+ !openingMastered &&
+ currentPly <= stage.endPly &&
+ positionTurn === currentExpected.color,
+ )
+ const openingHintResetKey = `${openingTheme}:${stage.id}:${position}:${currentPly}:${notationHidden}:${fullLineVisible}`
+
+ useEffect(() => {
+ if (!canRequestHint) setOpeningHintArrow(null)
+ }, [canRequestHint])
+
  const topPlayer =
  boardOrientation === 'white'
  ? {
@@ -788,6 +1031,7 @@ export default function OpeningTrainerPage() {
  return () => {
  if (resetTimeoutRef.current) window.clearTimeout(resetTimeoutRef.current)
  if (nextStageTimeoutRef.current) window.clearTimeout(nextStageTimeoutRef.current)
+ if (completionTimeoutRef.current) window.clearTimeout(completionTimeoutRef.current)
  }
  }, [])
 
@@ -802,6 +1046,8 @@ export default function OpeningTrainerPage() {
  }, [runStartAt])
 
  useEffect(() => {
+ clearTimers()
+
  let cancelled = false
 
  async function bootProgress() {
@@ -882,6 +1128,7 @@ export default function OpeningTrainerPage() {
 
  return () => {
  cancelled = true
+ clearTimers()
  }
  }, [openingTheme])
 
@@ -893,6 +1140,10 @@ export default function OpeningTrainerPage() {
  if (nextStageTimeoutRef.current) {
  window.clearTimeout(nextStageTimeoutRef.current)
  nextStageTimeoutRef.current = null
+ }
+ if (completionTimeoutRef.current) {
+ window.clearTimeout(completionTimeoutRef.current)
+ completionTimeoutRef.current = null
  }
  }
 
@@ -1191,6 +1442,10 @@ export default function OpeningTrainerPage() {
 
  function completeRun(startedAtOverride?: number) {
  const effectiveStartAt = startedAtOverride ?? runStartAt
+ reportTrainingItemCompleted(
+  "opening",
+  `${openingTheme}:${stage.id}`,
+ )
  const finishedMs = effectiveStartAt == null ? elapsedMs : Date.now() - effectiveStartAt
 
  setElapsedMs(finishedMs)
@@ -1311,7 +1566,8 @@ export default function OpeningTrainerPage() {
  setStatus('Stage complete.')
  setFlash('good')
 
- window.setTimeout(() => {
+ completionTimeoutRef.current = window.setTimeout(() => {
+ completionTimeoutRef.current = null
  completeRun(startedAt)
  }, 120)
  } else {
@@ -1333,9 +1589,63 @@ export default function OpeningTrainerPage() {
  canFlip: true,
  })
 
+  async function togglePersonalLibrary() {
+    const openingSlug = openingRecord?.slug?.trim()
+
+    if (
+      !openingSlug ||
+      !personalLibraryUserId ||
+      personalLibraryBusy
+    ) {
+      return
+    }
+
+    setPersonalLibraryBusy(true)
+
+    try {
+      if (inPersonalLibrary) {
+        const { error } = await supabase
+          .from('user_opening_library')
+          .delete()
+          .eq('user_id', personalLibraryUserId)
+          .eq('opening_slug', openingSlug)
+
+        if (error) throw error
+
+        setInPersonalLibrary(false)
+      } else {
+        const { error } = await supabase
+          .from('user_opening_library')
+          .upsert(
+            {
+              user_id: personalLibraryUserId,
+              opening_slug: openingSlug,
+              source: 'manual',
+              is_favorite: true,
+            },
+            {
+              onConflict: 'user_id,opening_slug',
+            },
+          )
+
+        if (error) throw error
+
+        setInPersonalLibrary(true)
+      }
+    } catch (error) {
+      console.error(
+        'Failed to update My Openings:',
+        error,
+      )
+    } finally {
+      setPersonalLibraryBusy(false)
+    }
+  }
+
  if (openingLoading) {
  return (
  <div
+ className="opening-trainer-page site-mobile-dock-scroll"
  style={{
  minHeight: '100vh',
  background: '#161512',
@@ -1394,7 +1704,6 @@ export default function OpeningTrainerPage() {
  )
  }
 
- const currentExpected = parsed.moves[currentPly]
  const totalStages = stages.length
  const stageNumber = safeStageIndex + 1
  const lineProgressLabel =
@@ -1405,6 +1714,7 @@ export default function OpeningTrainerPage() {
  const isFinalStage = safeStageIndex === stages.length - 1
  const stageProgressPercent = Math.min(100, (fastSuccesses / REQUIRED_FAST_RUNS) * 100)
  const showMoveList = !notationHidden || hintVisible || fullLineVisible
+
  const visibleMoveRows = fullLineVisible ? fullLineRows : stageRows
 
  const statusBg =
@@ -1433,6 +1743,7 @@ export default function OpeningTrainerPage() {
 
  return (
  <div
+ className="opening-trainer-page site-mobile-dock-scroll"
  style={{
  minHeight: '100vh',
  background: '#161512',
@@ -1441,8 +1752,121 @@ export default function OpeningTrainerPage() {
  fontFamily: 'Arial, sans-serif',
  }}
  >
- <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+ <div className="opening-trainer-content" style={{ maxWidth: 1280, margin: '0 auto' }}>
+   <div
+    className="opening-trainer-mode-switcher-row"
+    style={{
+     display: 'flex',
+     justifyContent: 'flex-end',
+     marginBottom: 10,
+    }}
+   >
+    <div
+     className="opening-trainer-mode-switcher"
+     style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      padding: 6,
+      borderRadius: 12,
+      background: '#24211f',
+      border: '1px solid rgba(255,255,255,0.07)',
+     }}
+    >
+     <span
+      style={{
+       borderRadius: 8,
+       padding: '9px 13px',
+       background: '#4d7c4d',
+       color: '#fff',
+       fontWeight: 800,
+      }}
+     >
+      Training
+     </span>
+     <button
+      type="button"
+      title="Play the complete opening once without repetitions or progress changes"
+      onClick={() => {
+       window.location.href =
+        '/free-play/opening/' +
+        encodeURIComponent(openingRecord.slug || openingId || '')
+      }}
+      style={{
+       border: 0,
+       borderRadius: 8,
+       padding: '9px 13px',
+       background: '#2f4f73',
+       color: '#fff',
+       cursor: 'pointer',
+       fontWeight: 800,
+      }}
+     >
+      Free Play
+     </button>
+    </div>
+   </div>
+
+  {personalLibraryUserId ? (
+    <div
+      className="opening-trainer-library-actions"
+      style={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        gap: 10,
+        marginBottom: 10,
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = '/openings#my-library'
+        }}
+        style={{
+          border:
+            '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 10,
+          padding: '9px 14px',
+          background: '#2f4f73',
+          color: '#fff',
+          cursor: 'pointer',
+          fontWeight: 800,
+        }}
+      >
+        Go to My Library
+      </button>
+
+      <button
+        type="button"
+        disabled={personalLibraryBusy}
+        onClick={() => void togglePersonalLibrary()}
+        style={{
+          border:
+            '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 10,
+          padding: '9px 14px',
+          background: inPersonalLibrary
+            ? '#4d7c4d'
+            : '#302e2b',
+          color: '#fff',
+          cursor: personalLibraryBusy
+            ? 'wait'
+            : 'pointer',
+          fontWeight: 800,
+          opacity: personalLibraryBusy ? 0.65 : 1,
+        }}
+      >
+        {personalLibraryBusy
+          ? 'Saving...'
+          : inPersonalLibrary
+            ? '✓ In My Library'
+            : '+ Add to My Library'}
+      </button>
+    </div>
+  ) : null}
+
  <div
+ className="opening-trainer-header"
  style={{
  marginBottom: 14,
  padding: '14px 18px',
@@ -1492,9 +1916,10 @@ export default function OpeningTrainerPage() {
  </div>
  </div>
 
- <div ref={containerRef} style={{ display: 'flex', alignItems: 'flex-start', gap: 18 }}>
- <div style={{ flex: '0 0 auto' }}>
+ <div ref={containerRef} className="opening-trainer-workspace" style={{ display: 'flex', alignItems: 'flex-start', gap: 18 }}>
+ <div className="opening-trainer-board-column" style={{ flex: '0 0 auto' }}>
  <div
+ className="opening-trainer-board-frame"
  style={{
  width: boardSize + 16,
  background: '#201d1b',
@@ -1543,16 +1968,22 @@ export default function OpeningTrainerPage() {
 
  <div style={{ height: 8 }} />
 
- <Chessboard
+ <ThemedChessboard
+ className="opening-trainer-board"
  id="opening-trainer-board"
  position={position}
  onPieceDrop={onPieceDrop}
  onSquareClick={onSquareClick}
  boardWidth={boardSize}
  boardOrientation={boardOrientation}
+ customArrows={
+ openingHintArrow
+ ? [[openingHintArrow.from, openingHintArrow.to, 'rgba(80, 180, 255, 0.9)']]
+ : []
+ }
  arePiecesDraggable={!openingMastered && progressReady}
  animationDuration={180}
- customPieces={customPieces}
+
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
  customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
  customSquareStyles={getCustomSquareStyles()}
@@ -1605,6 +2036,7 @@ export default function OpeningTrainerPage() {
  </div>
 
  <div
+ className="opening-trainer-resize-handle"
  onMouseDown={() => setIsDragging(true)}
  onMouseEnter={() => setIsHandleHovered(true)}
  onMouseLeave={() => setIsHandleHovered(false)}
@@ -1631,6 +2063,7 @@ export default function OpeningTrainerPage() {
  </div>
 
  <div
+ className="opening-trainer-panel"
  style={{
  width: 320,
  background: '#1b1816',
@@ -1641,6 +2074,7 @@ export default function OpeningTrainerPage() {
  }}
  >
  <div
+ className="opening-trainer-replay-card"
  style={{
  ...panelCardStyle(),
  marginBottom: 12,
@@ -1662,7 +2096,7 @@ export default function OpeningTrainerPage() {
  </div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="opening-trainer-opening-summary" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div
  style={{
  display: 'flex',
@@ -1702,7 +2136,7 @@ export default function OpeningTrainerPage() {
  </div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="opening-trainer-stage-progress" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div
  style={{
  display: 'flex',
@@ -1751,7 +2185,7 @@ export default function OpeningTrainerPage() {
  </div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="opening-trainer-run-progress" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
  This stage
  </div>
@@ -1793,6 +2227,7 @@ export default function OpeningTrainerPage() {
  </div>
 
  <div
+ className="opening-trainer-timer"
  style={{
  marginBottom: 12,
  textAlign: 'center',
@@ -1822,6 +2257,7 @@ export default function OpeningTrainerPage() {
  </div>
 
  <div
+ className="opening-trainer-status"
  style={{
  ...panelCardStyle(),
  marginBottom: 12,
@@ -1833,7 +2269,7 @@ export default function OpeningTrainerPage() {
  <div style={{ fontSize: 13, lineHeight: 1.45 }}>{status}</div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="opening-trainer-moves-card" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div
  style={{
  display: 'flex',
@@ -1848,12 +2284,20 @@ export default function OpeningTrainerPage() {
  </div>
 
  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
- {notationHidden && !hintVisible ? (
- <button
- onClick={() => {
- setHintVisible(true)
- setFullLineVisible(false)
+ {canRequestHint ? (
+ <>
+ <HintButton
+ getHintMove={() =>
+ canRequestHint && currentExpected
+ ? { from: currentExpected.from, to: currentExpected.to }
+ : null
+ }
+ onHintStage={(move, hintStage) => {
+ setOpeningHintArrow(hintStage === 'square' ? move : null)
  }}
+ onHintReset={() => setOpeningHintArrow(null)}
+ hintResetKey={openingHintResetKey}
+ fullWidth={false}
  style={{
  background: '#6d5a2c',
  color: '#fff4cf',
@@ -1866,7 +2310,8 @@ export default function OpeningTrainerPage() {
  }}
  >
  Hint
- </button>
+ </HintButton>
+ </>
  ) : null}
 
  <button
@@ -1892,6 +2337,7 @@ export default function OpeningTrainerPage() {
 
  {showMoveList ? (
  <div
+ className="opening-trainer-move-list"
  style={{
  maxHeight: 255,
  overflowY: 'auto',
@@ -1929,7 +2375,7 @@ export default function OpeningTrainerPage() {
  )}
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="opening-trainer-opening-info" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
  Opening info
  </div>
@@ -1942,7 +2388,7 @@ export default function OpeningTrainerPage() {
  </div>
  </div>
 
- <div style={{ ...panelCardStyle(), marginBottom: 12 }}>
+ <div className="opening-trainer-next-move" style={{ ...panelCardStyle(), marginBottom: 12 }}>
  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
  Next expected move
  </div>
@@ -1957,7 +2403,7 @@ export default function OpeningTrainerPage() {
  </div>
  </div>
 
- <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+ <div className="opening-trainer-actions" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
  <button
  onClick={manualGoToPreviousOpening}
  style={{

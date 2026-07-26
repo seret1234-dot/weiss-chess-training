@@ -1,0 +1,83 @@
+# Dependencies and generated build output
+node_modules/
+dist/
+
+# Secrets and local Vercel metadata
+.env
+.env.*
+!.env.example
+.vercel/
+
+# Backups and reports
+backups/
+audit-reports/
+audit-backups/
+.patch-backups/
+piece-theme-backups/
+backup-endgame-ui-text-*/
+New folder/
+recovery-data/
+staging/
+
+# Local generation and maintenance scripts
+scripts/*
+!scripts/install-stockfish-assets.cjs
+!scripts/soften-react-chessboard-pieces.cjs
+src/scripts/
+src/generate_kqk_mates_1_to_9.py
+
+# Large source datasets used to generate public data
+theme_exports/
+pgn_rebuild/
+pgn_import/
+pgn_import_one/
+lichess_dumps/
+bn_manual_sets/
+bn_by_mate/
+bn_by_mate_overnight/
+bn_v1/
+bn_v2/
+bn_phase2_advanced/
+bn_phase2_typical/
+two_bishop_mate/
+two_rooks_mate/
+
+# Local native Stockfish executable
+stockfish-windows-x86-64-avx2/
+
+# Database-development files are not needed at runtime
+supabase/
+
+# Large root puzzle source dataset
+/lichess_db_puzzle.csv
+
+
+!two_bishop_mate/
+!two_bishop_mate/**
+!two_rooks_mate/
+!two_rooks_mate/**
+!scripts/audit_paypal_launch.mjs
+
+# Additional local backups and patch artifacts
+.patch-backups/
+audit-backups/
+piece-theme-backups/
+backup-*/
+src-broken*/
+src*src-broken-v6/
+
+# Individual source backup files
+**/*.bak
+**/*.bak.*
+**/*.backup
+**/*.backup-*
+**/*.before_*
+**/*.before-*
+
+# Root maintenance and temporary files
+/*.cmd
+/*.ps1
+/*.pgn
+/tmp_*
+/audit-all-positions.json
+/audit-all-positions.md

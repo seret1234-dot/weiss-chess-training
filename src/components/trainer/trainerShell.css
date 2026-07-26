@@ -1,0 +1,256 @@
+.trainer-shell-page {
+  width: 100%;
+  isolation: isolate;
+}
+
+.trainer-shell-layout,
+.trainer-shell-side {
+  min-width: 0;
+}
+
+.trainer-shell-board-left {
+  display: contents;
+}
+
+.trainer-shell-side--columns-2 > div {
+  min-height: 0 !important;
+}
+
+@media (min-width: 1120px) and (min-height: 720px) {
+  .trainer-shell-page--fixed {
+    height: 100dvh;
+    min-height: 100dvh !important;
+    overflow: hidden;
+  }
+
+  .trainer-shell-page--fixed .trainer-shell-layout {
+    max-height: calc(100dvh - 64px);
+  }
+
+  .trainer-shell-page--fixed .trainer-shell-side {
+    max-height: calc(100dvh - 76px);
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 1400px) and (min-height: 720px) {
+  .trainer-shell-side--columns-2 > div {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+    align-content: start;
+    align-items: start;
+    gap: 10px !important;
+  }
+
+  .trainer-shell-side--columns-2 > div > * {
+    min-width: 0;
+    margin: 0 !important;
+  }
+
+  .trainer-shell-side--columns-2 button,
+  .trainer-shell-side--columns-2 input {
+    min-width: 0;
+  }
+}
+
+/* Wide endgame panels need a little more horizontal room. On narrower desktop
+   windows we keep the normal scrollable layout instead of clipping controls. */
+@media (min-width: 1120px) and (max-width: 1399px) and (min-height: 720px) {
+  .trainer-shell-page--wide-side.trainer-shell-page--fixed {
+    height: auto;
+    min-height: 100dvh !important;
+    overflow: visible;
+  }
+
+  .trainer-shell-page--wide-side.trainer-shell-page--fixed .trainer-shell-layout,
+  .trainer-shell-page--wide-side.trainer-shell-page--fixed .trainer-shell-side {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 1119px), (max-height: 719px) {
+  .trainer-shell-page--fixed {
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 768px) {
+  html:has(.trainer-shell-page) {
+    scrollbar-width: none;
+  }
+
+  html:has(.trainer-shell-page)::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  .trainer-shell-page,
+  .trainer-shell-page--fixed {
+    width: 100%;
+    max-width: 100%;
+    height: auto !important;
+    min-height: 100dvh !important;
+    max-height: none !important;
+    padding: var(--site-global-back-clearance) 0 24px !important;
+    box-sizing: border-box;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+  }
+
+  .trainer-shell-content {
+    width: 100%;
+    max-width: 100% !important;
+    min-width: 0;
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-title {
+    display: block !important;
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    margin: 0 8px 10px !important;
+    padding: 8px 12px !important;
+    font-size: clamp(18px, 5.5vw, 24px) !important;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .trainer-shell-layout,
+  .trainer-shell-page--fixed .trainer-shell-layout {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    max-height: none !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px !important;
+    box-sizing: border-box;
+    overflow: visible !important;
+  }
+
+  .trainer-shell-board-column {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-board-frame {
+    width: max-content !important;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 7px !important;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-managed-board-row {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    flex-direction: column;
+    gap: 6px !important;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-managed-board-slot {
+    order: 1;
+    max-width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-board-left {
+    order: 0;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: 24px;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-board-left > * {
+    width: 100% !important;
+    max-width: 100%;
+    height: 24px !important;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-board-left > * > :first-child {
+    flex-direction: row !important;
+  }
+
+  .trainer-shell-board-left > * > :last-child {
+    flex-direction: row !important;
+    padding: 2px 8px !important;
+  }
+
+  .trainer-shell-custom-board-slot {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-custom-board-slot > * {
+    flex: 0 0 auto;
+  }
+
+  .trainer-shell-board-footer {
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    min-width: 0;
+    margin-right: 8px;
+    margin-left: 8px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-divider {
+    display: none !important;
+  }
+
+  .trainer-shell-side,
+  .trainer-shell-page--fixed .trainer-shell-side {
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px);
+    min-width: 0;
+    max-height: none !important;
+    margin: 0 8px;
+    padding: 10px !important;
+    box-sizing: border-box;
+    overflow: visible !important;
+  }
+
+  .trainer-shell-side > *,
+  .trainer-shell-side button,
+  .trainer-shell-side input,
+  .trainer-shell-side select,
+  .trainer-shell-side textarea {
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .trainer-shell-side button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .trainer-shell-subtitle {
+    position: static !important;
+    order: -1;
+    width: calc(100% - 16px);
+    margin: 0 8px;
+    overflow-wrap: anywhere;
+  }
+
+}

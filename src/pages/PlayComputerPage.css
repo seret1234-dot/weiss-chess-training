@@ -1,0 +1,318 @@
+.play-computer-mobile-status {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  html:has(.play-computer-page) {
+    max-width: 100%;
+    overflow-x: clip !important;
+    overflow-y: auto !important;
+    scrollbar-width: none;
+  }
+
+  html:has(.play-computer-page)::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  body:has(.play-computer-page),
+  #root:has(.play-computer-page) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip !important;
+  }
+
+  body:has(.play-computer-page) {
+    align-items: stretch;
+  }
+
+  .play-computer-page,
+  .play-computer-page * {
+    box-sizing: border-box;
+  }
+
+  .play-computer-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 100dvh !important;
+    height: auto !important;
+    padding: var(--site-global-back-clearance) 8px 12px !important;
+    overflow: visible !important;
+    background: var(--theme-page-bg) !important;
+    color: var(--theme-text) !important;
+    cursor: default !important;
+  }
+
+  .play-computer-title-row {
+    width: 100%;
+    max-width: 100% !important;
+    min-width: 0;
+    margin: 0 0 12px !important;
+  }
+
+  .play-computer-title {
+    display: block !important;
+    width: fit-content;
+    max-width: 100%;
+    padding: 9px 13px !important;
+    color: var(--theme-text) !important;
+    background: var(--theme-panel-2) !important;
+    border: 1px solid var(--theme-border);
+    font-size: clamp(21px, 7vw, 26px) !important;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-mobile-status {
+    display: block;
+    min-width: 0;
+    margin-top: 8px;
+    color: var(--theme-muted);
+    font-size: 14px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-layout {
+    width: 100%;
+    max-width: 100% !important;
+    min-width: 0;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 14px !important;
+    overflow: visible !important;
+  }
+
+  .play-computer-board-column {
+    width: min(calc(100vw - 16px), 920px) !important;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .play-computer-board-meta {
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+
+  .play-computer-captured-row {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 180px;
+    flex-wrap: wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-captured-row--empty {
+    flex-basis: 0;
+  }
+
+  .play-computer-captured-pieces {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .play-computer-size-label {
+    min-width: 0;
+    flex: 0 1 auto;
+    white-space: normal;
+  }
+
+  .play-computer-board-shell {
+    width: min(calc(100vw - 16px), 920px) !important;
+    height: auto !important;
+    max-width: 100%;
+    aspect-ratio: 1;
+    flex: 0 0 auto;
+    overflow: visible !important;
+  }
+
+  .play-computer-board-shell > div {
+    max-width: 100%;
+  }
+
+  .play-computer-eval-toggle {
+    display: none !important;
+  }
+
+  .play-computer-eval-bar {
+    display: none !important;
+  }
+
+  .play-computer-bottom-captured {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .play-computer-resize-divider {
+    display: none !important;
+  }
+
+  .play-computer-side-panel {
+    order: 2;
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 0 !important;
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    overflow: visible !important;
+    color: var(--theme-text);
+    background: var(--theme-panel) !important;
+    border-color: var(--theme-border) !important;
+  }
+
+  .play-computer-side-header {
+    order: 0;
+    min-width: 0;
+    padding: 13px 14px !important;
+    flex-wrap: wrap;
+    align-items: flex-start !important;
+    gap: 6px 12px;
+    font-size: 21px !important;
+    line-height: 1.2;
+  }
+
+  .play-computer-side-header > span {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-setup-panel {
+    order: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 14px !important;
+  }
+
+  .play-computer-setup-intro {
+    order: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-source {
+    order: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-setup-status {
+    order: 2;
+    min-width: 0;
+    margin: 4px 0 12px !important;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-primary-control {
+    order: 3;
+  }
+
+  .play-computer-weekly-control {
+    order: 4;
+  }
+
+  .play-computer-side-setting {
+    order: 5;
+    margin-top: 16px;
+  }
+
+  .play-computer-difficulty-setting {
+    order: 6;
+  }
+
+  .play-computer-settings,
+  .play-computer-assessment-status,
+  .play-computer-game-controls,
+  .play-computer-status-grid,
+  .play-computer-move-list,
+  .play-computer-review-controls {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .play-computer-game-controls {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 14px !important;
+  }
+
+  .play-computer-status-text {
+    order: 0;
+    min-width: 0;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-primary-controls {
+    order: 1;
+  }
+
+  .play-computer-engine-label {
+    order: 2;
+  }
+
+  .play-computer-engine-value {
+    order: 3;
+  }
+
+  .play-computer-status-grid {
+    order: 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .play-computer-move-list {
+    order: 3;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .play-computer-move-list > div {
+    min-width: 0;
+    grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+
+  .play-computer-move-list button {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .play-computer-review-controls {
+    order: 4;
+    grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)) !important;
+  }
+
+  .play-computer-button-row {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .play-computer-page button,
+  .play-computer-page input,
+  .play-computer-page select {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .play-computer-page button {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

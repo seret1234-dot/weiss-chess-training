@@ -1,0 +1,66 @@
+﻿.pattern-tactic-panel-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 224px;
+  align-items: start;
+  gap: 12px;
+  width: 100%;
+}
+
+.pattern-tactic-panel-layout--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pattern-tactic-panel-left,
+.pattern-tactic-panel-right {
+  min-width: 0;
+}
+
+.pattern-tactic-panel-left {
+  min-height: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pattern-tactic-panel-right {
+  align-self: start;
+}
+
+.pattern-tactic-panel-right .site-explanation-box {
+  margin: 0;
+  padding: 12px 13px;
+}
+
+.pattern-tactic-panel-right .site-explanation-title {
+  font-size: 1.02rem;
+  margin-bottom: 7px;
+}
+
+.pattern-tactic-panel-right .site-explanation-box p {
+  margin: 5px 0;
+  font-size: 0.82rem;
+  line-height: 1.38;
+}
+
+.pattern-tactic-panel-left > :last-child {
+  margin-top: auto;
+}
+
+.pattern-tactic-panel-left > :last-child button {
+  min-width: 0;
+  font-size: 12px !important;
+}
+
+@media (max-width: 1240px), (max-height: 719px) {
+  .pattern-tactic-panel-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pattern-tactic-panel-right {
+    grid-row: 1;
+  }
+
+  .pattern-tactic-panel-left > :last-child {
+    flex-wrap: wrap;
+  }
+}

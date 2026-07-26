@@ -1,4 +1,8 @@
 import { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react'
+import {
+ type HintActionOptions,
+ useHintAction,
+} from '../../context/HintActionContext'
 
 type PanelCardProps = {
  children: ReactNode
@@ -9,9 +13,11 @@ export function PanelCard({ children, style }: PanelCardProps) {
  return (
  <div
  style={{
- background: '#2a2523',
- borderRadius: 10,
+ background: 'var(--theme-panel-2)',
+ border: '1px solid var(--theme-border)',
+ borderRadius: 12,
  padding: 12,
+ boxShadow: '0 7px 18px rgba(0,0,0,0.16)',
  ...style,
  }}
  >
@@ -29,18 +35,20 @@ export function PrimaryButton({
  children,
  disabled,
  fullWidth = true,
+ className,
  style,
  ...props
 }: ButtonBaseProps) {
  return (
  <button
  {...props}
+ className={className}
  disabled={disabled}
  style={{
  flex: fullWidth ? 1 : undefined,
- background: disabled ? '#5f6f40' : '#88a94f',
- color: '#fff',
- border: 'none',
+ background: disabled ? 'color-mix(in srgb, var(--theme-accent) 48%, var(--theme-panel-input))' : 'linear-gradient(180deg,var(--theme-accent-strong),var(--theme-accent))',
+ color: 'var(--theme-accent-text)',
+ border: '1px solid color-mix(in srgb, var(--theme-accent-strong) 45%, transparent)',
  borderRadius: 10,
  padding: '13px 12px',
  fontSize: 14,
@@ -68,11 +76,11 @@ export function SecondaryButton({
  disabled={disabled}
  style={{
  flex: fullWidth ? 1 : undefined,
- border: 'none',
+ border: '1px solid var(--theme-border)',
  borderRadius: 10,
  padding: '12px 14px',
- background: disabled ? '#2e2a28' : '#4c4744',
- color: disabled ? '#8f8a86' : '#f3f3f3',
+ background: disabled ? 'var(--theme-panel-input)' : 'var(--theme-button-bg)',
+ color: disabled ? 'var(--theme-muted)' : 'var(--theme-text)',
  fontSize: 14,
  fontWeight: 700,
  cursor: disabled ? 'default' : 'pointer',
@@ -84,22 +92,45 @@ export function SecondaryButton({
  )
 }
 
+type HintButtonProps = ButtonBaseProps & {
+ getHintMove: HintActionOptions['getHintMove']
+ onHintStage?: HintActionOptions['onHintStage']
+ onHintReset?: HintActionOptions['onHintReset']
+ hintResetKey?: unknown
+}
+
 export function HintButton({
  children,
  disabled,
  fullWidth = true,
+ getHintMove,
+ onHintStage,
+ onHintReset,
+ hintResetKey,
+ className,
  style,
+ onClick: _onClick,
  ...props
-}: ButtonBaseProps) {
+}: HintButtonProps) {
+ const { triggerHint } = useHintAction({
+ getHintMove,
+ onHintStage,
+ onHintReset,
+ disabled: Boolean(disabled),
+ resetKey: hintResetKey,
+ })
+
  return (
  <button
  {...props}
+ className={[className, 'site-inline-hint'].filter(Boolean).join(' ')}
  disabled={disabled}
+ onClick={() => void triggerHint()}
  style={{
  flex: fullWidth ? 1 : undefined,
- background: disabled ? '#2e2a28' : '#6d5a2c',
- color: disabled ? '#8f8a86' : '#fff4cf',
- border: 'none',
+ background: disabled ? 'var(--theme-panel-input)' : 'var(--theme-warning-bg)',
+ color: disabled ? 'var(--theme-muted)' : 'var(--theme-warning-text)',
+ border: '1px solid var(--theme-border)',
  borderRadius: 10,
  padding: '13px 12px',
  fontSize: 14,
@@ -126,7 +157,7 @@ export function ProgressBar({
  <div
  style={{
  height: 10,
- background: '#3a3431',
+ background: 'var(--theme-panel-input)',
  borderRadius: 999,
  overflow: 'hidden',
  ...style,
@@ -136,7 +167,7 @@ export function ProgressBar({
  style={{
  width: `${clamped}%`,
  height: '100%',
- background: '#7fa650',
+ background: 'var(--theme-accent)',
  transition: 'width 0.25s ease',
  }}
  />
@@ -146,7 +177,7 @@ export function ProgressBar({
 
 export function SectionTitle({ children }: { children: ReactNode }) {
  return (
- <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>{children}</div>
+ <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 8, color: 'var(--theme-text)' }}>{children}</div>
  )
 }
 
@@ -169,7 +200,7 @@ export function BigMessage({
  style={{
  fontSize: 28,
  fontWeight: 800,
- color: '#f2c14e',
+ color: 'var(--theme-highlight)',
  marginBottom: 6,
  }}
  >
@@ -194,9 +225,9 @@ export function ShellInput(
  style={{
  flex: 1,
  borderRadius: 8,
- border: '1px solid #555',
- background: '#222',
- color: '#fff',
+ border: '1px solid var(--theme-input-border)',
+ background: 'var(--theme-panel-input)',
+ color: 'var(--theme-text)',
  padding: '10px',
  fontSize: 14,
  outline: 'none',

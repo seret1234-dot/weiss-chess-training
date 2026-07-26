@@ -1,0 +1,223 @@
+﻿.global-floating-play-desktop {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+
+:root {
+  --site-fixed-bottom-clearance: 0px;
+  --site-global-back-clearance: 0px;
+}
+
+.global-floating-play-desktop__panel,
+.global-floating-play-desktop__toggle {
+  pointer-events: auto;
+}
+
+.global-floating-play-desktop__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.global-floating-play-desktop__toggle {
+  min-width: 72px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--theme-border);
+  border-radius: 14px;
+  background: var(--theme-panel);
+  color: var(--theme-text);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.global-floating-play-desktop__toggle:hover,
+.global-floating-play-desktop__toggle:focus-visible {
+  background: var(--theme-button-bg);
+}
+
+.global-floating-play-desktop__theme {
+  display: flex;
+}
+
+.global-floating-play-desktop__theme > *,
+.global-floating-play-desktop__theme button {
+  width: 100%;
+}
+
+.global-mobile-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --site-fixed-bottom-clearance: calc(108px + env(safe-area-inset-bottom));
+    /* GlobalBackButton is fixed at the top-left. Page content starts below
+       its full hit area on small screens. */
+    --site-global-back-clearance: 60px;
+  }
+
+  html {
+    width: 100vw;
+    max-width: 100vw;
+    scroll-padding-bottom: var(--site-fixed-bottom-clearance);
+    overflow-x: clip;
+  }
+
+  html.has-active-global-hint {
+    --site-fixed-bottom-clearance: calc(160px + env(safe-area-inset-bottom));
+  }
+
+  body {
+    width: 100vw;
+    max-width: 100vw;
+    box-sizing: border-box;
+    padding-bottom: var(--site-fixed-bottom-clearance);
+    overflow-x: clip;
+  }
+
+  .global-floating-play-desktop {
+    display: none;
+  }
+
+  .global-mobile-nav {
+    position: fixed;
+    left: 0;
+    right: auto;
+    bottom: 0;
+    width: 100vw;
+    max-width: 100vw;
+    box-sizing: border-box;
+    z-index: 2147483000;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(44px, auto));
+    gap: 3px;
+
+    padding:
+      6px
+      6px
+      calc(6px + env(safe-area-inset-bottom));
+
+    min-height: 104px;
+
+    background: var(--theme-panel);
+    border-top: 1px solid var(--theme-border);
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .global-mobile-nav__button {
+    min-width: 0;
+    min-height: 44px;
+    padding: 5px 2px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: transparent;
+    color: var(--theme-text);
+
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.1;
+
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .global-mobile-nav__button:active {
+    transform: scale(0.96);
+    background: var(--theme-button-bg);
+  }
+
+  .global-mobile-nav__button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .global-mobile-nav__button--primary {
+    background:
+      linear-gradient(
+        180deg,
+        var(--theme-accent-strong),
+        var(--theme-accent)
+      );
+
+    color: var(--theme-accent-text);
+  }
+}
+
+@media (max-width: 350px) {
+  .global-mobile-nav {
+    padding-left: 2px;
+    padding-right: 2px;
+    gap: 1px;
+  }
+
+  .global-mobile-nav__button {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .global-mobile-nav__theme {
+    min-width: 0;
+    min-height: 44px;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .global-mobile-nav__theme > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .global-mobile-nav__theme button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 4px 2px !important;
+    border-radius: 10px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--theme-text) !important;
+    box-shadow: none !important;
+    font-size: 10px !important;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .global-mobile-nav__theme button > span {
+    display: none;
+  }
+
+  .global-mobile-nav__theme button::after {
+    content: "Theme";
+    font-size: 12px;
+    font-weight: 700;
+  }
+}

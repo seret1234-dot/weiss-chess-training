@@ -1,7 +1,7 @@
 import { ReactNode, RefObject, useEffect, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { Chessboard } from 'react-chessboard'
-
+import ThemedChessboard from "../../theme/ThemedChessboard"
+import './trainerShell.css'
 type PieceRendererProps = {
  squareWidth: number
 }
@@ -38,6 +38,9 @@ type TrainerShellProps = {
  footerLeft?: ReactNode
  footerRight?: ReactNode
  maxWidth?: number
+ sidePanelWidth?: number
+ sidePanelColumns?: 1 | 2
+ preventPageScroll?: boolean
 
  board?: ReactNode
 
@@ -54,21 +57,34 @@ type TrainerShellProps = {
  boardLeft?: ReactNode
  boardOverlay?: ReactNode
  customPieces?: CustomPiecesMap
+ kpkBoardOverlay?: ReactNode
+}
+
+const MOBILE_TRAINER_BREAKPOINT = 768
+const MOBILE_TRAINER_GUTTER = 16
+
+function getMobileBoardSize() {
+ if (typeof window === 'undefined') return null
+
+ const viewportWidth = window.innerWidth
+ if (viewportWidth > MOBILE_TRAINER_BREAKPOINT) return null
+
+ return Math.max(0, Math.floor(viewportWidth - MOBILE_TRAINER_GUTTER))
 }
 
 const PIECE_URLS: Record<PieceCode, string> = {
- wP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png',
- wN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png',
- wB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png',
- wR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png',
- wQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png',
- wK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png',
- bP: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png',
- bN: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png',
- bB: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png',
- bR: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png',
- bQ: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png',
- bK: 'https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png',
+ wP: '/pieces/react-chessboard-default/wp.svg',
+ wN: '/pieces/react-chessboard-default/wn.svg',
+ wB: '/pieces/react-chessboard-default/wb.svg',
+ wR: '/pieces/react-chessboard-default/wr.svg',
+ wQ: '/pieces/react-chessboard-default/wq.svg',
+ wK: '/pieces/react-chessboard-default/wk.svg',
+ bP: '/pieces/react-chessboard-default/bp.svg',
+ bN: '/pieces/react-chessboard-default/bn.svg',
+ bB: '/pieces/react-chessboard-default/bb.svg',
+ bR: '/pieces/react-chessboard-default/br.svg',
+ bQ: '/pieces/react-chessboard-default/bq.svg',
+ bK: '/pieces/react-chessboard-default/bk.svg',
 }
 
 function renderPieceImage(code: PieceCode, size: number) {
@@ -99,7 +115,9 @@ export default function TrainerShell({
  setIsHandleHovered,
  containerRef,
  sidePanel,
- sidePanelWidth = 420,
+ sidePanelWidth,
+ sidePanelColumns = 1,
+ preventPageScroll = false,
  footerLeft,
  footerRight,
  maxWidth = 1600,
@@ -122,10 +140,26 @@ export default function TrainerShell({
  customPieces,
 }: TrainerShellProps) {
  const handleActive = isDragging || isHandleHovered
+ const resolvedSidePanelWidth = sidePanelWidth ?? (sidePanelColumns === 2 ? 680 : 420)
  const useManagedBoard = typeof fen === 'string' && fen.length > 0
+ const [mobileBoardSize, setMobileBoardSize] = useState<number | null>(() => getMobileBoardSize())
+ const renderedBoardSize = mobileBoardSize ?? boardSize
 
  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
  const [clickTargets, setClickTargets] = useState<string[]>([])
+
+ useEffect(() => {
+ const updateMobileBoardSize = () => setMobileBoardSize(getMobileBoardSize())
+
+ updateMobileBoardSize()
+ window.addEventListener('resize', updateMobileBoardSize)
+ window.visualViewport?.addEventListener('resize', updateMobileBoardSize)
+
+ return () => {
+ window.removeEventListener('resize', updateMobileBoardSize)
+ window.visualViewport?.removeEventListener('resize', updateMobileBoardSize)
+ }
+ }, [])
 
  const anastasiaPieces = useMemo<CustomPiecesMap>(() => {
  return {
@@ -144,9 +178,9 @@ export default function TrainerShell({
  }
  }, [])
 
- const resolvedPieces = customPieces ?? anastasiaPieces
+ const resolvedPieces = customPieces;
 
- function clearSelection() {
+  function clearSelection() {
  setSelectedSquare(null)
  setClickTargets([])
  }
@@ -217,25 +251,33 @@ export default function TrainerShell({
 
  return (
  <div
+ className={[
+ 'site-mobile-dock-scroll',
+ preventPageScroll ? 'trainer-shell-page trainer-shell-page--fixed' : 'trainer-shell-page',
+ sidePanelColumns === 2 ? 'trainer-shell-page--wide-side' : '',
+ ].filter(Boolean).join(' ')}
  style={{
- minHeight: '100vh',
- background: '#161512',
- color: '#f3f3f3',
- padding: '18px 14px 24px',
- fontFamily: 'Arial, sans-serif',
+ minHeight: '100dvh',
+ background: 'var(--theme-page-bg)',
+ color: 'var(--theme-text)',
+ padding: preventPageScroll ? '10px 14px 12px' : '18px 14px 24px',
+ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
  boxSizing: 'border-box',
  cursor: isDragging ? 'col-resize' : 'default',
  }}
  >
- <div style={{ maxWidth, margin: '0 auto' }}>
+ <div className='trainer-shell-content' style={{ maxWidth, margin: '0 auto' }}>
  <div
+ className='trainer-shell-title'
  style={{
- marginBottom: 12,
+ marginBottom: preventPageScroll ? 8 : 12,
  display: 'inline-block',
- padding: '10px 16px',
+ padding: preventPageScroll ? '7px 13px' : '10px 16px',
  borderRadius: 14,
- background: '#3a3431',
- fontSize: 24,
+ background: 'var(--theme-panel-2)',
+ border: '1px solid var(--theme-border)',
+ boxShadow: '0 10px 28px rgba(0,0,0,0.22)',
+ fontSize: preventPageScroll ? 20 : 24,
  fontWeight: 800,
  }}
  >
@@ -244,6 +286,7 @@ export default function TrainerShell({
 
  <div
  ref={containerRef}
+ className='trainer-shell-layout'
  style={{
  display: 'flex',
  alignItems: 'flex-start',
@@ -252,34 +295,37 @@ export default function TrainerShell({
  position: 'relative',
  }}
  >
- <div style={{ flex: '0 0 auto' }}>
+ <div className='trainer-shell-board-column' style={{ flex: '0 0 auto' }}>
  <div
+ className='trainer-shell-board-frame'
  style={{
- width: boardSize + 16,
- background: '#201d1b',
+ width: renderedBoardSize + 16,
+ background: 'var(--theme-board-frame)',
  borderRadius: 16,
  padding: 8,
- border: '1px solid rgba(255,255,255,0.06)',
+ border: '1px solid var(--theme-border)',
+ boxShadow: 'var(--theme-shadow)',
  boxSizing: 'border-box',
  }}
  >
  {useManagedBoard ? (
- <div style={{ display: 'flex', gap: 10 }}>
- {boardLeft}
+ <div className='trainer-shell-managed-board-row' style={{ display: 'flex', gap: 10 }}>
+ {boardLeft ? <div className='trainer-shell-board-left'>{boardLeft}</div> : null}
 
  <div
+ className='trainer-shell-managed-board-slot'
  style={{
  position: 'relative',
- width: boardSize,
- height: boardSize,
+ width: renderedBoardSize,
+ height: renderedBoardSize,
  }}
  >
- <Chessboard
+ <ThemedChessboard
  id={boardId}
  position={fen}
  onPieceDrop={onPieceDrop}
  onSquareClick={handleSquareClick}
- boardWidth={boardSize}
+ boardWidth={renderedBoardSize}
  boardOrientation={boardOrientation}
  customPieces={resolvedPieces}
  customDarkSquareStyle={customDarkSquareStyle}
@@ -324,19 +370,20 @@ export default function TrainerShell({
  </div>
  </div>
  ) : (
- board
+ <div className='trainer-shell-custom-board-slot'>{board}</div>
  )}
  </div>
 
  {(footerLeft || footerRight) && (
  <div
+ className='trainer-shell-board-footer'
  style={{
  marginTop: 10,
  display: 'flex',
  justifyContent: 'space-between',
  gap: 12,
  fontSize: 11,
- color: '#b0b0b0',
+ color: 'var(--theme-muted)',
  padding: '0 4px',
  }}
  >
@@ -347,6 +394,7 @@ export default function TrainerShell({
  </div>
 
  <div
+ className='trainer-shell-divider'
  onMouseDown={() => setIsDragging(true)}
  onMouseEnter={() => setIsHandleHovered(true)}
  onMouseLeave={() => setIsHandleHovered(false)}
@@ -364,18 +412,21 @@ export default function TrainerShell({
  width: 8,
  height: 72,
  borderRadius: 999,
- background: handleActive ? '#88a94f' : '#4a4542',
+ background: handleActive ? 'var(--theme-accent)' : 'color-mix(in srgb, var(--theme-muted) 45%, transparent)',
  }}
  />
  </div>
 
  <div
+ className={`trainer-shell-side${sidePanelColumns === 2 ? ' trainer-shell-side--columns-2' : ''}`}
  style={{
- width: sidePanelWidth,
- background: '#1b1816',
+ width: resolvedSidePanelWidth,
+ boxSizing: 'border-box',
+ background: 'var(--theme-panel)',
  borderRadius: 16,
  padding: 12,
- border: '1px solid rgba(255,255,255,0.06)',
+ border: '1px solid var(--theme-border)',
+ boxShadow: 'var(--theme-card-shadow)',
  }}
  >
  {sidePanel}
@@ -383,6 +434,7 @@ export default function TrainerShell({
 
  {subtitle && (
  <div
+ className='trainer-shell-subtitle'
  style={{
  position: 'absolute',
  top: -34,

@@ -1,21 +1,23 @@
 import OpeningExplanationOverlay from "./pages/openings/OpeningExplanationOverlay"
-import EndgameExplanationOverlay from "./pages/endgames/EndgameExplanationOverlay"
 import CoachMistakeOverlay from "./components/coach/CoachMistakeOverlay"
 import React from "react"
 import ReactDOM from "react-dom/client"
+import AppRouter from "./AppRouter"
 import SeoHead from "./components/SeoHead"
 import SiteAnalytics from "./components/SiteAnalytics"
-import AppRouter from "./AppRouter"
+import { ThemeProvider } from "./theme/ThemeContext"
+import "./theme/theme.css"
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
  <React.StrictMode>
+ <ThemeProvider>
  <>
- <AppRouter />
- <EndgameExplanationOverlay />
  <SeoHead />
  <SiteAnalytics />
+ <AppRouter />
  <OpeningExplanationOverlay />
  <CoachMistakeOverlay />
  </>
+ </ThemeProvider>
  </React.StrictMode>
 )

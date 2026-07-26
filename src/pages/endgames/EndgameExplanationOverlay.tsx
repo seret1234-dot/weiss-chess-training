@@ -1,21 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 import { getEndgameExplanation } from "./endgameExplanations"
-
-function readPageText() {
- if (typeof window === "undefined" || typeof document === "undefined") return ""
-
- const headings = Array.from(document.querySelectorAll("h1, h2, h3"))
- .map((el) => el.textContent || "")
- .join(" ")
-
- return [
- window.location.pathname,
- window.location.search,
- window.location.hash,
- document.title,
- headings,
- ].join(" ")
-}
+import "./EndgameExplanationOverlay.css"
 
 function ListBlock({ title, items }: { title: string; items: string[] }) {
  return (
@@ -32,24 +18,20 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
  )
 }
 
-export default function EndgameExplanationOverlay() {
- const [pageText, setPageText] = useState("")
+export default function EndgameExplanationOverlay({ routePath }: { routePath: string }) {
  const [open, setOpen] = useState(false)
 
  useEffect(() => {
- const update = () => setPageText(readPageText())
- update()
+ setOpen(false)
+ }, [routePath])
 
- const id = window.setInterval(update, 700)
- return () => window.clearInterval(id)
- }, [])
+ const explanation = useMemo(() => getEndgameExplanation(routePath), [routePath])
 
- const explanation = useMemo(() => getEndgameExplanation(pageText), [pageText])
+ if (!explanation || typeof document === "undefined") return null
 
- if (!explanation) return null
-
- return (
+ return createPortal(
  <aside
+ className="endgame-explanation-overlay"
  style={{
  position: "fixed",
  left: 18,
@@ -67,8 +49,11 @@ export default function EndgameExplanationOverlay() {
  }}
  >
  <button
+ className="endgame-explanation-toggle"
  type="button"
  onClick={() => setOpen((x) => !x)}
+ aria-expanded={open}
+ aria-controls="endgame-explanation-content"
  style={{
  width: "100%",
  border: 0,
@@ -89,7 +74,11 @@ export default function EndgameExplanationOverlay() {
  </button>
 
  {open && (
- <div style={{ padding: "16px 18px 18px", maxHeight: "calc(58vh - 58px)", overflowY: "auto" }}>
+ <div
+ id="endgame-explanation-content"
+ className="endgame-explanation-body"
+ style={{ padding: "16px 18px 18px", maxHeight: "calc(58vh - 58px)", overflowY: "auto" }}
+ >
  <div
  style={{
  fontSize: 16,
@@ -108,6 +97,7 @@ export default function EndgameExplanationOverlay() {
  <ListBlock title="Common mistakes" items={explanation.mistakes} />
  </div>
  )}
- </aside>
+ </aside>,
+ document.body,
  )
 }

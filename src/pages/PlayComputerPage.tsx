@@ -1,32 +1,265 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Chess } from 'chess.js'
 import type { Square } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from "../theme/ThemedChessboard"
+import './PlayComputerPage.css'
 import { stockfishService } from '../lib/chess/stockfishService'
+import { supabase } from '../lib/supabase'
 import { useGlobalBoard } from '../hooks/useGlobalBoard'
+import { useHintAction } from '../context/HintActionContext'
+import {
+ buildWeeklyPlanSignals,
+ chooseNewestWeeklyTestState,
+ loadWeeklyTestFromCloud,
+ saveWeeklyTestToCloud,
+} from '../training/weeklyAdaptiveTest'
+import {
+ createTransferOpportunity,
+ findImmediateTransferOpportunity,
+ findTargetedComputerCandidates,
+ findTransferSteeringCandidates,
+ getRecentTransferTargets,
+ loadRecentTransferTargets,
+ studentMoveMatchesTransferTarget,
+ type TargetedComputerCandidate,
+ type TransferOpportunity,
+ type TransferTarget,
+} from '../training/targetedSparring'
+import {
+ completeEndgameTransferSession,
+ gradeEndgameTransfer,
+ loadEndgameTransferSession,
+ markEndgameTransferStarted,
+ saveEndgameTransferProgress,
+ type EndgameTransferSession,
+} from '../training/endgameTransfer'
 
 type Side = 'white' | 'black'
 type Mode = 'play' | 'analyze'
+
+const PLAY_COMPUTER_MOBILE_BREAKPOINT = 768
+const PLAY_COMPUTER_DEFAULT_BOARD_SIZE = 820
+const PLAY_COMPUTER_MAX_BOARD_SIZE = 920
+
+function getInitialPlayComputerBoardSize() {
+ if (typeof window === 'undefined' || window.innerWidth > PLAY_COMPUTER_MOBILE_BREAKPOINT) {
+  return PLAY_COMPUTER_DEFAULT_BOARD_SIZE
+ }
+
+ return Math.min(PLAY_COMPUTER_MAX_BOARD_SIZE, Math.max(0, window.innerWidth - 16))
+}
+
+type WeeklyGameRecord = {
+ color: Side
+ started: boolean
+ completed: boolean
+ pgn: string
+ fen: string
+ result: string
+ updatedAt: string
+ autoReviewOpenedAt?: string
+ transferTarget?: TransferTarget
+ transferOpportunities?: TransferOpportunity[]
+}
+
+type WeeklyTestState = {
+ userId?: string
+ weekKey: string
+ engineElo: number
+ currentGame: 0 | 1 | 2
+ games: [WeeklyGameRecord, WeeklyGameRecord]
+ completedAt?: string
+ updatedAt?: string
+ planSignals?: ReturnType<typeof buildWeeklyPlanSignals>
+ transferTargets?: TransferTarget[]
+}
+
+const WEEKLY_TEST_STORAGE_KEY = 'weiss-weekly-adaptive-test-v1'
+
+function getCurrentWeekKey(date = new Date()) {
+ const local = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+ const day = local.getDay()
+ const daysFromMonday = day === 0 ? 6 : day - 1
+ local.setDate(local.getDate() - daysFromMonday)
+
+ const year = local.getFullYear()
+ const month = String(local.getMonth() + 1).padStart(2, '0')
+ const dayOfMonth = String(local.getDate()).padStart(2, '0')
+ return `${year}-${month}-${dayOfMonth}`
+}
+
+function emptyWeeklyGame(color: Side, transferTarget?: TransferTarget): WeeklyGameRecord {
+ return {
+ color,
+ started: false,
+ completed: false,
+ pgn: '',
+ fen: new Chess().fen(),
+ result: '*',
+ updatedAt: new Date().toISOString(),
+ transferTarget,
+ transferOpportunities: [],
+ }
+}
+
+function createWeeklyTestState(weekKey: string, engineElo: number): WeeklyTestState {
+ const transferTargets = getRecentTransferTargets(2)
+ return {
+ weekKey,
+ engineElo,
+ currentGame: 0,
+ games: [
+  emptyWeeklyGame('white', transferTargets[0]),
+  emptyWeeklyGame('black', transferTargets[1] ?? transferTargets[0]),
+ ],
+ transferTargets,
+ updatedAt: new Date().toISOString(),
+ }
+}
+
+function loadWeeklyTestState(weekKey: string, engineElo: number): WeeklyTestState {
+ try {
+ const raw = window.localStorage.getItem(WEEKLY_TEST_STORAGE_KEY)
+ if (!raw) return createWeeklyTestState(weekKey, engineElo)
+
+ const parsed = JSON.parse(raw) as WeeklyTestState
+ if (
+ parsed.weekKey !== weekKey ||
+ !Array.isArray(parsed.games) ||
+ parsed.games.length !== 2
+ ) {
+ return createWeeklyTestState(weekKey, engineElo)
+ }
+
+ return {
+ ...parsed,
+ engineElo: Number.isFinite(parsed.engineElo) ? parsed.engineElo : engineElo,
+ currentGame:
+ parsed.currentGame === 1 || parsed.currentGame === 2 ? parsed.currentGame : 0,
+ games: [
+ {
+  ...emptyWeeklyGame('white', parsed.transferTargets?.[0]),
+  ...parsed.games[0],
+  color: 'white',
+  transferOpportunities: parsed.games[0]?.transferOpportunities ?? [],
+ },
+ {
+  ...emptyWeeklyGame('black', parsed.transferTargets?.[1] ?? parsed.transferTargets?.[0]),
+  ...parsed.games[1],
+  color: 'black',
+  transferOpportunities: parsed.games[1]?.transferOpportunities ?? [],
+ },
+ ],
+ transferTargets: parsed.transferTargets ?? parsed.games
+  .map((game) => game.transferTarget)
+  .filter((target): target is TransferTarget => Boolean(target)),
+ }
+ } catch {
+ return createWeeklyTestState(weekKey, engineElo)
+ }
+}
+
+function saveWeeklyTestState(state: WeeklyTestState) {
+ window.localStorage.setItem(WEEKLY_TEST_STORAGE_KEY, JSON.stringify(state))
+}
+
+function getGameResult(chess: Chess) {
+ if (chess.isCheckmate()) {
+ return chess.turn() === 'w' ? '0-1' : '1-0'
+ }
+
+ if (chess.isDraw()) return '1/2-1/2'
+ return '*'
+}
+
+function chessFromWeeklyGame(record?: WeeklyGameRecord) {
+ if (!record) return new Chess()
+
+ if (record.pgn) {
+ try {
+ const restored = new Chess()
+ restored.loadPgn(record.pgn)
+ return restored
+ } catch {
+ // Fall through to the saved FEN.
+ }
+ }
+
+ return makeChessSafe(record.fen)
+}
+
+function setEndgameTransferHeaders(
+ chess: Chess,
+ session: EndgameTransferSession,
+ result = '*',
+) {
+ chess.header(
+  'Event',
+  'Endgame Transfer Test',
+  'White',
+  session.studentColor === 'white' ? 'Student' : 'Computer',
+  'Black',
+  session.studentColor === 'black' ? 'Student' : 'Computer',
+  'Result',
+  result,
+  'SetUp',
+  '1',
+  'FEN',
+  session.fen,
+  'TransferTrainer',
+  session.trainerKey,
+  'TransferTheme',
+  session.theme,
+ )
+}
+
+function chessFromEndgameTransfer(session?: EndgameTransferSession | null) {
+ if (!session) return new Chess()
+
+ if (session.pgn) {
+  try {
+   const restored = new Chess()
+   restored.loadPgn(session.pgn)
+   return restored
+  } catch {
+   // Fall through to the latest saved FEN.
+  }
+ }
+
+ const restored = makeChessSafe(session.currentFen || session.fen)
+ setEndgameTransferHeaders(restored, session, session.gameResult || '*')
+ return restored
+}
+
 function getPlayEvalBarPercent(evalText: string, fen: string) {
  const text = evalText.trim()
 
- if (!text || text === ' - ' || text === 'Mate') return 50
+ // Completed games use the real result and fill the bar completely.
+ if (text === '1-0') return 100
+ if (text === '0-1') return 0
+ if (text === '1/2-1/2') return 50
+
+ // Stockfish can report plain "Mate" or M0 in a terminal position.
+ // The side to move in a checkmated FEN is the losing side.
+ if (text === 'Mate') return sideToMove(fen) === 'white' ? 0 : 100
+ if (!text || text === '-' || text === ' - ') return 50
 
  let sideToMoveScore = 0
 
  if (text.startsWith('M')) {
- const mateNumber = Number(text.slice(1))
+  const mateNumber = Number(text.slice(1))
 
- if (!Number.isFinite(mateNumber) || mateNumber === 0) return 50
+  if (!Number.isFinite(mateNumber)) return 50
+  if (mateNumber === 0) return sideToMove(fen) === 'white' ? 0 : 100
 
- sideToMoveScore = mateNumber > 0 ? 100 : -100
+  sideToMoveScore = mateNumber > 0 ? 100 : -100
  } else {
- const parsed = Number(text.replace('+', ''))
+  const parsed = Number(text.replace('+', ''))
 
- if (!Number.isFinite(parsed)) return 50
+  if (!Number.isFinite(parsed)) return 50
 
- sideToMoveScore = parsed
+  sideToMoveScore = parsed
  }
 
  const turn = sideToMove(fen)
@@ -55,18 +288,18 @@ const pieceSymbols: Record<string, string> = {
 
 
 const PIECE_URLS: Record<string, string> = {
- wP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
- wN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
- wB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
- wR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
- wQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
- wK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
- bP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
- bN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
- bB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
- bR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
- bQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
- bK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png",
+ wP: "/pieces/react-chessboard-default/wp.svg",
+ wN: "/pieces/react-chessboard-default/wn.svg",
+ wB: "/pieces/react-chessboard-default/wb.svg",
+ wR: "/pieces/react-chessboard-default/wr.svg",
+ wQ: "/pieces/react-chessboard-default/wq.svg",
+ wK: "/pieces/react-chessboard-default/wk.svg",
+ bP: "/pieces/react-chessboard-default/bp.svg",
+ bN: "/pieces/react-chessboard-default/bn.svg",
+ bB: "/pieces/react-chessboard-default/bb.svg",
+ bR: "/pieces/react-chessboard-default/br.svg",
+ bQ: "/pieces/react-chessboard-default/bq.svg",
+ bK: "/pieces/react-chessboard-default/bk.svg",
 }
 
 const playComputerPieces = Object.fromEntries(
@@ -84,6 +317,21 @@ const playComputerPieces = Object.fromEntries(
 
 function sideToMove(fen: string): Side {
  return fen.split(' ')[1] === 'b' ? 'black' : 'white'
+}
+
+function makeChessSafe(fen?: string): Chess {
+ if (!fen || !fen.trim()) return new Chess()
+
+ try {
+ return new Chess(fen)
+ } catch {
+ try {
+ return new (Chess as any)(fen, { skipValidation: true }) as Chess
+ } catch {
+ console.warn('Invalid FEN, falling back to start position:', fen)
+ return new Chess()
+ }
+ }
 }
 
 function getMoveHighlightStyles(moveUci: string | null) {
@@ -181,6 +429,7 @@ function CapturedRow({
 }) {
  return (
  <div
+ className="play-computer-captured-row"
  style={{
  minHeight: 30,
  display: 'flex',
@@ -189,7 +438,7 @@ function CapturedRow({
  color: '#e5e7eb',
  }}
  >
- <div style={{ display: 'flex', gap: 2, fontSize: 22, lineHeight: 1 }}>
+ <div className="play-computer-captured-pieces" style={{ display: 'flex', gap: 2, fontSize: 22, lineHeight: 1 }}>
  {pieces.map((p, i) => (
  <span key={`${p}-${i}`} style={{ opacity: 0.95 }}>
  {pieceSymbols[p]}
@@ -213,12 +462,34 @@ function CapturedRow({
 }
 
 function EmptyCapturedRow() {
- return <div style={{ minHeight: 30 }} />
+ return <div className="play-computer-captured-row play-computer-captured-row--empty" style={{ minHeight: 30 }} />
 }
 
 export default function PlayComputerPage() {
  const location = useLocation()
+ const navigate = useNavigate()
  const searchParams = new URLSearchParams(location.search)
+
+ const isWeeklyTest = searchParams.get('weekly') === '1'
+ const isEndgameTransfer = searchParams.get('endgameTransfer') === '1'
+ const isAssessment = isWeeklyTest || isEndgameTransfer
+ const initialEndgameTransfer = isEndgameTransfer
+  ? loadEndgameTransferSession()
+  : null
+ const continueWeeklyGameTwo = searchParams.get('continue') === '2'
+ const weeklyWeekKey = getCurrentWeekKey()
+ const requestedWeeklyElo = Number(searchParams.get('elo') || 1500)
+ const weeklyDefaultElo = Math.max(
+ 100,
+ Math.min(3000, Number.isFinite(requestedWeeklyElo) ? requestedWeeklyElo : 1500),
+ )
+ const initialWeeklyTest = isWeeklyTest
+ ? loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo)
+ : null
+ const initialWeeklyGameIndex: 0 | 1 =
+ initialWeeklyTest?.currentGame === 1 || initialWeeklyTest?.currentGame === 2 ? 1 : 0
+ const initialWeeklyColor: Side = initialWeeklyGameIndex === 0 ? 'white' : 'black'
+ const initialWeeklyRecord = initialWeeklyTest?.games[initialWeeklyGameIndex]
 
  const queryFen = searchParams.get('fen') || undefined
  const queryColor = searchParams.get('color')
@@ -232,63 +503,507 @@ export default function PlayComputerPage() {
  const stateSource = (location.state as any)?.source as string | undefined
  const stateMode = (location.state as any)?.mode as Mode | undefined
 
- const initialFen = queryFen || stateFen
- const suggestedColor =
- queryColor === 'white' || queryColor === 'black'
+ const initialFen = initialEndgameTransfer?.fen || queryFen || stateFen
+ const suggestedColor = initialEndgameTransfer?.studentColor ||
+ (queryColor === 'white' || queryColor === 'black'
  ? (queryColor as Side)
- : stateSuggestedColor
+ : stateSuggestedColor)
  const source = querySource || stateSource
  const initialMode: Mode =
  queryMode === 'analyze' || stateMode === 'analyze' ? 'analyze' : 'play'
 
  const containerRef = useRef<HTMLDivElement | null>(null)
- const chessRef = useRef(new Chess(initialFen || undefined))
+ const chessRef = useRef(
+ isWeeklyTest
+  ? chessFromWeeklyGame(initialWeeklyRecord)
+  : isEndgameTransfer
+  ? chessFromEndgameTransfer(initialEndgameTransfer)
+  : makeChessSafe(initialFen),
+ )
+ const endgameTransferFinishedRef = useRef(false)
  const engineMovePendingRef = useRef(false)
+ const evalPendingRef = useRef(false)
+ const weeklyCloudSaveTimerRef = useRef<number | null>(null)
+ const weeklyAutoReviewTimerRef = useRef<number | null>(null)
+ const weeklyAutoReviewLaunchRef = useRef<string | null>(null)
+ const weeklyTransferOpportunitiesRef = useRef<TransferOpportunity[]>(
+  initialWeeklyRecord?.transferOpportunities ?? [],
+ )
 
  const initialAutoStart =
+ !isWeeklyTest &&
+ initialMode === 'play' &&
+ (Boolean(initialEndgameTransfer) || queryAutoStart || stateAutoStart || Boolean(initialFen))
 
-
- initialMode === 'play' && (queryAutoStart || stateAutoStart || Boolean(initialFen))
-
-
-
- const [gameStarted, setGameStarted] = useState(initialMode === 'analyze' || initialAutoStart)
+ const [weeklyTest, setWeeklyTest] = useState<WeeklyTestState | null>(initialWeeklyTest)
+ const [endgameTransfer, setEndgameTransfer] = useState<EndgameTransferSession | null>(
+  initialEndgameTransfer,
+ )
+ const [weeklyCloudUserId, setWeeklyCloudUserId] = useState<string | null>(null)
+ const [weeklyCloudReady, setWeeklyCloudReady] = useState(false)
+ const [weeklyCloudAvailable, setWeeklyCloudAvailable] = useState(false)
+ const [gameStarted, setGameStarted] = useState(
+ isWeeklyTest ? Boolean(initialWeeklyRecord?.started) : initialMode === 'analyze' || initialAutoStart,
+ )
  const [mode, setMode] = useState<Mode>(initialMode)
 
- const [playerColor, setPlayerColor] = useState<Side>(suggestedColor || 'white')
- const [boardOrientation, setBoardOrientation] = useState<Side>(
- suggestedColor || 'white'
+ const [playerColor, setPlayerColor] = useState<Side>(
+ isWeeklyTest ? initialWeeklyColor : suggestedColor || 'white',
  )
- const [engineElo, setEngineElo] = useState(initialFen ? 3000 : 1500)
- const [boardSize, setBoardSize] = useState(820)
+ const [boardOrientation, setBoardOrientation] = useState<Side>(
+ isWeeklyTest ? initialWeeklyColor : suggestedColor || 'white',
+ )
+ const [engineElo, setEngineElo] = useState(
+ isWeeklyTest
+  ? initialWeeklyTest?.engineElo || weeklyDefaultElo
+  : initialEndgameTransfer?.engineElo || (initialFen ? 3000 : 1500),
+ )
+ const [boardSize, setBoardSize] = useState(getInitialPlayComputerBoardSize)
+ const desktopBoardSizeRef = useRef(PLAY_COMPUTER_DEFAULT_BOARD_SIZE)
 
- const [position, setPosition] = useState(initialFen || chessRef.current.fen())
+ const [position, setPosition] = useState(chessRef.current.fen())
  const [engineReady, setEngineReady] = useState(false)
  const [engineThinking, setEngineThinking] = useState(false)
- const [moveList, setMoveList] = useState<string[]>([])
+ const [moveList, setMoveList] = useState<string[]>(chessRef.current.history())
+ const [selectedHistoryPly, setSelectedHistoryPly] = useState<number | null>(null)
  const [evalText, setEvalText] = useState('-')
-const [hintArrow, setHintArrow] = useState<any[]>([])
- const [showEvalBar, setShowEvalBar] = useState(true)
+ const [hintArrow, setHintArrow] = useState<any[]>([])
+ const [showEvalBar, setShowEvalBar] = useState(!isAssessment)
  const [statusText, setStatusText] = useState(
- initialFen
+ isWeeklyTest
+ ? initialWeeklyRecord?.completed
+ ? `Weekly game ${initialWeeklyGameIndex + 1} complete`
+ : initialWeeklyRecord?.started
+ ? `Weekly game ${initialWeeklyGameIndex + 1} resumed`
+ : `Weekly game ${initialWeeklyGameIndex + 1} ready`
+ : isEndgameTransfer
+ ? initialEndgameTransfer?.status === 'completed'
+ ? initialEndgameTransfer.success
+ ? 'Endgame transfer passed'
+ : 'Endgame transfer needs review'
+ : 'Practical endgame challenge started'
+ : initialFen
  ? initialMode === 'analyze'
  ? 'Position loaded for analysis.'
  : 'Position loaded. Choose settings and start.'
- : 'Choose settings and start a game'
+ : 'Choose settings and start a game',
  )
  const [isDragging, setIsDragging] = useState(false)
  const [lastMoveHighlight, setLastMoveHighlight] = useState<string | null>(null)
  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
  const [legalTargets, setLegalTargets] = useState<string[]>([])
 
+ const weeklyGameIndex: 0 | 1 =
+ weeklyTest?.currentGame === 1 || weeklyTest?.currentGame === 2 ? 1 : 0
+ const weeklyGameNumber = weeklyGameIndex + 1
+ const weeklySessionComplete = weeklyTest?.currentGame === 2
+ const weeklyTransferTarget = weeklyTest?.games[weeklyGameIndex]?.transferTarget
+ const weeklyTransferOpportunities =
+  weeklyTest?.games[weeklyGameIndex]?.transferOpportunities ?? []
+ const weeklyTransferRecognized = weeklyTransferOpportunities.filter(
+  (item) => item.status === 'recognized',
+ ).length
+ const weeklyTransferMissed = weeklyTransferOpportunities.filter(
+  (item) => item.status === 'missed',
+ ).length
+
+ function queueWeeklyCloudSave(next: WeeklyTestState) {
+ if (!isWeeklyTest || !weeklyCloudUserId) return
+
+ if (weeklyCloudSaveTimerRef.current !== null) {
+ window.clearTimeout(weeklyCloudSaveTimerRef.current)
+ }
+
+ weeklyCloudSaveTimerRef.current = window.setTimeout(() => {
+ weeklyCloudSaveTimerRef.current = null
+ void saveWeeklyTestToCloud(weeklyCloudUserId, next).then((saved) => {
+ setWeeklyCloudAvailable(saved)
+ })
+ }, 300)
+ }
+
+ function persistWeeklyState(nextState: WeeklyTestState) {
+ const next: WeeklyTestState = {
+ ...nextState,
+ updatedAt: new Date().toISOString(),
+ }
+
+ saveWeeklyTestState(next)
+ setWeeklyTest(next)
+ queueWeeklyCloudSave(next)
+ }
+
+ function applyWeeklyStateToBoard(next: WeeklyTestState) {
+ const gameIndex: 0 | 1 =
+ next.currentGame === 1 || next.currentGame === 2 ? 1 : 0
+ const color: Side = gameIndex === 0 ? 'white' : 'black'
+ const record = next.games[gameIndex]
+ const restored = chessFromWeeklyGame(record)
+
+ chessRef.current = restored
+ setPlayerColor(color)
+ setBoardOrientation(color)
+ setPosition(restored.fen())
+ setMoveList(restored.history())
+ setLastMoveHighlight(null)
+ setHintArrow([])
+ clearSelection()
+ setGameStarted(Boolean(record.started))
+ setStatusText(
+ record.completed
+ ? `Weekly game ${gameIndex + 1} complete`
+ : record.started
+ ? `Weekly game ${gameIndex + 1} resumed`
+ : `Weekly game ${gameIndex + 1} ready`,
+ )
+ setEvalText('-')
+ weeklyTransferOpportunitiesRef.current = record.transferOpportunities ?? []
+ }
+
+ function setWeeklyHeaders(chess: Chess, color: Side, result = '*') {
+ const date = new Date().toISOString().slice(0, 10).replace(/-/g, '.')
+ chess.header(
+ 'Event',
+ 'Weekly Adaptive Test',
+ 'Site',
+ 'Weiss Chess Trainer',
+ 'Date',
+ date,
+ 'Round',
+ color === 'white' ? '1' : '2',
+ 'White',
+ color === 'white' ? 'Student' : `Computer ${engineElo}`,
+ 'Black',
+ color === 'black' ? 'Student' : `Computer ${engineElo}`,
+ 'Result',
+ result,
+ )
+
+ const target = weeklyTest?.games[color === 'white' ? 0 : 1]?.transferTarget
+ if (target) {
+  chess.header(
+   'TransferTarget',
+   target.label,
+   'TransferTargetKey',
+   target.patternKey,
+  )
+ }
+
+ const opportunities = weeklyTransferOpportunitiesRef.current
+ if (opportunities.length > 0) {
+  chess.header(
+   'TransferOffered',
+   String(opportunities.length),
+   'TransferRecognized',
+   String(opportunities.filter((item) => item.status === 'recognized').length),
+   'TransferMissed',
+   String(opportunities.filter((item) => item.status === 'missed').length),
+  )
+ }
+ }
+
+ function markWeeklyAutoReviewOpened(gameIndex: 0 | 1) {
+ const openedAt = new Date().toISOString()
+ const previous = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo)
+ const games: [WeeklyGameRecord, WeeklyGameRecord] = [
+ { ...previous.games[0] },
+ { ...previous.games[1] },
+ ]
+
+ games[gameIndex] = {
+ ...games[gameIndex],
+ autoReviewOpenedAt: openedAt,
+ updatedAt: openedAt,
+ }
+
+ const next: WeeklyTestState = {
+ ...previous,
+ userId: weeklyCloudUserId || previous.userId,
+ games,
+ updatedAt: openedAt,
+ }
+
+ saveWeeklyTestState(next)
+ setWeeklyTest(next)
+ queueWeeklyCloudSave(next)
+ }
+
+ function scheduleWeeklyAutomaticReview(chess: Chess, gameIndex: 0 | 1) {
+ if (!isWeeklyTest || !chess.isGameOver()) return
+
+ const pgn = chess.pgn()
+ if (!pgn.trim()) return
+
+ const launchKey = `${weeklyWeekKey}:${gameIndex}:${chess.history().length}:${getGameResult(chess)}`
+ if (weeklyAutoReviewLaunchRef.current === launchKey) return
+
+ weeklyAutoReviewLaunchRef.current = launchKey
+ setStatusText('Game complete. Automatic review starting...')
+
+ if (weeklyAutoReviewTimerRef.current !== null) {
+ window.clearTimeout(weeklyAutoReviewTimerRef.current)
+ }
+
+ weeklyAutoReviewTimerRef.current = window.setTimeout(() => {
+ weeklyAutoReviewTimerRef.current = null
+ markWeeklyAutoReviewOpened(gameIndex)
+ window.sessionStorage.setItem('weissAnalyzeReviewPgn', pgn)
+ window.sessionStorage.setItem(
+ 'weissWeeklyReviewContext',
+ JSON.stringify({
+ weekKey: weeklyWeekKey,
+ gameIndex,
+ gameNumber: gameIndex + 1,
+ transferTarget: weeklyTest?.games[gameIndex]?.transferTarget ?? null,
+ transferOpportunities: weeklyTransferOpportunitiesRef.current,
+ }),
+ )
+ navigate(`/analyze/board?review=1&weekly=1&weeklyGame=${gameIndex + 1}`)
+ }, 850)
+ }
+
+ function saveWeeklySnapshot(chess: Chess, started = true) {
+ if (!isWeeklyTest) return
+
+ setWeeklyTest((previous) => {
+ if (!previous) return previous
+
+ const gameIndex: 0 | 1 =
+ previous.currentGame === 1 || previous.currentGame === 2 ? 1 : 0
+ const color: Side = gameIndex === 0 ? 'white' : 'black'
+ const completed = chess.isGameOver()
+ const result = getGameResult(chess)
+
+ setWeeklyHeaders(chess, color, result)
+
+ const games: [WeeklyGameRecord, WeeklyGameRecord] = [
+ { ...previous.games[0] },
+ { ...previous.games[1] },
+ ]
+
+ games[gameIndex] = {
+ ...games[gameIndex],
+ color,
+ started,
+ completed,
+ pgn: chess.pgn(),
+ fen: chess.fen(),
+ result,
+ updatedAt: new Date().toISOString(),
+ transferTarget: games[gameIndex].transferTarget ?? previous.transferTargets?.[gameIndex] ?? previous.transferTargets?.[0],
+ transferOpportunities: [...weeklyTransferOpportunitiesRef.current],
+ }
+
+ const nextCurrentGame: 0 | 1 | 2 =
+ gameIndex === 1 && completed ? 2 : previous.currentGame
+
+ const completedAt =
+ nextCurrentGame === 2
+ ? previous.completedAt || new Date().toISOString()
+ : previous.completedAt
+
+ const next: WeeklyTestState = {
+ ...previous,
+ engineElo,
+ currentGame: nextCurrentGame,
+ games,
+ completedAt,
+ updatedAt: new Date().toISOString(),
+ planSignals:
+ nextCurrentGame === 2
+ ? buildWeeklyPlanSignals(games)
+ : previous.planSignals,
+ }
+
+ saveWeeklyTestState(next)
+ queueWeeklyCloudSave(next)
+ return next
+ })
+ }
+
+ function openWeeklyReview(gameIndex: 0 | 1) {
+ const record = weeklyTest?.games[gameIndex]
+ if (!record?.completed || !record.pgn) return
+
+ window.sessionStorage.setItem('weissAnalyzeReviewPgn', record.pgn)
+ window.sessionStorage.setItem(
+ 'weissWeeklyReviewContext',
+ JSON.stringify({
+ weekKey: weeklyWeekKey,
+ gameIndex,
+ gameNumber: gameIndex + 1,
+ transferTarget: record.transferTarget ?? null,
+ transferOpportunities: record.transferOpportunities ?? [],
+ }),
+ )
+ navigate(`/analyze/board?review=1&weekly=1&weeklyGame=${gameIndex + 1}`)
+ }
+
+ function continueToSecondWeeklyGame() {
+ if (!weeklyTest?.games[0].completed) return
+
+ const next: WeeklyTestState = {
+ ...weeklyTest,
+ currentGame: 1,
+ }
+ persistWeeklyState(next)
+
+ const fresh = chessFromWeeklyGame(next.games[1])
+ chessRef.current = fresh
+ setPlayerColor('black')
+ setBoardOrientation('black')
+ setPosition(fresh.fen())
+ setMoveList(fresh.history())
+ setLastMoveHighlight(null)
+ setHintArrow([])
+ clearSelection()
+ setGameStarted(Boolean(next.games[1].started))
+ setStatusText(next.games[1].started ? 'Weekly game 2 resumed' : 'Weekly game 2 ready')
+ setEvalText('-')
+ weeklyTransferOpportunitiesRef.current = next.games[1].transferOpportunities ?? []
+ }
+
  useEffect(() => {
- if (suggestedColor) {
+ if (!isWeeklyTest) return
+
+ let cancelled = false
+
+ async function hydrateWeeklyCloudState() {
+ const {
+ data: { user },
+ } = await supabase.auth.getUser()
+
+ if (cancelled) return
+
+ if (!user) {
+ setWeeklyCloudAvailable(false)
+ setWeeklyCloudReady(true)
+ return
+ }
+
+ setWeeklyCloudUserId(user.id)
+
+ const cloudLoad = await loadWeeklyTestFromCloud(
+ user.id,
+ weeklyWeekKey,
+ )
+ const cloudState = cloudLoad.state as WeeklyTestState | null
+
+ if (cancelled) return
+
+ const latestLocal = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo)
+ const newest = chooseNewestWeeklyTestState(latestLocal, cloudState)
+ const recentTargets = await loadRecentTransferTargets(user.id, 2)
+ const mergedTargets = newest.transferTargets?.length
+  ? newest.transferTargets
+  : recentTargets
+ const mergedGames: [WeeklyGameRecord, WeeklyGameRecord] = [
+  {
+   ...newest.games[0],
+   transferTarget:
+    newest.games[0].transferTarget ??
+    (!newest.games[0].started ? mergedTargets[0] : undefined),
+   transferOpportunities: newest.games[0].transferOpportunities ?? [],
+  },
+  {
+   ...newest.games[1],
+   transferTarget:
+    newest.games[1].transferTarget ??
+    (!newest.games[1].started ? mergedTargets[1] ?? mergedTargets[0] : undefined),
+   transferOpportunities: newest.games[1].transferOpportunities ?? [],
+  },
+ ]
+ let merged: WeeklyTestState = {
+ ...newest,
+ userId: user.id,
+ games: mergedGames,
+ transferTargets: mergedTargets,
+ updatedAt: newest.updatedAt || new Date().toISOString(),
+ }
+
+ if (
+ continueWeeklyGameTwo &&
+ merged.currentGame === 0 &&
+ merged.games[0]?.completed
+ ) {
+ merged = {
+ ...merged,
+ currentGame: 1,
+ updatedAt: new Date().toISOString(),
+ }
+ }
+
+ saveWeeklyTestState(merged)
+ setWeeklyTest(merged)
+ applyWeeklyStateToBoard(merged)
+ setWeeklyCloudReady(true)
+
+ if (cloudLoad.available) {
+ const saved = await saveWeeklyTestToCloud(user.id, merged)
+ if (!cancelled) setWeeklyCloudAvailable(saved)
+ } else {
+ setWeeklyCloudAvailable(false)
+ }
+ }
+
+ void hydrateWeeklyCloudState()
+
+ return () => {
+ cancelled = true
+ if (weeklyCloudSaveTimerRef.current !== null) {
+ window.clearTimeout(weeklyCloudSaveTimerRef.current)
+ weeklyCloudSaveTimerRef.current = null
+ }
+ if (weeklyAutoReviewTimerRef.current !== null) {
+ window.clearTimeout(weeklyAutoReviewTimerRef.current)
+ weeklyAutoReviewTimerRef.current = null
+ }
+ }
+ }, [isWeeklyTest, weeklyWeekKey, weeklyDefaultElo, continueWeeklyGameTwo])
+
+ useEffect(() => {
+ if (!isWeeklyTest || !weeklyCloudReady || !weeklyTest) return
+
+ let gameIndex: 0 | 1 | null = null
+
+ if (weeklyTest.currentGame === 2 && weeklyTest.games[1]?.completed) {
+ gameIndex = 1
+ } else if (weeklyTest.currentGame === 0 && weeklyTest.games[0]?.completed) {
+ gameIndex = 0
+ } else if (weeklyTest.currentGame === 1 && weeklyTest.games[1]?.completed) {
+ gameIndex = 1
+ }
+
+ if (gameIndex === null) return
+
+ const record = weeklyTest.games[gameIndex]
+ if (!record?.pgn || record.autoReviewOpenedAt) return
+
+ const restored = chessFromWeeklyGame(record)
+ if (!restored.isGameOver()) return
+
+ scheduleWeeklyAutomaticReview(restored, gameIndex)
+ }, [
+ isWeeklyTest,
+ weeklyCloudReady,
+ weeklyTest?.weekKey,
+ weeklyTest?.currentGame,
+ weeklyTest?.games[0]?.completed,
+ weeklyTest?.games[0]?.autoReviewOpenedAt,
+ weeklyTest?.games[1]?.completed,
+ weeklyTest?.games[1]?.autoReviewOpenedAt,
+ ])
+
+ useEffect(() => {
+ if (!isWeeklyTest && suggestedColor) {
  setPlayerColor(suggestedColor)
  setBoardOrientation(suggestedColor)
  }
- }, [suggestedColor])
+ }, [isWeeklyTest, suggestedColor])
 
  useEffect(() => {
+ if (isWeeklyTest) return
+
  const params = new URLSearchParams(location.search)
 
  const nextFen = params.get('fen') || ((location.state as any)?.fen as string | undefined)
@@ -308,8 +1023,8 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
 
  if (!nextFen) return
 
- chessRef.current = new Chess(nextFen)
- setPosition(nextFen)
+ chessRef.current = makeChessSafe(nextFen)
+ setPosition(chessRef.current.fen())
  setMoveList([])
  setLastMoveHighlight(null)
  clearSelection()
@@ -328,7 +1043,7 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  setPlayerColor(nextColor)
  setBoardOrientation(nextColor)
  }
- }, [location.search, location.state])
+ }, [isWeeklyTest, location.search, location.state])
 
  useEffect(() => {
  stockfishService
@@ -341,6 +1056,19 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  setStatusText('Engine failed to load')
  })
  }, [])
+
+ useEffect(() => {
+  if (!isEndgameTransfer || !endgameTransfer || !gameStarted) return
+  if (endgameTransfer.status !== 'ready') return
+
+  const started = markEndgameTransferStarted(endgameTransfer)
+  setEndgameTransfer(started)
+ }, [isEndgameTransfer, gameStarted, endgameTransfer?.sessionId, endgameTransfer?.status])
+
+ useEffect(() => {
+  if (!isEndgameTransfer || !endgameTransfer || !chessRef.current.isGameOver()) return
+  void finishEndgameTransferIfNeeded(chessRef.current)
+ }, [isEndgameTransfer, endgameTransfer?.sessionId, endgameTransfer?.status])
  useEffect(() => {
  const strongMode = engineElo >= 2800
 
@@ -360,8 +1088,27 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  }, [engineElo])
 
  useEffect(() => {
+  function syncBoardSizeToViewport() {
+   if (window.innerWidth <= PLAY_COMPUTER_MOBILE_BREAKPOINT) {
+    setBoardSize(
+     Math.min(PLAY_COMPUTER_MAX_BOARD_SIZE, Math.max(0, window.innerWidth - 16)),
+    )
+    return
+   }
+
+   setBoardSize(desktopBoardSizeRef.current)
+  }
+
+  syncBoardSizeToViewport()
+  window.addEventListener('resize', syncBoardSizeToViewport)
+
+  return () => window.removeEventListener('resize', syncBoardSizeToViewport)
+ }, [])
+
+ useEffect(() => {
  function onMouseMove(e: MouseEvent) {
  if (!isDragging || !containerRef.current) return
+ if (window.innerWidth <= PLAY_COMPUTER_MOBILE_BREAKPOINT) return
 
  const rect = containerRef.current.getBoundingClientRect()
  const rightPanelWidth = 390
@@ -371,6 +1118,7 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
 
  const nextSize = e.clientX - rect.left
  const clamped = Math.max(minBoard, Math.min(maxBoard, nextSize))
+ desktopBoardSizeRef.current = clamped
  setBoardSize(clamped)
  }
 
@@ -396,9 +1144,10 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
 
  const material = useMemo(() => getMaterialData(position), [position])
 
- const checkedKingSquare = getCheckedKingSquare(chessRef.current)
- const isMate = chessRef.current.isCheckmate()
- const isDraw = chessRef.current.isDraw()
+ const displayedGame = useMemo(() => makeChessSafe(position), [position])
+ const checkedKingSquare = getCheckedKingSquare(displayedGame)
+ const isMate = displayedGame.isCheckmate()
+ const isDraw = displayedGame.isDraw()
 
 
  // automatic computer-turn effect
@@ -408,7 +1157,16 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  if (chessRef.current.isGameOver()) return
 
  const turnSide = sideToMove(chessRef.current.fen())
- if (turnSide === playerColor) return
+
+ // A loaded autoplay FEN can already be the student's turn. Evaluate it
+ // immediately instead of leaving the bar at its neutral placeholder.
+ if (turnSide === playerColor) {
+  const timer = window.setTimeout(() => {
+   refreshEval()
+  }, 80)
+
+  return () => window.clearTimeout(timer)
+ }
 
  const timer = window.setTimeout(() => {
  if (
@@ -432,12 +1190,30 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  }
 
  function refreshEval() {
+ if (isAssessment) return
  if (!engineReady) return
  if (engineThinking || engineMovePendingRef.current) return
+ if (evalPendingRef.current) return
  if (!gameStarted && mode !== 'analyze') return
 
+ const currentGame = chessRef.current
+
+ // Do not ask Stockfish to evaluate a finished game. Display the actual
+ // chess result and force the evaluation bar to the winning color.
+ if (currentGame.isCheckmate()) {
+  setEvalText(currentGame.turn() === 'w' ? '0-1' : '1-0')
+  return
+ }
+
+ if (currentGame.isDraw()) {
+  setEvalText('1/2-1/2')
+  return
+ }
+
+ evalPendingRef.current = true
+
  stockfishService
- .getEvaluation(chessRef.current.fen(), { moveTime: 250 })
+ .getEvaluation(currentGame.fen(), { moveTime: 250 })
  .then((info) => {
  if (typeof info.mate === 'number') {
  setEvalText(info.mate === 0 ? 'Mate' : `M${info.mate}`)
@@ -453,7 +1229,12 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  setEvalText('-')
  })
  .catch((err) => {
- console.error(err)
+  if (!(err instanceof Error) || err.message !== 'Stockfish search replaced') {
+   console.error(err)
+  }
+ })
+ .finally(() => {
+  evalPendingRef.current = false
  })
  }
 
@@ -461,10 +1242,12 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  setHintArrow([])
  setPosition(chessRef.current.fen())
  setMoveList(chessRef.current.history())
+ setSelectedHistoryPly(null)
  }
 
  function updateGameStateLabels() {
  if (chessRef.current.isCheckmate()) {
+ if (!isAssessment) setEvalText(getGameResult(chessRef.current))
  setStatusText(
  chessRef.current.turn() === 'w'
  ? 'Checkmate - Black wins'
@@ -474,6 +1257,7 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  }
 
  if (chessRef.current.isDraw()) {
+ if (!isAssessment) setEvalText(getGameResult(chessRef.current))
  setStatusText('Draw')
  return
  }
@@ -486,33 +1270,78 @@ const [hintArrow, setHintArrow] = useState<any[]>([])
  setStatusText(`${chessRef.current.turn() === 'w' ? 'White' : 'Black'} to move`)
  }
 
- function resetToInitialPlayPosition() {
- try {
- const fenFromUrl = new URLSearchParams(window.location.search).get("fen")
- const resetFen =
- fenFromUrl && fenFromUrl.trim() ? fenFromUrl.trim() : new Chess().fen()
+ function persistEndgameTransferSnapshot(chess: Chess) {
+  if (!isEndgameTransfer || !endgameTransfer || endgameTransfer.status === 'completed') return
+  const updated = saveEndgameTransferProgress(
+   endgameTransfer,
+   chess.fen(),
+   chess.pgn(),
+  )
+  setEndgameTransfer(updated)
+ }
 
- const next = new Chess(resetFen)
+ async function finishEndgameTransferIfNeeded(chess: Chess) {
+  if (!isEndgameTransfer || !endgameTransfer || !chess.isGameOver()) return
+  if (endgameTransferFinishedRef.current || endgameTransfer.status === 'completed') return
+
+  endgameTransferFinishedRef.current = true
+  const gameResult = getGameResult(chess)
+  const success = gradeEndgameTransfer(
+   endgameTransfer,
+   gameResult,
+   chess.isCheckmate(),
+  )
+
+  setEndgameTransferHeaders(chess, endgameTransfer, gameResult)
+
+  const completed = await completeEndgameTransferSession({
+   session: endgameTransfer,
+   gameResult,
+   success,
+   finalFen: chess.fen(),
+   pgn: chess.pgn(),
+  })
+  setEndgameTransfer(completed)
+  setStatusText(
+   success
+    ? `Passed - ${completed.trainerTitle}`
+    : `Needs review - ${completed.trainerTitle}`,
+  )
+ }
+
+ function resetToInitialPlayPosition() {
+ if (isAssessment) return
+
+ try {
+ const resetFen = initialFen?.trim() || new Chess().fen()
+
+ const next = makeChessSafe(resetFen)
  chessRef.current = next
 
  setPosition(next.fen())
  setMoveList([])
+ setSelectedHistoryPly(null)
  setEngineThinking(false)
- setEvalText(" - ")
+ setEvalText('-')
+ setLastMoveHighlight(null)
+ setHintArrow([])
+ clearSelection()
  setGameStarted(true)
 
  const turn = next.fen().split(" ")[1] === "b" ? "Black" : "White"
- setStatusText(turn + " to move")
+ setStatusText(
+  `${initialFen ? 'Supplied position reset. ' : 'Starting position reset. '}${turn} to move`,
+ )
  } catch {
  setStatusText("Could not reset position.")
  }
  }
  
-async function showBestMoveHint() {
- if (engineThinking || engineMovePendingRef.current) return
+async function getBestMoveHint() {
+ if (isAssessment) return null
+ if (engineThinking || engineMovePendingRef.current) return null
 
  const fen = chessRef.current.fen()
- const turnSide = sideToMove(fen)
 
  try {
  setHintArrow([])
@@ -537,7 +1366,7 @@ async function showBestMoveHint() {
 
  if (!bestMove || bestMove.length < 4) {
  setStatusText('No engine hint found.')
- return
+ return null
  }
 
  const from = bestMove.slice(0, 2)
@@ -554,18 +1383,13 @@ async function showBestMoveHint() {
  if (!move) {
  setStatusText('Engine returned illegal hint.')
  setHintArrow([])
- return
+ return null
  }
 
- setHintArrow([[from, to, 'rgba(255, 215, 0, 0.95)']])
- setStatusText(
- 'Best engine move for ' +
- (turnSide === 'white' ? 'White' : 'Black') +
- ': ' +
- move.san,
- )
+ return { from, to }
  } catch {
  setStatusText('Could not calculate engine hint.')
+ return null
  } finally {
  // Restore normal play strength after hint.
  ;(stockfishService as any).send?.('setoption name UCI_LimitStrength value true')
@@ -576,6 +1400,196 @@ async function showBestMoveHint() {
  moveTime: engineElo >= 2500 ? 450 : 250,
  })
  }
+}
+
+const { triggerHint: triggerBestMoveHint } = useHintAction(
+ !isAssessment && gameStarted
+ ? {
+ getHintMove: getBestMoveHint,
+ onHintStage: (move, stage) => {
+ setHintArrow(
+ stage === 'square'
+ ? [[move.from, move.to, 'rgba(255, 215, 0, 0.95)']]
+ : [],
+ )
+ setStatusText(
+ stage === 'piece'
+ ? 'The engine-recommended piece is highlighted.'
+ : 'The engine-recommended destination is highlighted.',
+ )
+ },
+ onHintReset: () => setHintArrow([]),
+ disabled: !engineReady || engineThinking,
+ resetKey: `${position}:${initialFen ?? ''}:${mode}:${gameStarted}`,
+ }
+ : null,
+)
+
+
+type ComputerMoveChoice = {
+ move: string
+ targetedCandidate?: TargetedComputerCandidate
+}
+
+function applyUciMove(fen: string, uci: string) {
+ const chess = new Chess(fen)
+ const applied = chess.move({
+  from: uci.slice(0, 2),
+  to: uci.slice(2, 4),
+  promotion: uci.length > 4 ? uci.slice(4, 5) : undefined,
+ })
+ return applied ? chess : null
+}
+
+function studentEvalScore(info: { scoreCp?: number; mate?: number }) {
+ if (typeof info.mate === 'number') {
+  if (info.mate > 0) return 100000 - Math.min(999, info.mate)
+  if (info.mate < 0) return -100000 + Math.min(999, Math.abs(info.mate))
+  return 0
+ }
+ return info.scoreCp ?? 0
+}
+
+function targetedMoveToleranceCp() {
+ if (engineElo <= 1100) return 380
+ if (engineElo <= 1500) return 300
+ if (engineElo <= 1900) return 220
+ if (engineElo <= 2300) return 160
+ return 110
+}
+
+function transferSearchIsActive(target: TransferTarget | undefined) {
+ if (!isWeeklyTest || !target) return false
+
+ const plies = chessRef.current.history().length
+ const minPlies = target.category === 'mates' ? 12 : 8
+ if (plies < minPlies || plies > 90) return false
+
+ const opportunities = weeklyTransferOpportunitiesRef.current
+ if (opportunities.some((item) => item.status === 'offered')) return false
+ if (opportunities.length >= 2) return false
+
+ return true
+}
+
+async function chooseComputerMoveWithTransfer(fen: string): Promise<ComputerMoveChoice> {
+ const normalResult = await stockfishService.getBestMove(fen)
+ const normalMove = normalResult.bestMove || ''
+
+ if (!normalMove || normalMove.length < 4) return { move: normalMove }
+
+ const target = weeklyTransferTarget
+ if (!transferSearchIsActive(target)) return { move: normalMove }
+
+ const normalAfter = applyUciMove(fen, normalMove)
+ if (!normalAfter || !target) return { move: normalMove }
+
+ const normalOpportunity = findImmediateTransferOpportunity(
+  normalAfter,
+  target,
+  playerColor,
+ )
+
+ if (normalOpportunity) {
+  return {
+   move: normalMove,
+   targetedCandidate: {
+    computerMove: normalMove,
+    opportunity: normalOpportunity,
+    afterFen: normalAfter.fen(),
+   },
+  }
+ }
+
+ const position = new Chess(fen)
+ const candidates = findTargetedComputerCandidates(position, target, playerColor, 5)
+  .filter((candidate) => candidate.computerMove !== normalMove)
+
+ if (candidates.length === 0) {
+  const steeringCandidates = findTransferSteeringCandidates(
+   position,
+   target,
+   playerColor,
+   4,
+  ).filter((candidate) => candidate.computerMove !== normalMove)
+
+  if (steeringCandidates.length === 0) return { move: normalMove }
+
+  try {
+   const normalEval = await stockfishService.getEvaluation(normalAfter.fen(), {
+    moveTime: 90,
+   })
+   const normalScore = studentEvalScore(normalEval)
+   const steeringTolerance = Math.max(60, Math.round(targetedMoveToleranceCp() * 0.55))
+
+   for (const candidate of steeringCandidates) {
+    const candidateEval = await stockfishService.getEvaluation(candidate.afterFen, {
+     moveTime: 90,
+    })
+    const candidateScore = studentEvalScore(candidateEval)
+
+    if (candidateScore - normalScore <= steeringTolerance) {
+     return { move: candidate.computerMove }
+    }
+   }
+  } catch {
+   // Normal engine play is the safe fallback.
+  }
+
+  return { move: normalMove }
+ }
+
+ // Exact mating-pattern transfer is deliberately allowed once. The point of this
+ // weekly game is to test whether a recently drilled pattern transfers to play.
+ if (target.category === 'mates') {
+  return {
+   move: candidates[0].computerMove,
+   targetedCandidate: candidates[0],
+  }
+ }
+
+ let normalScore = 0
+ try {
+  const normalEval = await stockfishService.getEvaluation(normalAfter.fen(), {
+   moveTime: 110,
+  })
+  normalScore = studentEvalScore(normalEval)
+ } catch {
+  return { move: normalMove }
+ }
+
+ const tolerance = targetedMoveToleranceCp()
+ let selected: { candidate: TargetedComputerCandidate; cost: number } | null = null
+
+ for (const candidate of candidates) {
+  try {
+   const candidateEval = await stockfishService.getEvaluation(candidate.afterFen, {
+    moveTime: 110,
+   })
+   const candidateScore = studentEvalScore(candidateEval)
+   const cost = candidateScore - normalScore
+
+   if (cost > tolerance) continue
+
+   if (
+    !selected ||
+    candidate.opportunity.score > selected.candidate.opportunity.score ||
+    (candidate.opportunity.score === selected.candidate.opportunity.score &&
+     cost < selected.cost)
+   ) {
+    selected = { candidate, cost }
+   }
+  } catch {
+   // A slow candidate is skipped; normal engine play remains available.
+  }
+ }
+
+ return selected
+  ? {
+    move: selected.candidate.computerMove,
+    targetedCandidate: selected.candidate,
+   }
+  : { move: normalMove }
 }
 
 async function makeEngineMove() {
@@ -603,11 +1617,11 @@ async function makeEngineMove() {
  // Fast play move. Strength is still controlled by UCI_Elo.
  stockfishService.setSkill({
  skillLevel: 20,
- moveTime: engineElo >= 2500 ? 350 : 220,
+ moveTime: isEndgameTransfer ? 700 : engineElo >= 2500 ? 350 : 220,
  })
 
- const result = await stockfishService.getBestMove(chessRef.current.fen())
- const bestMove = result.bestMove || ''
+ const choice = await chooseComputerMoveWithTransfer(chessRef.current.fen())
+ const bestMove = choice.move
 
  if (!bestMove || bestMove.length < 4) {
  setStatusText('Computer could not find a move.')
@@ -625,34 +1639,90 @@ async function makeEngineMove() {
  return
  }
 
+ if (isWeeklyTest && choice.targetedCandidate && weeklyTransferTarget) {
+  const opportunity = createTransferOpportunity(
+   weeklyTransferTarget,
+   choice.targetedCandidate,
+   chessRef.current.history().length,
+  )
+  weeklyTransferOpportunitiesRef.current = [
+   ...weeklyTransferOpportunitiesRef.current,
+   opportunity,
+  ]
+ }
+
  setLastMoveHighlight(applied.from + applied.to + (applied.promotion ?? ''))
  syncFromGame()
  updateGameStateLabels()
+ saveWeeklySnapshot(chessRef.current)
+ persistEndgameTransferSnapshot(chessRef.current)
+
+ if (chessRef.current.isGameOver()) {
+  if (isWeeklyTest) {
+   scheduleWeeklyAutomaticReview(chessRef.current, weeklyGameIndex)
+  } else if (isEndgameTransfer) {
+   void finishEndgameTransferIfNeeded(chessRef.current)
+  }
+ }
  } catch {
  setStatusText('Computer move failed.')
  } finally {
  engineMovePendingRef.current = false
  setEngineThinking(false)
 
- window.setTimeout(() => {
- refreshEval()
- }, 0)
  }
 }
 
  function startGame() {
- chessRef.current = new Chess(position)
+ if (isWeeklyTest && weeklySessionComplete) return
+
+ const weeklyColor: Side = weeklyGameIndex === 0 ? 'white' : 'black'
+ const normalStartFen =
+  initialFen && initialFen.trim()
+   ? initialFen.trim()
+   : new Chess().fen()
+
+ chessRef.current = isWeeklyTest
+  ? new Chess()
+  : makeChessSafe(normalStartFen)
+
+ if (isWeeklyTest) {
+ setPlayerColor(weeklyColor)
+ setWeeklyHeaders(chessRef.current, weeklyColor)
+ } else if (isEndgameTransfer && endgameTransfer) {
+  setPlayerColor(endgameTransfer.studentColor)
+  setEndgameTransferHeaders(chessRef.current, endgameTransfer)
+ }
+
  setGameStarted(true)
- setBoardOrientation(playerColor)
+ setBoardOrientation(
+  isWeeklyTest
+   ? weeklyColor
+   : isEndgameTransfer && endgameTransfer
+   ? endgameTransfer.studentColor
+   : playerColor,
+ )
  setEvalText('-')
  setLastMoveHighlight(null)
+ setHintArrow([])
  clearSelection()
+ if (isWeeklyTest) {
+  weeklyTransferOpportunitiesRef.current =
+   weeklyTest?.games[weeklyGameIndex]?.transferOpportunities ?? []
+ }
  syncFromGame()
  updateGameStateLabels()
+ saveWeeklySnapshot(chessRef.current, true)
 
+ const activePlayerColor =
+  isWeeklyTest
+   ? weeklyColor
+   : isEndgameTransfer && endgameTransfer
+   ? endgameTransfer.studentColor
+   : playerColor
  const turnSide = sideToMove(chessRef.current.fen())
- if (mode === 'play' && turnSide !== playerColor) {
- setTimeout(makeEngineMove, 180)
+ if (mode === 'play' && turnSide !== activePlayerColor) {
+ if (!isWeeklyTest) setTimeout(makeEngineMove, 180)
  } else {
  refreshEval()
  }
@@ -660,6 +1730,11 @@ async function makeEngineMove() {
 
  function handleFlipBoard() {
  setBoardOrientation((prev) => (prev === 'white' ? 'black' : 'white'))
+ }
+
+ function handlePlayerColorSelect(color: Side) {
+ setPlayerColor(color)
+ setBoardOrientation(color)
  }
 
  useGlobalBoard({
@@ -671,32 +1746,98 @@ async function makeEngineMove() {
  })
 
  function handleSetup() {
- chessRef.current = new Chess(position)
- setGameStarted(mode === 'analyze')
- setPosition(chessRef.current.fen())
- setMoveList([])
- setEvalText('-')
- setLastMoveHighlight(null)
- clearSelection()
- setStatusText(
- mode === 'analyze'
- ? 'Analysis mode'
- : initialFen
- ? 'Position loaded. Choose settings and start.'
- : 'Choose settings and start a game'
- )
+ if (isAssessment) return
 
- if (mode === 'analyze') {
+ if (mode === 'play') {
+  const setupGame = new Chess()
+
+  chessRef.current = setupGame
+  setGameStarted(false)
+  setPosition(setupGame.fen())
+  setMoveList([])
+  setSelectedHistoryPly(null)
+  setEvalText('-')
+  setLastMoveHighlight(null)
+  setHintArrow([])
+  clearSelection()
+  setStatusText('Choose settings and start a game')
+
+  navigate(location.pathname, { replace: true, state: null })
+  return
+ }
+
+ setGameStarted(true)
+ setStatusText('Analysis mode')
  refreshEval()
  }
+
+ function openNormalGameReview() {
+ if (isAssessment || isWeeklyTest || isEndgameTransfer) return
+
+ const game = chessRef.current
+ const pgnBeforeHeaders = game.pgn()
+
+ if (!pgnBeforeHeaders.trim() || game.history().length === 0) {
+  setStatusText('There are no moves to review yet.')
+  return
+ }
+
+ const result = game.isGameOver()
+  ? getGameResult(game)
+  : playerColor === 'white'
+  ? '0-1'
+  : '1-0'
+
+ game.header(
+  'Event',
+  'Play vs Computer',
+  'White',
+  playerColor === 'white' ? 'Student' : `Computer ${engineElo}`,
+  'Black',
+  playerColor === 'black' ? 'Student' : `Computer ${engineElo}`,
+  'Result',
+  result,
+ )
+
+ const pgn = game.pgn()
+
+ window.sessionStorage.setItem('weissAnalyzeReviewPgn', pgn)
+ window.sessionStorage.removeItem('weissWeeklyReviewContext')
+ window.sessionStorage.setItem(
+  'weissPlayComputerReviewContext',
+  JSON.stringify({
+   playerColor,
+   engineElo,
+   result,
+   source: source || 'play-computer',
+  }),
+ )
+
+ navigate('/analyze/board?review=1&playComputer=1')
  }
 
  function handleResign() {
+ if (isAssessment) return
+
+ const result = playerColor === 'white' ? '0-1' : '1-0'
+
+ chessRef.current.header(
+  'Event',
+  'Play vs Computer',
+  'White',
+  playerColor === 'white' ? 'Student' : `Computer ${engineElo}`,
+  'Black',
+  playerColor === 'black' ? 'Student' : `Computer ${engineElo}`,
+  'Result',
+  result,
+ )
+
  setStatusText(
  playerColor === 'white'
  ? 'White resigned Black wins'
  : 'Black resigned White wins'
  )
+ setEvalText(result)
  setGameStarted(false)
  }
 
@@ -759,6 +1900,8 @@ async function makeEngineMove() {
  const promotion = isPromotionAttempt(from, to)
  ? promotionCodeFromPiece(promotionPiece)
  : undefined
+ const beforeFen = chessRef.current.fen()
+ const playedUci = `${from}${to}${promotion || ''}`
 
  const move = chessRef.current.move({
  from,
@@ -768,10 +1911,47 @@ async function makeEngineMove() {
 
  if (!move) return false
 
+ if (isWeeklyTest && weeklyTransferTarget) {
+  const opportunities = [...weeklyTransferOpportunitiesRef.current]
+  let unresolvedIndex = -1
+  for (let index = opportunities.length - 1; index >= 0; index--) {
+   if (opportunities[index].status === 'offered') {
+    unresolvedIndex = index
+    break
+   }
+  }
+
+  if (unresolvedIndex >= 0) {
+   const current = opportunities[unresolvedIndex]
+   const recognized =
+    current.expectedStudentMove === playedUci ||
+    studentMoveMatchesTransferTarget(beforeFen, playedUci, weeklyTransferTarget)
+
+   opportunities[unresolvedIndex] = {
+    ...current,
+    status: recognized ? 'recognized' : 'missed',
+    playedMove: playedUci,
+    resolvedAtPly: chessRef.current.history().length,
+    resolvedAt: new Date().toISOString(),
+   }
+   weeklyTransferOpportunitiesRef.current = opportunities
+  }
+ }
+
  setLastMoveHighlight(`${move.from}${move.to}${move.promotion ?? ''}`)
  clearSelection()
  syncFromGame()
  updateGameStateLabels()
+ saveWeeklySnapshot(chessRef.current)
+ persistEndgameTransferSnapshot(chessRef.current)
+
+ if (chessRef.current.isGameOver()) {
+  if (isWeeklyTest) {
+   scheduleWeeklyAutomaticReview(chessRef.current, weeklyGameIndex)
+  } else if (isEndgameTransfer) {
+   void finishEndgameTransferIfNeeded(chessRef.current)
+  }
+ }
 
  if (
  mode === 'play' &&
@@ -808,12 +1988,70 @@ async function makeEngineMove() {
  advantage: material.blackAdvantage,
  }
 
+ const canBrowseFinishedGame =
+ !isAssessment && gameStarted && chessRef.current.isGameOver() && moveList.length > 0
+
+ function jumpToFinishedGamePly(ply: number) {
+ if (!canBrowseFinishedGame) return
+
+ const finalGame = chessRef.current
+ const history = finalGame.history({ verbose: true }) as Array<{
+  san: string
+  color: 'w' | 'b'
+  from: string
+  to: string
+  promotion?: string
+  before?: string
+  after?: string
+ }>
+
+ const selectedMove = history[ply - 1]
+ if (!selectedMove) return
+
+ let selectedFen = selectedMove.after
+
+ if (!selectedFen) {
+  const replay = makeChessSafe(history[0]?.before || initialFen)
+
+  for (let index = 0; index < ply; index++) {
+   const move = history[index]
+   if (!move) break
+
+   replay.move({
+    from: move.from,
+    to: move.to,
+    promotion: move.promotion,
+   })
+  }
+
+  selectedFen = replay.fen()
+ }
+
+ setPosition(selectedFen)
+ setSelectedHistoryPly(ply)
+ setLastMoveHighlight(
+  selectedMove.from + selectedMove.to + (selectedMove.promotion ?? ''),
+ )
+ setHintArrow([])
+ clearSelection()
+
+ if (!isAssessment) {
+  setEvalText(ply === history.length ? getGameResult(finalGame) : '-')
+ }
+
+ const moveNumber = Math.floor((ply - 1) / 2) + 1
+ const movePrefix = selectedMove.color === 'w' ? `${moveNumber}.` : `${moveNumber}...`
+ setStatusText(`Reviewing position after ${movePrefix} ${selectedMove.san}`)
+ }
+
  const groupedMoves = []
  for (let i = 0; i < moveList.length; i += 2) {
  groupedMoves.push({
  number: Math.floor(i / 2) + 1,
  white: moveList[i] || '',
  black: moveList[i + 1] || '',
+ whitePly: i + 1,
+ blackPly: moveList[i + 1] ? i + 2 : null,
  })
  }
 
@@ -847,10 +2085,14 @@ async function makeEngineMove() {
  }
  }
 
- const topBoardOrientation = boardOrientation
+ const topBoardOrientation =
+ !gameStarted && mode === 'play' && !isAssessment
+  ? playerColor
+  : boardOrientation
 
  return (
  <div
+ className="play-computer-page site-mobile-dock-scroll"
  style={{
  minHeight: '100vh',
  background: '#11110f',
@@ -859,13 +2101,17 @@ async function makeEngineMove() {
  cursor: isDragging ? 'col-resize' : 'default',
  }}
  >
- <div style={{ maxWidth: 1440, margin: '0 auto 10px' }}>
- <div style={pageTitleStyle}>
- Play Computer
+ <div className="play-computer-title-row" style={{ maxWidth: 1440, margin: '0 auto 10px' }}>
+ <div className="play-computer-title" style={pageTitleStyle}>
+ {isWeeklyTest ? 'Weekly Adaptive Test' : isEndgameTransfer ? 'Endgame Transfer Test' : 'Play Computer'}
+ </div>
+ <div className="play-computer-mobile-status" aria-live="polite">
+ {statusText}
  </div>
  </div>
 
  <div
+ className="play-computer-layout"
  ref={containerRef}
  style={{
  maxWidth: 1440,
@@ -876,8 +2122,9 @@ async function makeEngineMove() {
  userSelect: isDragging ? 'none' : 'auto',
  }}
  >
- <div style={{ width: boardSize }}>
+ <div className="play-computer-board-column" style={{ width: boardSize }}>
  <div
+ className="play-computer-board-meta"
  style={{
  display: 'flex',
  justifyContent: 'space-between',
@@ -895,6 +2142,7 @@ async function makeEngineMove() {
  )}
 
  <div
+ className="play-computer-size-label"
  style={{
  display: 'flex',
  alignItems: 'center',
@@ -911,8 +2159,11 @@ async function makeEngineMove() {
  </div>
  </div>
 
- <div style={{ position: 'relative', width: boardSize, height: boardSize }}>
+ <div className="play-computer-board-shell" style={{ position: 'relative', width: boardSize, height: boardSize }}>
+ {!isAssessment ? (
+ <>
  <button
+ className="play-computer-eval-toggle"
  data-name="play-eval-bar-toggle"
  type="button"
  onClick={(event) => {
@@ -945,6 +2196,7 @@ async function makeEngineMove() {
  </button>
 
  <div
+ className="play-computer-eval-bar"
  data-name="play-eval-bar"
  title={'Evaluation: ' + evalText}
  style={{
@@ -995,15 +2247,17 @@ async function makeEngineMove() {
  {showEvalBar ? evalText : 'OFF'}
  </div>
  </div>
+ </>
+ ) : null}
 
- <Chessboard
+ <ThemedChessboard
  position={position}
  boardOrientation={topBoardOrientation}
  boardWidth={boardSize}
  arePiecesDraggable={gameStarted || mode === 'analyze'}
- customPieces={playComputerPieces}
+
  customSquareStyles={gameStarted || mode === 'analyze' ? customSquareStyles : {}}
- customArrows={hintArrow as any}
+ customArrows={(isAssessment ? [] : hintArrow) as any}
  animationDuration={350}
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
  customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
@@ -1062,7 +2316,23 @@ async function makeEngineMove() {
  </div>
  ) : null}
 
- {(isMate || isDraw) ? (
+ {isEndgameTransfer && endgameTransfer?.status === 'completed' ? (
+ <div
+ style={{
+ pointerEvents: 'none',
+ position: 'absolute',
+ inset: 0,
+ display: 'flex',
+ alignItems: 'center',
+ justifyContent: 'center',
+ zIndex: 31,
+ }}
+ >
+ <div style={endgameTransfer.success ? centeredSuccessBadgeStyle : centeredFailureBadgeStyle}>
+ {endgameTransfer.success ? 'TRANSFER PASSED' : 'NEEDS REVIEW'}
+ </div>
+ </div>
+ ) : (isMate || isDraw) ? (
  <div
  style={{
  pointerEvents: 'none',
@@ -1081,7 +2351,7 @@ async function makeEngineMove() {
  ) : null}
  </div>
 
- <div style={{ marginTop: 8 }}>
+ <div className="play-computer-bottom-captured" style={{ marginTop: 8 }}>
  {gameStarted ? (
  <CapturedRow
  pieces={bottomCaptured.pieces}
@@ -1094,6 +2364,7 @@ async function makeEngineMove() {
  </div>
 
  <div
+ className="play-computer-resize-divider"
  onMouseDown={() => setIsDragging(true)}
  title="Drag to resize"
  style={{
@@ -1119,6 +2390,7 @@ async function makeEngineMove() {
  </div>
 
  <div
+ className="play-computer-side-panel"
  style={{
  width: 390,
  minHeight: boardSize + 46,
@@ -1130,6 +2402,7 @@ async function makeEngineMove() {
  }}
  >
  <div
+ className="play-computer-side-header"
  style={{
  padding: '14px 16px',
  borderBottom: '1px solid rgba(255,255,255,0.08)',
@@ -1140,7 +2413,15 @@ async function makeEngineMove() {
  fontSize: 24,
  }}
  >
- <span>{mode === 'analyze' ? 'Analyze Position' : 'Play Computer'}</span>
+ <span>
+ {isWeeklyTest
+ ? 'Weekly Adaptive Test'
+ : isEndgameTransfer
+ ? 'Endgame Transfer Test'
+ : mode === 'analyze'
+ ? 'Analyze Position'
+ : 'Play Computer'}
+ </span>
  <span style={{ fontSize: 14, opacity: 0.82 }}>
  {engineReady ? 'Ready' : 'Loading'}
  {gameStarted && engineThinking ? ' Thinking' : ''}
@@ -1148,15 +2429,22 @@ async function makeEngineMove() {
  </div>
 
  {!gameStarted && mode !== 'analyze' ? (
- <div style={{ padding: 18 }}>
- <div style={{ opacity: 0.82, marginBottom: 12 }}>
- {initialFen
+ <div className="play-computer-setup-panel" style={{ padding: 18 }}>
+ <div className="play-computer-setup-intro" style={{ opacity: 0.82, marginBottom: 12, lineHeight: 1.5 }}>
+ {isWeeklyTest
+ ? `Game ${weeklyGameNumber} of 2. You play ${
+ weeklyGameIndex === 0 ? 'White' : 'Black'
+ }. Untimed, no hints, and no resignation.`
+ : isEndgameTransfer && endgameTransfer
+ ? `${endgameTransfer.objective} The exact trainer stays hidden until the test ends.`
+ : initialFen
  ? 'This page was opened from an existing board position.'
  : 'Pick your side and engine strength before starting.'}
  </div>
 
- {source ? (
+ {!isWeeklyTest && source ? (
  <div
+ className="play-computer-source"
  style={{
  marginBottom: 18,
  fontSize: 13,
@@ -1167,11 +2455,13 @@ async function makeEngineMove() {
  </div>
  ) : null}
 
- <div style={{ marginBottom: 16 }}>
+ {!isAssessment ? (
+ <>
+ <div className="play-computer-settings play-computer-side-setting" style={{ marginBottom: 16 }}>
  <div style={labelStyle}>Your Side</div>
- <div style={{ display: 'flex', gap: 10 }}>
+ <div className="play-computer-button-row" style={{ display: 'flex', gap: 10 }}>
  <button
- onClick={() => setPlayerColor('white')}
+ onClick={() => handlePlayerColorSelect('white')}
  style={{
  ...segButtonStyle,
  ...(playerColor === 'white' ? segButtonActiveStyle : {}),
@@ -1180,7 +2470,7 @@ async function makeEngineMove() {
  White
  </button>
  <button
- onClick={() => setPlayerColor('black')}
+ onClick={() => handlePlayerColorSelect('black')}
  style={{
  ...segButtonStyle,
  ...(playerColor === 'black' ? segButtonActiveStyle : {}),
@@ -1191,7 +2481,7 @@ async function makeEngineMove() {
  </div>
  </div>
 
- <div style={{ marginBottom: 16 }}>
+ <div className="play-computer-settings play-computer-difficulty-setting" style={{ marginBottom: 16 }}>
  <div style={labelStyle}>Computer Strength</div>
  <div style={{ fontSize: 26, fontWeight: 800, marginBottom: 8 }}>
  {engineElo}
@@ -1219,58 +2509,182 @@ async function makeEngineMove() {
  <span>3000</span>
  </div>
  </div>
+ </>
+ ) : (
+ <div
+ style={{
+ marginBottom: 18,
+ borderRadius: 12,
+ padding: 14,
+ background: 'rgba(127,166,80,0.12)',
+ border: '1px solid rgba(127,166,80,0.32)',
+ lineHeight: 1.55,
+ }}
+ >
+ <div style={{ fontWeight: 800, marginBottom: 6 }}>
+ {isWeeklyTest ? 'Weekly rules' : 'Endgame transfer rules'}
+ </div>
+ <div>No clock or time limit.</div>
+ <div>No evaluation, hints, analysis, reset, or resignation.</div>
+ <div>
+ {isWeeklyTest
+  ? 'The game is saved automatically after every move.'
+  : endgameTransfer?.objective || 'Reach the required practical result.'}
+ </div>
+ <div style={{ marginTop: 6, opacity: 0.78 }}>Computer strength: {engineElo}</div>
+ </div>
+ )}
 
  <button
+ className="play-computer-primary-control"
  onClick={startGame}
- disabled={!engineReady}
+ disabled={!engineReady || (isWeeklyTest && weeklySessionComplete)}
  style={{
  ...primaryButtonStyle,
  width: '100%',
- opacity: engineReady ? 1 : 0.6,
- cursor: engineReady ? 'pointer' : 'not-allowed',
+ opacity: engineReady && !(isWeeklyTest && weeklySessionComplete) ? 1 : 0.6,
+ cursor:
+ engineReady && !(isWeeklyTest && weeklySessionComplete)
+ ? 'pointer'
+ : 'not-allowed',
  }}
  >
- {engineReady ? 'Start Game' : 'Loading Engine...'}
+ {!engineReady
+ ? 'Loading Engine...'
+ : isWeeklyTest
+ ? `Start Weekly Game ${weeklyGameNumber}`
+ : isEndgameTransfer
+ ? 'Start Endgame Test'
+ : 'Start Game'}
  </button>
 
- <div style={{ marginTop: 14, fontSize: 14, opacity: 0.8 }}>
+ {!isAssessment && !initialFen ? (
+ <button
+ className="play-computer-weekly-control"
+ onClick={() => {
+ window.location.href = '/play-computer?weekly=1'
+ }}
+ style={{
+ ...bigBtnStyle,
+ width: '100%',
+ marginTop: 10,
+ border: '1px solid rgba(127,166,80,0.45)',
+ }}
+ >
+ Weekly Adaptive Test
+ </button>
+ ) : null}
+
+ <div className="play-computer-setup-status" style={{ marginTop: 14, fontSize: 14, opacity: 0.8 }}>
  Status: {statusText}
  </div>
  </div>
  ) : (
  <>
  <div
+ className="play-computer-game-controls"
  style={{
  padding: 16,
  borderBottom: '1px solid rgba(255,255,255,0.08)',
  }}
  >
- <div style={{ marginBottom: 8, fontSize: 16, fontWeight: 700 }}>
- {mode === 'analyze' ? 'Analysis' : 'Computer Strength'}
+ <div className="play-computer-engine-label" style={{ marginBottom: 8, fontSize: 16, fontWeight: 700 }}>
+ {isWeeklyTest
+ ? `Weekly game ${weeklyGameNumber} of 2`
+ : isEndgameTransfer
+ ? 'Practical endgame challenge'
+ : mode === 'analyze'
+ ? 'Analysis'
+ : 'Computer Strength'}
  </div>
- <div style={{ fontSize: 26, fontWeight: 800, marginBottom: 8 }}>
- {mode === 'analyze' ? '' : engineElo}
+ <div className="play-computer-engine-value" style={{ fontSize: 26, fontWeight: 800, marginBottom: 8 }}>
+ {isWeeklyTest
+ ? `You play ${playerColor === 'white' ? 'White' : 'Black'}`
+ : isEndgameTransfer
+ ? `You play ${playerColor === 'white' ? 'White' : 'Black'}`
+ : mode === 'analyze'
+ ? ''
+ : engineElo}
  </div>
 
- <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+ <div className="play-computer-button-row play-computer-primary-controls" style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
  <button onClick={handleFlipBoard} style={btnStyle}>
  Flip Board
  </button>
+ {!isAssessment ? (
+ <>
  <button onClick={handleSetup} style={btnStyle}>
  Back to Setup
  </button>
  <button onClick={resetToInitialPlayPosition} style={btnStyle}>
  Reset Position
  </button>
- <button onClick={showBestMoveHint} style={btnStyle} disabled={engineThinking}>
+ <button className="site-inline-hint" onClick={() => void triggerBestMoveHint()} style={btnStyle} disabled={!engineReady || engineThinking}>
  Hint
  </button>
+ </>
+ ) : null}
  </div>
 
- <div style={{ fontSize: 14, opacity: 0.82 }}>{statusText}</div>
+ <div className="play-computer-status-text" style={{ fontSize: 14, opacity: 0.82 }}>{statusText}</div>
+ {isWeeklyTest ? (
+ <>
+ <div style={{ marginTop: 6, fontSize: 13, opacity: 0.7 }}>
+ Untimed - saved automatically - resignation disabled
+ </div>
+ <div style={{ marginTop: 4, fontSize: 12, opacity: 0.58 }}>
+ {!weeklyCloudReady
+ ? 'Checking account sync...'
+ : weeklyCloudAvailable
+ ? 'Account sync active'
+ : weeklyCloudUserId
+ ? 'Saved on this device - run the supplied Supabase SQL for cloud sync'
+ : 'Saved on this device'}
+ </div>
+ <div style={{ marginTop: 7, fontSize: 12, color: '#cbd5a7', lineHeight: 1.45 }}>
+ {weeklyTest?.games[weeklyGameIndex]?.completed && weeklyTransferTarget
+  ? `Transfer target: ${weeklyTransferTarget.label} - recognized ${weeklyTransferRecognized}, missed ${weeklyTransferMissed}`
+  : weeklyTransferTarget
+  ? 'A recently trained pattern is being tested naturally. The target stays hidden during play.'
+  : 'No recent supported mate or tactic pattern is recorded yet.'}
+ </div>
+ </>
+ ) : null}
+ {isEndgameTransfer && endgameTransfer ? (
+ <div
+ className="play-computer-assessment-status"
+ style={{
+ marginTop: 10,
+ padding: 12,
+ borderRadius: 10,
+ background: endgameTransfer.status === 'completed'
+  ? endgameTransfer.success
+   ? 'rgba(127,166,80,0.16)'
+   : 'rgba(239,68,68,0.13)'
+  : 'rgba(255,255,255,0.045)',
+ border: '1px solid rgba(255,255,255,0.09)',
+ fontSize: 13,
+ lineHeight: 1.5,
+ }}
+ >
+ <div style={{ fontWeight: 850, marginBottom: 4 }}>
+ {endgameTransfer.status === 'completed'
+  ? endgameTransfer.success
+   ? 'Practical transfer passed'
+   : 'This endgame returns to Auto review'
+  : endgameTransfer.objective}
+ </div>
+ <div style={{ opacity: 0.72 }}>
+ {endgameTransfer.status === 'completed'
+  ? `${endgameTransfer.trainerTitle}: ${endgameTransfer.label}`
+  : 'The exact trainer and source position stay hidden until the game ends.'}
+ </div>
+ </div>
+ ) : null}
  </div>
 
  <div
+ className="play-computer-status-grid"
  style={{
  padding: 16,
  borderBottom: '1px solid rgba(255,255,255,0.08)',
@@ -1283,20 +2697,29 @@ async function makeEngineMove() {
  <div style={{ fontSize: 13, opacity: 0.75, marginBottom: 6 }}>
  Evaluation
  </div>
- <div style={{ fontSize: 28, fontWeight: 800 }}>{evalText}</div>
+ <div style={{ fontSize: 28, fontWeight: 800 }}>
+ {isAssessment ? 'Hidden' : evalText}
+ </div>
  </div>
 
  <div>
  <div style={{ fontSize: 13, opacity: 0.75, marginBottom: 6 }}>
- Mode
+ {isAssessment ? 'Timing' : 'Mode'}
  </div>
  <div style={{ fontSize: 22, fontWeight: 800 }}>
- {mode === 'analyze' ? 'Analyze' : playerColor === 'white' ? 'White' : 'Black'}
+ {isAssessment
+ ? 'Untimed'
+ : mode === 'analyze'
+ ? 'Analyze'
+ : playerColor === 'white'
+ ? 'White'
+ : 'Black'}
  </div>
  </div>
  </div>
 
  <div
+ className="play-computer-move-list"
  style={{
  padding: 12,
  height: 430,
@@ -1321,31 +2744,196 @@ async function makeEngineMove() {
  fontSize: 15,
  }}
  >
- <div style={{ opacity: 0.7 }}>{row.number}.</div>
- <div>{row.white}</div>
- <div>{row.black}</div>
+ <div style={{ opacity: 0.7, padding: '4px 0' }}>{row.number}.</div>
+ <button
+ type="button"
+ onClick={() => jumpToFinishedGamePly(row.whitePly)}
+ disabled={!canBrowseFinishedGame || !row.white}
+ title={
+  canBrowseFinishedGame && row.white
+   ? `Show position after ${row.number}. ${row.white}`
+   : undefined
+ }
+ style={{
+ border:
+  selectedHistoryPly === row.whitePly
+   ? '1px solid rgba(185,229,138,0.9)'
+   : '1px solid transparent',
+ borderRadius: 5,
+ padding: '3px 5px',
+ background:
+  selectedHistoryPly === row.whitePly
+   ? 'rgba(127,166,80,0.72)'
+   : 'transparent',
+ color: '#f3f3f3',
+ textAlign: 'left',
+ font: 'inherit',
+ fontWeight: selectedHistoryPly === row.whitePly ? 800 : 500,
+ opacity: 1,
+ cursor: canBrowseFinishedGame && row.white ? 'pointer' : 'default',
+ }}
+ >
+ {row.white}
+ </button>
+ <button
+ type="button"
+ onClick={() => {
+  if (row.blackPly) jumpToFinishedGamePly(row.blackPly)
+ }}
+ disabled={!canBrowseFinishedGame || !row.blackPly}
+ title={
+  canBrowseFinishedGame && row.blackPly
+   ? `Show position after ${row.number}... ${row.black}`
+   : undefined
+ }
+ style={{
+ border:
+  selectedHistoryPly === row.blackPly
+   ? '1px solid rgba(185,229,138,0.9)'
+   : '1px solid transparent',
+ borderRadius: 5,
+ padding: '3px 5px',
+ background:
+  selectedHistoryPly === row.blackPly
+   ? 'rgba(127,166,80,0.72)'
+   : 'transparent',
+ color: '#f3f3f3',
+ textAlign: 'left',
+ font: 'inherit',
+ fontWeight: selectedHistoryPly === row.blackPly ? 800 : 500,
+ opacity: 1,
+ cursor: canBrowseFinishedGame && row.blackPly ? 'pointer' : 'default',
+ }}
+ >
+ {row.black}
+ </button>
  </div>
  ))
  )}
  </div>
 
  <div
+ className="play-computer-review-controls"
  style={{
  padding: 16,
  display: 'grid',
- gridTemplateColumns: '1fr 1fr 1fr',
+ gridTemplateColumns: isAssessment ? '1fr 1fr' : '1fr 1fr 1fr',
  gap: 10,
  }}
  >
+ {isWeeklyTest ? (
+ weeklyGameIndex === 0 ? (
+ <>
+ <button
+ onClick={() => openWeeklyReview(0)}
+ disabled={!weeklyTest?.games[0].completed}
+ style={{
+ ...bigBtnStyle,
+ opacity: weeklyTest?.games[0].completed ? 1 : 0.5,
+ cursor: weeklyTest?.games[0].completed ? 'pointer' : 'not-allowed',
+ }}
+ >
+ Analyze Game 1
+ </button>
+ <button
+ onClick={continueToSecondWeeklyGame}
+ disabled={!weeklyTest?.games[0].completed}
+ style={{
+ ...primaryButtonStyle,
+ padding: '12px 10px',
+ opacity: weeklyTest?.games[0].completed ? 1 : 0.5,
+ cursor: weeklyTest?.games[0].completed ? 'pointer' : 'not-allowed',
+ }}
+ >
+ Continue to Game 2
+ </button>
+ </>
+ ) : (
+ <>
+ <button
+ onClick={() => openWeeklyReview(0)}
+ disabled={!weeklyTest?.games[0].completed}
+ style={{
+ ...bigBtnStyle,
+ opacity: weeklyTest?.games[0].completed ? 1 : 0.5,
+ cursor: weeklyTest?.games[0].completed ? 'pointer' : 'not-allowed',
+ }}
+ >
+ Review White Game
+ </button>
+ <button
+ onClick={() => openWeeklyReview(1)}
+ disabled={!weeklyTest?.games[1].completed}
+ style={{
+ ...bigBtnStyle,
+ opacity: weeklyTest?.games[1].completed ? 1 : 0.5,
+ cursor: weeklyTest?.games[1].completed ? 'pointer' : 'not-allowed',
+ }}
+ >
+ Review Black Game
+ </button>
+ </>
+ )
+ ) : isEndgameTransfer ? (
+ <>
+ <button
+ onClick={() => navigate('/auto')}
+ disabled={endgameTransfer?.status !== 'completed'}
+ style={{
+  ...bigBtnStyle,
+  opacity: endgameTransfer?.status === 'completed' ? 1 : 0.5,
+  cursor: endgameTransfer?.status === 'completed' ? 'pointer' : 'not-allowed',
+ }}
+ >
+ Return to Course
+ </button>
+ <button
+ onClick={() => {
+  if (endgameTransfer?.sourceRoute) navigate(endgameTransfer.sourceRoute)
+ }}
+ disabled={endgameTransfer?.status !== 'completed'}
+ style={{
+  ...primaryButtonStyle,
+  padding: '12px 10px',
+  opacity: endgameTransfer?.status === 'completed' ? 1 : 0.5,
+  cursor: endgameTransfer?.status === 'completed' ? 'pointer' : 'not-allowed',
+ }}
+ >
+ Train This Endgame
+ </button>
+ </>
+ ) : (
+ <>
  <button onClick={handleSetup} style={bigBtnStyle}>
  Back to Setup
  </button>
  <button onClick={handleResign} style={bigBtnStyle}>
  Resign
  </button>
- <button style={{ ...bigBtnStyle, opacity: 0.55 }} disabled>
- Analyze
+ <button
+ onClick={openNormalGameReview}
+ disabled={
+  chessRef.current.history().length === 0 ||
+  (gameStarted && !chessRef.current.isGameOver())
+ }
+ style={{
+  ...bigBtnStyle,
+  opacity:
+   chessRef.current.history().length > 0 &&
+   (!gameStarted || chessRef.current.isGameOver())
+    ? 1
+    : 0.55,
+  cursor:
+   chessRef.current.history().length > 0 &&
+   (!gameStarted || chessRef.current.isGameOver())
+    ? 'pointer'
+    : 'not-allowed',
+ }}
+ >
+ Analyze Game
  </button>
+ </>
+ )}
  </div>
  </>
  )}
@@ -1444,4 +3032,18 @@ const pageTitleStyle: React.CSSProperties = {
  fontSize: 26,
  fontWeight: 900,
  boxShadow: '0 8px 22px rgba(0,0,0,0.35)',
+}
+
+const centeredSuccessBadgeStyle: React.CSSProperties = {
+ ...centeredBoardBadgeStyle,
+ background: 'rgba(55,105,42,0.94)',
+ border: '1px solid rgba(190,255,150,0.45)',
+ color: '#f4ffe8',
+}
+
+const centeredFailureBadgeStyle: React.CSSProperties = {
+ ...centeredBoardBadgeStyle,
+ background: 'rgba(125,35,35,0.94)',
+ border: '1px solid rgba(255,170,170,0.42)',
+ color: '#fff1f1',
 }

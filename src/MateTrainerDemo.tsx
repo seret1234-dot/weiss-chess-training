@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Chess } from 'chess.js'
 import type { PieceSymbol } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from "./theme/ThemedChessboard"
 import chunk1 from './data/chunk_1.json'
 
 type DemoPuzzle = {
@@ -510,7 +510,7 @@ export default function MateTrainerDemo({ onBack, category }: Props) {
  }}
  >
  <div style={{ position: 'relative', width: boardSize, height: boardSize }}>
- <Chessboard
+ <ThemedChessboard
  id="trainer-board"
  position={boardFen}
  onPieceDrop={onDrop}

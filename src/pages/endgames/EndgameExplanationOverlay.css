@@ -1,0 +1,46 @@
+@media (max-width: 768px) {
+  .endgame-explanation-overlay {
+    --endgame-help-dock-clearance: max(
+      var(--site-fixed-bottom-clearance),
+      calc(160px + env(safe-area-inset-bottom))
+    );
+    left: 8px !important;
+    right: 8px;
+    bottom: calc(var(--endgame-help-dock-clearance) + 8px) !important;
+    width: auto !important;
+    max-width: calc(100% - 16px);
+    max-height: calc(100dvh - var(--endgame-help-dock-clearance) - 24px) !important;
+    box-sizing: border-box;
+    z-index: 2147482900 !important;
+  }
+
+  .endgame-explanation-toggle {
+    min-height: 44px;
+    padding: 10px 12px !important;
+    font-size: 15px !important;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .endgame-explanation-body {
+    max-height: calc(100dvh - var(--endgame-help-dock-clearance) - 86px) !important;
+    padding: 12px !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+body:has(.global-floating-hint) .endgame-explanation-overlay {
+  bottom: 78px !important;
+}
+
+@media (max-width: 768px) {
+  body:has(.global-floating-hint) .endgame-explanation-overlay {
+    bottom: calc(var(--site-fixed-bottom-clearance) + 8px) !important;
+    max-height: calc(100dvh - var(--site-fixed-bottom-clearance) - 24px) !important;
+  }
+
+  body:has(.global-floating-hint) .endgame-explanation-body {
+    max-height: calc(100dvh - var(--site-fixed-bottom-clearance) - 86px) !important;
+  }
+}

@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
-import { Chessboard } from "react-chessboard";
+import ThemedChessboard from "../../theme/ThemedChessboard"
 import TrainerShell from "../../components/trainer/TrainerShell";
+import "./AnalyzeSubpages.css";
 import {
  PanelCard,
  PrimaryButton,
@@ -12,18 +13,18 @@ import {
 const START_FEN = new Chess().fen();
 
 const PIECE_URLS: Record<string, string> = {
- wP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
- wN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
- wB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
- wR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
- wQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
- wK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
- bP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
- bN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
- bB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
- bR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
- bQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
- bK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png",
+ wP: "/pieces/react-chessboard-default/wp.svg",
+ wN: "/pieces/react-chessboard-default/wn.svg",
+ wB: "/pieces/react-chessboard-default/wb.svg",
+ wR: "/pieces/react-chessboard-default/wr.svg",
+ wQ: "/pieces/react-chessboard-default/wq.svg",
+ wK: "/pieces/react-chessboard-default/wk.svg",
+ bP: "/pieces/react-chessboard-default/bp.svg",
+ bN: "/pieces/react-chessboard-default/bn.svg",
+ bB: "/pieces/react-chessboard-default/bb.svg",
+ bR: "/pieces/react-chessboard-default/br.svg",
+ bQ: "/pieces/react-chessboard-default/bq.svg",
+ bK: "/pieces/react-chessboard-default/bk.svg",
 };
 
 export default function AnalyzeReviewPage() {
@@ -38,7 +39,22 @@ export default function AnalyzeReviewPage() {
  const [isPgnDragActive, setIsPgnDragActive] = useState(false);
 
  useEffect(() => {
+ const params = new URLSearchParams(window.location.search);
+ const pgnFromUrl = params.get("pgn");
+
+ if (!pgnFromUrl) return;
+
+ setPgnText(pgnFromUrl);
+ setMessage("Weekly game loaded. Click Review Game.");
+ }, []);
+
+ useEffect(() => {
  function resize() {
+ if (window.innerWidth <= 768) {
+ setBoardSize(Math.min(760, Math.max(0, window.innerWidth - 16)));
+ return;
+ }
+
  const availableWidth = window.innerWidth - 720;
  const availableHeight = window.innerHeight - 150;
  setBoardSize(Math.max(420, Math.min(760, availableWidth, availableHeight)));
@@ -189,12 +205,12 @@ export default function AnalyzeReviewPage() {
  }
 
  const board = (
- <div>
- <Chessboard
+ <div className="analyze-review-board">
+ <ThemedChessboard
  id="AnalyzeReviewBoard"
  position={START_FEN}
  boardWidth={boardSize}
- customPieces={pieces}
+
  arePiecesDraggable={false}
  showBoardNotation={true}
  customDarkSquareStyle={{ backgroundColor: "#769656" }}
@@ -206,11 +222,11 @@ export default function AnalyzeReviewPage() {
 
  const sidePanel = (
  <PanelCard>
- <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+ <div className="analyze-review-heading" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
  <SecondaryButton onClick={() => (window.location.href = "/analyze")}>
  ← Back
  </SecondaryButton>
- <SectionTitle>🧠 Game Review</SectionTitle>
+ <SectionTitle>🧠 Game Analysis</SectionTitle>
  </div>
 
  <div style={{ fontSize: 13, color: "#cfcfcf", lineHeight: 1.5, marginBottom: 10 }}>
@@ -246,7 +262,7 @@ export default function AnalyzeReviewPage() {
  style={{ display: "none" }}
  />
 
- <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
+ <div className="analyze-review-actions" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
  <SecondaryButton onClick={() => pgnFileInputRef.current?.click()}>
  Upload PGN
  </SecondaryButton>
@@ -263,6 +279,7 @@ export default function AnalyzeReviewPage() {
 
  return (
  <div
+ className="analyze-review-page"
  onDragOver={handlePageDragOver}
  onDragLeave={handlePageDragLeave}
  onDrop={handlePageDrop}
@@ -293,7 +310,7 @@ export default function AnalyzeReviewPage() {
  )}
 
  <TrainerShell
- title="Game Review"
+ title="Game Analysis"
  subtitle="Paste PGN and review the game"
  boardSize={boardSize}
  isDragging={isDragging}

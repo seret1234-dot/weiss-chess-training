@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Chess } from "chess.js";
 import { stockfishService } from "../../lib/chess/stockfishService";
 import TrainerShell from "../../components/trainer/TrainerShell";
+import ThemePiece from "../../theme/ThemePiece";
 import { useGlobalBoard } from "../../hooks/useGlobalBoard";
+import "./AnalyzeSubpages.css";
 import {
  PanelCard,
  PrimaryButton,
@@ -92,20 +94,6 @@ function getSetupEvalBarPercent(evalText: string) {
 }
 const START_FEN = new Chess().fen();
 
-const PIECE_URLS: Record<SetupPieceCode, string> = {
- wP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
- wN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
- wB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
- wR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
- wQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
- wK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
- bP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
- bN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
- bB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
- bR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
- bQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
- bK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png",
-};
 
 const SETUP_PIECES: { code: SetupPieceCode; label: string }[] = [
  { code: "bP", label: "Black pawn" },
@@ -151,6 +139,11 @@ export default function SetupPositionPage() {
 
  useEffect(() => {
  function resize() {
+ if (window.innerWidth <= 768) {
+ setBoardSize(Math.min(760, Math.max(0, window.innerWidth - 16)));
+ return;
+ }
+
  const availableWidth = window.innerWidth - 720;
  const availableHeight = window.innerHeight - 150;
  setBoardSize(Math.max(420, Math.min(760, availableWidth, availableHeight)));
@@ -760,10 +753,10 @@ export default function SetupPositionPage() {
  }}
  >
  {piece && (
- <img
- src={PIECE_URLS[piece]}
- alt={piece}
- draggable={false}
+ <ThemePiece
+ code={piece}
+ size={squareSize}
+ label={piece}
  style={{
  width: "100%",
  height: "100%",
@@ -835,17 +828,24 @@ export default function SetupPositionPage() {
  ? "1px solid #b9e58a"
  : "1px solid rgba(255,255,255,0.12)",
  borderRadius: 8,
- background: selectedPiece === piece.code ? "#3b4f27" : "#33302d",
+ background:
+ selectedPiece === piece.code
+ ? piece.code.startsWith("b")
+   ? "#b7c99a"
+   : "#3b4f27"
+ : piece.code.startsWith("b")
+   ? "#e8e4da"
+   : "#33302d",
  padding: 4,
  cursor: "grab",
  touchAction: "none",
  minHeight: 48,
  }}
  >
- <img
- src={PIECE_URLS[piece.code]}
- alt={piece.label}
- draggable={false}
+ <ThemePiece
+ code={piece.code}
+ size={38}
+ label={piece.label}
  style={{
  width: 38,
  height: 38,
@@ -966,10 +966,10 @@ export default function SetupPositionPage() {
  );
 
  const dragLayer = dragGhost ? (
- <img
- src={PIECE_URLS[dragGhost.piece]}
- alt="Dragging piece"
- draggable={false}
+ <ThemePiece
+ code={dragGhost.piece}
+ size={squareSize}
+ label="Dragging piece"
  style={{
  position: "fixed",
  left: dragGhost.x - squareSize / 2,
@@ -988,7 +988,7 @@ export default function SetupPositionPage() {
  ) : null;
 
  return (
- <>
+ <div className="setup-position-page">
  <TrainerShell
  title="Setup Position"
  subtitle="Build a custom FEN"
@@ -1005,6 +1005,6 @@ export default function SetupPositionPage() {
  sidePanelWidth={520}
  />
  {dragLayer}
- </>
+ </div>
  );
 }

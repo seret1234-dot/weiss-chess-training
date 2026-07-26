@@ -1,12 +1,18 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Chess, type Square } from "chess.js";
 import { stockfishService } from "../../lib/chess/stockfishService";
 import { supabase } from "../../lib/supabase";
 import TrainerShell from "../../components/trainer/TrainerShell";
-import { Chessboard } from "react-chessboard";
+import ThemedChessboard from "../../theme/ThemedChessboard"
 import { useGlobalBoard } from "../../hooks/useGlobalBoard";
 import ImageToPositionPanel from "./ImageToPositionPanel";
-import { explainMistake } from "../../services/coach";
+import "./AnalyzeSubpages.css";
+import {
+  explainMistake,
+  type MistakeExplainInput,
+  type MistakeExplanation,
+} from "../../services/coach";
+import { composeCoachExplanation } from "../../services/coach/aiComposer";
 import {
  PanelCard,
  PrimaryButton,
@@ -27,7 +33,7 @@ type MoveRow = {
 
 type ReviewClass =
  | "Book"
- | "Brilliant"
+ | "Inspired"
  | "Best"
  | "Excellent"
  | "Good"
@@ -35,6 +41,30 @@ type ReviewClass =
  | "Mistake"
  | "Miss"
  | "Blunder";
+
+type ReviewLineEvidence = {
+  bestLineSan: string[];
+  playedLineSan: string[];
+  bestLineComplete: boolean;
+  playedLineComplete: boolean;
+};
+
+type ReviewCoachEntry = {
+  status: "loading" | "ready" | "fallback";
+  explanation: MistakeExplanation;
+  source: "ai" | "deterministic";
+  reason?: string;
+  code?: string;
+  cached?: boolean;
+  quota?: {
+    tier: "free" | "premium";
+    limit: number;
+    used: number;
+    remaining: number;
+    resetAt?: string | null;
+  };
+};
+
 
 type GameInfo = {
  event: string;
@@ -48,6 +78,44 @@ type GameInfo = {
  opening: string;
  whiteElo: string;
  blackElo: string;
+};
+
+
+type WeeklyTransferTarget = {
+ patternKey?: string;
+ label: string;
+ category?: "mates" | "tactics" | string;
+ sourceTrainerKey?: string;
+ sourceRoute?: string;
+ trainedAt?: string;
+};
+
+type WeeklyTransferOpportunityStatus =
+ | "offered"
+ | "recognized"
+ | "missed";
+
+type WeeklyTransferOpportunity = {
+ id?: string;
+ targetKey?: string;
+ targetLabel?: string;
+ category?: "mates" | "tactics" | string;
+ computerMove?: string;
+ expectedStudentMove?: string;
+ createdAtPly: number;
+ createdAt?: string;
+ status: WeeklyTransferOpportunityStatus;
+ resolvedAtPly?: number;
+ resolvedAt?: string;
+ playedMove?: string;
+};
+
+type WeeklyReviewContext = {
+ weekKey?: string;
+ gameIndex?: number;
+ gameNumber?: number;
+ transferTarget?: WeeklyTransferTarget | null;
+ transferOpportunities?: WeeklyTransferOpportunity[];
 };
 
 const EMPTY_GAME_INFO: GameInfo = {
@@ -98,18 +166,20 @@ const SETUP_PIECES: { code: SetupPieceCode; label: string }[] = [
 function isSetupPieceCode(value: string): value is SetupPieceCode {
  return SETUP_PIECES.some((piece) => piece.code === value);
 }
-
 const ANALYZE_SIDE_PANEL_WIDTH = 980;
+const ANALYZE_REVIEW_SIDE_PANEL_WIDTH = 1120;
 const ANALYZE_PAGE_PADDING = 24;
 const ANALYZE_BOARD_VERTICAL_CHROME = 90;
 const ANALYZE_MAX_BOARD_SIZE = 600;
 const ANALYZE_LAYOUT_SHIFT_LEFT = 120;
+const ANALYZE_REVIEW_LAYOUT_SHIFT_LEFT = 280;
 
 export default function AnalyzePage() {
  const containerRef = useRef<HTMLDivElement | null>(null);
  const pgnFileInputRef = useRef<HTMLInputElement | null>(null);
  const reviewRunIdRef = useRef(0);
  const reviewAutoStartedRef = useRef(false);
+ const reviewCoachRequestedRef = useRef<Set<number>>(new Set());
  const [showImageToPosition, setShowImageToPosition] = useState(false);
 
  const [game, setGame] = useState(() => new Chess());
@@ -146,6 +216,12 @@ export default function AnalyzePage() {
  const [reviewBestMap, setReviewBestMap] = useState<Record<number, string>>(
  {},
  );
+ const [reviewLineMap, setReviewLineMap] = useState<
+ Record<number, ReviewLineEvidence>
+ >({});
+ const [reviewCoachMap, setReviewCoachMap] = useState<
+ Record<number, ReviewCoachEntry>
+ >({});
  const [reviewSummary, setReviewSummary] = useState("");
 
  const [accuracyWhite, setAccuracyWhite] = useState<number | null>(null);
@@ -155,7 +231,7 @@ export default function AnalyzePage() {
  const [reviewCounts, setReviewCounts] = useState<Record<ReviewClass, number>>(
  {
  Book: 0,
- Brilliant: 0,
+ Inspired: 0,
  Best: 0,
  Excellent: 0,
  Good: 0,
@@ -176,6 +252,65 @@ export default function AnalyzePage() {
  () => new URLSearchParams(window.location.search).get("review") === "1",
  [],
  );
+ const weeklyReviewGame = useMemo(() => {
+ const value = new URLSearchParams(window.location.search).get("weeklyGame");
+ return value === "1" || value === "2" ? Number(value) : null;
+ }, []);
+ const weeklyReviewContext = useMemo<WeeklyReviewContext | null>(() => {
+ if (weeklyReviewGame === null) return null;
+
+ try {
+ const raw = window.sessionStorage.getItem("weissWeeklyReviewContext");
+ if (!raw) return null;
+
+ const parsed = JSON.parse(raw) as WeeklyReviewContext;
+ const contextGameNumber = Number(
+ parsed.gameNumber ??
+ (typeof parsed.gameIndex === "number" ? parsed.gameIndex + 1 : 0),
+ );
+
+ if (contextGameNumber && contextGameNumber !== weeklyReviewGame) {
+ return null;
+ }
+
+ const transferTarget =
+ parsed.transferTarget && typeof parsed.transferTarget.label === "string"
+ ? parsed.transferTarget
+ : null;
+ const transferOpportunities = Array.isArray(parsed.transferOpportunities)
+ ? parsed.transferOpportunities.filter(
+ (item): item is WeeklyTransferOpportunity =>
+ Boolean(item) &&
+ Number.isFinite(Number(item.createdAtPly)) &&
+ (item.status === "offered" ||
+ item.status === "recognized" ||
+ item.status === "missed"),
+ )
+ : [];
+
+ return {
+ ...parsed,
+ gameNumber: contextGameNumber || weeklyReviewGame,
+ transferTarget,
+ transferOpportunities,
+ };
+ } catch {
+ return null;
+ }
+ }, [weeklyReviewGame]);
+ const weeklyTransferTarget = weeklyReviewContext?.transferTarget ?? null;
+ const weeklyTransferOpportunities =
+ weeklyReviewContext?.transferOpportunities ?? [];
+ const weeklyTransferCreatedCount = weeklyTransferOpportunities.length;
+ const weeklyTransferRecognizedCount = weeklyTransferOpportunities.filter(
+ (item) => item.status === "recognized",
+ ).length;
+ const weeklyTransferMissedCount = weeklyTransferOpportunities.filter(
+ (item) => item.status === "missed",
+ ).length;
+ const weeklyTransferPendingCount = weeklyTransferOpportunities.filter(
+ (item) => item.status === "offered",
+ ).length;
  const [isSetupPositionOpen, setIsSetupPositionOpen] = useState(false);
  const [setupBoard, setSetupBoard] = useState<Record<string, SetupPieceCode>>(
  {},
@@ -199,6 +334,12 @@ export default function AnalyzePage() {
  function setInitialBoardSize() {
  const width = window.innerWidth;
  const height = window.innerHeight;
+
+ if (width <= 768) {
+ setBoardSize(Math.min(760, Math.max(0, width - 16)));
+ return;
+ }
+
  const availableWidth =
  width - ANALYZE_SIDE_PANEL_WIDTH - ANALYZE_PAGE_PADDING;
  const availableHeight = height - ANALYZE_BOARD_VERTICAL_CHROME;
@@ -222,6 +363,7 @@ export default function AnalyzePage() {
  useEffect(() => {
  function onMouseMove(e: MouseEvent) {
  if (!isDragging || !containerRef.current) return;
+ if (window.innerWidth <= 768) return;
 
  const rect = containerRef.current.getBoundingClientRect();
  const leftPadding = 16;
@@ -281,13 +423,16 @@ export default function AnalyzePage() {
  setReviewMap({});
  setReviewLossMap({});
  setReviewBestMap({});
+ setReviewLineMap({});
+ setReviewCoachMap({});
+ reviewCoachRequestedRef.current.clear();
  setReviewSummary("");
  setReviewProgress({ done: 0, total: 0 });
  setWhitePlayer("White");
  setBlackPlayer("Black");
  setGameInfo(EMPTY_GAME_INFO);
  setMessage(
- "FEN loaded. This is one position; use Analyze Now for this position, or upload a PGN for full game review.",
+ "FEN loaded. This is one position; use Analyze Now for this position, or upload a PGN for full game analysis.",
  );
  setAutoAnalyze(true);
  }
@@ -446,10 +591,9 @@ export default function AnalyzePage() {
  if (pgnToLoad) {
  setInputText(pgnToLoad);
  loadPgn(pgnToLoad);
- setBoardOrientation("white");
 
  if (reviewFromSession) {
- setMessage("PGN loaded from Game Review. Click Review Now.");
+ setMessage("PGN loaded from Game Analysis. Click Analyze Game.");
  }
 
  return;
@@ -509,7 +653,7 @@ export default function AnalyzePage() {
  }
 
  function reviewClassFromNag(nag?: string): ReviewClass | null {
- if (nag === "$3") return "Brilliant";
+ if (nag === "$3") return "Inspired";
  if (nag === "$1") return "Excellent";
  if (nag === "$2") return "Mistake";
  if (nag === "$4") return "Blunder";
@@ -527,9 +671,12 @@ export default function AnalyzePage() {
  setReviewMap({});
  setReviewLossMap({});
  setReviewBestMap({});
+ setReviewLineMap({});
+ setReviewCoachMap({});
+ reviewCoachRequestedRef.current.clear();
  setReviewCounts({
  Book: 0,
- Brilliant: 0,
+ Inspired: 0,
  Best: 0,
  Excellent: 0,
  Good: 0,
@@ -614,7 +761,18 @@ export default function AnalyzePage() {
  setGame(freshStart);
  // Keep the original PGN text visible so $1/$3/$9 annotations are not lost after loading.
  setInputText(rawText);
- setBoardOrientation("white");
+ // Weekly review: always open from the student's side.
+ const reviewOrientation =
+ weeklyReviewGame !== null
+ ? nextWhitePlayer.toLowerCase().includes("student")
+ ? "white"
+ : nextBlackPlayer.toLowerCase().includes("student")
+ ? "black"
+ : weeklyReviewGame === 1
+ ? "white"
+ : "black"
+ : "white";
+ setBoardOrientation(reviewOrientation);
  setWhitePlayer(nextWhitePlayer);
  setBlackPlayer(nextBlackPlayer);
  setGameInfo(nextGameInfo);
@@ -722,13 +880,73 @@ export default function AnalyzePage() {
  ]);
  }
 
- function scoreCpForReviewSide(scoreCp: number, side: "w" | "b") {
- // stockfishService scoreCp is stored from White's point of view.
- // For review, eval loss must be from the mover's point of view:
- // White wants higher eval, Black wants lower eval.
- return side === "w" ? scoreCp : -scoreCp;
- }
- const REVIEW_ENGINE_TIMEOUT_MS = 9000;
+  type ReviewEngineEval = {
+    scoreCp?: number;
+    mate?: number;
+  };
+
+  const REVIEW_MATE_SCORE_CP = 2000;
+
+  function rawEngineScoreCp(info: ReviewEngineEval, fen: string) {
+    if (typeof info.mate === "number") {
+      if (info.mate > 0) {
+        return REVIEW_MATE_SCORE_CP - Math.min(99, Math.abs(info.mate)) * 5;
+      }
+
+      if (info.mate < 0) {
+        return -REVIEW_MATE_SCORE_CP + Math.min(99, Math.abs(info.mate)) * 5;
+      }
+
+      try {
+        const terminal = new Chess(fen);
+        if (terminal.isCheckmate()) return -REVIEW_MATE_SCORE_CP;
+        if (terminal.isDraw()) return 0;
+      } catch {
+        return 0;
+      }
+    }
+
+    if (typeof info.scoreCp === "number") return info.scoreCp;
+
+    try {
+      const terminal = new Chess(fen);
+      if (terminal.isCheckmate()) return -REVIEW_MATE_SCORE_CP;
+      if (terminal.isDraw()) return 0;
+    } catch {
+      return 0;
+    }
+
+    return 0;
+  }
+
+  function scoreCpFromWhitePerspective(
+    info: ReviewEngineEval,
+    fen: string,
+  ) {
+    const raw = rawEngineScoreCp(info, fen);
+    const sideToMove = fen.trim().split(/\s+/)[1];
+
+    // UCI scores are relative to the side to move.
+    return sideToMove === "b" ? -raw : raw;
+  }
+
+  function scoreCpForReviewSide(
+    info: ReviewEngineEval,
+    fen: string,
+    side: "w" | "b",
+  ) {
+    const whiteScore = scoreCpFromWhitePerspective(info, fen);
+
+    // White wants a higher White score; Black wants a lower White score.
+    return side === "w" ? whiteScore : -whiteScore;
+  }
+
+  function reviewWinProbability(scoreCp: number) {
+    const bounded = Math.max(-2000, Math.min(2000, scoreCp));
+    return 1 / (1 + Math.exp(-bounded / 250));
+  }
+
+  const REVIEW_ENGINE_TIMEOUT_MS = 9000;
 
  async function startGameReview() {
  if (moveRows.length < 2) {
@@ -738,12 +956,20 @@ export default function AnalyzePage() {
  return;
  }
 
- if (!engineReady) {
- setReviewSummary("Engine is still loading");
- return;
- }
+  if (!engineReady) {
+    setReviewSummary("Engine is still loading");
+    return;
+  }
 
- const runId = reviewRunIdRef.current + 1;
+  // Full review owns the single Stockfish request channel.
+  // Stop any position analysis first so responses cannot be mixed.
+  setAutoAnalyze(false);
+  stockfishService.stop();
+  await new Promise<void>((resolve) => {
+    window.setTimeout(resolve, 80);
+  });
+
+  const runId = reviewRunIdRef.current + 1;
  reviewRunIdRef.current = runId;
  setReviewInProgress(true);
  setReviewProgress({ done: 0, total: moveRows.length });
@@ -751,9 +977,10 @@ export default function AnalyzePage() {
  const nextReviewMap: Record<number, ReviewClass> = {};
  const nextReviewLossMap: Record<number, number> = {};
  const nextReviewBestMap: Record<number, string> = {};
+ const nextReviewLineMap: Record<number, ReviewLineEvidence> = {};
  const counts: Record<ReviewClass, number> = {
  Book: 0,
- Brilliant: 0,
+ Inspired: 0,
  Best: 0,
  Excellent: 0,
  Good: 0,
@@ -771,6 +998,9 @@ export default function AnalyzePage() {
  setReviewMap({});
  setReviewLossMap({});
  setReviewBestMap({});
+ setReviewLineMap({});
+ setReviewCoachMap({});
+ reviewCoachRequestedRef.current.clear();
  setReviewCounts(counts);
  setAccuracyWhite(null);
  setAccuracyBlack(null);
@@ -828,6 +1058,7 @@ export default function AnalyzePage() {
  setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewLineMap({ ...nextReviewLineMap });
  setReviewCounts({ ...counts });
  setReviewProgress({ done: row.ply, total: moveRows.length });
  setReviewSummary(
@@ -845,6 +1076,7 @@ export default function AnalyzePage() {
  setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewLineMap({ ...nextReviewLineMap });
  setReviewCounts({ ...counts });
  setReviewProgress({ done: row.ply, total: moveRows.length });
  setReviewSummary(
@@ -860,6 +1092,18 @@ export default function AnalyzePage() {
  "Before evaluation",
  );
  const bestUci = beforeEval.bestMove || "";
+ const bestLineUci =
+ (beforeEval.pv && beforeEval.pv.length > 0
+ ? beforeEval.pv
+ : bestUci
+ ? [bestUci]
+ : []
+ ).slice(0, 8);
+ const verifiedBestLine = validateUciLine(
+ beforeFen,
+ bestLineUci,
+ 8,
+ );
 
  let evalLossCp = 0;
 
@@ -868,14 +1112,43 @@ export default function AnalyzePage() {
  REVIEW_ENGINE_TIMEOUT_MS,
  "After evaluation",
  );
- // stockfishService scoreCp is from the side-to-move point of view.
- // Before the move, side to move is the player being reviewed.
- // After the move, side to move is the opponent, so flip the sign.
- const beforeScore = beforeEval.scoreCp ?? 0;
- const playedScore = -(afterPlayed.scoreCp ?? 0);
+ const playedReplyUci =
+ afterPlayed.pv && afterPlayed.pv.length > 0
+ ? afterPlayed.pv
+ : afterPlayed.bestMove
+ ? [afterPlayed.bestMove]
+ : [];
+ const playedLineUci = [
+ ...(row.uci ? [row.uci] : []),
+ ...playedReplyUci,
+ ].slice(0, 8);
+ const verifiedPlayedLine = validateUciLine(
+ beforeFen,
+ playedLineUci,
+ 8,
+ );
+  // Normalize both positions to the same mover's point of view.
+  // This handles White, Black, and mate scores consistently.
+  const beforeScore = scoreCpForReviewSide(
+    beforeEval,
+    beforeFen,
+    row.color,
+  );
+  const playedScore = scoreCpForReviewSide(
+    afterPlayed,
+    row.fen,
+    row.color,
+  );
 
  if (row.uci && bestUci && row.uci !== bestUci) {
- evalLossCp = Math.max(0, beforeScore - playedScore);
+ evalLossCp = Math.max(
+    0,
+    Math.round(
+      (reviewWinProbability(beforeScore) -
+        reviewWinProbability(playedScore)) *
+        1000,
+    ),
+  );
 
  const tacticalPunishCp = tacticalPunishCpAfterMove(
  row.fen,
@@ -883,7 +1156,10 @@ export default function AnalyzePage() {
  row.color,
  );
 
- evalLossCp = Math.max(evalLossCp, tacticalPunishCp);
+ evalLossCp = Math.min(
+    1000,
+    Math.max(evalLossCp, tacticalPunishCp),
+  );
  }
 
  const classification = classifyReviewMove({
@@ -901,6 +1177,12 @@ export default function AnalyzePage() {
  nextReviewBestMap[row.ply] = bestUci
  ? uciToSan(beforeFen, bestUci)
  : "";
+ nextReviewLineMap[row.ply] = {
+ bestLineSan: verifiedBestLine.san,
+ playedLineSan: verifiedPlayedLine.san,
+ bestLineComplete: verifiedBestLine.complete,
+ playedLineComplete: verifiedPlayedLine.complete,
+ };
  counts[classification]++;
 
  if (row.color === "w") {
@@ -914,6 +1196,7 @@ export default function AnalyzePage() {
  setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewLineMap({ ...nextReviewLineMap });
  setReviewCounts({ ...counts });
  setReviewProgress({ done: row.ply, total: moveRows.length });
  setReviewSummary(
@@ -928,6 +1211,7 @@ export default function AnalyzePage() {
  setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewLineMap({ ...nextReviewLineMap });
  setReviewCounts({ ...counts });
  setReviewProgress({ done: row.ply, total: moveRows.length });
  setReviewSummary(
@@ -937,9 +1221,15 @@ export default function AnalyzePage() {
  }
 
  setReviewInProgress(false);
+
+  // Full review has finished, so position analysis may safely resume.
+  // This keeps the evaluation bar synchronized when review moves are selected.
+  setAutoAnalyze(true);
+
  setReviewProgress({ done: moveRows.length, total: moveRows.length });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewLineMap({ ...nextReviewLineMap });
 
  const accuracyFromAcl = (acl: number) =>
  Math.max(0, Math.min(100, 100 * Math.exp(-acl / 180)));
@@ -956,17 +1246,46 @@ export default function AnalyzePage() {
  'Good',
  ]
 
+ // In weekly review, jump to the student's first serious error, not the computer's.
+ const studentMoveColor: "w" | "b" | null =
+ weeklyReviewGame !== null
+ ? whitePlayer.toLowerCase().includes("student")
+ ? "w"
+ : blackPlayer.toLowerCase().includes("student")
+ ? "b"
+ : weeklyReviewGame === 1
+ ? "w"
+ : "b"
+ : null;
+
+ const firstMissedTransferPly = weeklyTransferOpportunities.find(
+ (item) => item.status === "missed",
+ )?.createdAtPly;
  const firstInteresting =
+ (typeof firstMissedTransferPly === "number"
+ ? Math.max(0, Math.min(moveRows.length, firstMissedTransferPly))
+ : undefined) ??
  jumpPriority
  .map((label) =>
- moveRows.find((row) => nextReviewMap[row.ply] === label)?.ply,
+ moveRows.find(
+ (row) =>
+ (!studentMoveColor || row.color === studentMoveColor) &&
+ nextReviewMap[row.ply] === label,
+ )?.ply,
  )
- .find((ply): ply is number => typeof ply === 'number') ??
- moveRows.length
+ .find((ply): ply is number => typeof ply === "number") ??
+ (studentMoveColor
+ ? moveRows.find((row) => row.color === studentMoveColor)?.ply ?? moveRows.length
+ : moveRows.length);
 
+ if (studentMoveColor) {
+ setBoardOrientation(studentMoveColor === "w" ? "white" : "black");
+ }
  goToPly(firstInteresting);
  setReviewSummary(
- `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}`,
+ weeklyTransferTarget
+ ? `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}. Transfer target: ${weeklyTransferTarget.label}; ${weeklyTransferCreatedCount} created, ${weeklyTransferRecognizedCount} recognized, ${weeklyTransferMissedCount} missed.`
+ : `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}`,
  );
  }
 
@@ -979,7 +1298,7 @@ export default function AnalyzePage() {
  if (reviewAutoStartedRef.current) return;
 
  reviewAutoStartedRef.current = true;
- setReviewSummary("Game Review starting...");
+ setReviewSummary("Game Analysis starting...");
  void startGameReview();
  }, [isReviewMode, engineReady, moveRows.length, reviewInProgress]);
 
@@ -1038,7 +1357,7 @@ export default function AnalyzePage() {
  return 0;
  }
  }
- function isBrilliantCandidate(args: {
+ function isInspiredCandidate(args: {
  playedUci: string | undefined;
  evalLossCp: number;
  san?: string;
@@ -1072,8 +1391,8 @@ export default function AnalyzePage() {
  const immediateMaterialDrop = beforeMaterial - afterMaterial;
 
  // Conservative fallback only:
- // A move is not brilliant just because the moved piece can be captured.
- // That caused ordinary defensive best moves like ...Qxd7 to be marked brilliant.
+ // A move is not inspired just because the moved piece can be captured.
+ // That caused ordinary defensive best moves like ...Qxd7 to be marked inspired.
  // Without a PGN $3 annotation, require a real immediate material sacrifice.
  const isRealSacrifice = immediateMaterialDrop >= 250;
 
@@ -1095,7 +1414,7 @@ export default function AnalyzePage() {
  const { playedUci, bestUci, evalLossCp } = args;
  const isBestMove = !!playedUci && !!bestUci && playedUci === bestUci;
 
- if (isBestMove && isBrilliantCandidate(args)) return "Brilliant";
+ if (isBestMove && isInspiredCandidate(args)) return "Inspired";
  if (isBestMove) return "Best";
  if (evalLossCp <= 20) return "Excellent";
  if (evalLossCp <= 50) return "Good";
@@ -1106,9 +1425,9 @@ export default function AnalyzePage() {
 
  function reviewScore(label: ReviewClass) {
  if (label === "Book") return "Book"
- if (label === "Brilliant") return 100;
+ if (label === "Inspired") return 100;
  if (label === "Best") return "Best"
- if (label === "Excellent") return "Star"
+ if (label === "Excellent") return "Excellent"
  if (label === "Good") return "Good"
  if (label === "Inaccuracy") return 55;
  if (label === "Mistake") return 25;
@@ -1119,34 +1438,33 @@ export default function AnalyzePage() {
 
  function reviewColor(label?: ReviewClass) {
  if (!label) return "#aaa";
- if (label === "Book") return "Book"
- if (label === "Brilliant") return "#67e8f9";
- if (label === "Best") return "Best"
- if (label === "Excellent") return "Star"
- if (label === "Good") return "Good"
+ if (label === "Book") return "#a78bfa";
+ if (label === "Inspired") return "#67e8f9";
+ if (label === "Best") return "#65a30d";
+ if (label === "Excellent") return "#8dd35f";
+ if (label === "Good") return "#a3a3a3";
  if (label === "Inaccuracy") return "#fde047";
  if (label === "Mistake") return "#fb923c";
- if (label === "Miss") return "x"
+ if (label === "Miss") return "#f97316";
  if (label === "Blunder") return "#ef4444";
  return "#aaa";
  }
 function reviewShort(label?: ReviewClass) {
- if (!label) return ""
- if (label === "Book") return "Book"
- if (label === "Brilliant") return "!!"
- if (label === "Best") return "Best"
- if (label === "Excellent") return "Star"
- if (label === "Good") return "Good"
- if (label === "Inaccuracy") return "?"
- if (label === "Mistake") return "?!"
- if (label === "Miss") return "x"
- if (label === "Blunder") return "??"
- return ""
+ if (!label) return "";
+ if (label === "Book") return "Book";
+ if (label === "Inspired") return "â˜…";
+ if (label === "Best") return "Best";
+ if (label === "Excellent") return "\u2713";
+ if (label === "Good") return "Good";
+ if (label === "Inaccuracy") return "?";
+ if (label === "Mistake") return "?!";
+ if (label === "Miss") return "x";
+ if (label === "Blunder") return "??";
+ return "";
 }
 
  function reviewDisplayName(label?: ReviewClass) {
  if (!label) return "";
- if (label === "Excellent") return "Star"
  return label;
  }
 
@@ -1198,69 +1516,255 @@ function reviewShort(label?: ReviewClass) {
  .trim()
  }
 
- function reviewCommentForPly(ply: number) {
- const label = reviewMap[ply]
- const row = moveRows[ply - 1]
+ function coachInputForPly(
+ ply: number,
+ ): MistakeExplainInput | null {
+ const row = moveRows[ply - 1];
+ const best = reviewBestMap[ply] || "";
+ const lines = reviewLineMap[ply];
 
- if (!label || !row) return 'Run review and click a move.'
+ if (!row || !best || best === "Book" || best === "Engine timed out") {
+ return null;
+ }
 
- const best = reviewBestMap[ply] || '--'
- const lossCp = reviewLossMap[ply] ?? 0
- const loss = (lossCp / 100).toFixed(2)
- const moveText = row.san ? 'Move ' + row.san + ': ' : ''
-
- if (label === 'Book') return moveText + 'Book move from the opening.'
- if (label === 'Best') return moveText + 'Best move. It matches the engine choice.'
- if (label === 'Excellent') return moveText + 'Great move. Very close to the best move. Best was ' + best + '.'
- if (label === 'Good') return moveText + 'Good move. Best was ' + best + '. Eval loss: ' + loss + '.'
- if (label === 'Brilliant') return moveText + 'Brilliant tactical move.'
-
- const beforeFen = ply <= 1 ? startFen : moveRows[ply - 2]?.fen || startFen
- const bestLooksUci = /^[a-h][1-8][a-h][1-8][qrbn]?$/.test(best)
-
+ const beforeFen =
+ ply <= 1 ? startFen : moveRows[ply - 2]?.fen || startFen;
+ const bestLooksUci =
+ /^[a-h][1-8][a-h][1-8][qrbn]?$/.test(best);
  const phase =
  ply <= 20
  ? "opening"
  : moveRows.length - ply <= 20
  ? "endgame"
- : "middlegame"
+ : "middlegame";
 
- try {
- const coach = explainMistake({
+ return {
  fenBefore: beforeFen,
  userMoveSan: row.san,
  userMoveUci: row.uci,
  bestMoveUci: bestLooksUci ? best : undefined,
  bestMoveSan: bestLooksUci ? undefined : best,
- evalLossCp: lossCp,
+ evalLossCp: reviewLossMap[ply] ?? 0,
+ bestLineSan: lines?.bestLineSan || [],
+ playedLineSan: lines?.playedLineSan || [],
  phase,
  source: "analyze",
  userColor: row.color === "w" ? "white" : "black",
  openingName: gameInfo.opening || undefined,
- })
+ };
+ }
+
+ function formatCoachComment(
+ ply: number,
+ coach: MistakeExplanation,
+ status?: ReviewCoachEntry["status"],
+ source?: ReviewCoachEntry["source"],
+ ) {
+ const row = moveRows[ply - 1];
+ const moveText = row?.san ? `Move ${row.san}: ` : "";
+ const improving =
+ status === "loading"
+ ? " Improving explanation from the verified engine line..."
+ : "";
+ const sourceText =
+ source === "ai"
+ ? " Verified engine evidence, AI-polished wording."
+ : "";
 
  return (
  moveText +
  coach.title +
- '. ' +
+ ". " +
  coach.explanation +
- ' Best was ' +
- best +
- '. ' +
+ " Why: " +
  coach.whyBestMoveWorks +
- ' Lesson: ' +
+ " Lesson: " +
  coach.lesson +
- (coach.recommendedTrainer ? ' Recommended trainer: ' + coach.recommendedTrainer + '.' : '')
- )
- } catch {
- if (label === 'Inaccuracy') return moveText + 'Inaccuracy. A stronger move was ' + best + '. Eval loss: ' + loss + '.'
- if (label === 'Mistake') return moveText + 'Mistake. This gave up a clear advantage. Best was ' + best + '. Eval loss: ' + loss + '.'
- if (label === 'Miss') return moveText + 'Missed opportunity. Best was ' + best + '. Eval loss: ' + loss + '.'
- if (label === 'Blunder') return moveText + 'Blunder. This strongly changed the position. Best was ' + best + '. Eval loss: ' + loss + '.'
+ (coach.recommendedTrainer
+ ? " Recommended trainer: " + coach.recommendedTrainer + "."
+ : "") +
+ improving +
+ sourceText
+ );
+ }
 
- return moveText + reviewDisplayName(label) + '. Best was ' + best + '. Eval loss: ' + loss + '.'
+ function reviewCommentForPly(ply: number) {
+ const label = reviewMap[ply];
+ const row = moveRows[ply - 1];
+
+ if (!label || !row) return "Run review and click a move.";
+
+ const best = reviewBestMap[ply] || "--";
+ const moveText = row.san ? `Move ${row.san}: ` : "";
+
+ if (label === "Book") {
+ return moveText + "Book move from the opening.";
+ }
+
+ if (label === "Best") {
+ return moveText + "Best move. It matches the engine choice.";
+ }
+
+ if (label === "Excellent") {
+ return (
+ moveText +
+ "Excellent move. It stayed very close to the engine choice" +
+ (best && best !== "--" ? ` ${best}.` : ".")
+ );
+ }
+
+ if (label === "Good") {
+ return (
+ moveText +
+ "Good move. The position remained sound" +
+ (best && best !== "--" ? `, although ${best} was more precise.` : ".")
+ );
+ }
+
+ if (label === "Inspired") {
+ return moveText + "Inspired tactical move.";
+ }
+
+ const input = coachInputForPly(ply);
+
+ if (!input) {
+ return (
+ moveText +
+ reviewDisplayName(label) +
+ ". The engine comparison is available, but no fully verified line was stored."
+ );
+ }
+
+ try {
+ const entry = reviewCoachMap[ply];
+ const coach = entry?.explanation || explainMistake(input);
+
+ const baseComment = formatCoachComment(
+ ply,
+ coach,
+ entry?.status,
+ entry?.source,
+ );
+
+ if (entry?.code === "AUTH_REQUIRED") {
+ return (
+ baseComment +
+ " Log in to use AI Coach. The verified rule-based explanation is shown."
+ );
+ }
+
+ if (entry?.code === "COACH_QUOTA_EXCEEDED") {
+ if (entry.quota?.tier === "premium") {
+ const resetText = entry.quota.resetAt
+ ? new Date(entry.quota.resetAt).toLocaleDateString()
+ : "the start of next month";
+
+ return (
+ baseComment +
+ ` Monthly AI Coach limit reached. It resets ${resetText}.`
+ );
+ }
+
+ return (
+ baseComment +
+ " The free AI Coach explanation has already been used. Premium includes 30 each month."
+ );
+ }
+
+ if (
+ entry?.source === "ai" &&
+ entry.quota &&
+ !entry.cached
+ ) {
+ return (
+ baseComment +
+ ` AI Coach: ${entry.quota.remaining} of ${entry.quota.limit} explanations remaining.`
+ );
+ }
+
+ if (
+ entry?.source === "deterministic" &&
+ entry.code &&
+ entry.code !== "COACH_AI_FALLBACK"
+ ) {
+ return (
+ baseComment +
+ " AI wording was unavailable; the verified explanation is shown."
+ );
+ }
+
+ return baseComment;
+ } catch {
+ return (
+ moveText +
+ reviewDisplayName(label) +
+ `. ${best !== "--" ? `The stronger move was ${best}.` : ""}`
+ );
  }
  }
+
+ useEffect(() => {
+ if (reviewInProgress) return;
+
+ const label = reviewMap[currentPly];
+ if (
+ label !== "Inaccuracy" &&
+ label !== "Mistake" &&
+ label !== "Miss" &&
+ label !== "Blunder"
+ ) {
+ return;
+ }
+
+ if (reviewCoachRequestedRef.current.has(currentPly)) return;
+
+ const input = coachInputForPly(currentPly);
+ if (!input) return;
+
+ let fallback: MistakeExplanation;
+
+ try {
+ fallback = explainMistake(input);
+ } catch {
+ return;
+ }
+
+ reviewCoachRequestedRef.current.add(currentPly);
+ setReviewCoachMap((current) => ({
+ ...current,
+ [currentPly]: {
+ status: "loading",
+ explanation: fallback,
+ source: "deterministic",
+ },
+ }));
+
+ void composeCoachExplanation(input, fallback).then((result) => {
+ setReviewCoachMap((current) => ({
+ ...current,
+ [currentPly]: {
+ status: result.source === "ai" ? "ready" : "fallback",
+ explanation: result.explanation,
+ source: result.source,
+ reason: result.reason,
+ code: result.code,
+ quota: result.quota,
+ cached: result.cached,
+ },
+ }));
+ });
+ }, [
+ currentPly,
+ reviewInProgress,
+ reviewMap,
+ reviewLossMap,
+ reviewBestMap,
+ reviewLineMap,
+ moveRows,
+ startFen,
+ gameInfo.opening,
+ ]);
+
  function pgnCommentForRow(row: MoveRow) {
  const label = reviewMap[row.ply]
  if (!label) return ''
@@ -1280,7 +1784,7 @@ function reviewShort(label?: ReviewClass) {
  return '[' + name + ' "' + safe + '"]'
  }
 
- function downloadReviewedPgn() {
+ function downloadPgn() {
  if (moveRows.length === 0) {
  setMessage('No PGN loaded.')
  return
@@ -1290,7 +1794,7 @@ function reviewShort(label?: ReviewClass) {
  const date = gameInfo.date || new Date().toISOString().slice(0, 10).replace(/-/g, '.')
 
  const headers = [
- pgnHeader('Event', gameInfo.event || 'Reviewed Game'),
+ pgnHeader('Event', gameInfo.event || 'Analyzed Game'),
  pgnHeader('Site', gameInfo.site || 'Weiss Chess Trainer'),
  pgnHeader('Date', date),
  pgnHeader('Round', gameInfo.round || '-'),
@@ -1322,13 +1826,13 @@ function reviewShort(label?: ReviewClass) {
  const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
 
  link.href = url
- link.download = 'reviewed-game-' + stamp + '.pgn'
+ link.download = 'analyzed-game-' + stamp + '.pgn'
  document.body.appendChild(link)
  link.click()
  link.remove()
  URL.revokeObjectURL(url)
 
- setMessage('Reviewed PGN downloaded.')
+ setMessage('PGN downloaded.')
  }
 
  function copyFen() {
@@ -1391,13 +1895,12 @@ function reviewShort(label?: ReviewClass) {
  }, []);
 
  useEffect(() => {
- if (!engineReady) return;
+ if (!engineReady || reviewInProgress) return;
 
  async function analyzePosition() {
  try {
  const info = await stockfishService.getEvaluation(game.fen());
 
- setEvalMate(typeof info.mate === "number" ? info.mate : null);
  setEvalMate(typeof info.mate === "number" ? info.mate : null);
  setEvalCp(typeof info.scoreCp === "number" ? info.scoreCp : null);
  setDepth(info.depth ?? 0);
@@ -1416,7 +1919,7 @@ function reviewShort(label?: ReviewClass) {
  if (autoAnalyze) {
  analyzePosition();
  }
- }, [game.fen(), engineReady]);
+ }, [game.fen(), engineReady, reviewInProgress]);
 
  function uciToSan(fen: string, uci: string) {
  if (!uci || uci.length < 4) return "";
@@ -1433,6 +1936,46 @@ function reviewShort(label?: ReviewClass) {
  } catch {
  return uci;
  }
+ }
+
+ function validateUciLine(
+ fen: string,
+ supplied: string[],
+ maxPly = 8,
+ ): {
+ san: string[];
+ complete: boolean;
+ } {
+ const game = new Chess(fen);
+ const san: string[] = [];
+ let complete = true;
+
+ for (const uci of supplied.slice(0, maxPly)) {
+ if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci)) {
+ complete = false;
+ break;
+ }
+
+ try {
+ const move = game.move({
+ from: uci.slice(0, 2),
+ to: uci.slice(2, 4),
+ promotion: uci.length > 4 ? uci.slice(4, 5) : undefined,
+ });
+
+ if (!move) {
+ complete = false;
+ break;
+ }
+
+ san.push(move.san);
+ } catch {
+ complete = false;
+ break;
+ }
+ }
+
+ return { san, complete };
  }
 
  function formatEval(cp: number | null) {
@@ -1511,23 +2054,43 @@ function reviewShort(label?: ReviewClass) {
  }
  }
 
+ const isCurrentCheckmate = game.isCheckmate();
+ const checkmateWinner: "w" | "b" | null = isCurrentCheckmate
+ ? game.turn() === "w"
+ ? "b"
+ : "w"
+ : null;
+ const checkmateResult =
+ checkmateWinner === "w" ? "1-0" : checkmateWinner === "b" ? "0-1" : null;
+ const checkmateWinnerName =
+ checkmateWinner === "w"
+ ? whitePlayer || "White"
+ : checkmateWinner === "b"
+ ? blackPlayer || "Black"
+ : "";
+
  const displayEvalMate =
  evalMate === null ? null : game.turn() === "w" ? evalMate : -evalMate;
 
  const displayEvalCp =
  evalCp === null ? null : game.turn() === "w" ? evalCp : -evalCp;
  const evalDisplay =
- displayEvalMate !== null
+ checkmateResult ||
+ (displayEvalMate !== null
  ? displayEvalMate > 0
  ? `M${displayEvalMate}`
  : `-M${Math.abs(displayEvalMate)}`
- : formatEval(displayEvalCp);
+ : formatEval(displayEvalCp));
  const bestMoveSan =
  bestMove && bestMove.length >= 4
  ? uciToSan(game.fen(), bestMove)
  : bestMove || "--";
  const whiteEvalPercent =
- displayEvalMate !== null
+ checkmateWinner === "w"
+ ? 100
+ : checkmateWinner === "b"
+ ? 0
+ : displayEvalMate !== null
  ? displayEvalMate > 0
  ? 100
  : 0
@@ -1585,7 +2148,7 @@ function reviewShort(label?: ReviewClass) {
  }, [moveRows, currentPly]);
 
  const REVIEW_TABLE_CLASSES: ReviewClass[] = [
- "Brilliant",
+ "Inspired",
  "Excellent",
  "Book",
  "Best",
@@ -1599,7 +2162,7 @@ function reviewShort(label?: ReviewClass) {
  function emptyReviewCounts(): Record<ReviewClass, number> {
  return {
  Book: 0,
- Brilliant: 0,
+ Inspired: 0,
  Best: 0,
  Excellent: 0,
  Good: 0,
@@ -1630,6 +2193,7 @@ function reviewShort(label?: ReviewClass) {
 
  const evalBar = (
  <div
+ className="analyze-eval-bar"
  style={{
  width: 26,
  height: boardSize,
@@ -1638,9 +2202,11 @@ function reviewShort(label?: ReviewClass) {
  background: "#111",
  position: "relative",
  flex: "0 0 auto",
- }}
+ "--analyze-white-eval": `${whiteEvalPercent}%`,
+ } as React.CSSProperties}
  >
  <div
+ className="analyze-eval-fill"
  style={{
  position: "absolute",
  bottom: 0,
@@ -1650,15 +2216,28 @@ function reviewShort(label?: ReviewClass) {
  }}
  />
  <div
+ className="analyze-eval-label"
  style={{
  position: "absolute",
- bottom: 8,
+ top: isCurrentCheckmate ? "50%" : "auto",
+ bottom: isCurrentCheckmate ? "auto" : 8,
  left: 0,
  right: 0,
+ transform: isCurrentCheckmate ? "translateY(-50%)" : "none",
  textAlign: "center",
- color: "#222",
- fontSize: 11,
- fontWeight: 800,
+ color: isCurrentCheckmate
+ ? checkmateWinner === "b"
+ ? "#f3f3f3"
+ : "#222"
+ : whiteEvalPercent <= 12
+ ? "#f3f3f3"
+ : "#222",
+ textShadow:
+ !isCurrentCheckmate && whiteEvalPercent <= 12
+ ? "0 1px 2px rgba(0,0,0,0.9)"
+ : "0 1px 1px rgba(255,255,255,0.28)",
+ fontSize: isCurrentCheckmate ? 10 : 11,
+ fontWeight: 900,
  }}
  >
  {evalDisplay}
@@ -1667,18 +2246,18 @@ function reviewShort(label?: ReviewClass) {
  );
 
  const PIECE_URLS: Record<string, string> = {
- wP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wp.png",
- wN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wn.png",
- wB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wb.png",
- wR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wr.png",
- wQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wq.png",
- wK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/wk.png",
- bP: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bp.png",
- bN: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bn.png",
- bB: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bb.png",
- bR: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/br.png",
- bQ: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bq.png",
- bK: "https://images.chesscomfiles.com/chess-themes/pieces/neo/150/bk.png",
+ wP: "/pieces/react-chessboard-default/wp.svg",
+ wN: "/pieces/react-chessboard-default/wn.svg",
+ wB: "/pieces/react-chessboard-default/wb.svg",
+ wR: "/pieces/react-chessboard-default/wr.svg",
+ wQ: "/pieces/react-chessboard-default/wq.svg",
+ wK: "/pieces/react-chessboard-default/wk.svg",
+ bP: "/pieces/react-chessboard-default/bp.svg",
+ bN: "/pieces/react-chessboard-default/bn.svg",
+ bB: "/pieces/react-chessboard-default/bb.svg",
+ bR: "/pieces/react-chessboard-default/br.svg",
+ bQ: "/pieces/react-chessboard-default/bq.svg",
+ bK: "/pieces/react-chessboard-default/bk.svg",
  };
 
  const analyzePieces = Object.fromEntries(
@@ -1782,12 +2361,85 @@ function reviewShort(label?: ReviewClass) {
  );
  }
 
+ function weeklyTransferStatusLabel(
+ status: WeeklyTransferOpportunityStatus,
+ ) {
+ if (status === "recognized") return "RECOGNIZED";
+ if (status === "missed") return "MISSED";
+ return "TARGET CREATED";
+ }
+
+ function weeklyTransferStatusColor(
+ status: WeeklyTransferOpportunityStatus,
+ ) {
+ if (status === "recognized") return "#65a30d";
+ if (status === "missed") return "#dc2626";
+ return "#2563eb";
+ }
+
+ function reviewMoveNumberLabel(ply: number) {
+ const safePly = Math.max(1, Math.round(ply));
+ const moveNumber = Math.ceil(safePly / 2);
+ return safePly % 2 === 1 ? `${moveNumber}.` : `${moveNumber}...`;
+ }
+
+ function transferCreatedMoveLabel(opportunity: WeeklyTransferOpportunity) {
+ const ply = Math.max(1, Math.round(Number(opportunity.createdAtPly) || 1));
+ const row = moveRows[ply - 1];
+ return row
+ ? `${reviewMoveNumberLabel(ply)} ${row.san}`
+ : `after ply ${ply}`;
+ }
+
+ function transferSanFromUci(
+ uci: string | undefined,
+ positionPly: number,
+ ) {
+ if (!uci || uci.length < 4) return "-";
+
+ const fen =
+ positionPly <= 0
+ ? startFen
+ : moveRows[Math.min(moveRows.length, positionPly) - 1]?.fen;
+ if (!fen) return uci;
+
+ try {
+ const temp = new Chess(fen);
+ const move = temp.move({
+ from: uci.slice(0, 2) as Square,
+ to: uci.slice(2, 4) as Square,
+ ...(uci.length > 4 ? { promotion: uci.slice(4, 5) } : {}),
+ });
+ return move?.san || uci;
+ } catch {
+ return uci;
+ }
+ }
+
+ function transferExpectedMoveLabel(
+ opportunity: WeeklyTransferOpportunity,
+ ) {
+ return transferSanFromUci(
+ opportunity.expectedStudentMove,
+ Math.max(0, Number(opportunity.createdAtPly) || 0),
+ );
+ }
+
+ function transferPlayedMoveLabel(opportunity: WeeklyTransferOpportunity) {
+ const resolvedPly = Number(opportunity.resolvedAtPly);
+ if (Number.isFinite(resolvedPly) && resolvedPly > 0) {
+ const row = moveRows[Math.round(resolvedPly) - 1];
+ if (row?.san) return row.san;
+ }
+
+ return opportunity.playedMove || "-";
+ }
+
  function reviewBadgeText(label?: ReviewClass) {
  if (!label) return ""
  if (label === "Book") return "Book"
- if (label === "Brilliant") return "!!"
- if (label === "Best") return "Best"
- if (label === "Excellent") return "Star"
+ if (label === "Inspired") return "â˜…";if (label === "Best") return "Best"
+ if (label === "Excellent") return "\u2713"
  if (label === "Good") return "Good"
  if (label === "Inaccuracy") return "?"
  if (label === "Mistake") return "?!"
@@ -1797,14 +2449,14 @@ function reviewShort(label?: ReviewClass) {
  }
 
  function reviewBadgeBackground(label?: ReviewClass) {
- if (label === "Book") return "Book"
- if (label === "Brilliant") return "#22d3ee"
- if (label === "Best") return "Best"
- if (label === "Excellent") return "Star"
- if (label === "Good") return "Good"
+ if (label === "Book") return "#8b5cf6"
+ if (label === "Inspired") return "#22d3ee"
+ if (label === "Best") return "#65a30d"
+ if (label === "Excellent") return "#8dd35f"
+ if (label === "Good") return "#a3a3a3"
  if (label === "Inaccuracy") return "#facc15"
  if (label === "Mistake") return "#fb923c"
- if (label === "Miss") return "x"
+ if (label === "Miss") return "#f97316"
  if (label === "Blunder") return "#dc2626"
  return "#7fa650"
  }
@@ -1898,15 +2550,132 @@ function reviewShort(label?: ReviewClass) {
  </div>
  ) : null
 
- const boardWithControls = (
- <div style={{ display: "flex", gap: 10 }}>
- <div style={{ paddingTop: 28 }}>{evalBar}</div>
+ const currentTransferResolved = weeklyTransferOpportunities.find(
+ (item) => Number(item.resolvedAtPly) === currentPly,
+ );
+ const currentTransferCreated = weeklyTransferOpportunities.find(
+ (item) => Number(item.createdAtPly) === currentPly,
+ );
+ const currentTransferEvent = currentTransferResolved ?? currentTransferCreated;
+ const currentTransferEventStatus: WeeklyTransferOpportunityStatus | null =
+ currentTransferResolved?.status ??
+ (currentTransferCreated ? "offered" : null);
+ const currentTransferEventLabel =
+ currentTransferEventStatus === "recognized"
+ ? "PATTERN RECOGNIZED"
+ : currentTransferEventStatus === "missed"
+ ? "PATTERN MISSED"
+ : currentTransferEventStatus === "offered"
+ ? "TARGET CREATED"
+ : "";
+ const transferBoardOverlay =
+ currentTransferEvent && currentTransferEventStatus ? (
+ <div
+ data-name="weekly-transfer-board-event"
+ style={{
+ position: "absolute",
+ left: 12,
+ top: 12,
+ zIndex: 90,
+ maxWidth: Math.max(190, Math.min(360, boardSize - 24)),
+ padding: "9px 12px",
+ borderRadius: 10,
+ background: weeklyTransferStatusColor(currentTransferEventStatus),
+ color: "#fff",
+ border: "1px solid rgba(255,255,255,0.88)",
+ boxShadow: "0 8px 20px rgba(0,0,0,0.35)",
+ pointerEvents: "none",
+ }}
+ >
+ <div
+ style={{
+ fontSize: Math.max(12, Math.min(15, boardSize / 42)),
+ fontWeight: 950,
+ letterSpacing: 0.7,
+ }}
+ >
+ {currentTransferEventLabel}
+ </div>
+ <div
+ style={{
+ marginTop: 2,
+ fontSize: Math.max(11, Math.min(14, boardSize / 48)),
+ fontWeight: 800,
+ opacity: 0.95,
+ }}
+ >
+ {currentTransferEvent.targetLabel || weeklyTransferTarget?.label || "Transfer pattern"}
+ </div>
+ </div>
+ ) : null;
 
- <div>
+ const checkmateBoardOverlay =
+ isCurrentCheckmate && checkmateResult ? (
+ <div
+ data-name="checkmate-board-overlay"
+ style={{
+ position: "absolute",
+ inset: 0,
+ zIndex: 100,
+ display: "flex",
+ alignItems: "center",
+ justifyContent: "center",
+ pointerEvents: "none",
+ background: "rgba(0,0,0,0.12)",
+ }}
+ >
+ <div
+ style={{
+ minWidth: Math.min(320, boardSize * 0.62),
+ maxWidth: boardSize * 0.8,
+ padding: "14px 22px",
+ borderRadius: 14,
+ background: "rgba(22,21,18,0.94)",
+ color: "#f3f3f3",
+ border: "2px solid rgba(255,255,255,0.86)",
+ boxShadow: "0 14px 34px rgba(0,0,0,0.48)",
+ textAlign: "center",
+ }}
+ >
+ <div
+ style={{
+ fontSize: Math.max(22, Math.min(34, boardSize / 18)),
+ fontWeight: 950,
+ letterSpacing: 1.2,
+ }}
+ >
+ CHECKMATE
+ </div>
+ <div
+ style={{
+ marginTop: 5,
+ fontSize: Math.max(13, Math.min(17, boardSize / 34)),
+ fontWeight: 800,
+ color: "#d8d8d8",
+ }}
+ >
+ {checkmateWinnerName} wins {checkmateResult}
+ </div>
+ </div>
+ </div>
+ ) : null
+
+ const layoutShiftLeft = isReviewMode
+ ? ANALYZE_REVIEW_LAYOUT_SHIFT_LEFT
+ : ANALYZE_LAYOUT_SHIFT_LEFT;
+ const resolvedSidePanelWidth = isReviewMode
+ ? ANALYZE_REVIEW_SIDE_PANEL_WIDTH
+ : ANALYZE_SIDE_PANEL_WIDTH;
+
+ const boardWithControls = (
+ <div className="analyze-board-with-controls" style={{ display: "flex", gap: 10 }}>
+ <div className="analyze-eval-bar-wrap" style={{ paddingTop: 28 }}>{evalBar}</div>
+
+ <div className="analyze-board-stack">
  {boardPlayerBar(topBoardSide)}
 
  <div style={{ position: "relative", width: boardSize, height: boardSize }}>
-<Chessboard
+<ThemedChessboard
  id="AnalyzeBoard"
  position={(isSetupPositionOpen ? setupBoard : game.fen()) as any}
  boardWidth={boardSize}
@@ -1934,7 +2703,7 @@ function reviewShort(label?: ReviewClass) {
  }}
  promotionDialogVariant="vertical"
  arePiecesDraggable={true}
- customPieces={analyzePieces}
+
  customArrows={[...visibleLastMoveArrow, ...bestMoveArrow] as any}
  showBoardNotation={showCoordinates}
  customDarkSquareStyle={{ backgroundColor: "#769656" }}
@@ -1946,6 +2715,8 @@ function reviewShort(label?: ReviewClass) {
  />
 
  {reviewBoardBadge}
+ {transferBoardOverlay}
+ {checkmateBoardOverlay}
  </div>
 
  {boardPlayerBar(bottomBoardSide)}
@@ -1988,14 +2759,16 @@ function reviewShort(label?: ReviewClass) {
  );
  return (
  <div
+ className="analyze-board-page"
  onDragOver={handlePageDragOver}
  onDragLeave={handlePageDragLeave}
  onDrop={handlePageDrop}
  style={{
  position: "relative",
  minHeight: "100vh",
- marginLeft: -ANALYZE_LAYOUT_SHIFT_LEFT,
- width: `calc(100% + ${ANALYZE_LAYOUT_SHIFT_LEFT}px)`,
+ marginLeft: -layoutShiftLeft,
+ width: `calc(100% + ${layoutShiftLeft}px)`,
+ boxSizing: "border-box",
  }}
  >
  {isPgnDragActive && (
@@ -2015,7 +2788,7 @@ function reviewShort(label?: ReviewClass) {
  pointerEvents: "none",
  }}
  >
- Drop PGN to load game review
+ Drop PGN to load game analysis
  </div>
  )}
  {showImageToPosition && (
@@ -2026,8 +2799,8 @@ function reviewShort(label?: ReviewClass) {
  />
  )}
  <TrainerShell
- title={isReviewMode ? "Game Review" : "Analyze"}
- subtitle={isReviewMode ? "Full game review" : "Position analysis"}
+ title={isReviewMode ? "Game Analysis" : "Analyze"}
+ subtitle={isReviewMode ? "Full game analysis" : "Position analysis"}
  boardSize={boardSize}
  isDragging={isDragging}
  isHandleHovered={isHandleHovered}
@@ -2037,7 +2810,7 @@ function reviewShort(label?: ReviewClass) {
  footerLeft={isReviewMode ? "Review" : "Analyze"}
  footerRight={`${boardSize}px`}
  board={boardWithControls}
- sidePanelWidth={ANALYZE_SIDE_PANEL_WIDTH}
+ sidePanelWidth={resolvedSidePanelWidth}
  sidePanel={
  <>
  <style>{`
@@ -2066,7 +2839,7 @@ function reviewShort(label?: ReviewClass) {
  grid-template-rows: auto 1fr;
  }
 
- /* In full-game review mode, hide setup/analyze panels so the review fits at 100% zoom. */
+ /* In full-game analysis mode, hide setup/analyze panels so the review fits at 100% zoom. */
  .analyze-review-grid.review-loaded > :nth-child(4),
  .analyze-review-grid.review-loaded > :nth-child(5),
  .analyze-review-grid.review-loaded > :nth-child(6),
@@ -2093,10 +2866,20 @@ function reviewShort(label?: ReviewClass) {
  .analyze-review-grid > :nth-child(9) { grid-area: engine; min-height: 0; }
 
  .analyze-review-grid.review-mode {
+ grid-template-columns:
+ minmax(240px, 0.95fr)
+ minmax(180px, 0.70fr)
+ minmax(270px, 1.35fr);
  grid-template-areas:
- "review details moves moves"
- "review details moves moves";
+ "review details moves"
+ "review details moves";
  grid-template-rows: 1fr;
+ align-items: stretch;
+ min-height: 0;
+ }
+
+ .analyze-review-grid.review-mode > * {
+ min-width: 0;
  }
 
  .analyze-review-grid.review-mode > :nth-child(3),
@@ -2111,6 +2894,12 @@ function reviewShort(label?: ReviewClass) {
  .analyze-review-grid.review-mode > :nth-child(1) {
  grid-area: review;
  display: block !important;
+ min-height: 0;
+ max-height: 100%;
+ overflow-y: auto;
+ overflow-x: hidden;
+ scrollbar-gutter: stable;
+ padding-right: 5px;
  }
 
  .analyze-review-grid.review-mode > :nth-child(2) {
@@ -2125,6 +2914,26 @@ function reviewShort(label?: ReviewClass) {
  align-self: stretch;
  flex-direction: column;
  gap: 7px;
+ overflow: hidden;
+ }
+
+ .analyze-review-grid.review-mode > :nth-child(7) > :first-child {
+ flex: 1 1 auto;
+ min-height: 0;
+ display: flex;
+ flex-direction: column;
+ overflow: hidden;
+ }
+
+ .analyze-review-grid.review-mode > :nth-child(7) > :last-child {
+ flex: 0 0 auto;
+ }
+
+ .analyze-review-grid.review-mode .analyze-moves-list {
+ flex: 1 1 auto;
+ min-height: 0 !important;
+ height: auto !important;
+ max-height: none !important;
  }
  `}</style>
  <div
@@ -2137,7 +2946,7 @@ function reviewShort(label?: ReviewClass) {
  }`}
  >
  <PanelCard>
- <SectionTitle>Game Review</SectionTitle>
+ <SectionTitle>Game Analysis</SectionTitle>
 
  <div
  style={{
@@ -2246,9 +3055,25 @@ function reviewShort(label?: ReviewClass) {
  opacity: !engineReady || moveRows.length === 0 ? 0.65 : 1,
  }}
  >
- {reviewInProgress ? "Review Running..." : "Review Now"}
+ {reviewInProgress ? "Review Running..." : "Analyze Game"}
  </button>
  </div>
+
+ {isReviewMode && (
+ <div
+ style={{
+ display: "grid",
+ marginBottom: 8,
+ }}
+ >
+ <SecondaryButton
+ onClick={downloadPgn}
+ disabled={moveRows.length === 0}
+ >
+ Download PGN
+ </SecondaryButton>
+ </div>
+ )}
 
  {reviewProgress.total > 0 && (
  <div style={{ marginBottom: 10 }}>
@@ -2280,6 +3105,242 @@ function reviewShort(label?: ReviewClass) {
  </div>
  )}
 
+
+ {isReviewMode &&
+ weeklyReviewGame !== null &&
+ weeklyTransferTarget && (
+ <div
+ data-name="weekly-transfer-review-card"
+ style={{
+ marginBottom: 12,
+ padding: 12,
+ borderRadius: 12,
+ background: "#211e1b",
+ border: "1px solid rgba(96,165,250,0.48)",
+ boxShadow: "0 8px 20px rgba(0,0,0,0.18)",
+ }}
+ >
+ <div
+ style={{
+ display: "flex",
+ alignItems: "flex-start",
+ justifyContent: "space-between",
+ gap: 10,
+ flexWrap: "wrap",
+ }}
+ >
+ <div style={{ minWidth: 0 }}>
+ <div
+ style={{
+ color: "#93c5fd",
+ fontSize: 11,
+ fontWeight: 950,
+ letterSpacing: 0.9,
+ }}
+ >
+ TRANSFER TEST
+ </div>
+ <div
+ style={{
+ marginTop: 3,
+ color: "#f3f3f3",
+ fontSize: 15,
+ fontWeight: 950,
+ lineHeight: 1.25,
+ }}
+ >
+ {weeklyTransferTarget.label}
+ </div>
+ </div>
+
+ <div
+ style={{
+ display: "flex",
+ gap: 6,
+ flexWrap: "wrap",
+ justifyContent: "flex-end",
+ }}
+ >
+ <span
+ style={{
+ padding: "4px 7px",
+ borderRadius: 999,
+ background: "rgba(37,99,235,0.20)",
+ color: "#bfdbfe",
+ fontSize: 11,
+ fontWeight: 900,
+ }}
+ >
+ Created {weeklyTransferCreatedCount}
+ </span>
+ <span
+ style={{
+ padding: "4px 7px",
+ borderRadius: 999,
+ background: "rgba(101,163,13,0.20)",
+ color: "#d9f99d",
+ fontSize: 11,
+ fontWeight: 900,
+ }}
+ >
+ Recognized {weeklyTransferRecognizedCount}
+ </span>
+ <span
+ style={{
+ padding: "4px 7px",
+ borderRadius: 999,
+ background: "rgba(220,38,38,0.20)",
+ color: "#fecaca",
+ fontSize: 11,
+ fontWeight: 900,
+ }}
+ >
+ Missed {weeklyTransferMissedCount}
+ </span>
+ {weeklyTransferPendingCount > 0 && (
+ <span
+ style={{
+ padding: "4px 7px",
+ borderRadius: 999,
+ background: "rgba(255,255,255,0.08)",
+ color: "#d4d4d4",
+ fontSize: 11,
+ fontWeight: 900,
+ }}
+ >
+ Unresolved {weeklyTransferPendingCount}
+ </span>
+ )}
+ </div>
+ </div>
+
+ {weeklyTransferOpportunities.length === 0 ? (
+ <div
+ style={{
+ marginTop: 10,
+ color: "#b8b8b8",
+ fontSize: 12,
+ lineHeight: 1.45,
+ }}
+ >
+ No genuine {weeklyTransferTarget.label} opportunity was created in this
+ game. This is not counted as a miss.
+ </div>
+ ) : (
+ <div
+ style={{
+ display: "grid",
+ gap: 7,
+ marginTop: 10,
+ }}
+ >
+ {weeklyTransferOpportunities.map((opportunity, index) => (
+ <button
+ key={opportunity.id || `${opportunity.createdAtPly}-${index}`}
+ type="button"
+ onClick={() =>
+ goToPly(
+ Math.max(
+ 0,
+ Math.min(
+ moveRows.length,
+ Math.round(Number(opportunity.createdAtPly) || 0),
+ ),
+ ),
+ )
+ }
+ style={{
+ width: "100%",
+ textAlign: "left",
+ border: "1px solid rgba(255,255,255,0.09)",
+ borderLeft: `4px solid ${weeklyTransferStatusColor(opportunity.status)}`,
+ borderRadius: 9,
+ background: "rgba(255,255,255,0.035)",
+ color: "#f3f3f3",
+ padding: "8px 9px",
+ cursor: "pointer",
+ }}
+ >
+ <div
+ style={{
+ display: "flex",
+ alignItems: "center",
+ justifyContent: "space-between",
+ gap: 8,
+ }}
+ >
+ <span style={{ fontSize: 12, fontWeight: 900 }}>
+ Opportunity {index + 1} after {transferCreatedMoveLabel(opportunity)}
+ </span>
+ <span
+ style={{
+ flex: "0 0 auto",
+ padding: "3px 6px",
+ borderRadius: 999,
+ background: weeklyTransferStatusColor(opportunity.status),
+ color: "#fff",
+ fontSize: 10,
+ fontWeight: 950,
+ letterSpacing: 0.4,
+ }}
+ >
+ {weeklyTransferStatusLabel(opportunity.status)}
+ </span>
+ </div>
+ <div
+ style={{
+ marginTop: 5,
+ color: "#cfcfcf",
+ fontSize: 11,
+ lineHeight: 1.4,
+ }}
+ >
+ Expected: <strong>{transferExpectedMoveLabel(opportunity)}</strong>
+ {opportunity.status !== "offered" && (
+ <>
+ {" "}- Student played:{" "}
+ <strong>{transferPlayedMoveLabel(opportunity)}</strong>
+ </>
+ )}
+ </div>
+ <div
+ style={{
+ marginTop: 4,
+ color: "#93c5fd",
+ fontSize: 10,
+ fontWeight: 850,
+ }}
+ >
+ Show the decision position
+ </div>
+ </button>
+ ))}
+ </div>
+ )}
+ </div>
+ )}
+
+ {isReviewMode &&
+ weeklyReviewGame !== null &&
+ !reviewInProgress &&
+ reviewProgress.total > 0 &&
+ reviewProgress.done >= reviewProgress.total && (
+ <div style={{ marginBottom: 10 }}>
+ <PrimaryButton
+ onClick={() => {
+ window.location.href =
+ weeklyReviewGame === 1
+ ? "/play-computer?weekly=1&continue=2"
+ : "/auto";
+ }}
+ >
+ {weeklyReviewGame === 1
+ ? "Continue to Weekly Game 2"
+ : "Return to Personal Course"}
+ </PrimaryButton>
+ </div>
+ )}
+
  <div
  style={{
  marginTop: 8,
@@ -2287,17 +3348,17 @@ function reviewShort(label?: ReviewClass) {
  borderRadius: 10,
  padding: 8,
  border: "1px solid rgba(255,255,255,0.08)",
- width: "calc(100% + 54px)",
- maxWidth: 260,
+ width: "100%",
+ maxWidth: "none",
  boxSizing: "border-box",
- overflow: "visible",
+ overflow: "hidden",
  }}
  >
  <div
  style={{
  display: "grid",
- gridTemplateColumns: "minmax(104px, 1fr) 46px 48px",
- gap: "6px 8px",
+ gridTemplateColumns: "minmax(118px, 1fr) minmax(54px, 64px) minmax(54px, 64px)",
+ gap: "6px 6px",
  alignItems: "center",
  fontSize: 12,
  }}
@@ -2322,7 +3383,7 @@ function reviewShort(label?: ReviewClass) {
  overflow: "hidden",
  textOverflow: "ellipsis",
  whiteSpace: "nowrap",
- margin: "0 auto 0 24px",
+ margin: "2px auto 0",
  }}
  >
  {whitePlayer}
@@ -2345,7 +3406,7 @@ function reviewShort(label?: ReviewClass) {
  overflow: "hidden",
  textOverflow: "ellipsis",
  whiteSpace: "nowrap",
- margin: "0 auto 0 24px",
+ margin: "2px auto 0",
  }}
  >
  {blackPlayer}
@@ -2557,10 +3618,10 @@ function reviewShort(label?: ReviewClass) {
 
  <div style={{ marginTop: 8 }}>
  <SecondaryButton
- onClick={downloadReviewedPgn}
+ onClick={downloadPgn}
  disabled={moveRows.length === 0}
  >
- Download Reviewed PGN
+ Download PGN
  </SecondaryButton>
  </div>
 
@@ -2784,10 +3845,12 @@ function reviewShort(label?: ReviewClass) {
  </div>
  ) : (
  <div
+ className="analyze-moves-list"
  style={{
- height: "calc(100vh - 300px)",
- maxHeight: "calc(100vh - 300px)",
- minHeight: 420,
+ height: isReviewMode ? "auto" : "calc(100vh - 300px)",
+ maxHeight: isReviewMode ? "none" : "calc(100vh - 300px)",
+ minHeight: isReviewMode ? 0 : 420,
+ flex: isReviewMode ? "1 1 auto" : undefined,
  overflowY: "auto",
  display: "grid",
  gridTemplateColumns: "30px minmax(120px, 1fr) minmax(120px, 1fr)",
