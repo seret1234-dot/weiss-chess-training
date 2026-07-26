@@ -1,289 +1,306 @@
 import { useEffect, useState } from "react"
+import type { CSSProperties } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import { runChessComImport } from "../training/chesscomImport"
+import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
 
-function inputStyle(): React.CSSProperties {
+function sectionCardStyle(): CSSProperties {
  return {
- width: "100%",
- boxSizing: "border-box",
- background: "#262421",
- color: "#ffffff",
- border: "1px solid #4b4847",
- borderRadius: "12px",
- padding: "14px 16px",
- fontSize: "15px",
- outline: "none",
+  background: "#1f1d1c",
+  borderRadius: 24,
+  padding: 30,
+  border: "1px solid rgba(255,255,255,0.06)",
+  boxShadow: "0 14px 34px rgba(0,0,0,0.2)",
  }
 }
 
-function labelStyle(): React.CSSProperties {
+function inputStyle(): CSSProperties {
  return {
- display: "block",
- fontSize: "14px",
- fontWeight: 700,
- marginBottom: "8px",
- color: "#f0ece8",
- }
-}
-
-function sectionCardStyle(): React.CSSProperties {
- return {
- background: "#1f1d1c",
- borderRadius: 24,
- padding: 30,
- border: "1px solid rgba(255,255,255,0.06)",
- boxShadow: "0 14px 34px rgba(0,0,0,0.2)",
+  width: "100%",
+  boxSizing: "border-box",
+  background: "#262421",
+  color: "#ffffff",
+  border: "1px solid #4b4847",
+  borderRadius: "14px",
+  padding: "16px 18px",
+  fontSize: "18px",
+  outline: "none",
  }
 }
 
 export default function OnboardingPage() {
  const navigate = useNavigate()
 
- const [targetRating, setTargetRating] = useState("")
- const [studyTimeValue, setStudyTimeValue] = useState("20")
- const [studyTimeUnit, setStudyTimeUnit] = useState<"minutes" | "hours">("minutes")
+ const [ratingGoal, setRatingGoal] = useState("")
  const [chesscomUsername, setChesscomUsername] = useState("")
- const [lichessUsername, setLichessUsername] = useState("")
  const [saving, setSaving] = useState(false)
  const [error, setError] = useState("")
-
+ const [progressMessage, setProgressMessage] = useState("")
 
  useEffect(() => {
- let cancelled = false
+  let cancelled = false
 
- async function prefillChessComUsername() {
- const { data } = await supabase.auth.getSession()
- const username = data.session?.user?.user_metadata?.chessComUsername
+  async function prefillChessComUsername() {
+   const { data } = await supabase.auth.getSession()
+   const username = data.session?.user?.user_metadata?.chessComUsername
 
- if (!cancelled && typeof username === "string") {
- setChesscomUsername(username.trim())
- }
- }
+   if (!cancelled && typeof username === "string") {
+    setChesscomUsername(username.trim())
+   }
+  }
 
- void prefillChessComUsername()
+  void prefillChessComUsername()
 
- return () => {
- cancelled = true
- }
+  return () => {
+   cancelled = true
+  }
  }, [])
+
  async function handleSave() {
- setSaving(true)
- setError("")
+  setSaving(true)
+  setError("")
+  setProgressMessage("Saving your goal...")
 
- try {
- const {
- data: { user },
- error: userError,
- } = await supabase.auth.getUser()
+  try {
+   const { data: sessionData } = await supabase.auth.getSession()
+   const user = sessionData.session?.user
 
- if (userError) throw userError
- if (!user) {
- navigate("/auth")
- return
- }
+   if (!user) {
+    navigate("/auth")
+    return
+   }
 
- const parsedTarget =
- targetRating.trim() === "" ? null : Number.parseInt(targetRating, 10)
+   const parsedTarget =
+    ratingGoal.trim() === "" ? null : Number.parseInt(ratingGoal.trim(), 10)
 
- const parsedStudyTime = Number.parseInt(studyTimeValue, 10)
+   if (parsedTarget !== null && Number.isNaN(parsedTarget)) {
+    throw new Error("Enter a number, for example 1500")
+   }
 
- if (parsedTarget !== null && Number.isNaN(parsedTarget)) {
- throw new Error("Target rating must be a number")
- }
+   const metadata = user.user_metadata as {
+    chessComUsername?: string | null
+    lichessUsername?: string | null
+   }
 
- if (Number.isNaN(parsedStudyTime) || parsedStudyTime <= 0) {
- throw new Error("Choose how much time you want to study each day")
- }
+   const metadataChesscomUsername = metadata.chessComUsername?.trim() || ""
+   const resolvedChesscomUsername =
+    chesscomUsername.trim() || metadataChesscomUsername
+   const lichessUsername = metadata.lichessUsername?.trim() || null
 
- const parsedMinutes =
- studyTimeUnit === "hours" ? parsedStudyTime * 60 : parsedStudyTime
+   if (!resolvedChesscomUsername) {
+    throw new Error("Enter your Chess.com username to import your games.")
+   }
 
- const resolvedChesscomUsername =
- chesscomUsername.trim() || String(user.user_metadata?.chessComUsername || "").trim()
+   localStorage.setItem(
+    "weissChess:onboardingGoal:v1",
+    JSON.stringify({
+     ratingGoal: parsedTarget,
+     chesscomUsername: resolvedChesscomUsername,
+     lichessUsername,
+     updatedAt: new Date().toISOString(),
+    }),
+   )
 
- if (!resolvedChesscomUsername) {
- throw new Error("Enter your Chess.com username to import your games")
- }
+   const defaultDailyMinutes = 20
 
- // Save profile
- const { error: profileError } = await supabase
- .from("profiles")
- .update({
- target_rating: parsedTarget,
- minutes_per_day: parsedMinutes,
- chesscom_username: resolvedChesscomUsername,
- lichess_username: lichessUsername.trim() || null,
- })
- .eq("id", user.id)
+   const { error: profileError } = await supabase
+    .from("profiles")
+    .update({
+     target_rating: parsedTarget,
+     minutes_per_day: defaultDailyMinutes,
+     chesscom_username: resolvedChesscomUsername,
+     lichess_username: lichessUsername,
+    })
+    .eq("id", user.id)
 
- if (profileError) throw profileError
+   if (profileError) throw profileError
 
- const hasUsername =
- resolvedChesscomUsername.length > 0 || lichessUsername.trim().length > 0
+   const { error: autoProfileError } = await supabase
+    .from("user_auto_profile")
+    .upsert({
+     user_id: user.id,
+     target_rating: parsedTarget,
+     estimated_rating: null,
+     daily_minutes: defaultDailyMinutes,
+     chesscom_username: resolvedChesscomUsername,
+     lichess_username: lichessUsername,
+     rating_source: null,
+     onboarding_step: 1,
+     onboarding_complete: false,
+    })
 
- // Save auto profile
- const { error: autoProfileError } = await supabase
- .from("user_auto_profile")
- .upsert({
- user_id: user.id,
- estimated_rating: parsedTarget,
- daily_minutes: parsedMinutes,
- chesscom_username: resolvedChesscomUsername,
- lichess_username: lichessUsername.trim() || null,
- rating_source: hasUsername ? "manual" : null,
- onboarding_step: 1,
- onboarding_complete: false,
- })
+   if (autoProfileError) throw autoProfileError
 
- if (autoProfileError) throw autoProfileError
+   const { error: planError } = await supabase
+    .from("user_study_plan")
+    .upsert({
+     user_id: user.id,
+     max_active_trainers: 3,
+     new_content_pace: "moderate",
+     mates_weight: 30,
+     tactics_weight: 35,
+     endgames_weight: 25,
+     board_vision_weight: 20,
+     openings_weight: 15,
+     master_games_weight: 10,
+    })
 
- // Build study plan
- let maxActive = 3
- let pace = "moderate"
+   if (planError) throw planError
 
- if (parsedMinutes <= 10) {
- maxActive = 2
- pace = "slow"
- } else if (parsedMinutes >= 45 && parsedMinutes < 120) {
- maxActive = 4
- pace = "fast"
- } else if (parsedMinutes >= 120) {
- maxActive = 5
- pace = "fast"
- }
+   setProgressMessage("Importing recent Chess.com games...")
+   await runChessComImport(resolvedChesscomUsername, user.id)
 
- let mates = 30
- let endgames = 25
- let boardVision = 20
- let openings = 15
- let masterGames = 10
+   setProgressMessage("Starting Stockfish analysis...")
+   const analysisResult = await analyzeImportedGamesWithStockfish(user.id, {
+    maxGames: 150,
+    depth: 8,
+    minLossCp: 70,
+    onProgress: (progress) => {
+     setProgressMessage(progress.message)
+    },
+   })
 
- if (hasUsername) {
- openings = 20
- masterGames = 15
- mates = 25
- }
+   setProgressMessage(
+    `Analyzed ${analysisResult.gamesAnalyzed} games and found ${analysisResult.mistakesFound} training mistakes.`,
+   )
 
- const { error: planError } = await supabase
- .from("user_study_plan")
- .upsert({
- user_id: user.id,
- max_active_trainers: maxActive,
- new_content_pace: pace,
- mates_weight: mates,
- endgames_weight: endgames,
- board_vision_weight: boardVision,
- openings_weight: openings,
- master_games_weight: masterGames,
- })
+   const { error: completionError } = await supabase
+    .from("user_auto_profile")
+    .update({
+     onboarding_step: 2,
+     onboarding_complete: true,
+    })
+    .eq("user_id", user.id)
 
- if (planError) throw planError
+   if (completionError) throw completionError
 
- const importResult = await runChessComImport(resolvedChesscomUsername, user.id)
-
- if (!importResult.importedGamesSaved || !importResult.profileSaved) {
- throw new Error("Chess.com import did not finish saving your training data.")
- }
-
- const { error: completionError } = await supabase
- .from("user_auto_profile")
- .update({
- onboarding_step: 2,
- onboarding_complete: true,
- })
- .eq("user_id", user.id)
-
- if (completionError) throw completionError
- // Go to AUTO after onboarding and import persistence succeed.
- window.location.replace("/auto")
- } catch (err) {
- setError(err instanceof Error ? err.message : "Failed to save onboarding")
- } finally {
- setSaving(false)
- }
+   window.location.replace("/auto")
+  } catch (err) {
+   console.error("Onboarding save failed", err)
+   setError(err instanceof Error ? err.message : JSON.stringify(err, null, 2))
+  } finally {
+   setSaving(false)
+  }
  }
 
  return (
- <div
- style={{
- minHeight: "100vh",
- background: "linear-gradient(180deg, #2b2623 0%, #231f1d 100%)",
- color: "#f3f3f3",
- fontFamily: "Arial, sans-serif",
- display: "flex",
- alignItems: "center",
- justifyContent: "center",
- padding: 24,
- }}
- >
- <div
- style={{
- width: "100%",
- maxWidth: 900,
- display: "grid",
- gridTemplateColumns: "1.15fr 0.85fr",
- gap: 20,
- }}
- >
- {/* LEFT */}
- <div style={sectionCardStyle()}>
- <h1>Set your study plan</h1>
+  <div
+   style={{
+    minHeight: "100vh",
+    background: "linear-gradient(180deg, #2b2623 0%, #231f1d 100%)",
+    color: "#f3f3f3",
+    fontFamily: "Arial, sans-serif",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+   }}
+  >
+   <div
+    style={{
+     width: "100%",
+     maxWidth: 760,
+    }}
+   >
+    <div style={sectionCardStyle()}>
+     <div
+      style={{
+       display: "inline-flex",
+       borderRadius: 999,
+       background: "rgba(129,182,76,0.18)",
+       padding: "6px 10px",
+       color: "#d8f4ce",
+       fontWeight: 800,
+       fontSize: 13,
+       marginBottom: 16,
+      }}
+     >
+      Personalized chess course
+     </div>
 
- <div style={{ display: "grid", gap: 20 }}>
- <input
- style={inputStyle()}
- value={targetRating}
- onChange={(e) => setTargetRating(e.target.value)}
- placeholder="Target rating (optional)"
- />
+     <h1 style={{ margin: "0 0 10px", fontSize: 38 }}>What is your rating goal?</h1>
 
- <div style={{ display: "grid", gridTemplateColumns: "1fr 160px", gap: 10 }}>
- <input
- style={inputStyle()}
- value={studyTimeValue}
- onChange={(e) => setStudyTimeValue(e.target.value)}
- />
- <select
- style={inputStyle()}
- value={studyTimeUnit}
- onChange={(e) =>
- setStudyTimeUnit(e.target.value as "minutes" | "hours")
- }
- >
- <option value="minutes">Minutes</option>
- <option value="hours">Hours</option>
- </select>
- </div>
+     <p style={{ color: "#cfcfcf", lineHeight: 1.5, fontSize: 16, maxWidth: 620 }}>
+      That is the only question. Your current rating, openings, weaknesses, time controls,
+      and training priorities will come from your connected games.
+     </p>
 
- <input
- style={inputStyle()}
- value={chesscomUsername}
- onChange={(e) => setChesscomUsername(e.target.value)}
- placeholder="Chess.com username"
- />
+     <label
+      htmlFor="onboarding-chesscom-username"
+      style={{ display: "block", marginBottom: 8, fontSize: 14, fontWeight: 800 }}
+     >
+      Chess.com username
+     </label>
+     <input
+      id="onboarding-chesscom-username"
+      style={inputStyle()}
+      value={chesscomUsername}
+      onChange={(event) => setChesscomUsername(event.target.value)}
+      placeholder="Your Chess.com username"
+      autoComplete="username"
+     />
+     <p style={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.45 }}>
+      We use this to import your recent games and personalize your course.
+     </p>
 
- <input
- style={inputStyle()}
- value={lichessUsername}
- onChange={(e) => setLichessUsername(e.target.value)}
- placeholder="Lichess username"
- />
- </div>
+     <input
+      style={inputStyle()}
+      value={ratingGoal}
+      onChange={(e) => setRatingGoal(e.target.value)}
+      placeholder="Example: 1500"
+      inputMode="numeric"
+     />
 
- {error && <div style={{ marginTop: 20 }}>{error}</div>}
+     <p style={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.45 }}>
+      Leave empty if you do not have an exact number yet.
+     </p>
 
- <button onClick={handleSave} disabled={saving} style={{ marginTop: 20 }}>
- {saving ? "Saving..." : "Start training"}
- </button>
- </div>
+           {error && <div style={{ marginTop: 16, color: "#ffb3b3" }}>{error}</div>}
+      {saving && progressMessage && (
+       <div style={{ marginTop: 16, color: "#d8f4ce", lineHeight: 1.45 }}>
+        {progressMessage}
+       </div>
+      )}
 
- {/* RIGHT */}
- <div style={sectionCardStyle()}>
- <h2>What this affects</h2>
- <p>Study pacing, openings, and training mix.</p>
- </div>
- </div>
- </div>
+     <button
+      type="button"
+      onClick={handleSave}
+      disabled={saving}
+      style={{
+       marginTop: 18,
+       width: "100%",
+       border: "none",
+       borderRadius: 14,
+       background: "#81b64c",
+       color: "#fff",
+       padding: "15px 18px",
+       fontWeight: 900,
+       fontSize: 16,
+       cursor: "pointer",
+       opacity: saving ? 0.7 : 1,
+      }}
+     >
+      {saving ? progressMessage || "Building your course..." : "Build my course"}
+     </button>
+
+     <div
+      style={{
+       marginTop: 24,
+       borderRadius: 16,
+       background: "rgba(0,0,0,0.22)",
+       border: "1px solid rgba(255,255,255,0.08)",
+       padding: 16,
+      }}
+     >
+      <h2 style={{ marginTop: 0 }}>What happens next</h2>
+      <p style={{ color: "#cfcfcf", lineHeight: 1.45, marginBottom: 0 }}>
+       The site imports your recent games, detects repeated mistakes, diagnoses your openings,
+       and builds a training plan connected to the existing trainers.
+      </p>
+     </div>
+    </div>
+   </div>
+  </div>
  )
 }
