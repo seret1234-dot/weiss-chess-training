@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback } from "react"
 import { createPortal } from "react-dom"
 import { useLocation } from "react-router-dom"
 import { useBoardUiContext } from "../context/BoardUiContext"
@@ -40,39 +40,6 @@ export default function GlobalFloatingPlay({
 }) {
   const location = useLocation()
   const { boardState } = useBoardUiContext()
-  const [isDesktopMenuOpen, setIsDesktopMenuOpen] = useState(false)
-  const desktopMenuRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    setIsDesktopMenuOpen(false)
-  }, [location.pathname, location.search])
-
-  useEffect(() => {
-    if (!isDesktopMenuOpen) return
-
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target
-
-      if (
-        target instanceof Node &&
-        !desktopMenuRef.current?.contains(target)
-      ) {
-        setIsDesktopMenuOpen(false)
-      }
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsDesktopMenuOpen(false)
-    }
-
-    document.addEventListener("pointerdown", handlePointerDown, true)
-    document.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown, true)
-      document.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [isDesktopMenuOpen])
 
   const fenFromUrl = new URLSearchParams(location.search).get("fen")
 
@@ -138,31 +105,16 @@ export default function GlobalFloatingPlay({
     }
   }, [isLoggedIn])
 
-  const runDesktopAction = useCallback(
-    (action: () => void | Promise<void>) => {
-      setIsDesktopMenuOpen(false)
-      void action()
-    },
-    [],
-  )
-
   return createPortal(
     <>
-      <div
-        ref={desktopMenuRef}
-        className={`global-floating-play-desktop${
-          isDesktopMenuOpen ? " global-floating-play-desktop--open" : ""
-        }`}
-      >
-        {isDesktopMenuOpen && (
-          <div
-            id="global-desktop-quick-menu"
-            className="global-floating-play-desktop__panel"
-            aria-label="Quick actions"
-          >
+      <div className="global-floating-play-desktop">
+        <div
+          className="global-floating-play-desktop__panel"
+          aria-label="Quick actions"
+        >
             <button
               type="button"
-              onClick={() => runDesktopAction(goHome)}
+              onClick={goHome}
               style={btnStyle}
             >
               Home
@@ -170,7 +122,7 @@ export default function GlobalFloatingPlay({
 
             <button
               type="button"
-              onClick={() => runDesktopAction(goFunChess)}
+              onClick={goFunChess}
               style={btnStyle}
             >
               Fun Chess
@@ -178,7 +130,7 @@ export default function GlobalFloatingPlay({
 
             <button
               type="button"
-              onClick={() => runDesktopAction(goAnalyze)}
+              onClick={goAnalyze}
               style={btnStyle}
             >
               {hasBoard ? "Analyze Position" : "Analyze"}
@@ -186,7 +138,7 @@ export default function GlobalFloatingPlay({
 
             <button
               type="button"
-              onClick={() => runDesktopAction(goPlayComputer)}
+              onClick={goPlayComputer}
               style={{
                 ...btnStyle,
                 background:
@@ -200,7 +152,7 @@ export default function GlobalFloatingPlay({
             {boardState.isAvailable && (
               <button
                 type="button"
-                onClick={() => runDesktopAction(flipBoard)}
+                onClick={flipBoard}
                 disabled={!boardState.canFlip}
                 style={{
                   ...btnStyle,
@@ -212,16 +164,13 @@ export default function GlobalFloatingPlay({
               </button>
             )}
 
-            <div
-              className="global-floating-play-desktop__theme"
-              onClick={() => setIsDesktopMenuOpen(false)}
-            >
+            <div className="global-floating-play-desktop__theme">
               <ThemeSelector compact />
             </div>
 
             <button
               type="button"
-              onClick={() => runDesktopAction(goAccount)}
+              onClick={goAccount}
               style={btnStyle}
             >
               Account
@@ -229,7 +178,7 @@ export default function GlobalFloatingPlay({
 
             <button
               type="button"
-              onClick={() => runDesktopAction(handleAuth)}
+              onClick={handleAuth}
               style={{
                 ...btnStyle,
                 background: isLoggedIn
@@ -239,18 +188,7 @@ export default function GlobalFloatingPlay({
             >
               {isLoggedIn ? "Logout" : "Login"}
             </button>
-          </div>
-        )}
-
-        <button
-          type="button"
-          className="global-floating-play-desktop__toggle"
-          aria-expanded={isDesktopMenuOpen}
-          aria-controls="global-desktop-quick-menu"
-          onClick={() => setIsDesktopMenuOpen((open) => !open)}
-        >
-          Menu
-        </button>
+        </div>
       </div>
       <nav
         className="global-mobile-nav"

@@ -15,8 +15,7 @@
   --site-global-back-clearance: 0px;
 }
 
-.global-floating-play-desktop__panel,
-.global-floating-play-desktop__toggle {
+.global-floating-play-desktop__panel {
   pointer-events: auto;
 }
 
@@ -30,25 +29,6 @@
   overscroll-behavior: contain;
 }
 
-.global-floating-play-desktop__toggle {
-  min-width: 72px;
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 1px solid var(--theme-border);
-  border-radius: 14px;
-  background: var(--theme-panel);
-  color: var(--theme-text);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.global-floating-play-desktop__toggle:hover,
-.global-floating-play-desktop__toggle:focus-visible {
-  background: var(--theme-button-bg);
-}
-
 .global-floating-play-desktop__theme {
   display: flex;
 }
@@ -56,6 +36,32 @@
 .global-floating-play-desktop__theme > *,
 .global-floating-play-desktop__theme button {
   width: 100%;
+}
+
+/* At common laptop widths, the trainer's desktop side panel already uses the
+   right edge of the viewport. Keep every quick action visible, while fitting
+   the permanently expanded menu into the remaining gutter. */
+@media (min-width: 769px) and (max-width: 1421px) {
+  body {
+    box-sizing: border-box;
+    padding-right: 198px;
+  }
+
+  .global-floating-play-desktop__panel {
+    width: 170px;
+  }
+
+  .global-floating-play-desktop__theme .theme-quick-toggle {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .global-floating-play-desktop__theme .theme-quick-toggle span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .global-mobile-nav {
