@@ -43,13 +43,11 @@ export default function AutoTrainingController({ user }: { user: any }) {
  return (
   <button
    type="button"
+   className="auto-training-controller"
    onClick={continueCourse}
    disabled={moving}
    title="Finish this drill and open the next item in your personal course"
    style={{
-    position: "fixed",
-    right: 190,
-    bottom: 18,
     zIndex: 10020,
     border: "1px solid rgba(255,255,255,0.18)",
     borderRadius: 14,

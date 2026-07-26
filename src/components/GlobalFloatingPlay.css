@@ -38,6 +38,18 @@
   width: 100%;
 }
 
+/* The adaptive-course action is fixed independently of page layouts. Center
+   it so it never occupies the permanently expanded right-side menu column. */
+.auto-training-controller {
+  position: fixed;
+  left: 50%;
+  right: auto;
+  bottom: 20px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  transform: translateX(-50%);
+}
+
 /* At common laptop widths, the trainer's desktop side panel already uses the
    right edge of the viewport. Keep every quick action visible, while fitting
    the permanently expanded menu into the remaining gutter. */
@@ -97,6 +109,13 @@
 
   .global-floating-play-desktop {
     display: none;
+  }
+
+  .auto-training-controller {
+    left: 50%;
+    right: auto;
+    bottom: calc(var(--site-fixed-bottom-clearance) + 12px);
+    max-width: calc(100vw - 24px);
   }
 
   .global-mobile-nav {
