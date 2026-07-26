@@ -1,5 +1,3 @@
-import stockfishUrl from 'stockfish/bin/stockfish.js?url'
-
 export type EngineResult = {
  bestMove: string | null
  eval: number | null
@@ -13,7 +11,7 @@ export class BNEngine {
  private lastMate: number | null = null
 
  constructor() {
- this.worker = new Worker(stockfishUrl, { type: 'module' })
+ this.worker = new Worker('/stockfish/stockfish.js')
  this.worker.onmessage = (e) => this.handleMessage(e.data)
 
  this.send('uci')

@@ -5,6 +5,11 @@ import { BNEngine } from './lib/bnEngine'
 import type { EngineResult } from './lib/bnEngine'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
 import { supabase } from './lib/supabase'
+import { showCoachMistake } from './services/coach/coachPopup'
+import {
+  buildEndgameProgressRows,
+  getEndgameReviewMastery,
+} from './training/endgameReview'
 import TrainerShell from './components/trainer/TrainerShell'
 import {
  BigMessage,
@@ -16,6 +21,8 @@ import {
  SecondaryButton,
  ShellInput,
 } from './components/trainer/ui'
+
+import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
 
 type RawTrainingPosition = {
  id?: string
@@ -388,7 +395,7 @@ async function loadStoredProgress(): Promise<TrainerProgress | null> {
 
  const { data, error } = await supabase
  .from('training_progress')
- .select('item_id, mastery, updated_at')
+ .select('item_id, mastery, next_review_at, updated_at')
  .eq('user_id', user.id)
  .eq('course', 'endgame')
  .eq('theme', 'bn')
@@ -399,16 +406,34 @@ async function loadStoredProgress(): Promise<TrainerProgress | null> {
 
  for (const row of data) {
  const itemId = String(row.item_id ?? '')
- const mastery = Number(row.mastery ?? 0)
+ const storedMastery = Number(row.mastery ?? 0)
+    const reviewMastery = getEndgameReviewMastery(
+      storedMastery,
+      row.next_review_at,
+      POSITION_FAST_SOLVES_TO_MASTER,
+    )
  const updatedAtMs = row.updated_at ? Date.parse(String(row.updated_at)) : 0
  if (resetAtMs && updatedAtMs && updatedAtMs <= resetAtMs) continue
  if (!itemId) continue
 
- merged.positions[itemId] = {
- fastSolves: mastery,
- totalSolves: Math.max(merged.positions[itemId]?.totalSolves ?? 0, mastery),
- mastered: mastery >= POSITION_FAST_SOLVES_TO_MASTER,
- }
+ const localStats = merged.positions[itemId]
+    const bestMastery =
+      reviewMastery < storedMastery
+        ? reviewMastery
+        : Math.max(
+            localStats?.fastSolves ?? 0,
+            reviewMastery,
+          )
+
+    merged.positions[itemId] = {
+      fastSolves: bestMastery,
+      totalSolves: Math.max(
+        localStats?.totalSolves ?? 0,
+        bestMastery,
+      ),
+      mastered:
+        bestMastery >= POSITION_FAST_SOLVES_TO_MASTER,
+    }
  }
 
  return merged
@@ -444,16 +469,19 @@ async function saveProgress(progress: TrainerProgress) {
  const user = authData.user
  if (!user) return
 
- const rows = Object.entries(progress.positions).map(([itemId, stats]) => ({
- user_id: user.id,
- course: 'endgame',
- theme: 'bn',
- item_id: itemId,
- mastery: stats.fastSolves,
- updated_at: new Date().toISOString(),
- }))
+ const rows = await buildEndgameProgressRows({
+    userId: user.id,
+    theme: 'bn',
+    target: POSITION_FAST_SOLVES_TO_MASTER,
+    items: Object.entries(progress.positions).map(
+      ([itemId, stats]) => ({
+        itemId,
+        mastery: stats.fastSolves,
+      }),
+    ),
+  })
 
- if (rows.length === 0) {
+if (rows.length === 0) {
  const { error } = await supabase
  .from('training_progress')
  .delete()
@@ -565,28 +593,47 @@ function isStrictTrainingChunk(chunkFile: string | null) {
 }
 
 function getEvalBarSplit(engineInfo: EngineResult | null) {
- if (engineInfo?.mate !== null && engineInfo?.mate !== undefined) {
- return engineInfo.mate > 0 ? 92 : 8
- }
+  if (engineInfo?.mate !== null && engineInfo?.mate !== undefined) {
+    return engineInfo.mate > 0 ? 92 : 8
+  }
 
- if (engineInfo?.eval !== null && engineInfo?.eval !== undefined) {
- const clamped = Math.max(-4, Math.min(4, engineInfo.eval))
- return Math.max(5, Math.min(95, 50 + clamped * 10))
- }
+  if (
+    engineInfo?.eval !== null &&
+    engineInfo?.eval !== undefined &&
+    Math.abs(engineInfo.eval) > 0.05
+  ) {
+    const clamped = Math.max(-4, Math.min(4, engineInfo.eval))
+    return Math.max(5, Math.min(95, 50 + clamped * 10))
+  }
 
- return 50
+  // K+B+N versus K is theoretically winning even when the engine
+  // cannot prove the long mate at the current search depth.
+  return 88
 }
 
 function getTopEvalLabel(engineInfo: EngineResult | null) {
- if (engineInfo?.mate !== null && engineInfo?.mate !== undefined) {
- return engineInfo.mate > 0 ? `M${Math.abs(engineInfo.mate)}` : ''
- }
+  if (engineInfo?.mate !== null && engineInfo?.mate !== undefined) {
+    return engineInfo.mate > 0 ? `M${Math.abs(engineInfo.mate)}` : ''
+  }
 
- if (engineInfo?.eval !== null && engineInfo?.eval !== undefined && engineInfo.eval > 0) {
- return `${engineInfo.eval > 0 ? '+' : ''}${engineInfo.eval}`
- }
+  if (
+    engineInfo?.eval !== null &&
+    engineInfo?.eval !== undefined &&
+    engineInfo.eval > 0.05
+  ) {
+    return `+${engineInfo.eval}`
+  }
 
- return ''
+  if (
+    !engineInfo ||
+    engineInfo.eval === null ||
+    engineInfo.eval === undefined ||
+    Math.abs(engineInfo.eval) <= 0.05
+  ) {
+    return '+6.0'
+  }
+
+  return ''
 }
 
 function getBottomEvalLabel(engineInfo: EngineResult | null) {
@@ -846,13 +893,15 @@ export default function BNMateTrainer() {
  }
 
  async function evaluatePosition(fen: string) {
- if (!engineRef.current) return null
- try {
- return await engineRef.current.analyze(fen, ENGINE_DEPTH)
- } catch {
- return null
- }
- }
+  if (!engineRef.current) return null
+
+  try {
+    return await engineRef.current.analyze(fen, ENGINE_DEPTH)
+  } catch (error) {
+    console.error('BN engine analysis failed:', error)
+    return null
+  }
+}
 
  async function analyzeCurrentFen(fen: string) {
  const token = ++analysisTokenRef.current
@@ -1508,6 +1557,23 @@ export default function BNMateTrainer() {
  ) {
  clearPendingFeedbackTimeout()
 
+  try {
+    showCoachMistake({
+      fenBefore: game.fen(),
+      userMoveUci: `${move.from}${move.to}${move.promotion ?? ''}`,
+      evalLossCp: nextGame.isStalemate() ? 300 : 180,
+      phase: 'endgame',
+      source: 'trainer',
+      trainerId: 'bn-mate',
+      theme: currentThemeId ?? 'bishop-knight-mate',
+      goal:
+        currentThemeConfig?.label ??
+        'Mate with bishop and knight',
+    })
+  } catch {
+    // BN coach popup should never block trainer play.
+  }
+
  const blackKingSquare = getBlackKingSquare(nextGame)
  const escapes = getBlackKingEscapeSquares(nextGame)
 
@@ -1537,6 +1603,11 @@ export default function BNMateTrainer() {
  correctMove: { from: string; to: string; promotion?: string }
  ) {
  if (!progress || !currentThemeId || !currentPosition || !currentThemeConfig) return
+ reportTrainingItemCompleted(
+  "endgame",
+  `${currentThemeId}:${currentPosition.id}`,
+ )
+
 
  clearPendingFeedbackTimeout()
  setFlashSolvedPositionId(currentPosition.id)
@@ -1671,8 +1742,8 @@ export default function BNMateTrainer() {
  await analyzeCurrentFen(replyResult.game.fen())
  }
 
- async function showHintAction() {
- if (loadingChunk || inputLocked || !currentPosition) return
+ async function getHintMoveForAction() {
+ if (loadingChunk || inputLocked || !currentPosition) return null
 
  const analysis = engineInfo ?? await evaluatePosition(game.fen())
  const hintMoveUci = chooseHintMove(game, currentPosition, currentChunkFile, analysis)
@@ -1680,21 +1751,17 @@ export default function BNMateTrainer() {
  if (!hintMoveUci) {
  setStatus('Hint')
  setMessage('No legal hint available.')
- return
+ return null
  }
 
  const parsed = parseUciMove(hintMoveUci)
  if (!parsed) {
  setStatus('Hint')
  setMessage(`Suggested move: ${hintMoveUci}`)
- return
+ return null
  }
 
- setMarkedSquare(parsed.from)
- setHintSquares([parsed.to])
- setEscapeSquares([])
- setStatus('Hint')
- setMessage(`Try ${parsed.from} → ${parsed.to}${parsed.promotion ? ` (${parsed.promotion})` : ''}`)
+ return parsed
  }
 
  async function validateByEngine(
@@ -2254,7 +2321,16 @@ export default function BNMateTrainer() {
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: 'grid', gap: 8 }}>
- <HintButton onClick={() => void showHintAction()}>
+ <HintButton
+ getHintMove={getHintMoveForAction}
+ onHintStage={(move, stage) => {
+ setEscapeSquares([])
+ setStatus('Hint')
+ setMessage(stage === 'piece' ? 'The piece to move is highlighted.' : `Try ${move.from} → ${move.to}`)
+ }}
+ hintResetKey={`${currentPosition?.id ?? ''}:${game.fen()}`}
+ disabled={loadingChunk || inputLocked}
+ >
  Hint
  </HintButton>
 

@@ -1,5 +1,6 @@
 import {
  BigMessage,
+ HintButton,
  PanelCard,
  SectionTitle,
 } from './components/trainer/ui'
@@ -15,7 +16,14 @@ import { BNEngine } from "./lib/bnEngine"
 import type { EngineResult } from './lib/bnEngine'
 import { useRegisterPlayableBoard } from "./hooks/useRegisterPlayableBoard"
 import { supabase } from "./lib/supabase"
+import {
+  buildEndgameProgressRows,
+  getEndgameReviewMastery,
+} from './training/endgameReview'
 import TrainerShell from './components/trainer/TrainerShell'
+import { showCoachMistake } from './services/coach/coachPopup'
+
+import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
 
 type ChunkPosition = {
  line_number: number
@@ -612,7 +620,7 @@ async function loadStoredProgress(): Promise<Record<string, PuzzleProgress>> {
 
  const { data, error } = await supabase
  .from('training_progress')
- .select('item_id, mastery')
+ .select('item_id, mastery, next_review_at')
  .eq('user_id', user.id)
  .eq('course', 'endgame')
  .eq('theme', 'kbbk')
@@ -623,11 +631,20 @@ async function loadStoredProgress(): Promise<Record<string, PuzzleProgress>> {
 
  for (const row of data) {
  const itemId = String(row.item_id ?? '')
- const mastery = Number(row.mastery ?? 0)
+ const storedMastery = Number(row.mastery ?? 0)
  if (!itemId) continue
 
- const localStats = merged[itemId]
- const bestMastery = Math.max(localStats?.fastSolves ?? 0, mastery)
+ const reviewMastery = getEndgameReviewMastery(
+      storedMastery,
+      row.next_review_at,
+      FAST_SOLVES_TO_MASTER,
+    )
+
+    const localStats = merged[itemId]
+    const bestMastery =
+      reviewMastery < storedMastery
+        ? reviewMastery
+        : Math.max(localStats?.fastSolves ?? 0, reviewMastery)
 
  merged[itemId] = {
  fastSolves: bestMastery,
@@ -646,14 +663,15 @@ async function saveProgress(progressMap: Record<string, PuzzleProgress>) {
  const user = authData.user
  if (!user) return
 
- const rows = Object.entries(progressMap).map(([itemId, stats]) => ({
- user_id: user.id,
- course: 'endgame',
- theme: 'kbbk',
- item_id: itemId,
- mastery: stats.fastSolves,
- updated_at: new Date().toISOString(),
- }))
+ const rows = await buildEndgameProgressRows({
+    userId: user.id,
+    theme: 'kbbk',
+    target: FAST_SOLVES_TO_MASTER,
+    items: Object.entries(progressMap).map(([itemId, stats]) => ({
+      itemId,
+      mastery: stats.fastSolves,
+    })),
+  })
 
  if (rows.length === 0) return
 
@@ -1340,6 +1358,11 @@ export default function TwoBishopsFinalTrainer() {
  }
 
  async function finishSuccess(successText: string, finalMoveElapsedMs?: number) {
+ reportTrainingItemCompleted(
+  "endgame",
+  currentPuzzleId || "endgame-puzzle",
+ )
+
  const { nextMap, nextStats, wasFast } = registerSolveForCurrentPuzzle(finalMoveElapsedMs)
 
  setLocked(true)
@@ -1423,6 +1446,41 @@ export default function TwoBishopsFinalTrainer() {
  nextStatus: string,
  nextMessage: string,
  ) {
+
+  // Reliable piece-mate coach: two-bishops
+  try {
+    const coachFenBefore = game.fen()
+    const coachUserMoveUci =
+      move.from && move.to
+        ? `${move.from}${move.to}${move.promotion ?? ''}`
+        : undefined
+
+    const coachHistory = nextGame.history({
+      verbose: true,
+    }) as Array<{ san?: string }>
+
+    const coachLastMove =
+      coachHistory.length > 0
+        ? coachHistory[coachHistory.length - 1]
+        : undefined
+
+    showCoachMistake({
+      fenBefore: coachFenBefore,
+      userMoveSan: coachLastMove?.san,
+      userMoveUci: coachUserMoveUci,
+      bestMoveUci: engineInfo?.bestMove ?? undefined,
+      evalLossCp: nextGame.isStalemate() ? 300 : 180,
+      phase: 'endgame',
+      source: 'trainer',
+      trainerId: 'two-bishops',
+    })
+  } catch (error) {
+    console.error(
+      '[PIECE COACH ERROR] two-bishops',
+      error
+    )
+  }
+
  const bk = getBlackKingSquare(nextGame)
  const escapes = getLegalBlackKingMoves(nextGame)
  setGame(nextGame)
@@ -1438,18 +1496,12 @@ export default function TwoBishopsFinalTrainer() {
  await resetPuzzle()
  }
 
- async function showHint() {
- clearHighlights()
-
+ async function getHintMoveForAction() {
  if (mode.kind === 'phase1') {
  const step = activeSteps[stepIndex]
  const move = parseUci(step?.whiteUci)
- if (!move) return
- setMarkedSquares([move.from])
- setHintSquares([move.to])
- setStatus('Hint')
- setMessage(`Try ${move.from} - ${move.to}`)
- return
+ if (!move) return null
+ return move
  }
 
  const info =
@@ -1463,13 +1515,10 @@ export default function TwoBishopsFinalTrainer() {
  if (!parsed) {
  setStatus('Hint')
  setMessage('No hint available')
- return
+ return null
  }
 
- setMarkedSquares([parsed.from])
- setHintSquares([parsed.to])
- setStatus('Hint')
- setMessage(`Try ${parsed.from} -> ${parsed.to}`)
+ return parsed
  }
 
  async function playEngineBlackMove(afterWhiteGame: Chess) {
@@ -2076,9 +2125,18 @@ export default function TwoBishopsFinalTrainer() {
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: 'grid', gap: 8 }}>
- <button onClick={() => void showHint()} style={primaryButton('#3d6d8a')}>
+ <HintButton
+ getHintMove={getHintMoveForAction}
+ onHintStage={(move, stage) => {
+ setStatus('Hint')
+ setMessage(stage === 'piece' ? 'The piece to move is highlighted.' : `Try ${move.from} -> ${move.to}`)
+ }}
+ hintResetKey={`${currentPuzzleId}:${game.fen()}:${stepIndex}`}
+ disabled={locked}
+ style={primaryButton('#3d6d8a')}
+ >
  Hint
- </button>
+ </HintButton>
 
  <button onClick={() => void resetPuzzle()} style={primaryButton('#4b4847')}>
  Restart position

@@ -4,10 +4,15 @@ import { Chess } from 'chess.js'
 import { BNEngine } from './lib/bnEngine'
 import type { EngineResult } from './lib/bnEngine'
 import { supabase } from './lib/supabase'
+import {
+  buildEndgameProgressRows,
+  getEndgameReviewMastery,
+} from './training/endgameReview'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
 import TrainerShell from './components/trainer/TrainerShell'
 import {
  BigMessage,
+ HintButton,
  PanelCard,
  PrimaryButton,
  ProgressBar,
@@ -15,6 +20,9 @@ import {
  SecondaryButton,
 } from './components/trainer/ui'
 import kqkData from './kqk_mates_1_to_9.json'
+import { showCoachMistake } from './services/coach/coachPopup'
+
+import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
 
 type RawPosition = {
  fen: string
@@ -353,7 +361,7 @@ async function loadStoredProgress(): Promise<Record<string, PuzzleProgress>> {
 
  const { data, error } = await supabase
  .from('training_progress')
- .select('item_id, mastery')
+ .select('item_id, mastery, next_review_at')
  .eq('user_id', user.id)
  .eq('course', 'endgame')
  .eq('theme', 'kqk')
@@ -364,11 +372,20 @@ async function loadStoredProgress(): Promise<Record<string, PuzzleProgress>> {
 
  for (const row of data) {
  const itemId = String(row.item_id ?? '')
- const mastery = Number(row.mastery ?? 0)
+ const storedMastery = Number(row.mastery ?? 0)
  if (!itemId) continue
 
- const localStats = merged[itemId]
- const bestMastery = Math.max(localStats?.fastSolves ?? 0, mastery)
+ const reviewMastery = getEndgameReviewMastery(
+      storedMastery,
+      row.next_review_at,
+      FAST_SOLVES_TO_MASTER,
+    )
+
+    const localStats = merged[itemId]
+    const bestMastery =
+      reviewMastery < storedMastery
+        ? reviewMastery
+        : Math.max(localStats?.fastSolves ?? 0, reviewMastery)
 
  merged[itemId] = {
  fastSolves: bestMastery,
@@ -387,14 +404,15 @@ async function saveProgress(progressMap: Record<string, PuzzleProgress>) {
  const user = authData.user
  if (!user) return
 
- const rows = Object.entries(progressMap).map(([itemId, stats]) => ({
- user_id: user.id,
- course: 'endgame',
- theme: 'kqk',
- item_id: itemId,
- mastery: stats.fastSolves,
- updated_at: new Date().toISOString(),
- }))
+ const rows = await buildEndgameProgressRows({
+    userId: user.id,
+    theme: 'kqk',
+    target: FAST_SOLVES_TO_MASTER,
+    items: Object.entries(progressMap).map(([itemId, stats]) => ({
+      itemId,
+      mastery: stats.fastSolves,
+    })),
+  })
 
  if (rows.length === 0) return
 
@@ -783,6 +801,11 @@ export default function KQKTrainer() {
  }
 
  async function finishSuccess(successText: string, finalMoveElapsedMs?: number) {
+ reportTrainingItemCompleted(
+  "endgame",
+  currentPuzzleId || "endgame-puzzle",
+ )
+
  const { nextMap, nextStats, wasFast } = registerSolveForCurrentPuzzle(finalMoveElapsedMs)
 
  setLocked(true)
@@ -873,6 +896,41 @@ export default function KQKTrainer() {
  nextStatus: string,
  nextMessage: string
  ) {
+
+  // Reliable piece-mate coach: kqk
+  try {
+    const coachFenBefore = game.fen()
+    const coachUserMoveUci =
+      move.from && move.to
+        ? `${move.from}${move.to}${move.promotion ?? ''}`
+        : undefined
+
+    const coachHistory = nextGame.history({
+      verbose: true,
+    }) as Array<{ san?: string }>
+
+    const coachLastMove =
+      coachHistory.length > 0
+        ? coachHistory[coachHistory.length - 1]
+        : undefined
+
+    showCoachMistake({
+      fenBefore: coachFenBefore,
+      userMoveSan: coachLastMove?.san,
+      userMoveUci: coachUserMoveUci,
+      bestMoveUci: engineInfo?.bestMove ?? undefined,
+      evalLossCp: nextGame.isStalemate() ? 300 : 180,
+      phase: 'endgame',
+      source: 'trainer',
+      trainerId: 'kqk',
+    })
+  } catch (error) {
+    console.error(
+      '[PIECE COACH ERROR] kqk',
+      error
+    )
+  }
+
  const bk = getBlackKingSquare(nextGame)
  const escapes = getLegalBlackKingMoves(nextGame)
  setGame(nextGame)
@@ -916,9 +974,7 @@ export default function KQKTrainer() {
  await loadChunk(Math.min(chunks.length - 1, chunkIndex + 1), { allowCompletedChunk: true })
  }
 
- async function showHint() {
- clearHighlights()
-
+ async function getHintMoveForAction() {
  const info = await evaluatePosition(game.fen())
  const bestUci = info?.bestMove ?? null
 
@@ -930,13 +986,10 @@ export default function KQKTrainer() {
  if (!parsed) {
  setStatus('Hint')
  setMessage('No hint available')
- return
+ return null
  }
 
- setMarkedSquares([parsed.from])
- setHintSquares([parsed.to])
- setStatus('Hint')
- setMessage(`Try ${parsed.from} -> ${parsed.to}`)
+ return parsed
  }
 
  async function getBestBlackReply(afterWhiteGame: Chess) {
@@ -1023,6 +1076,24 @@ export default function KQKTrainer() {
  if (nextGame.isCheckmate()) {
  await finishSuccess('CHECKMATE!', elapsed)
  return
+ }
+
+ // Strict mate-in-1 gate:
+ // when immediate mate is required, no positional move is acceptable.
+ if (currentPuzzle.mateDistance === 1) {
+   await showWrongAndReset(
+     nextGame,
+     {
+       from: whiteMove.from,
+       to: whiteMove.to,
+       promotion: whiteMove.promotion,
+     },
+     'Wrong move.',
+     startBestUci
+       ? `Mate in 1 was available. Play ${startBestUci} and finish immediately.`
+       : 'Mate in 1 was available. This move does not checkmate.',
+   )
+   return
  }
 
  if (nextGame.isStalemate()) {
@@ -1443,9 +1514,17 @@ export default function KQKTrainer() {
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: 'grid', gap: 8 }}>
- <PrimaryButton onClick={() => void showHint()}>
+ <HintButton
+ getHintMove={getHintMoveForAction}
+ onHintStage={(move, stage) => {
+ setStatus('Hint')
+ setMessage(stage === 'piece' ? 'The piece to move is highlighted.' : `Try ${move.from} -> ${move.to}`)
+ }}
+ hintResetKey={`${currentPuzzleId}:${game.fen()}`}
+ disabled={locked}
+ >
  Hint
- </PrimaryButton>
+ </HintButton>
 
  <PrimaryButton onClick={() => void resetPuzzle()}>
  Restart position
