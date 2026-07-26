@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
+import { runChessComImport } from "../training/chesscomImport"
 
 function inputStyle(): React.CSSProperties {
  return {
@@ -47,6 +48,25 @@ export default function OnboardingPage() {
  const [saving, setSaving] = useState(false)
  const [error, setError] = useState("")
 
+
+ useEffect(() => {
+ let cancelled = false
+
+ async function prefillChessComUsername() {
+ const { data } = await supabase.auth.getSession()
+ const username = data.session?.user?.user_metadata?.chessComUsername
+
+ if (!cancelled && typeof username === "string") {
+ setChesscomUsername(username.trim())
+ }
+ }
+
+ void prefillChessComUsername()
+
+ return () => {
+ cancelled = true
+ }
+ }, [])
  async function handleSave() {
  setSaving(true)
  setError("")
@@ -79,13 +99,20 @@ export default function OnboardingPage() {
  const parsedMinutes =
  studyTimeUnit === "hours" ? parsedStudyTime * 60 : parsedStudyTime
 
+ const resolvedChesscomUsername =
+ chesscomUsername.trim() || String(user.user_metadata?.chessComUsername || "").trim()
+
+ if (!resolvedChesscomUsername) {
+ throw new Error("Enter your Chess.com username to import your games")
+ }
+
  // Save profile
  const { error: profileError } = await supabase
  .from("profiles")
  .update({
  target_rating: parsedTarget,
  minutes_per_day: parsedMinutes,
- chesscom_username: chesscomUsername.trim() || null,
+ chesscom_username: resolvedChesscomUsername,
  lichess_username: lichessUsername.trim() || null,
  })
  .eq("id", user.id)
@@ -93,7 +120,7 @@ export default function OnboardingPage() {
  if (profileError) throw profileError
 
  const hasUsername =
- chesscomUsername.trim().length > 0 || lichessUsername.trim().length > 0
+ resolvedChesscomUsername.length > 0 || lichessUsername.trim().length > 0
 
  // Save auto profile
  const { error: autoProfileError } = await supabase
@@ -102,7 +129,7 @@ export default function OnboardingPage() {
  user_id: user.id,
  estimated_rating: parsedTarget,
  daily_minutes: parsedMinutes,
- chesscom_username: chesscomUsername.trim() || null,
+ chesscom_username: resolvedChesscomUsername,
  lichess_username: lichessUsername.trim() || null,
  rating_source: hasUsername ? "manual" : null,
  onboarding_step: 1,
@@ -153,6 +180,7 @@ export default function OnboardingPage() {
 
  if (planError) throw planError
 
+ await runChessComImport(resolvedChesscomUsername, user.id)
  // ✅ FIX: go to AUTO (not hardcoded trainer)
  window.location.replace("/auto")
  } catch (err) {

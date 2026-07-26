@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties, FormEvent } from "react"
 import { supabase } from "./lib/supabase"
 import { trackAnalyticsEvent } from "./lib/analytics"
-import { runChessComImport } from "./training/chesscomImport"
 
 type AuthMode = "login" | "signup"
 
@@ -110,21 +109,6 @@ export default function AuthPage() {
  setForm((prev) => ({ ...prev, [key]: value }))
  }
 
- async function runImportAfterSession(username: string) {
- for (let i = 0; i < 10; i++) {
- const { data } = await supabase.auth.getSession()
- const userId = data.session?.user?.id
-
- if (userId) {
- await runChessComImport(username, userId)
- return true
- }
-
- await new Promise((resolve) => setTimeout(resolve, 500))
- }
-
- return false
- }
 
  async function onSubmit(e: FormEvent<HTMLFormElement>) {
  e.preventDefault()
@@ -151,7 +135,7 @@ export default function AuthPage() {
  chessComUsername: chessComUsername || null,
  lichessUsername: lichessUsername || null,
  },
- emailRedirectTo: window.location.origin,
+ emailRedirectTo: `${window.location.origin}/onboarding`,
  },
  })
 
@@ -168,23 +152,10 @@ export default function AuthPage() {
  trackAnalyticsEvent("email_verification_required")
  }
 
- const userId = data.user?.id
-
- if (chessComUsername) {
- setStatus("Preparing your Chess.com training data...")
-
- if (data.session?.user?.id || userId) {
- const success = await runImportAfterSession(chessComUsername)
-
- if (!success) {
- console.warn("Chess.com import skipped because no session was available yet.")
- }
- }
- }
 
  if (data.session) {
- setStatus("Signup successful. Opening your training dashboard...")
- window.location.assign("/")
+ setStatus("Signup successful. Opening your personal plan...")
+ window.location.assign("/onboarding")
  } else {
  setStatus("Signup successful. Check your email to confirm your account.")
  }
