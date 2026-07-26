@@ -5,9 +5,16 @@ type OpeningProfile = {
  black: [string, number][]
 }
 
+export type ChessComImportResult = {
+ openingProfile: OpeningProfile
+ importedGamesCount: number
+ importedGamesSaved: true
+ profileSaved: true
+}
+
 export async function fetchChessComGames(username: string) {
  const clean = username.trim().toLowerCase()
- if (!clean) return []
+ if (!clean) throw new Error("Enter a Chess.com username to import your games.")
 
  try {
  console.log("Fetching Chess.com archives for:", clean)
@@ -16,9 +23,12 @@ export async function fetchChessComGames(username: string) {
  `https://api.chess.com/pub/player/${clean}/games/archives`
  )
 
+ if (archivesRes.status === 404) {
+ throw new Error(`Chess.com username \"${clean}\" was not found.`)
+ }
+
  if (!archivesRes.ok) {
- console.error("Archives fetch failed:", archivesRes.status)
- return []
+ throw new Error(`Chess.com could not load this account (HTTP ${archivesRes.status}).`)
  }
 
  const archivesData = await archivesRes.json()
@@ -51,9 +61,9 @@ export async function fetchChessComGames(username: string) {
  console.log("GAMES COUNT:", games.length)
 
  return games
- } catch (e) {
- console.error("Chess.com fetch failed:", e)
- return []
+ } catch (error) {
+ if (error instanceof Error) throw error
+ throw new Error("Chess.com could not be reached. Please try again.")
  }
 }
 
@@ -137,46 +147,79 @@ export function splitOpeningsBySide(games: any[], username: string): OpeningProf
  }
 }
 
-export async function saveOpeningProfile(userId: string, profile: OpeningProfile) {
- const white = profile.white.slice(0, 2).map((o) => o[0])
- const black = profile.black.slice(0, 2).map((o) => o[0])
- const preferred = [...white, ...black]
+function sourceGameId(game: any) {
+ const uuid = String(game?.uuid || "").trim()
+ if (uuid) return uuid
 
- console.log("PREFERRED OPENINGS TO SAVE:", preferred)
- console.log("UPDATING USER:", userId)
+ const url = String(game?.url || "").trim()
+ if (url) return url.split("/").filter(Boolean).pop() || url
 
- const { data, error } = await supabase
- .from("auto_profiles")
- .update({
- preferred_openings: preferred,
- updated_at: new Date().toISOString(),
- })
- .eq("user_id", userId)
- .select()
-
- if (error) {
- console.error("Saving opening profile failed:", error)
- return false
- }
-
- console.log("SAVE RESULT:", data)
-
- if (!data || data.length === 0) {
- console.warn("No auto_profiles row updated. Check user_id/RLS.")
- return false
- }
-
- return true
+ return String(game?.end_time || "unknown-game")
 }
 
-export async function runChessComImport(username: string, userId: string) {
+function userColor(game: any, username: string): "white" | "black" | null {
+ const clean = username.trim().toLowerCase()
+ if (String(game?.white?.username || "").toLowerCase() === clean) return "white"
+ if (String(game?.black?.username || "").toLowerCase() === clean) return "black"
+ return null
+}
+
+async function saveImportedGames(userId: string, username: string, games: any[]) {
+ const rows = games
+ .filter((game) => game?.pgn && userColor(game, username))
+ .map((game) => ({
+ user_id: userId,
+ source: "chess.com",
+ source_game_id: sourceGameId(game),
+ url: game?.url ?? null,
+ time_class: game?.time_class ?? null,
+ time_control: game?.time_control ?? null,
+ end_time: game?.end_time ?? null,
+ user_color: userColor(game, username),
+ pgn: game.pgn,
+ }))
+
+ if (!rows.length) {
+ throw new Error("Chess.com returned no usable games to import.")
+ }
+
+ const { error } = await supabase
+ .from("user_imported_games")
+ .upsert(rows, { onConflict: "user_id,source,source_game_id" })
+
+ if (error) throw new Error(`Could not save imported Chess.com games: ${error.message}`)
+}
+
+export async function saveOpeningProfile(
+ userId: string,
+ username: string,
+ profile: OpeningProfile,
+ importedGamesCount: number,
+) {
+ const { data, error } = await supabase
+ .from("user_auto_profile")
+ .upsert({
+ user_id: userId,
+ chesscom_username: username,
+ opening_profile: profile,
+ imported_games_count: importedGamesCount,
+ chesscom_last_import_at: new Date().toISOString(),
+ })
+ .select("user_id")
+
+ if (error) throw new Error(`Could not save your Chess.com profile: ${error.message}`)
+ if (!data?.length) throw new Error("Could not confirm your Chess.com profile was saved.")
+}
+
+export async function runChessComImport(username: string, userId: string): Promise<ChessComImportResult> {
  console.log("RUN CHESS.COM IMPORT:", { username, userId })
 
  const games = await fetchChessComGames(username)
 
  if (!games.length) {
- console.warn("No games found")
- return null
+ throw new Error(
+ "No usable Chess.com games were found. Check the username or play a rapid, blitz, or daily game first.",
+ )
  }
 
  const split = splitOpeningsBySide(games, username)
@@ -185,9 +228,13 @@ export async function runChessComImport(username: string, userId: string) {
  console.log("WHITE:", split.white)
  console.log("BLACK:", split.black)
 
- const saved = await saveOpeningProfile(userId, split)
+ await saveImportedGames(userId, username, games)
+ await saveOpeningProfile(userId, username, split, games.length)
 
- console.log("IMPORT SAVED:", saved)
-
- return split
+ return {
+ openingProfile: split,
+ importedGamesCount: games.length,
+ importedGamesSaved: true,
+ profileSaved: true,
+ }
 }

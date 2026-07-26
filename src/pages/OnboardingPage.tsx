@@ -133,7 +133,7 @@ export default function OnboardingPage() {
  lichess_username: lichessUsername.trim() || null,
  rating_source: hasUsername ? "manual" : null,
  onboarding_step: 1,
- onboarding_complete: true,
+ onboarding_complete: false,
  })
 
  if (autoProfileError) throw autoProfileError
@@ -180,8 +180,22 @@ export default function OnboardingPage() {
 
  if (planError) throw planError
 
- await runChessComImport(resolvedChesscomUsername, user.id)
- // ✅ FIX: go to AUTO (not hardcoded trainer)
+ const importResult = await runChessComImport(resolvedChesscomUsername, user.id)
+
+ if (!importResult.importedGamesSaved || !importResult.profileSaved) {
+ throw new Error("Chess.com import did not finish saving your training data.")
+ }
+
+ const { error: completionError } = await supabase
+ .from("user_auto_profile")
+ .update({
+ onboarding_step: 2,
+ onboarding_complete: true,
+ })
+ .eq("user_id", user.id)
+
+ if (completionError) throw completionError
+ // Go to AUTO after onboarding and import persistence succeed.
  window.location.replace("/auto")
  } catch (err) {
  setError(err instanceof Error ? err.message : "Failed to save onboarding")
