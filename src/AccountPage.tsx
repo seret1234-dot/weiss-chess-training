@@ -398,18 +398,19 @@ export default function AccountPage() {
  )}
  </div>
 
- <div style={sideTitleStyle}>Why add usernames?</div>
-
- <ul style={listStyle}>
- <li>Start from a more accurate level</li>
- <li>Spot weak areas faster</li>
- <li>Adjust endgame priorities</li>
- <li>Build better future recommendations</li>
- </ul>
+ <div style={sideTitleStyle}>Why add your Chess.com username?</div>
 
  <div style={tipBoxStyle}>
- You can leave fields empty now and update them later anytime.
+ The system will automatically analyze your recent games and build a personalized training plan based on your mistakes, weaknesses, openings, tactics, and endgames.
  </div>
+
+ <ul style={listStyle}>
+ <li>Automatic game analysis</li>
+ <li>Personalized training priorities</li>
+ <li>Your most common mistakes identified</li>
+ <li>Training matched to your current level</li>
+ <li>Better recommendations over time</li>
+ </ul>
  </div>
  </div>
  </div>
