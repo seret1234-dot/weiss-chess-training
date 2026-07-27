@@ -1,6 +1,6 @@
 import React, { useCallback } from "react"
 import { createPortal } from "react-dom"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useBoardUiContext } from "../context/BoardUiContext"
 import { supabase } from "../lib/supabase"
 import ThemeSelector from "../theme/ThemeSelector"
@@ -35,10 +35,13 @@ function buildAnalyzeUrl(fen?: string | null) {
 
 export default function GlobalFloatingPlay({
   isLoggedIn,
+  onSignedOut,
 }: {
   isLoggedIn: boolean
+  onSignedOut: () => void
 }) {
   const location = useLocation()
+  const navigate = useNavigate()
   const { boardState } = useBoardUiContext()
 
   const fenFromUrl = new URLSearchParams(location.search).get("fen")
@@ -99,11 +102,12 @@ export default function GlobalFloatingPlay({
         return
       }
 
-      window.location.replace("/auth")
+      onSignedOut()
+      navigate("/auth", { replace: true })
     } catch (err) {
       console.error("Logout failed", err)
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn, navigate, onSignedOut])
 
   return createPortal(
     <>
@@ -168,13 +172,15 @@ export default function GlobalFloatingPlay({
               <ThemeSelector compact />
             </div>
 
-            <button
-              type="button"
-              onClick={goAccount}
-              style={btnStyle}
-            >
-              Account
-            </button>
+            {isLoggedIn && (
+              <button
+                type="button"
+                onClick={goAccount}
+                style={btnStyle}
+              >
+                Account
+              </button>
+            )}
 
             <button
               type="button"
@@ -239,13 +245,15 @@ export default function GlobalFloatingPlay({
           <ThemeSelector compact />
         </div>
 
-        <button
-          type="button"
-          className="global-mobile-nav__button"
-          onClick={goAccount}
-        >
-          Account
-        </button>
+        {isLoggedIn && (
+          <button
+            type="button"
+            className="global-mobile-nav__button"
+            onClick={goAccount}
+          >
+            Account
+          </button>
+        )}
 
         <button
           type="button"

@@ -1,5 +1,5 @@
 import StalemateUnderpromotionPage from './pages/StalemateUnderpromotionPage';
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 
@@ -140,6 +140,9 @@ function LegacyThemeRedirect({ to }: { to: string }) {
 export default function AppRouter() {
  const [user, setUser] = useState<any>(null)
  const [authReady, setAuthReady] = useState(false)
+ const handleSignedOut = useCallback(() => {
+  setUser(null)
+ }, [])
 
  useEffect(() => {
     const authQueryParams = new URLSearchParams(window.location.search)
@@ -189,10 +192,13 @@ export default function AppRouter() {
  <BrowserRouter>
  <HintActionProvider>
  <BoardUiProvider>
-  <SubscriptionProvider user={user}>
-  <TrainingQuotaProvider user={user}>
+  <SubscriptionProvider key={user?.id ?? "guest"} user={user}>
+  <TrainingQuotaProvider key={user?.id ?? "guest"} user={user}>
  <GlobalBackButton />
- <GlobalFloatingPlay isLoggedIn={!!user} />
+ <GlobalFloatingPlay
+  isLoggedIn={!!user}
+  onSignedOut={handleSignedOut}
+ />
  <EndgameTrainerHelpOverlay />
  <AutoTrainingController user={user} />
 
