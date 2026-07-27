@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
+import routeMetadata from '../seo/routeMetadata.json';
 
-const SITE_URL = 'https://weisschess.com';
-const SITE_NAME = 'Weiss Chess Trainer';
-const DEFAULT_DESCRIPTION =
-  'Practice chess tactics, checkmates, openings, endgames, master games, and board vision with interactive training.';
-const SOCIAL_IMAGE = `${SITE_URL}/og-image.png`;
+const SITE_URL = routeMetadata.site.url;
+const SITE_NAME = routeMetadata.site.name;
+const DEFAULT_DESCRIPTION = routeMetadata.site.defaultDescription;
+const SOCIAL_IMAGE = routeMetadata.site.socialImage;
 export const SITE_LOCATION_CHANGE_EVENT = 'weiss:location-change';
 
 declare global {
@@ -35,63 +35,7 @@ type SeoDetails = {
   canonicalPath?: string;
 };
 
-const STATIC_PAGES: Record<string, SeoDetails> = {
-  '/': {
-    title: 'Weiss Chess Trainer | Chess Puzzles, Openings & Endgames',
-    description: DEFAULT_DESCRIPTION,
-    indexable: true,
-  },
-  '/mates': {
-    title: 'Checkmate Puzzles | Weiss Chess Trainer',
-    description: 'Build pattern recognition with interactive checkmate puzzles for every level.',
-    indexable: true,
-  },
-  '/tactics': {
-    title: 'Chess Tactics Training | Weiss Chess Trainer',
-    description: 'Train tactical patterns with interactive chess puzzles and structured difficulty levels.',
-    indexable: true,
-  },
-  '/endgame': {
-    title: 'Chess Endgame Training | Weiss Chess Trainer',
-    description: 'Practice practical checkmates, endgame studies, and essential chess endgame techniques.',
-    indexable: true,
-  },
-  '/endgame/piece-mates': {
-    title: 'Piece Checkmates | Weiss Chess Trainer',
-    description: 'Learn fundamental mating patterns including bishop and knight, rook, and queen checkmates.',
-    indexable: true,
-  },
-  '/endgame-studies': {
-    title: 'Chess Endgame Studies | Weiss Chess Trainer',
-    description: 'Solve instructional endgame studies and sharpen practical endgame calculation.',
-    indexable: true,
-  },
-  '/openings': {
-    title: 'Chess Opening Trainer | Weiss Chess Trainer',
-    description: 'Learn chess openings through move-by-move memory training and interactive practice.',
-    indexable: true,
-  },
-  '/master-games': {
-    title: 'Master Games Training | Weiss Chess Trainer',
-    description: 'Study memorable chess games and train the critical moves played by great masters.',
-    indexable: true,
-  },
-  '/board-vision': {
-    title: 'Board Vision Trainer | Weiss Chess Trainer',
-    description: 'Improve chessboard visualization, coordinate recognition, and calculation speed.',
-    indexable: true,
-  },
-  '/museum': {
-    title: 'Chess Puzzle Museum | Weiss Chess Trainer',
-    description: 'Explore a curated collection of unusual chess puzzles and creative positions.',
-    indexable: true,
-  },
-  '/pricing': {
-    title: 'Pricing | Weiss Chess Trainer',
-    description: 'Explore Weiss Chess Trainer plans and start structured chess training.',
-    indexable: true,
-  },
-};
+const STATIC_PAGES = routeMetadata.routes as Record<string, SeoDetails>;
 
 function titleFromSlug(slug: string): string {
   return decodeURIComponent(slug)
@@ -110,23 +54,6 @@ function pageDetails(pathname: string): SeoDetails {
   const staticPage = STATIC_PAGES[pathname];
   if (staticPage) return staticPage;
 
-  if (/^\/mates\/m[1-8]$/.test(pathname)) {
-    const level = pathname.split('/').at(-1)?.toUpperCase();
-    return {
-      title: `Mate in ${level?.slice(1)} Puzzles | ${SITE_NAME}`,
-      description: 'Practice themed checkmate puzzles with clear, interactive chess training.',
-      indexable: true,
-    };
-  }
-
-  if (/^\/tactics\/m[1-4]$/.test(pathname)) {
-    return {
-      title: `Chess Tactics Puzzles | ${SITE_NAME}`,
-      description: 'Practice chess tactics by theme and difficulty.',
-      indexable: true,
-    };
-  }
-
   const openingFamily = pathname.match(/^\/openings\/family\/([^/]+)$/);
   if (openingFamily) {
     const family = titleFromSlug(openingFamily[1]);
@@ -136,23 +63,6 @@ function pageDetails(pathname: string): SeoDetails {
       indexable: true,
     };
   }
-
-  const utilityPages: Record<string, SeoDetails> = {
-    '/auth': { title: `Sign In | ${SITE_NAME}`, description: 'Sign in or create a Weiss Chess Trainer account.', indexable: false },
-    '/reset-password': { title: `Reset Password | ${SITE_NAME}`, description: 'Reset your Weiss Chess Trainer password.', indexable: false },
-    '/account': { title: `Account | ${SITE_NAME}`, description: 'Manage your Weiss Chess Trainer account and subscription.', indexable: false },
-    '/onboarding': { title: `Welcome | ${SITE_NAME}`, description: 'Set up your Weiss Chess Trainer account.', indexable: false },
-    '/auto': { title: `Auto Training | ${SITE_NAME}`, description: 'Your personal Weiss Chess Trainer study session.', indexable: false },
-    '/play-computer': { title: `Play Computer | ${SITE_NAME}`, description: 'Play a practice game against the computer.', indexable: false },
-    '/play-vs-computer': { title: `Play Computer | ${SITE_NAME}`, description: 'Play a practice game against the computer.', indexable: false },
-    '/book-trainer': { title: `Book Trainer | ${SITE_NAME}`, description: 'Practice chess from your personal training library.', indexable: false },
-    '/analyze': { title: `Analyze a Position | ${SITE_NAME}`, description: 'Analyze chess positions, PGN, and FEN.', indexable: false },
-    '/analyze/board': { title: `Board Analysis | ${SITE_NAME}`, description: 'Analyze a chess position on the board.', indexable: false },
-    '/analyze/setup': { title: `Set Up a Position | ${SITE_NAME}`, description: 'Create a chess position for analysis.', indexable: false },
-    '/analyze/review': { title: `Game Review | ${SITE_NAME}`, description: 'Review a chess game move by move.', indexable: false },
-    '/analyze/image': { title: `Image to Position | ${SITE_NAME}`, description: 'Convert a chessboard image into a position.', indexable: false },
-  };
-  if (utilityPages[pathname]) return utilityPages[pathname];
 
   const legacyAlias = pathname.match(/^\/(board-vision|book-trainer|play-computer)\/[^/]+$/);
   if (legacyAlias) {
@@ -165,19 +75,11 @@ function pageDetails(pathname: string): SeoDetails {
     };
   }
 
-  const legacyCanonical: Record<string, string> = {
-    '/board-vision-old': '/board-vision',
-    '/master-games-old': '/master-games',
-    '/book-trainer': '/book-trainer',
-    '/play-computer': '/play-computer',
-    '/play-vs-computer': '/play-computer',
-  };
-
   return {
     title: `${readableRouteName(pathname)} | ${SITE_NAME}`,
     description: DEFAULT_DESCRIPTION,
     indexable: false,
-    canonicalPath: legacyCanonical[pathname] ?? pathname,
+    canonicalPath: pathname,
   };
 }
 

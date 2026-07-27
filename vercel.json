@@ -16,6 +16,36 @@
       "maxDuration": 20
     }
   },
+  "routes": [
+    {
+      "src": "/(auth|reset-password|account|onboarding|auto|sample-training|play-computer|play-vs-computer|book-trainer|analyze|board-vision-old|master-games-old)",
+      "headers": {
+        "X-Robots-Tag": "noindex, follow"
+      },
+      "continue": true
+    },
+    {
+      "src": "/(free-play|analyze|master-games|book-trainer|play-computer|play-vs-computer|board-vision|endgame/piece-mates|endgame-studies)/(.*)",
+      "headers": {
+        "X-Robots-Tag": "noindex, follow"
+      },
+      "continue": true
+    },
+    {
+      "src": "/(mates/m[1-8]|tactics/m[1-4])/(.*)",
+      "headers": {
+        "X-Robots-Tag": "noindex, follow"
+      },
+      "continue": true
+    },
+    {
+      "src": "/_route-metadata/(.*)",
+      "headers": {
+        "X-Robots-Tag": "noindex, follow"
+      },
+      "continue": true
+    }
+  ],
   "headers": [
     {
       "source": "/((?!pricing(?:/|$)).*)",
@@ -32,6 +62,45 @@
     }
   ],
   "rewrites": [
+    { "source": "/", "destination": "/_route-metadata/home.html" },
+    { "source": "/mates", "destination": "/_route-metadata/mates.html" },
+    { "source": "/mates/m1", "destination": "/_route-metadata/mates--m1.html" },
+    { "source": "/mates/m2", "destination": "/_route-metadata/mates--m2.html" },
+    { "source": "/mates/m3", "destination": "/_route-metadata/mates--m3.html" },
+    { "source": "/mates/m4", "destination": "/_route-metadata/mates--m4.html" },
+    { "source": "/mates/m5", "destination": "/_route-metadata/mates--m5.html" },
+    { "source": "/mates/m6", "destination": "/_route-metadata/mates--m6.html" },
+    { "source": "/mates/m7", "destination": "/_route-metadata/mates--m7.html" },
+    { "source": "/mates/m8", "destination": "/_route-metadata/mates--m8.html" },
+    { "source": "/tactics", "destination": "/_route-metadata/tactics.html" },
+    { "source": "/tactics/m1", "destination": "/_route-metadata/tactics--m1.html" },
+    { "source": "/tactics/m2", "destination": "/_route-metadata/tactics--m2.html" },
+    { "source": "/tactics/m3", "destination": "/_route-metadata/tactics--m3.html" },
+    { "source": "/tactics/m4", "destination": "/_route-metadata/tactics--m4.html" },
+    { "source": "/endgame", "destination": "/_route-metadata/endgame.html" },
+    { "source": "/endgame/piece-mates", "destination": "/_route-metadata/endgame--piece-mates.html" },
+    { "source": "/endgame-studies", "destination": "/_route-metadata/endgame-studies.html" },
+    { "source": "/openings", "destination": "/_route-metadata/openings.html" },
+    { "source": "/master-games", "destination": "/_route-metadata/master-games.html" },
+    { "source": "/board-vision", "destination": "/_route-metadata/board-vision.html" },
+    { "source": "/museum", "destination": "/_route-metadata/museum.html" },
+    { "source": "/pricing", "destination": "/_route-metadata/pricing.html" },
+    { "source": "/auth", "destination": "/_route-metadata/auth.html" },
+    { "source": "/reset-password", "destination": "/_route-metadata/reset-password.html" },
+    { "source": "/account", "destination": "/_route-metadata/account.html" },
+    { "source": "/onboarding", "destination": "/_route-metadata/onboarding.html" },
+    { "source": "/auto", "destination": "/_route-metadata/auto.html" },
+    { "source": "/sample-training", "destination": "/_route-metadata/sample-training.html" },
+    { "source": "/play-computer", "destination": "/_route-metadata/play-computer.html" },
+    { "source": "/play-vs-computer", "destination": "/_route-metadata/play-vs-computer.html" },
+    { "source": "/book-trainer", "destination": "/_route-metadata/book-trainer.html" },
+    { "source": "/analyze", "destination": "/_route-metadata/analyze.html" },
+    { "source": "/analyze/board", "destination": "/_route-metadata/analyze--board.html" },
+    { "source": "/analyze/setup", "destination": "/_route-metadata/analyze--setup.html" },
+    { "source": "/analyze/review", "destination": "/_route-metadata/analyze--review.html" },
+    { "source": "/analyze/image", "destination": "/_route-metadata/analyze--image.html" },
+    { "source": "/board-vision-old", "destination": "/_route-metadata/board-vision-old.html" },
+    { "source": "/master-games-old", "destination": "/_route-metadata/master-games-old.html" },
     {
       "source": "/(.*)",
       "destination": "/"

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev-with-api.cjs",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-route-metadata-shells.mjs",
     "preview": "vite preview",
     "image-server": "node server/image-to-position-server.cjs",
     "dev:vite": "vite",
