@@ -12,6 +12,8 @@ export type AnalyticsEventName =
   | 'signup_prompt_viewed'
   | 'signup_prompt_clicked'
   | 'email_verification_required'
+  | 'onboarding_started'
+  | 'onboarding_completed'
   | 'page_view';
 
 type AnalyticsProperties = Record<string, string | number | boolean | null | undefined>;

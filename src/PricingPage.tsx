@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
   PayPalButtons,
@@ -7,6 +7,7 @@ import {
 } from "@paypal/react-paypal-js"
 import { useSubscription } from "./context/SubscriptionContext"
 import { supabase } from "./lib/supabase"
+import { trackAnalyticsEvent } from "./lib/analytics"
 
 type BillingPeriod = "monthly" | "yearly"
 type PayPalMode = "sandbox" | "live"
@@ -38,6 +39,8 @@ function PayPalSubscriptionButton({
   const [{ isPending, isRejected }] = usePayPalScriptReducer()
   const [message, setMessage] = useState("")
   const [approving, setApproving] = useState(false)
+  const checkoutTracked = useRef(false)
+  const activationTracked = useRef(false)
 
   if (isRejected) {
     return (
@@ -64,12 +67,17 @@ function PayPalSubscriptionButton({
           label: "subscribe",
           height: 48,
         }}
-        createSubscription={(_data, actions) =>
-          actions.subscription.create({
+        createSubscription={(_data, actions) => {
+          if (!checkoutTracked.current) {
+            checkoutTracked.current = true
+            trackAnalyticsEvent("checkout_started", { billing_period: period })
+          }
+
+          return actions.subscription.create({
             plan_id: planId,
             custom_id: `${userId}|${period}`,
           })
-        }
+        }}
         onApprove={async (data) => {
           if (!data.subscriptionID) {
             setMessage("PayPal did not return a subscription ID.")
@@ -81,6 +89,12 @@ function PayPalSubscriptionButton({
 
           try {
             await onApproved(data.subscriptionID)
+            if (!activationTracked.current) {
+              activationTracked.current = true
+              trackAnalyticsEvent("subscription_activated", {
+                billing_period: period,
+              })
+            }
             setMessage("Premium is active.")
           } catch (error) {
             setMessage(
@@ -176,6 +190,13 @@ export default function PricingPage() {
     useState<PriceProfile | null>(null)
   const [priceProfileError, setPriceProfileError] = useState("")
   const [activationMessage, setActivationMessage] = useState("")
+  const subscriptionPageTracked = useRef(false)
+
+  useEffect(() => {
+    if (subscriptionPageTracked.current) return
+    subscriptionPageTracked.current = true
+    trackAnalyticsEvent("subscription_page_viewed")
+  }, [])
 
   useEffect(() => {
     let cancelled = false

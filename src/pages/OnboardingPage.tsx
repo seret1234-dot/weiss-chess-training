@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { CSSProperties } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
+import { trackAnalyticsEvent } from "../lib/analytics"
 import { runChessComImport } from "../training/chesscomImport"
 import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
 
@@ -37,13 +38,24 @@ export default function OnboardingPage() {
  const [saving, setSaving] = useState(false)
  const [error, setError] = useState("")
  const [progressMessage, setProgressMessage] = useState("")
+ const onboardingStartedTracked = useRef(false)
 
  useEffect(() => {
   let cancelled = false
 
   async function prefillChessComUsername() {
    const { data } = await supabase.auth.getSession()
-   const username = data.session?.user?.user_metadata?.chessComUsername
+   const user = data.session?.user
+   const username = user?.user_metadata?.chessComUsername
+
+   if (
+    !cancelled &&
+    user?.email_confirmed_at &&
+    !onboardingStartedTracked.current
+   ) {
+    onboardingStartedTracked.current = true
+    trackAnalyticsEvent("onboarding_started")
+   }
 
    if (!cancelled && typeof username === "string") {
     setChesscomUsername(username.trim())
@@ -174,6 +186,8 @@ export default function OnboardingPage() {
     .eq("user_id", user.id)
 
    if (completionError) throw completionError
+
+   trackAnalyticsEvent("onboarding_completed")
 
    window.location.replace("/auto")
   } catch (err) {
