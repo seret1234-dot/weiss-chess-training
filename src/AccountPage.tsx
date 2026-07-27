@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 import { useSubscription } from "./context/SubscriptionContext"
 import ThemeSelector from "./theme/ThemeSelector"
+import { runChessComImport } from "./training/chesscomImport"
+import { analyzeImportedGamesWithStockfish } from "./training/engineAnalyzeImportedGames"
+import { getOrCreateAutoProfile } from "./training/getOrCreateAutoProfile"
 
 function formatDate(value: string | null | undefined) {
   if (!value) return null
@@ -16,10 +19,16 @@ export default function AccountPage() {
  const navigate = useNavigate()
  const [email, setEmail] = useState("")
  const [chessCom, setChessCom] = useState("")
+ const [savedChessComUsername, setSavedChessComUsername] = useState("")
+ const [importedGamesCount, setImportedGamesCount] = useState(0)
+ const [needsChessComImport, setNeedsChessComImport] = useState(false)
  const [lichess, setLichess] = useState("")
  const [message, setMessage] = useState("")
  const [error, setError] = useState("")
  const [saving, setSaving] = useState(false)
+ const [importingGames, setImportingGames] = useState(false)
+ const [importProgress, setImportProgress] = useState("")
+ const [importSummary, setImportSummary] = useState("")
  const [cancelling, setCancelling] = useState(false)
  const [membershipMessage, setMembershipMessage] = useState("")
  const [membershipActionError, setMembershipActionError] = useState("")
@@ -80,10 +89,31 @@ export default function AccountPage() {
 
      const user = data.user
      const meta = user?.user_metadata
+     const savedUsername = String(
+       meta?.chess_com_username || meta?.chessComUsername || "",
+     ).trim()
 
      setEmail(user?.email || "")
-     setChessCom(meta?.chess_com_username || "")
+     setChessCom(savedUsername)
+     setSavedChessComUsername(savedUsername)
      setLichess(meta?.lichess_username || "")
+
+     if (user) {
+       const autoProfile = await getOrCreateAutoProfile(user.id)
+       const importedCount = Math.max(
+         0,
+         Number(autoProfile?.imported_games_count) || 0,
+       )
+       const importedUsername = String(
+         autoProfile?.chesscom_username || "",
+       ).trim()
+
+       setImportedGamesCount(importedCount)
+       setNeedsChessComImport(
+         Boolean(savedUsername) &&
+           (importedCount === 0 || importedUsername !== savedUsername),
+       )
+     }
    }
 
    void load()
@@ -108,8 +138,89 @@ export default function AccountPage() {
      return
    }
 
-   setMessage("Saved successfully")
+   const savedUsername = chessCom.trim()
+   const usernameChanged = savedUsername !== savedChessComUsername
+
+   setSavedChessComUsername(savedUsername)
+   setNeedsChessComImport(
+     Boolean(savedUsername) &&
+       (usernameChanged || importedGamesCount === 0),
+   )
+   setImportSummary("")
+   setImportProgress("")
+   setMessage(
+     usernameChanged && savedUsername
+       ? "Saved successfully. Import Chess.com games when you are ready."
+       : "Saved successfully",
+   )
  }
+
+ async function importChessComGames() {
+   const username = savedChessComUsername.trim()
+
+   if (!username) {
+     setError("Save a Chess.com username before importing games.")
+     return
+   }
+
+   setImportingGames(true)
+   setError("")
+   setImportSummary("")
+   setImportProgress("Fetching and importing Chess.com games...")
+
+   try {
+     const { data, error: sessionError } = await supabase.auth.getUser()
+     const user = data.user
+
+     if (sessionError || !user) {
+       throw new Error("Please log in again before importing games.")
+     }
+
+     const imported = await runChessComImport(username, user.id)
+     setImportProgress(
+       `Imported ${imported.importedGamesCount} games. Starting Stockfish analysis...`,
+     )
+
+     const analysis = await analyzeImportedGamesWithStockfish(user.id, {
+       maxGames: 150,
+       depth: 8,
+       minLossCp: 70,
+       onProgress: (progress) => {
+         setImportProgress(progress.message)
+       },
+     })
+
+     const autoProfile = await getOrCreateAutoProfile(user.id)
+     if (!autoProfile) {
+       throw new Error(
+         "Chess.com games were processed, but your updated training profile could not be loaded.",
+       )
+     }
+
+     setImportedGamesCount(
+       Math.max(0, Number(autoProfile.imported_games_count) || 0),
+     )
+     setNeedsChessComImport(false)
+     setImportSummary(
+       `Imported ${imported.importedGamesCount} games. Analyzed ${analysis.gamesAnalyzed} games and found ${analysis.mistakesFound} training mistakes.`,
+     )
+     setImportProgress("")
+   } catch (importError) {
+     console.error("Chess.com import from Account failed", importError)
+     setError(
+       importError instanceof Error
+         ? importError.message
+         : "Could not import and analyze Chess.com games.",
+     )
+   } finally {
+     setImportingGames(false)
+   }
+ }
+
+ const chessComActionLabel =
+   !needsChessComImport && importedGamesCount > 0
+     ? "Refresh Chess.com games"
+     : "Import Chess.com games"
 
  async function cancelRenewal() {
    if (
@@ -216,9 +327,20 @@ export default function AccountPage() {
  <button onClick={save} disabled={saving} style={saveButtonStyle}>
  {saving ? "Saving..." : "Save changes"}
  </button>
+ {savedChessComUsername && (
+  <button
+   onClick={importChessComGames}
+   disabled={importingGames}
+   style={importButtonStyle}
+  >
+   {importingGames ? "Importing Chess.com games..." : chessComActionLabel}
+  </button>
+ )}
  </div>
 
  {message && <div style={successStyle}>{message}</div>}
+ {importProgress && <div style={progressStyle}>{importProgress}</div>}
+ {importSummary && <div style={successStyle}>{importSummary}</div>}
  {error && <div style={errorStyle}>{error}</div>}
  </div>
 
@@ -438,6 +560,17 @@ const saveButtonStyle: React.CSSProperties = {
  boxShadow: "0 12px 25px rgba(0,0,0,0.25)",
 }
 
+const importButtonStyle: React.CSSProperties = {
+ border: "1px solid var(--theme-border)",
+ borderRadius: 12,
+ padding: "13px 18px",
+ background: "var(--theme-button-bg)",
+ color: "var(--theme-text)",
+ fontWeight: 800,
+ fontSize: 14,
+ cursor: "pointer",
+}
+
 const successStyle: React.CSSProperties = {
  marginTop: 16,
  padding: "12px 14px",
@@ -456,6 +589,17 @@ const errorStyle: React.CSSProperties = {
  background: "rgba(255,107,107,0.12)",
  border: "1px solid rgba(255,107,107,0.3)",
  color: "#ff9d9d",
+ fontSize: 13,
+ fontWeight: 700,
+}
+
+const progressStyle: React.CSSProperties = {
+ marginTop: 16,
+ padding: "12px 14px",
+ borderRadius: 12,
+ background: "rgba(111,91,214,0.14)",
+ border: "1px solid rgba(111,91,214,0.38)",
+ color: "#ddd6ff",
  fontSize: 13,
  fontWeight: 700,
 }
