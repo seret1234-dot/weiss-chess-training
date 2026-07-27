@@ -1,4 +1,4 @@
-﻿import { useNavigate } from 'react-router-dom'
+﻿import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import { trainingCatalog } from './trainingCatalog'
@@ -234,6 +234,21 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  </button>
  </div>
  </div>
+
+ <section
+ style={{
+ background: 'var(--theme-panel)',
+ border: '1px solid var(--theme-border)',
+ borderRadius: 22,
+ padding: 28,
+ marginBottom: 28,
+ }}
+ >
+ <h2 style={{ fontSize: 26, margin: '0 0 12px' }}>How it works</h2>
+ <p style={{ margin: 0, color: 'var(--theme-muted)', fontSize: 16, lineHeight: 1.7 }}>
+ Weiss Chess Trainer turns broad chess study into short, repeatable sessions. Instead of presenting unrelated positions, it groups tactical motifs, mating patterns, opening lines, and endgame ideas so you meet each idea in a clear progression. Structured repetition brings useful positions back when they need review, rather than leaving progress to chance. If you connect a Chess.com account, recent games can be analyzed to surface mistakes, openings, tactics, and endgames worth practicing; your personal plan can then recommend a next task. Start with <Link to="/tactics">Tactics</Link>, build reliable <Link to="/openings">Opening</Link> memory, or practice practical <Link to="/endgame">Endgames</Link>.
+ </p>
+ </section>
 
  <div
  className="catalog-page__grid"

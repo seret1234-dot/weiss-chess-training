@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
 
 type Family = {
@@ -72,6 +72,15 @@ export default function OpeningsLibraryPage() {
  <p style={{ fontSize: 18, color: '#d7d7d7', marginBottom: 18 }}>
  Choose an opening family. Each family trains full lines one after another.
  </p>
+
+ <section style={{ color: '#d7d7d7', lineHeight: 1.7, marginBottom: 22, maxWidth: 820 }}>
+ <h2 style={{ color: '#f3f3f3', fontSize: 25, margin: '0 0 10px' }}>
+ Opening memory training and review
+ </h2>
+ <p style={{ margin: 0 }}>
+ This is opening memory training, not only an opening explorer. Choose a family and recall the next move on the board, then practice the line from both White’s and Black’s perspectives. Seeing a line is different from being able to play it when the position appears, so the trainer keeps notation and move recall connected. Scheduled review brings weak or forgotten lines back after you have started them, helping you revisit the parts that need attention instead of rereading every variation. Choose an opening family below, or return to <Link to="/auto" style={{ color: '#9cc8ff' }}>Auto Training</Link> for a recommended next session.
+ </p>
+ </section>
 
  {/* 🔍 SEARCH BOX */}
  <input

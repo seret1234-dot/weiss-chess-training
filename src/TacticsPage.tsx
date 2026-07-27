@@ -107,6 +107,15 @@ export default function TacticsPage() {
  </div>
  </div>
 
+ <section style={{ margin: "0 0 18px", maxWidth: 820 }}>
+ <h2 style={{ margin: "0 0 10px", fontSize: 26, letterSpacing: "-0.025em" }}>
+ Train tactical motifs with progression
+ </h2>
+ <p style={{ margin: 0, color: "rgba(244,244,240,0.78)", lineHeight: 1.7, fontSize: 16 }}>
+ Random puzzle solving can be enjoyable, but it can make repeated tactical ideas hard to notice. This trainer organizes practice by motif and difficulty so you can work on a recognizable pattern before moving to longer or less obvious positions. Start with a focused level, identify the tactical idea, and build calculation gradually as the sequences become more demanding. Repeated practice helps connect recognition with the move you choose on the board. Work through <Link to="/tactics/m1" style={{ color: "#f5c33b" }}>Tactics level 1</Link>, add focused <Link to="/mates" style={{ color: "#f5c33b" }}>Mate training</Link>, or use <Link to="/auto" style={{ color: "#f5c33b" }}>Auto Training</Link> when you want a recommended next task.
+ </p>
+ </section>
+
  <div
  style={{
  display: "grid",

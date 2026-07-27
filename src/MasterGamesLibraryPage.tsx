@@ -657,6 +657,13 @@ export default function MasterGamesLibraryPage() {
  </div>
  </div>
 
+ <section style={{ ...styles.filtersPanel, marginBottom: 18 }}>
+ <h2 style={{ margin: '0 0 10px', fontSize: 26 }}>Learn master games actively</h2>
+ <p style={{ margin: 0, color: 'rgba(244,244,240,0.78)', lineHeight: 1.7, maxWidth: 900 }}>
+ This library is designed for active move recall rather than passive game browsing. Choose a strong game, study the position, and try to remember the critical move before revealing what was played. That process makes it easier to connect a move with its plan, tactical idea, or recurring pattern instead of only reading notation afterward. Search by player, opening, event, year, or result, then return to lines that need another review. <Link to="/auto" style={{ color: '#9cc8ff' }}>Auto Training</Link> can recommend a next session when you want your study plan to guide the choice; the library remains available when you want to explore a specific player or opening.
+ </p>
+ </section>
+
  <div style={styles.filtersPanel}>
  <div style={styles.filtersGrid}>
  <div style={styles.field}>

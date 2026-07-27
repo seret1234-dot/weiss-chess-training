@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 function EndgameCard({
  title,
@@ -168,6 +168,15 @@ export default function EndgamePage() {
  core mating patterns and later expanding into broader practical endgames.
  </p>
  </div>
+
+ <section style={{ maxWidth: 820, marginBottom: 26, color: '#d7d7d7', fontSize: 16, lineHeight: 1.7 }}>
+ <h2 style={{ color: '#f3f3f3', fontSize: 26, margin: '0 0 10px' }}>
+ Build practical endgame technique
+ </h2>
+ <p style={{ margin: 0 }}>
+ Endgame technique improves through clear positions, repeated decisions, and reliable methods. <Link to="/endgame/piece-mates" style={{ color: '#9cc8ff' }}>Piece Mates</Link> teaches essential ways to finish with limited material, while <Link to="/endgame-studies" style={{ color: '#9cc8ff' }}>Endgame Studies</Link> covers theoretical positions such as pawn endings, rook endings, zugzwang, fortresses, and practical conversions. The categories move from foundational patterns toward more demanding calculation, so each area has a useful place in a broader training routine. Repeated review helps keep key methods available when a familiar ending appears in a real game. Choose a category below to begin with a focused technique rather than a mixed collection of positions.
+ </p>
+ </section>
 
  {/* ✅ FIXED GRID (2 columns) */}
  <div
