@@ -150,13 +150,17 @@ export default function AccountPage() {
    setImportProgress("")
    setMessage(
      usernameChanged && savedUsername
-       ? "Saved successfully. Import Chess.com games when you are ready."
+       ? "Saved successfully. Starting Chess.com import..."
        : "Saved successfully",
    )
+
+   if (usernameChanged && savedUsername) {
+     await importChessComGames(savedUsername)
+   }
  }
 
- async function importChessComGames() {
-   const username = savedChessComUsername.trim()
+ async function importChessComGames(usernameOverride = savedChessComUsername) {
+   const username = usernameOverride.trim()
 
    if (!username) {
      setError("Save a Chess.com username before importing games.")
@@ -324,7 +328,7 @@ export default function AccountPage() {
  </div>
 
  <div style={actionsRowStyle}>
- <button onClick={save} disabled={saving} style={saveButtonStyle}>
+ <button onClick={save} disabled={saving || importingGames} style={saveButtonStyle}>
  {saving ? "Saving..." : "Save changes"}
  </button>
  {savedChessComUsername && (
