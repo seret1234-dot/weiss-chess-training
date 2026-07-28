@@ -77,6 +77,56 @@
   object-fit: contain;
 }
 
+/* The desktop menu is permanently visible. Review pages reserve its gutter
+ * instead of expanding beneath it, and use a vertical review panel before a
+ * narrow desktop width can clip the White or Black columns. */
+@media (min-width: 1422px) {
+  .analyze-board-page--review {
+    padding-right: 240px;
+    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1750px) {
+  .analyze-board-page--review .trainer-shell-page--fixed {
+    height: auto !important;
+    min-height: 100dvh !important;
+    overflow: visible !important;
+  }
+
+  .analyze-board-page--review .trainer-shell-layout,
+  .analyze-board-page--review .trainer-shell-side {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .analyze-board-page--review .analyze-review-grid.review-mode {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas:
+      "review"
+      "details"
+      "moves" !important;
+    grid-template-rows: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .analyze-board-page--review .analyze-review-grid.review-mode > :nth-child(1),
+  .analyze-board-page--review .analyze-review-grid.review-mode > :nth-child(2),
+  .analyze-board-page--review .analyze-review-grid.review-mode > :nth-child(7),
+  .analyze-board-page--review .analyze-review-grid.review-mode > :nth-child(7) > :first-child {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .analyze-board-page--review .analyze-moves-list {
+    height: min(55dvh, 560px) !important;
+    max-height: min(55dvh, 560px) !important;
+    overflow-y: auto !important;
+  }
+}
+
 @media (max-width: 768px) {
   html:has(.analyze-board-page),
   html:has(.setup-position-page),

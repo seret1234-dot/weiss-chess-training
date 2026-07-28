@@ -1464,8 +1464,15 @@ function reviewShort(label?: ReviewClass) {
 }
 
  function reviewDisplayName(label?: ReviewClass) {
- if (!label) return "";
- return label;
+  if (!label) return "";
+  return label;
+ }
+
+ function reviewSummaryLabel(label?: ReviewClass) {
+  const short = reviewShort(label);
+  const name = reviewDisplayName(label);
+
+  return short && short !== name ? `${short} ${name}` : name;
  }
 
  function playBestMove() {
@@ -2759,15 +2766,15 @@ function reviewShort(label?: ReviewClass) {
  );
  return (
  <div
- className="analyze-board-page"
+ className={`analyze-board-page${isReviewMode ? " analyze-board-page--review" : ""}`}
  onDragOver={handlePageDragOver}
  onDragLeave={handlePageDragLeave}
  onDrop={handlePageDrop}
  style={{
  position: "relative",
  minHeight: "100vh",
- marginLeft: -layoutShiftLeft,
- width: `calc(100% + ${layoutShiftLeft}px)`,
+ marginLeft: isReviewMode ? 0 : -layoutShiftLeft,
+ width: isReviewMode ? "100%" : `calc(100% + ${layoutShiftLeft}px)`,
  boxSizing: "border-box",
  }}
  >
@@ -2866,10 +2873,10 @@ function reviewShort(label?: ReviewClass) {
  .analyze-review-grid > :nth-child(9) { grid-area: engine; min-height: 0; }
 
  .analyze-review-grid.review-mode {
- grid-template-columns:
- minmax(240px, 0.95fr)
- minmax(180px, 0.70fr)
- minmax(270px, 1.35fr);
+  grid-template-columns:
+  minmax(0, 0.95fr)
+  minmax(0, 0.70fr)
+  minmax(0, 1.35fr);
  grid-template-areas:
  "review details moves"
  "review details moves";
@@ -3357,18 +3364,19 @@ function reviewShort(label?: ReviewClass) {
  <div
  style={{
  display: "grid",
- gridTemplateColumns: "minmax(118px, 1fr) minmax(54px, 64px) minmax(54px, 64px)",
+ gridTemplateColumns: "minmax(0, 1fr) minmax(40px, 64px) minmax(40px, 64px)",
  gap: "6px 6px",
  alignItems: "center",
  fontSize: 12,
  }}
  >
- <div style={{ color: "#aaa", fontWeight: 800 }}>
+ <div style={{ minWidth: 0, color: "#aaa", fontWeight: 800, overflowWrap: "anywhere" }}>
  Classification
  </div>
  <div
- style={{
- color: "#f3f3f3",
+  style={{
+  minWidth: 0,
+  color: "#f3f3f3",
  fontWeight: 900,
  textAlign: "center",
  }}
@@ -3390,16 +3398,18 @@ function reviewShort(label?: ReviewClass) {
  </div>
  </div>
  <div
- style={{
- color: "#f3f3f3",
+  style={{
+  minWidth: 0,
+  color: "#f3f3f3",
  fontWeight: 900,
  textAlign: "center",
  }}
  >
  Black
  <div
- style={{
- color: "#aaa",
+  style={{
+  minWidth: 0,
+  color: "#aaa",
  fontSize: 8,
  fontWeight: 600,
  maxWidth: 54,
@@ -3423,8 +3433,9 @@ function reviewShort(label?: ReviewClass) {
  Accuracy
  </div>
  <div
- style={{
- textAlign: "center",
+  style={{
+  minWidth: 0,
+  textAlign: "center",
  borderTop: "1px solid rgba(255,255,255,0.08)",
  paddingTop: 8,
  fontWeight: 900,
@@ -3435,8 +3446,9 @@ function reviewShort(label?: ReviewClass) {
  : "--"}
  </div>
  <div
- style={{
- textAlign: "center",
+  style={{
+  minWidth: 0,
+  textAlign: "center",
  borderTop: "1px solid rgba(255,255,255,0.08)",
  paddingTop: 8,
  fontWeight: 900,
@@ -3450,9 +3462,9 @@ function reviewShort(label?: ReviewClass) {
  {REVIEW_TABLE_CLASSES.map((label) => (
  <React.Fragment key={label}>
  <div
- style={{ color: reviewColor(label), fontWeight: 800 }}
+  style={{ minWidth: 0, color: reviewColor(label), fontWeight: 800, overflowWrap: "anywhere" }}
  >
- {reviewShort(label)} {reviewDisplayName(label)}
+ {reviewSummaryLabel(label)}
  </div>
  <button
  onClick={() => {
@@ -3463,8 +3475,9 @@ function reviewShort(label?: ReviewClass) {
  if (row) goToPly(row.ply);
  }}
  disabled={reviewCountsBySide.white[label] === 0}
- style={{
- border: "none",
+  style={{
+  minWidth: 0,
+  border: "none",
  borderRadius: 7,
  padding: "3px 5px",
  textAlign: "center",
@@ -3494,8 +3507,9 @@ function reviewShort(label?: ReviewClass) {
  if (row) goToPly(row.ply);
  }}
  disabled={reviewCountsBySide.black[label] === 0}
- style={{
- border: "none",
+  style={{
+  minWidth: 0,
+  border: "none",
  borderRadius: 7,
  padding: "3px 5px",
  textAlign: "center",
@@ -3853,7 +3867,7 @@ function reviewShort(label?: ReviewClass) {
  flex: isReviewMode ? "1 1 auto" : undefined,
  overflowY: "auto",
  display: "grid",
- gridTemplateColumns: "30px minmax(120px, 1fr) minmax(120px, 1fr)",
+ gridTemplateColumns: "26px minmax(0, 1fr) minmax(0, 1fr)",
  gap: "4px 7px",
  fontSize: 13,
  alignItems: "center",
@@ -3868,10 +3882,14 @@ function reviewShort(label?: ReviewClass) {
  <div key={i} style={{ display: "contents" }}>
  <div style={{ color: "#aaa" }}>{i + 1}.</div>
 
- <button
- onClick={() => white && goToPly(white.ply)}
- style={{
- textAlign: "left",
+  <button
+  onClick={() => white && goToPly(white.ply)}
+  style={{
+  minWidth: 0,
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+  textAlign: "left",
  borderRadius: 6,
  padding: "3px 5px",
  cursor: white ? "pointer" : "default",
@@ -3888,10 +3906,19 @@ function reviewShort(label?: ReviewClass) {
  currentPly === white?.ply ? 800 : 500,
  }}
  >
- {white?.san || ""}
- <span
- style={{
- float: "right",
+  <span
+  style={{
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  }}
+  >
+  {white?.san || ""}
+  </span>
+  <span
+  style={{
+  flex: "0 0 auto",
  color: reviewColor(reviewMap[white?.ply]),
  fontWeight: 700,
  fontSize: 11,
@@ -3901,10 +3928,14 @@ function reviewShort(label?: ReviewClass) {
  </span>
  </button>
 
- <button
- onClick={() => black && goToPly(black.ply)}
- style={{
- textAlign: "left",
+  <button
+  onClick={() => black && goToPly(black.ply)}
+  style={{
+  minWidth: 0,
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+  textAlign: "left",
  borderRadius: 6,
  padding: "3px 5px",
  cursor: black ? "pointer" : "default",
@@ -3921,10 +3952,19 @@ function reviewShort(label?: ReviewClass) {
  currentPly === black?.ply ? 800 : 500,
  }}
  >
- {black?.san || ""}
- <span
- style={{
- float: "right",
+  <span
+  style={{
+  minWidth: 0,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  }}
+  >
+  {black?.san || ""}
+  </span>
+  <span
+  style={{
+  flex: "0 0 auto",
  color: reviewColor(reviewMap[black?.ply]),
  fontWeight: 700,
  fontSize: 11,
