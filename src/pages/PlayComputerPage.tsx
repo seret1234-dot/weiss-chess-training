@@ -1903,11 +1903,16 @@ async function makeEngineMove() {
  const beforeFen = chessRef.current.fen()
  const playedUci = `${from}${to}${promotion || ''}`
 
- const move = chessRef.current.move({
- from,
- to,
- ...(promotion ? { promotion } : {}),
- })
+ let move
+ try {
+  move = chessRef.current.move({
+   from,
+   to,
+   ...(promotion ? { promotion } : {}),
+  })
+ } catch {
+  return false
+ }
 
  if (!move) return false
 
