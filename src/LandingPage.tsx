@@ -203,7 +203,7 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
 
  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
  <button
- onClick={() => navigate('/sample-training')}
+ onClick={() => navigate(user ? '/auto' : '/auth?mode=signup')}
  style={{
  padding: '14px 22px',
  borderRadius: 999,
@@ -215,10 +215,10 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  cursor: 'pointer',
  }}
  >
- Try a 2-minute training session
+ {user ? 'Start Auto Training' : 'Create Free Account'}
  </button>
  <button
- onClick={() => navigate('/auto')}
+ onClick={() => navigate('/sample-training')}
  style={{
  padding: '14px 22px',
  borderRadius: 999,
@@ -230,7 +230,7 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  cursor: 'pointer',
  }}
  >
- Start Auto Training
+ Try a 2-minute training session
  </button>
  </div>
  </div>

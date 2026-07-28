@@ -84,13 +84,17 @@ export default function GlobalFloatingPlay({
     window.location.href = "/account"
   }, [])
 
+  const goSignUp = useCallback(() => {
+    navigate("/auth?mode=signup")
+  }, [navigate])
+
   const flipBoard = useCallback(() => {
     boardState.onFlip?.()
   }, [boardState.onFlip])
 
   const handleAuth = useCallback(async () => {
     if (!isLoggedIn) {
-      window.location.href = "/auth"
+      navigate("/auth")
       return
     }
 
@@ -182,6 +186,21 @@ export default function GlobalFloatingPlay({
               </button>
             )}
 
+            {!isLoggedIn && (
+              <button
+                type="button"
+                onClick={goSignUp}
+                style={{
+                  ...btnStyle,
+                  background:
+                    "linear-gradient(180deg,var(--theme-accent-strong),var(--theme-accent))",
+                  color: "var(--theme-accent-text)",
+                }}
+              >
+                Create Free Account
+              </button>
+            )}
+
             <button
               type="button"
               onClick={handleAuth}
@@ -192,7 +211,7 @@ export default function GlobalFloatingPlay({
                   : "var(--theme-button-bg)",
               }}
             >
-              {isLoggedIn ? "Logout" : "Login"}
+              {isLoggedIn ? "Logout" : "Log In"}
             </button>
         </div>
       </div>
@@ -255,12 +274,22 @@ export default function GlobalFloatingPlay({
           </button>
         )}
 
+        {!isLoggedIn && (
+          <button
+            type="button"
+            className="global-mobile-nav__button global-mobile-nav__button--signup"
+            onClick={goSignUp}
+          >
+            Create Free Account
+          </button>
+        )}
+
         <button
           type="button"
           className="global-mobile-nav__button"
           onClick={handleAuth}
         >
-          {isLoggedIn ? "Logout" : "Login"}
+          {isLoggedIn ? "Logout" : "Log In"}
         </button>
       </nav>
     </>,

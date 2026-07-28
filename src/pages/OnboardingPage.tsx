@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase"
 import { trackAnalyticsEvent } from "../lib/analytics"
 import { runChessComImport } from "../training/chesscomImport"
 import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
+import "../AuthOnboarding.css"
 
 function sectionCardStyle(): CSSProperties {
  return {
@@ -38,6 +39,8 @@ export default function OnboardingPage() {
  const [saving, setSaving] = useState(false)
  const [error, setError] = useState("")
  const [progressMessage, setProgressMessage] = useState("")
+ const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1)
+ const [completed, setCompleted] = useState(false)
  const onboardingStartedTracked = useRef(false)
 
  useEffect(() => {
@@ -70,9 +73,11 @@ export default function OnboardingPage() {
  }, [])
 
  async function handleSave() {
-  setSaving(true)
-  setError("")
-  setProgressMessage("Saving your goal...")
+ setSaving(true)
+ setCompleted(false)
+ setCurrentStep(1)
+ setError("")
+ setProgressMessage("Step 1 of 3: Connecting Chess.com...")
 
   try {
    const { data: sessionData } = await supabase.auth.getSession()
@@ -160,22 +165,22 @@ export default function OnboardingPage() {
 
    if (planError) throw planError
 
-   setProgressMessage("Importing recent Chess.com games...")
+   setProgressMessage("Step 1 of 3: Importing recent Chess.com games...")
    await runChessComImport(resolvedChesscomUsername, user.id)
 
-   setProgressMessage("Starting Stockfish analysis...")
+   setCurrentStep(2)
+   setProgressMessage("Step 2 of 3: Starting Stockfish analysis...")
    const analysisResult = await analyzeImportedGamesWithStockfish(user.id, {
     maxGames: 150,
     depth: 8,
     minLossCp: 70,
     onProgress: (progress) => {
-     setProgressMessage(progress.message)
+     setProgressMessage(`Step 2 of 3: ${progress.message}`)
     },
    })
 
-   setProgressMessage(
-    `Analyzed ${analysisResult.gamesAnalyzed} games and found ${analysisResult.mistakesFound} training mistakes.`,
-   )
+   setCurrentStep(3)
+   setProgressMessage("Step 3 of 3: Building your training plan...")
 
    const { error: completionError } = await supabase
     .from("user_auto_profile")
@@ -188,8 +193,12 @@ export default function OnboardingPage() {
    if (completionError) throw completionError
 
    trackAnalyticsEvent("onboarding_completed")
-
-   window.location.replace("/auto")
+   setCompleted(true)
+   setProgressMessage(
+    `Your training plan is ready. Analyzed ${analysisResult.gamesAnalyzed} games and found ${analysisResult.mistakesFound} training mistakes.`,
+   )
+   await new Promise<void>((resolve) => window.setTimeout(resolve, 1600))
+   navigate("/auto", { replace: true })
   } catch (err) {
    console.error("Onboarding save failed", err)
    setError(err instanceof Error ? err.message : JSON.stringify(err, null, 2))
@@ -200,8 +209,9 @@ export default function OnboardingPage() {
 
  return (
   <div
+   className="onboarding-page"
    style={{
-    minHeight: "100vh",
+    minHeight: "100dvh",
     background: "linear-gradient(180deg, #2b2623 0%, #231f1d 100%)",
     color: "#f3f3f3",
     fontFamily: "Arial, sans-serif",
@@ -212,12 +222,13 @@ export default function OnboardingPage() {
    }}
   >
    <div
+    className="onboarding-page__shell"
     style={{
      width: "100%",
      maxWidth: 760,
     }}
    >
-    <div style={sectionCardStyle()}>
+    <div className="onboarding-page__card" style={sectionCardStyle()}>
      <div
       style={{
        display: "inline-flex",
@@ -233,11 +244,25 @@ export default function OnboardingPage() {
       Personalized chess course
      </div>
 
-     <h1 style={{ margin: "0 0 10px", fontSize: 38 }}>What is your rating goal?</h1>
+     <div className="onboarding-page__steps" aria-label="Onboarding progress">
+      {[
+       "Step 1 of 3: Connect Chess.com",
+       "Step 2 of 3: Analyze games",
+       "Step 3 of 3: Build your training plan",
+      ].map((label, index) => (
+       <div
+        key={label}
+        className={`onboarding-page__step ${index + 1 <= currentStep ? "is-active" : ""}`}
+       >
+        {label}
+       </div>
+      ))}
+     </div>
+
+     <h1 style={{ margin: "0 0 10px", fontSize: 38 }}>Connect Chess.com</h1>
 
      <p style={{ color: "#cfcfcf", lineHeight: 1.5, fontSize: 16, maxWidth: 620 }}>
-      That is the only question. Your current rating, openings, weaknesses, time controls,
-      and training priorities will come from your connected games.
+      The system will automatically import your recent Chess.com games, analyze your mistakes, and create a personalized training plan.
      </p>
 
      <label
@@ -255,7 +280,7 @@ export default function OnboardingPage() {
       autoComplete="username"
      />
      <p style={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.45 }}>
-      We use this to import your recent games and personalize your course.
+      Enter your Chess.com username — not your email.
      </p>
 
      <input
@@ -267,13 +292,13 @@ export default function OnboardingPage() {
      />
 
      <p style={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.45 }}>
-      Leave empty if you do not have an exact number yet.
+      Optional: add a rating goal, or leave this empty for now.
      </p>
 
            {error && <div style={{ marginTop: 16, color: "#ffb3b3" }}>{error}</div>}
-      {saving && progressMessage && (
-       <div style={{ marginTop: 16, color: "#d8f4ce", lineHeight: 1.45 }}>
-        {progressMessage}
+      {(saving || completed) && progressMessage && (
+       <div className="onboarding-page__progress" role="status" style={{ marginTop: 16, color: "#d8f4ce", lineHeight: 1.45 }}>
+       {progressMessage}
        </div>
       )}
 
@@ -295,7 +320,7 @@ export default function OnboardingPage() {
        opacity: saving ? 0.7 : 1,
       }}
      >
-      {saving ? progressMessage || "Building your course..." : "Build my course"}
+      {saving ? progressMessage || "Building your training plan..." : "Analyze My Games & Build My Training Plan"}
      </button>
 
      <div

@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties, FormEvent } from "react"
+import { useLocation } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 import { trackAnalyticsEvent } from "./lib/analytics"
+import "./AuthOnboarding.css"
 
 type AuthMode = "login" | "signup"
 
 type FormState = {
  email: string
  password: string
- chessComUsername: string
- lichessUsername: string
 }
 
 function panelStyle(bg = "#312e2b"): CSSProperties {
@@ -59,13 +59,13 @@ function buttonStyle(background: string): CSSProperties {
 }
 
 export default function AuthPage() {
- const [mode, setMode] = useState<AuthMode>("login")
+ const location = useLocation()
+ const requestedSignup = new URLSearchParams(location.search).get("mode") === "signup"
+ const [mode, setMode] = useState<AuthMode>(requestedSignup ? "signup" : "login")
 
  const [form, setForm] = useState<FormState>({
- email: "",
- password: "",
- chessComUsername: "",
- lichessUsername: "",
+  email: "",
+  password: "",
  })
 
  const [status, setStatus] = useState("")
@@ -74,9 +74,13 @@ export default function AuthPage() {
  const isSubmittingRef = useRef(false)
 
  const title = useMemo(
- () => (mode === "signup" ? "Create your account" : "Log in"),
+ () => (mode === "signup" ? "Create Free Account" : "Log In"),
  [mode]
  )
+
+ useEffect(() => {
+  setMode(requestedSignup ? "signup" : "login")
+ }, [requestedSignup])
 
  useEffect(() => {
  async function checkSession() {
@@ -124,17 +128,10 @@ export default function AuthPage() {
 
  try {
  if (mode === "signup") {
- const chessComUsername = form.chessComUsername.trim()
- const lichessUsername = form.lichessUsername.trim()
-
  const { data, error } = await supabase.auth.signUp({
  email: form.email.trim(),
  password: form.password,
  options: {
- data: {
- chessComUsername: chessComUsername || null,
- lichessUsername: lichessUsername || null,
- },
  emailRedirectTo: `${window.location.origin}/onboarding`,
  },
  })
@@ -182,8 +179,9 @@ export default function AuthPage() {
 
  return (
  <div
+ className="auth-page"
  style={{
- minHeight: "100vh",
+ minHeight: "100dvh",
  background: "#262421",
  color: "#fff",
  padding: "24px",
@@ -191,6 +189,7 @@ export default function AuthPage() {
  }}
  >
  <div
+ className="auth-page__shell"
  style={{
  maxWidth: "1100px",
  margin: "0 auto",
@@ -199,10 +198,10 @@ export default function AuthPage() {
  gap: "16px",
  }}
  >
- <div style={panelStyle()}>
+ <div className="auth-page__panel" style={panelStyle()}>
  <h1 style={{ marginBottom: "16px" }}>{title}</h1>
 
- <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
+ <div className="auth-page__tabs" style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
  <button
  type="button"
  onClick={() => {
@@ -211,7 +210,7 @@ export default function AuthPage() {
  }}
  style={buttonStyle(mode === "signup" ? "#81b64c" : "#4b4847")}
  >
- Sign up
+ Create Free Account
  </button>
 
  <button
@@ -219,7 +218,7 @@ export default function AuthPage() {
  onClick={() => setMode("login")}
  style={buttonStyle(mode === "login" ? "#81b64c" : "#4b4847")}
  >
- Log in
+ Log In
  </button>
  </div>
 
@@ -244,43 +243,9 @@ export default function AuthPage() {
  </div>
 
  {mode === "signup" && (
- <>
- <div
- style={{
- marginBottom: "8px",
- color: "#cfcfcf",
- fontSize: "12px",
- }}
- >
- Add your account to get personalized course adjustments
- </div>
-
- <div style={{ marginBottom: "14px" }}>
- <label style={labelStyle()}>
- Chess.com username (optional)
- </label>
- <input
- style={inputStyle()}
- value={form.chessComUsername}
- onChange={(e) =>
- updateField("chessComUsername", e.target.value)
- }
- />
- </div>
-
- <div style={{ marginBottom: "14px" }}>
- <label style={labelStyle()}>
- Lichess username (optional)
- </label>
- <input
- style={inputStyle()}
- value={form.lichessUsername}
- onChange={(e) =>
- updateField("lichessUsername", e.target.value)
- }
- />
- </div>
- </>
+ <p className="auth-page__signup-note">
+ After confirmation, you will connect Chess.com and build your personalized training plan.
+ </p>
  )}
 
  <button
@@ -295,15 +260,15 @@ export default function AuthPage() {
  {loading
  ? "Please wait..."
  : mode === "signup"
- ? "Create account"
- : "Log in"}
+ ? "Create Free Account"
+ : "Log In"}
  </button>
  </form>
 
  <div style={{ marginTop: "16px", color: "#cfcfcf" }}>{status}</div>
  </div>
 
- <div style={panelStyle("#262421")}>
+ <div className="auth-page__panel auth-page__info-panel" style={panelStyle("#262421")}>
  <h2>Personalized course</h2>
 
  <p>Connect your chess usernames to get:</p>
