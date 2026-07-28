@@ -2,7 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { getOrCreateAutoProfile } from "../training/getOrCreateAutoProfile"
-import { buildPersonalTrainingPlan } from "../training/buildPersonalTrainingPlan"
+import {
+ buildPersonalTrainingPlan,
+ getRecommendedSection,
+} from "../training/buildPersonalTrainingPlan"
 import type { PersonalTrainingPlan, TrainingSection } from "../training/buildPersonalTrainingPlan"
 import { getDueSummary, getNextDueItem } from "../training/getNextDueItem"
 import { addAutoTrainingParams, buildAutoTrainingRoute } from "../training/autoTrainingRoute"
@@ -50,11 +53,6 @@ function sectionCardStyle(): CSSProperties {
   padding: 16,
   border: "1px solid rgba(255,255,255,0.08)",
  }
-}
-
-function getRecommendedSection(plan: PersonalTrainingPlan): TrainingSection {
- const normalSections = plan.sections.filter((s) => s.key !== "masterGames")
- return normalSections.slice().sort((a, b) => b.weight - a.weight)[0] ?? plan.sections[0]
 }
 
 function ratingBandLabel(plan: PersonalTrainingPlan) {
@@ -323,9 +321,14 @@ export default function AutoStudyPage({ user }: { user: any }) {
     <div style={{ marginBottom: 22 }}>
      <h1 style={{ fontSize: 40, margin: "0 0 8px" }}>Your Personal Chess Course</h1>
      <p style={{ color: "#cfcfcf", fontSize: 17, lineHeight: 1.5, maxWidth: 760 }}>
-      The course has five regular sections. The weights are calculated from your rating goal,
+     The course has five regular sections. The weights are calculated from your rating goal,
       detected ratings, imported games, openings, and later your repeated mistakes.
      </p>
+     {!plan.analysisAvailable && plan.analysisMessage && (
+      <p style={{ color: "#f0dca0", fontSize: 14, lineHeight: 1.5, maxWidth: 760 }}>
+       {plan.analysisMessage}
+      </p>
+     )}
      <button
       onClick={refreshChessComGames}
       disabled={refreshingGames}

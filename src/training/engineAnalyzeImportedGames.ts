@@ -74,7 +74,9 @@ function moveNumberFromPly(ply: number) {
  return Math.floor((ply + 1) / 2)
 }
 
-function buildSummary(mistakes: any[], analyzedGames: number) {
+// Exported so the local Auto Study integration test can exercise the same
+// persisted summary shape that production writes to user_auto_profile.
+export function buildSummary(mistakes: any[], analyzedGames: number) {
  const bySeverity: Record<string, number> = {}
  const byPhase: Record<string, number> = {}
  const byTimeClass: Record<string, number> = {}

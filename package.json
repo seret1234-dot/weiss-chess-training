@@ -13,6 +13,7 @@
     "postinstall": "node scripts/install-stockfish-assets.cjs && node scripts/soften-react-chessboard-pieces.cjs",
     "paypal:audit": "node scripts/audit_paypal_launch.mjs",
     "audit:positions": "node scripts/run-position-audit.mjs"
+    ,"test:auto-study": "node scripts/test-personal-training-plan.mjs"
   },
   "dependencies": {
     "@mliebelt/pgn-parser": "^1.4.19",
