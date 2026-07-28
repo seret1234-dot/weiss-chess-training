@@ -20,6 +20,7 @@ import {
 } from "../training/endgameTransfer"
 import { runChessComImport } from "../training/chesscomImport"
 import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
+import "../AccountAutoStudy.css"
 
 type LoadState =
  | { status: "loading"; message: string }
@@ -57,7 +58,7 @@ function sectionCardStyle(): CSSProperties {
 
 function ratingBandLabel(plan: PersonalTrainingPlan) {
  if (plan.ratingBand === "under1000") return "Under 1000"
- if (plan.ratingBand === "1000to1600") return "1000ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ1600"
+ if (plan.ratingBand === "1000to1600") return "1000–1600"
  return "1600+"
 }
 
@@ -303,7 +304,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
  if (state.status !== "ready") {
   return (
-   <div style={pageStyle()}>
+   <div className="auto-study-page" style={pageStyle()}>
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
      <div style={cardStyle()}>
       <h1>{state.message}</h1>
@@ -316,10 +317,10 @@ export default function AutoStudyPage({ user }: { user: any }) {
  const { plan, autoProfile } = state
 
  return (
-  <div style={pageStyle()}>
-   <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-    <div style={{ marginBottom: 22 }}>
-     <h1 style={{ fontSize: 40, margin: "0 0 8px" }}>Your Personal Chess Course</h1>
+  <div className="auto-study-page" style={pageStyle()}>
+   <div className="auto-study-page__shell" style={{ maxWidth: 1120, margin: "0 auto" }}>
+    <div className="auto-study-page__header" style={{ marginBottom: 22 }}>
+     <h1 className="auto-study-page__title" style={{ fontSize: 40, margin: "0 0 8px" }}>Your Personal Chess Course</h1>
      <p style={{ color: "#cfcfcf", fontSize: 17, lineHeight: 1.5, maxWidth: 760 }}>
      The course has five regular sections. The weights are calculated from your rating goal,
       detected ratings, imported games, openings, and later your repeated mistakes.
@@ -329,6 +330,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
        {plan.analysisMessage}
       </p>
      )}
+     <div className="auto-study-page__header-actions">
      <button
       onClick={refreshChessComGames}
       disabled={refreshingGames}
@@ -342,10 +344,10 @@ export default function AutoStudyPage({ user }: { user: any }) {
        fontWeight: 800,
        cursor: refreshingGames ? "wait" : "pointer",
       }}
-     >
-      {refreshingGames ? "Refreshing games..." : "Refresh Chess.com games"}
-     </button>
-     <button
+      >
+       {refreshingGames ? "Refreshing games..." : "Refresh Chess.com games"}
+      </button>
+      <button
       onClick={analyzeGamesWithEngine}
       disabled={engineBusy}
       style={{
@@ -359,9 +361,10 @@ export default function AutoStudyPage({ user }: { user: any }) {
        fontWeight: 800,
        cursor: engineBusy ? "wait" : "pointer",
       }}
-     >
-      {engineBusy ? "Analyzing..." : "Analyze all remaining games with Stockfish"}
-     </button>
+      >
+       {engineBusy ? "Analyzing..." : "Analyze all remaining games with Stockfish"}
+      </button>
+      </div>
      {engineProgress && (
       <div style={{ marginTop: 10, color: "#d6d6d6", fontSize: 14 }}>
        {engineProgress}
@@ -371,6 +374,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
     </div>
 
     <div
+     className="auto-study-page__weekly-card"
      style={{
       ...cardStyle(),
       marginBottom: 18,
@@ -430,6 +434,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
      </div>
 
      <button
+      className="auto-study-page__weekly-action"
       type="button"
       onClick={openWeeklyTest}
       style={{
@@ -454,6 +459,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
     </div>
 
     <div
+     className="auto-study-page__content-grid"
      style={{
       display: "grid",
       gridTemplateColumns: "minmax(0, 1fr) 340px",
@@ -461,8 +467,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
       alignItems: "start",
      }}
     >
-     <main style={cardStyle()}>
+     <main className="auto-study-page__course-card" style={cardStyle()}>
       <div
+       className="auto-study-page__priority-grid"
        style={{
         display: "grid",
         gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
@@ -482,6 +489,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
       <div style={{ display: "grid", gap: 12, marginTop: 18 }}>
        {plan.sections.map((section) => (
         <div
+         className="auto-study-page__section-row"
          key={section.key}
          style={{
           ...sectionCardStyle(),
@@ -506,6 +514,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
          </div>
 
          <button
+          className="auto-study-page__section-action"
           type="button"
           onClick={() => navigate(section.route)}
           style={{
@@ -526,7 +535,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
       </div>
      </main>
 
-     <aside style={cardStyle()}>
+     <aside className="auto-study-page__sidebar" style={cardStyle()}>
       <div
        style={{
         display: "inline-flex",

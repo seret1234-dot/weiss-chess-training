@@ -1,0 +1,107 @@
+.account-page,
+.account-page *,
+.auto-study-page,
+.auto-study-page * {
+  box-sizing: border-box;
+}
+
+.auto-study-page__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.auto-study-page__header-actions > button {
+  margin-left: 0 !important;
+}
+
+@media (max-width: 820px) {
+  .account-page,
+  .auto-study-page {
+    width: 100%;
+    min-width: 0;
+    min-height: 100dvh !important;
+    padding: var(--site-global-back-clearance) 12px calc(var(--site-fixed-bottom-clearance) + 16px) !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+  }
+
+  .account-page__shell,
+  .auto-study-page__shell {
+    width: 100%;
+    min-width: 0;
+    max-width: 100% !important;
+  }
+
+  .account-page__content-grid,
+  .auto-study-page__content-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .account-page__main-card,
+  .account-page__side-card,
+  .auto-study-page__course-card,
+  .auto-study-page__sidebar,
+  .auto-study-page__weekly-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .account-page__actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .account-page__actions > button,
+  .account-page input,
+  .auto-study-page button {
+    max-width: 100%;
+  }
+
+  .account-page__actions > button {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .auto-study-page__title {
+    font-size: clamp(30px, 9vw, 40px) !important;
+    overflow-wrap: anywhere;
+  }
+
+  .auto-study-page__header-actions > button {
+    min-height: 44px;
+    margin-top: 0 !important;
+  }
+
+  .auto-study-page__weekly-card {
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+  }
+
+  .auto-study-page__weekly-action {
+    width: 100%;
+    min-width: 0 !important;
+    min-height: 48px;
+  }
+
+  .auto-study-page__priority-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .auto-study-page__section-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .auto-study-page__section-action {
+    width: 100%;
+    min-height: 44px;
+    white-space: normal !important;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 820px) {
+  .auto-study-page__priority-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}

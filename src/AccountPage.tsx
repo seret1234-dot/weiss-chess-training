@@ -6,6 +6,7 @@ import ThemeSelector from "./theme/ThemeSelector"
 import { runChessComImport } from "./training/chesscomImport"
 import { analyzeImportedGamesWithStockfish } from "./training/engineAnalyzeImportedGames"
 import { getOrCreateAutoProfile } from "./training/getOrCreateAutoProfile"
+import "./AccountAutoStudy.css"
 
 function formatDate(value: string | null | undefined) {
   if (!value) return null
@@ -283,10 +284,10 @@ export default function AccountPage() {
  }
 
  return (
- <div style={pageStyle}>
+ <div className="account-page" style={pageStyle}>
  <div style={glowStyle} />
 
- <div style={shellStyle}>
+ <div className="account-page__shell" style={shellStyle}>
  <div style={headerCardStyle}>
  <div style={eyebrowStyle}>Profile</div>
  <h1 style={titleStyle}>Account Settings</h1>
@@ -297,8 +298,8 @@ export default function AccountPage() {
 
  <ThemeSelector />
 
- <div style={contentGridStyle}>
- <div style={mainCardStyle}>
+ <div className="account-page__content-grid" style={contentGridStyle}>
+ <div className="account-page__main-card" style={mainCardStyle}>
  <div style={sectionTitleStyle}>Connected chess accounts</div>
 
  <div style={fieldBlockStyle}>
@@ -327,7 +328,7 @@ export default function AccountPage() {
  />
  </div>
 
- <div style={actionsRowStyle}>
+ <div className="account-page__actions" style={actionsRowStyle}>
  <button onClick={save} disabled={saving || importingGames} style={saveButtonStyle}>
  {saving ? "Saving..." : "Save changes"}
  </button>
@@ -348,7 +349,7 @@ export default function AccountPage() {
  {error && <div style={errorStyle}>{error}</div>}
  </div>
 
- <div style={sideCardStyle}>
+ <div className="account-page__side-card" style={sideCardStyle}>
  <div style={membershipBoxStyle}>
  <div style={membershipEyebrowStyle}>Membership</div>
 
