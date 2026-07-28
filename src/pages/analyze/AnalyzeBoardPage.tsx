@@ -913,6 +913,12 @@ export default function AnalyzePage() {
     mate?: number;
   };
 
+  type ReviewEngineEvaluation = ReviewEngineEval & {
+    bestMove?: string;
+    pv?: string[];
+    depth?: number;
+  };
+
   const REVIEW_MATE_SCORE_CP = 2000;
 
   function isTerminalReviewPosition(fen: string) {
@@ -1001,7 +1007,13 @@ export default function AnalyzePage() {
     return 1 / (1 + Math.exp(-bounded / 250));
   }
 
-  const REVIEW_ENGINE_TIMEOUT_MS = 9000;
+  const REVIEW_ENGINE_TIMEOUT_MS = 3000;
+
+  function reviewMoveTimeMsFor(plyCount: number) {
+    if (plyCount >= 120) return 250;
+    if (plyCount >= 80) return 350;
+    return 500;
+  }
 
   function unavailableReviewReason(error: unknown) {
     if (error instanceof Error) {
@@ -1056,18 +1068,11 @@ export default function AnalyzePage() {
     return;
   }
 
-  // Full review owns the single Stockfish request channel.
-  // Stop any position analysis first so responses cannot be mixed.
-  setAutoAnalyze(false);
-  stockfishService.stop();
-  await new Promise<void>((resolve) => {
-    window.setTimeout(resolve, 80);
-  });
-
   const runId = reviewRunIdRef.current + 1;
  reviewRunIdRef.current = runId;
  setReviewInProgress(true);
  setReviewProgress({ done: 0, total: moveRows.length });
+  setAutoAnalyze(false);
 
  const nextReviewMap: Record<number, ReviewClass> = {};
  const nextReviewLossMap: Record<number, number> = {};
@@ -1100,6 +1105,21 @@ export default function AnalyzePage() {
  setAccuracyWhite(null);
  setAccuracyBlack(null);
  setReviewCoverage(emptyReviewCoverage());
+ setReviewSummary("Preparing a clean Stockfish worker for review...");
+
+ try {
+ await stockfishService.restart();
+ setEngineReady(true);
+ } catch {
+ if (reviewRunIdRef.current !== runId) return;
+ setEngineReady(false);
+ setReviewInProgress(false);
+ setReviewSummary("Stockfish could not restart. Please try Review Full Game again.");
+ return;
+ }
+
+ if (reviewRunIdRef.current !== runId) return;
+
  setReviewSummary(
  `Review running full game: ${whitePlayer} (White) and ${blackPlayer} (Black)`,
  );
@@ -1119,6 +1139,70 @@ export default function AnalyzePage() {
  } catch {
  openingBookLines = [];
  }
+
+ const reviewMoveTimeMs = reviewMoveTimeMsFor(moveRows.length);
+ const reviewEvaluationCache = new Map<string, ReviewEngineEvaluation>();
+ const reviewUniqueFens = new Set<string>();
+ let reviewCacheHits = 0;
+ let reviewRetries = 0;
+
+ const evaluateForReview = async (
+ fen: string,
+ requireBestMove: boolean,
+ ply: number,
+ ): Promise<ReviewEngineEvaluation> => {
+ reviewUniqueFens.add(fen);
+
+ const cached = reviewEvaluationCache.get(fen);
+ if (
+ cached &&
+ hasUsableReviewScore(cached, fen) &&
+ (!requireBestMove || Boolean(cached.bestMove))
+ ) {
+ reviewCacheHits++;
+ return cached;
+ }
+
+ let lastError: unknown = null;
+
+ for (let attempt = 0; attempt < 2; attempt++) {
+ try {
+ const info = await withTimeout(
+ stockfishService.getEvaluation(fen, { moveTime: reviewMoveTimeMs }),
+ REVIEW_ENGINE_TIMEOUT_MS,
+ "Engine evaluation",
+ );
+
+ if (
+ !hasUsableReviewScore(info, fen) ||
+ (requireBestMove && !info.bestMove)
+ ) {
+ throw new Error("Engine returned no usable score");
+ }
+
+ reviewEvaluationCache.set(fen, info);
+ return info;
+ } catch (error) {
+ lastError = error;
+
+ if (attempt === 0) {
+ reviewRetries++;
+ setReviewSummary(
+ `Retrying engine... move ${ply}/${moveRows.length}`,
+ );
+ await stockfishService.restart();
+
+ if (reviewRunIdRef.current !== runId) {
+ throw new Error("Review cancelled");
+ }
+ }
+ }
+ }
+
+ throw lastError instanceof Error
+ ? lastError
+ : new Error("Engine evaluation unavailable");
+ };
 
  for (const row of moveRows) {
  if (reviewRunIdRef.current !== runId) return;
@@ -1181,13 +1265,10 @@ export default function AnalyzePage() {
 
  const coverage = reviewCoverageForColor(nextReviewCoverage, row.color);
  coverage.eligible++;
+ setReviewSummary(`Reviewing move ${row.ply}/${moveRows.length}...`);
 
  try {
- const beforeEval = await withTimeout(
- stockfishService.getEvaluation(beforeFen),
- REVIEW_ENGINE_TIMEOUT_MS,
- "Before evaluation",
- );
+ const beforeEval = await evaluateForReview(beforeFen, true, row.ply);
  const bestUci = beforeEval.bestMove || "";
  const bestLineUci =
  (beforeEval.pv && beforeEval.pv.length > 0
@@ -1204,18 +1285,7 @@ export default function AnalyzePage() {
 
  let evalLossCp = 0;
 
- const afterPlayed = await withTimeout(
- stockfishService.getEvaluation(row.fen),
- REVIEW_ENGINE_TIMEOUT_MS,
- "After evaluation",
- );
- if (
- !bestUci ||
- !hasUsableReviewScore(beforeEval, beforeFen) ||
- !hasUsableReviewScore(afterPlayed, row.fen)
- ) {
- throw new Error("Engine returned no usable score");
- }
+ const afterPlayed = await evaluateForReview(row.fen, false, row.ply);
  const playedReplyUci =
  afterPlayed.pv && afterPlayed.pv.length > 0
  ? afterPlayed.pv
@@ -1418,12 +1488,13 @@ export default function AnalyzePage() {
  `White: ${nextReviewCoverage.white.evaluated} of ${nextReviewCoverage.white.eligible} moves evaluated (${nextReviewCoverage.white.unavailable} unavailable)`,
  `Black: ${nextReviewCoverage.black.evaluated} of ${nextReviewCoverage.black.eligible} moves evaluated (${nextReviewCoverage.black.unavailable} unavailable)`,
  ].join("; ");
+ const cacheSummary = `${reviewUniqueFens.size} unique positions, ${reviewCacheHits} cache hits, ${reviewRetries} retries`;
  setReviewSummary(
  reviewIsIncomplete
- ? `Analysis incomplete: ${coverageSummary}.`
+ ? `Analysis incomplete: ${coverageSummary}. ${cacheSummary}.`
  : weeklyTransferTarget
- ? `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}. Transfer target: ${weeklyTransferTarget.label}; ${weeklyTransferCreatedCount} created, ${weeklyTransferRecognizedCount} recognized, ${weeklyTransferMissedCount} missed.`
- : `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}`,
+ ? `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}. ${cacheSummary}. Transfer target: ${weeklyTransferTarget.label}; ${weeklyTransferCreatedCount} created, ${weeklyTransferRecognizedCount} recognized, ${weeklyTransferMissedCount} missed.`
+ : `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}. ${cacheSummary}.`,
  );
  }
 
@@ -2048,7 +2119,7 @@ function reviewShort(label?: ReviewClass) {
  }, []);
 
  useEffect(() => {
- if (!engineReady || reviewInProgress) return;
+ if (!engineReady || reviewInProgress || isReviewMode) return;
 
  async function analyzePosition() {
  try {
@@ -2072,7 +2143,7 @@ function reviewShort(label?: ReviewClass) {
  if (autoAnalyze) {
  analyzePosition();
  }
- }, [game.fen(), engineReady, reviewInProgress]);
+ }, [game.fen(), engineReady, reviewInProgress, isReviewMode, autoAnalyze]);
 
  function uciToSan(fen: string, uci: string) {
  if (!uci || uci.length < 4) return "";

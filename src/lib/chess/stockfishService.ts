@@ -50,6 +50,7 @@ function isUciMove(value: string): boolean {
 export class StockfishService {
   private worker: Worker | null = null
   private isReady = false
+  private initPromise: Promise<void> | null = null
   private currentConfig: EngineConfig = {
     skillLevel: 20,
     depth: 18,
@@ -62,20 +63,31 @@ export class StockfishService {
 
   async init(): Promise<void> {
     if (this.worker && this.isReady) return
+    if (this.initPromise) return this.initPromise
 
-    this.worker = createWorker()
+    const worker = createWorker()
+    this.worker = worker
+    this.isReady = false
 
-    await new Promise<void>((resolve, reject) => {
-      if (!this.worker) {
-        reject(new Error("Failed to create Stockfish worker"))
-        return
+    const initPromise = new Promise<void>((resolve, reject) => {
+      const fail = (reason: unknown) => {
+        window.clearTimeout(timeout)
+        if (this.worker === worker) {
+          this.worker = null
+          this.isReady = false
+        }
+        worker.onmessage = null
+        worker.onerror = null
+        worker.terminate()
+        reject(reason)
       }
 
       const timeout = window.setTimeout(() => {
-        reject(new Error("Stockfish init timeout"))
+        fail(new Error("Stockfish init timeout"))
       }, 10000)
 
-      this.worker.onmessage = (event: MessageEvent) => {
+      worker.onmessage = (event: MessageEvent) => {
+        if (this.worker !== worker) return
         const line = String(event.data || "")
 
         if (line === "readyok") {
@@ -88,14 +100,23 @@ export class StockfishService {
         this.handleEngineLine(line)
       }
 
-      this.worker.onerror = (err) => {
-        window.clearTimeout(timeout)
-        reject(err)
+      worker.onerror = (err) => {
+        fail(err)
       }
 
-      this.send("uci")
-      this.send("isready")
+      worker.postMessage("uci")
+      worker.postMessage("isready")
     })
+
+    this.initPromise = initPromise
+
+    try {
+      await initPromise
+    } finally {
+      if (this.initPromise === initPromise) {
+        this.initPromise = null
+      }
+    }
   }
 
   private handleEngineLine(line: string) {
@@ -378,12 +399,28 @@ export class StockfishService {
     this.send("stop")
   }
 
-  quit() {
-    this.send("quit")
-    this.cancelPending("Stockfish was closed")
-    this.worker?.terminate()
+  private terminateWorker(reason: string) {
+    const worker = this.worker
+
     this.worker = null
     this.isReady = false
+    this.initPromise = null
+    this.cancelPending(reason)
+
+    if (!worker) return
+
+    worker.onmessage = null
+    worker.onerror = null
+    worker.terminate()
+  }
+
+  async restart(): Promise<void> {
+    this.terminateWorker("Stockfish was restarted")
+    await this.init()
+  }
+
+  quit() {
+    this.terminateWorker("Stockfish was closed")
   }
 }
 
