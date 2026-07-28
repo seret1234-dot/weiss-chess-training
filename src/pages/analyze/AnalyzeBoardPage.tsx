@@ -42,6 +42,24 @@ type ReviewClass =
  | "Miss"
  | "Blunder";
 
+type ReviewCoverageSide = {
+ eligible: number;
+ evaluated: number;
+ unavailable: number;
+};
+
+type ReviewCoverage = {
+ white: ReviewCoverageSide;
+ black: ReviewCoverageSide;
+};
+
+function emptyReviewCoverage(): ReviewCoverage {
+ return {
+ white: { eligible: 0, evaluated: 0, unavailable: 0 },
+ black: { eligible: 0, evaluated: 0, unavailable: 0 },
+ };
+}
+
 type ReviewLineEvidence = {
   bestLineSan: string[];
   playedLineSan: string[];
@@ -216,6 +234,9 @@ export default function AnalyzePage() {
  const [reviewBestMap, setReviewBestMap] = useState<Record<number, string>>(
  {},
  );
+ const [reviewUnavailableMap, setReviewUnavailableMap] = useState<
+ Record<number, string>
+ >({});
  const [reviewLineMap, setReviewLineMap] = useState<
  Record<number, ReviewLineEvidence>
  >({});
@@ -227,6 +248,9 @@ export default function AnalyzePage() {
  const [accuracyWhite, setAccuracyWhite] = useState<number | null>(null);
 
  const [accuracyBlack, setAccuracyBlack] = useState<number | null>(null);
+ const [reviewCoverage, setReviewCoverage] = useState<ReviewCoverage>(
+ emptyReviewCoverage,
+ );
 
  const [reviewCounts, setReviewCounts] = useState<Record<ReviewClass, number>>(
  {
@@ -423,11 +447,13 @@ export default function AnalyzePage() {
  setReviewMap({});
  setReviewLossMap({});
  setReviewBestMap({});
+ setReviewUnavailableMap({});
  setReviewLineMap({});
  setReviewCoachMap({});
  reviewCoachRequestedRef.current.clear();
  setReviewSummary("");
  setReviewProgress({ done: 0, total: 0 });
+ setReviewCoverage(emptyReviewCoverage());
  setWhitePlayer("White");
  setBlackPlayer("Black");
  setGameInfo(EMPTY_GAME_INFO);
@@ -671,6 +697,7 @@ export default function AnalyzePage() {
  setReviewMap({});
  setReviewLossMap({});
  setReviewBestMap({});
+ setReviewUnavailableMap({});
  setReviewLineMap({});
  setReviewCoachMap({});
  reviewCoachRequestedRef.current.clear();
@@ -687,6 +714,7 @@ export default function AnalyzePage() {
  });
  setAccuracyWhite(null);
  setAccuracyBlack(null);
+ setReviewCoverage(emptyReviewCoverage());
  setReviewSummary("");
  setReviewProgress({ done: 0, total: 0 });
  }
@@ -887,6 +915,33 @@ export default function AnalyzePage() {
 
   const REVIEW_MATE_SCORE_CP = 2000;
 
+  function isTerminalReviewPosition(fen: string) {
+    try {
+      const position = new Chess(fen);
+      return position.isCheckmate() || position.isDraw();
+    } catch {
+      return false;
+    }
+  }
+
+  function hasUsableReviewScore(info: ReviewEngineEval, fen: string) {
+    if (typeof info.scoreCp === "number" && Number.isFinite(info.scoreCp)) {
+      return true;
+    }
+
+    if (
+      typeof info.mate === "number" &&
+      Number.isFinite(info.mate) &&
+      info.mate !== 0
+    ) {
+      return true;
+    }
+
+    // A terminal board has a deterministic score even if Stockfish stopped
+    // without emitting an info line. Non-terminal scoreless responses do not.
+    return isTerminalReviewPosition(fen);
+  }
+
   function rawEngineScoreCp(info: ReviewEngineEval, fen: string) {
     if (typeof info.mate === "number") {
       if (info.mate > 0) {
@@ -948,6 +1003,46 @@ export default function AnalyzePage() {
 
   const REVIEW_ENGINE_TIMEOUT_MS = 9000;
 
+  function unavailableReviewReason(error: unknown) {
+    if (error instanceof Error) {
+      if (/timed out/i.test(error.message)) return "Engine timed out";
+      if (/usable score/i.test(error.message)) {
+        return "Engine returned no usable score";
+      }
+    }
+
+    return "Engine evaluation unavailable";
+  }
+
+  function reviewCoverageForColor(
+    coverage: ReviewCoverage,
+    color: "w" | "b",
+  ) {
+    return color === "w" ? coverage.white : coverage.black;
+  }
+
+  function hasIncompleteReviewCoverage(side: "w" | "b") {
+    const coverage = side === "w" ? reviewCoverage.white : reviewCoverage.black;
+    return (
+      coverage.eligible > 0 &&
+      coverage.evaluated / coverage.eligible < 0.8
+    );
+  }
+
+  function reviewCoverageText(side: "w" | "b") {
+    const coverage = side === "w" ? reviewCoverage.white : reviewCoverage.black;
+    const name = side === "w" ? "White" : "Black";
+    const incomplete = hasIncompleteReviewCoverage(side);
+
+    if (coverage.eligible === 0) {
+      return `${name}: no engine-evaluable moves`;
+    }
+
+    return `${coverage.evaluated} of ${coverage.eligible} ${name} moves evaluated; ${coverage.unavailable} unavailable${
+      incomplete ? " — Analysis incomplete" : ""
+    }`;
+  }
+
  async function startGameReview() {
  if (moveRows.length < 2) {
  setReviewSummary(
@@ -977,7 +1072,9 @@ export default function AnalyzePage() {
  const nextReviewMap: Record<number, ReviewClass> = {};
  const nextReviewLossMap: Record<number, number> = {};
  const nextReviewBestMap: Record<number, string> = {};
+ const nextReviewUnavailableMap: Record<number, string> = {};
  const nextReviewLineMap: Record<number, ReviewLineEvidence> = {};
+ const nextReviewCoverage = emptyReviewCoverage();
  const counts: Record<ReviewClass, number> = {
  Book: 0,
  Inspired: 0,
@@ -992,18 +1089,17 @@ export default function AnalyzePage() {
 
  let whiteLoss = 0;
  let blackLoss = 0;
- let whiteMoves = 0;
- let blackMoves = 0;
-
  setReviewMap({});
  setReviewLossMap({});
  setReviewBestMap({});
+ setReviewUnavailableMap({});
  setReviewLineMap({});
  setReviewCoachMap({});
  reviewCoachRequestedRef.current.clear();
  setReviewCounts(counts);
  setAccuracyWhite(null);
  setAccuracyBlack(null);
+ setReviewCoverage(emptyReviewCoverage());
  setReviewSummary(
  `Review running full game: ${whitePlayer} (White) and ${blackPlayer} (Black)`,
  );
@@ -1049,16 +1145,12 @@ export default function AnalyzePage() {
  nextReviewBestMap[row.ply] = row.san;
  counts[annotationClass]++;
 
- if (row.color === "w") {
- whiteMoves++;
- } else {
- blackMoves++;
- }
-
  setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewUnavailableMap({ ...nextReviewUnavailableMap });
  setReviewLineMap({ ...nextReviewLineMap });
+ setReviewCoverage({ ...nextReviewCoverage });
  setReviewCounts({ ...counts });
  setReviewProgress({ done: row.ply, total: moveRows.length });
  setReviewSummary(
@@ -1076,7 +1168,9 @@ export default function AnalyzePage() {
  setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewUnavailableMap({ ...nextReviewUnavailableMap });
  setReviewLineMap({ ...nextReviewLineMap });
+ setReviewCoverage({ ...nextReviewCoverage });
  setReviewCounts({ ...counts });
  setReviewProgress({ done: row.ply, total: moveRows.length });
  setReviewSummary(
@@ -1084,6 +1178,9 @@ export default function AnalyzePage() {
  );
  continue;
  }
+
+ const coverage = reviewCoverageForColor(nextReviewCoverage, row.color);
+ coverage.eligible++;
 
  try {
  const beforeEval = await withTimeout(
@@ -1112,6 +1209,13 @@ export default function AnalyzePage() {
  REVIEW_ENGINE_TIMEOUT_MS,
  "After evaluation",
  );
+ if (
+ !bestUci ||
+ !hasUsableReviewScore(beforeEval, beforeFen) ||
+ !hasUsableReviewScore(afterPlayed, row.fen)
+ ) {
+ throw new Error("Engine returned no usable score");
+ }
  const playedReplyUci =
  afterPlayed.pv && afterPlayed.pv.length > 0
  ? afterPlayed.pv
@@ -1187,35 +1291,36 @@ export default function AnalyzePage() {
 
  if (row.color === "w") {
  whiteLoss += evalLossCp;
- whiteMoves++;
  } else {
  blackLoss += evalLossCp;
- blackMoves++;
  }
+ coverage.evaluated++;
 
  setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewUnavailableMap({ ...nextReviewUnavailableMap });
  setReviewLineMap({ ...nextReviewLineMap });
+ setReviewCoverage({ ...nextReviewCoverage });
  setReviewCounts({ ...counts });
  setReviewProgress({ done: row.ply, total: moveRows.length });
  setReviewSummary(
  `Review running... ${row.ply}/${moveRows.length} - ${sideName}`,
  );
- } catch {
- nextReviewMap[row.ply] = "Good";
- nextReviewLossMap[row.ply] = 0;
- nextReviewBestMap[row.ply] = "Engine timed out";
- counts.Good++;
+ } catch (error) {
+ nextReviewUnavailableMap[row.ply] = unavailableReviewReason(error);
+ coverage.unavailable++;
 
  setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewUnavailableMap({ ...nextReviewUnavailableMap });
  setReviewLineMap({ ...nextReviewLineMap });
+ setReviewCoverage({ ...nextReviewCoverage });
  setReviewCounts({ ...counts });
  setReviewProgress({ done: row.ply, total: moveRows.length });
  setReviewSummary(
- `Engine was slow at move ${row.ply}; review continued.`,
+ `${nextReviewUnavailableMap[row.ply]} at move ${row.ply}; review continued.`,
  );
  }
  }
@@ -1227,15 +1332,30 @@ export default function AnalyzePage() {
   setAutoAnalyze(true);
 
  setReviewProgress({ done: moveRows.length, total: moveRows.length });
+ setReviewMap({ ...nextReviewMap });
  setReviewLossMap({ ...nextReviewLossMap });
  setReviewBestMap({ ...nextReviewBestMap });
+ setReviewUnavailableMap({ ...nextReviewUnavailableMap });
  setReviewLineMap({ ...nextReviewLineMap });
+ setReviewCoverage({ ...nextReviewCoverage });
 
- const accuracyFromAcl = (acl: number) =>
- Math.max(0, Math.min(100, 100 * Math.exp(-acl / 180)));
+ const accuracyFromAcl = (acl: number, evaluatedMoves: number) =>
+ evaluatedMoves > 0
+ ? Math.max(0, Math.min(100, 100 * Math.exp(-acl / 180)))
+ : null;
 
- setAccuracyWhite(accuracyFromAcl(whiteLoss / Math.max(1, whiteMoves)));
- setAccuracyBlack(accuracyFromAcl(blackLoss / Math.max(1, blackMoves)));
+ setAccuracyWhite(
+ accuracyFromAcl(
+ whiteLoss / Math.max(1, nextReviewCoverage.white.evaluated),
+ nextReviewCoverage.white.evaluated,
+ ),
+ );
+ setAccuracyBlack(
+ accuracyFromAcl(
+ blackLoss / Math.max(1, nextReviewCoverage.black.evaluated),
+ nextReviewCoverage.black.evaluated,
+ ),
+ );
  setReviewCounts({ ...counts });
 
  const jumpPriority: ReviewClass[] = [
@@ -1282,8 +1402,26 @@ export default function AnalyzePage() {
  setBoardOrientation(studentMoveColor === "w" ? "white" : "black");
  }
  goToPly(firstInteresting);
+ const whiteCoverageIncomplete =
+ nextReviewCoverage.white.eligible > 0 &&
+ nextReviewCoverage.white.evaluated /
+ nextReviewCoverage.white.eligible <
+ 0.8;
+ const blackCoverageIncomplete =
+ nextReviewCoverage.black.eligible > 0 &&
+ nextReviewCoverage.black.evaluated /
+ nextReviewCoverage.black.eligible <
+ 0.8;
+ const reviewIsIncomplete =
+ whiteCoverageIncomplete || blackCoverageIncomplete;
+ const coverageSummary = [
+ `White: ${nextReviewCoverage.white.evaluated} of ${nextReviewCoverage.white.eligible} moves evaluated (${nextReviewCoverage.white.unavailable} unavailable)`,
+ `Black: ${nextReviewCoverage.black.evaluated} of ${nextReviewCoverage.black.eligible} moves evaluated (${nextReviewCoverage.black.unavailable} unavailable)`,
+ ].join("; ");
  setReviewSummary(
- weeklyTransferTarget
+ reviewIsIncomplete
+ ? `Analysis incomplete: ${coverageSummary}.`
+ : weeklyTransferTarget
  ? `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}. Transfer target: ${weeklyTransferTarget.label}; ${weeklyTransferCreatedCount} created, ${weeklyTransferRecognizedCount} recognized, ${weeklyTransferMissedCount} missed.`
  : `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}`,
  );
@@ -1598,8 +1736,15 @@ function reviewShort(label?: ReviewClass) {
  function reviewCommentForPly(ply: number) {
  const label = reviewMap[ply];
  const row = moveRows[ply - 1];
+ const unavailableReason = reviewUnavailableMap[ply];
 
- if (!label || !row) return "Run review and click a move.";
+ if (!row) return "Run review and click a move.";
+
+ if (unavailableReason) {
+ return `Move ${row.san}: Not evaluated. ${unavailableReason}.`;
+ }
+
+ if (!label) return "Run review and click a move.";
 
  const best = reviewBestMap[ply] || "--";
  const moveText = row.san ? `Move ${row.san}: ` : "";
@@ -1766,6 +1911,7 @@ function reviewShort(label?: ReviewClass) {
  reviewMap,
  reviewLossMap,
  reviewBestMap,
+ reviewUnavailableMap,
  reviewLineMap,
  moveRows,
  startFen,
@@ -2307,6 +2453,7 @@ function reviewShort(label?: ReviewClass) {
  const isToMove = game.turn() === side;
  const sideLabel = side === "w" ? "White" : "Black";
  const accuracy = side === "w" ? accuracyWhite : accuracyBlack;
+ const analysisIncomplete = hasIncompleteReviewCoverage(side);
 
  return (
  <div
@@ -2362,7 +2509,11 @@ function reviewShort(label?: ReviewClass) {
  }}
  >
  {sideLabel}
- {accuracy !== null ? ` - ${accuracy.toFixed(1)}%` : ""}
+ {analysisIncomplete
+ ? " - Analysis incomplete"
+ : accuracy !== null
+ ? ` - ${accuracy.toFixed(1)}%`
+ : ""}
  </div>
  </div>
  );
@@ -3441,7 +3592,9 @@ function reviewShort(label?: ReviewClass) {
  fontWeight: 900,
  }}
  >
- {accuracyWhite !== null
+ {hasIncompleteReviewCoverage("w")
+ ? "Analysis incomplete"
+ : accuracyWhite !== null
  ? accuracyWhite.toFixed(1) + "%"
  : "--"}
  </div>
@@ -3454,7 +3607,9 @@ function reviewShort(label?: ReviewClass) {
  fontWeight: 900,
  }}
  >
- {accuracyBlack !== null
+ {hasIncompleteReviewCoverage("b")
+ ? "Analysis incomplete"
+ : accuracyBlack !== null
  ? accuracyBlack.toFixed(1) + "%"
  : "--"}
  </div>
@@ -3544,6 +3699,10 @@ function reviewShort(label?: ReviewClass) {
  >
  Click a number to jump to the first move of that type for that
  side.
+ <br />
+ {reviewCoverageText("w")}
+ <br />
+ {reviewCoverageText("b")}
  </div>
  </div>
  </PanelCard>
@@ -3551,7 +3710,8 @@ function reviewShort(label?: ReviewClass) {
  <PanelCard>
  <SectionTitle>Review Details</SectionTitle>
 
- {currentPly > 0 && reviewMap[currentPly] ? (
+ {currentPly > 0 &&
+ (reviewMap[currentPly] || reviewUnavailableMap[currentPly]) ? (
  <div style={{ fontSize: 13, lineHeight: 1.8 }}>
  <div>
  Move: <b>{moveRows[currentPly - 1]?.san}</b>
@@ -3564,6 +3724,16 @@ function reviewShort(label?: ReviewClass) {
  : `${blackPlayer} (Black)`}
  </div>
 
+ {reviewUnavailableMap[currentPly] ? (
+ <>
+ <div style={{ color: "#facc15", fontWeight: 800 }}>
+ Not evaluated
+ </div>
+ <div>Reason: {reviewUnavailableMap[currentPly]}</div>
+ <div>Engine comparison unavailable for this move.</div>
+ </>
+ ) : (
+ <>
  <div
  style={{
  color: reviewColor(reviewMap[currentPly]),
@@ -3592,6 +3762,8 @@ function reviewShort(label?: ReviewClass) {
  >
  {reviewCommentForPly(currentPly)}
  </div>
+ </>
+ )}
  </div>
  ) : (
  <div style={{ color: "#aaa", fontSize: 12 }}>
@@ -3919,12 +4091,13 @@ function reviewShort(label?: ReviewClass) {
   <span
   style={{
   flex: "0 0 auto",
- color: reviewColor(reviewMap[white?.ply]),
- fontWeight: 700,
- fontSize: 11,
- }}
- >
- {reviewShort(reviewMap[white?.ply])}
+ color: reviewUnavailableMap[white?.ply] ? "#facc15" : reviewColor(reviewMap[white?.ply]),
+  fontWeight: 700,
+  fontSize: 11,
+  }}
+  title={reviewUnavailableMap[white?.ply] || reviewDisplayName(reviewMap[white?.ply])}
+  >
+ {reviewUnavailableMap[white?.ply] ? "—" : reviewShort(reviewMap[white?.ply])}
  </span>
  </button>
 
@@ -3965,12 +4138,13 @@ function reviewShort(label?: ReviewClass) {
   <span
   style={{
   flex: "0 0 auto",
- color: reviewColor(reviewMap[black?.ply]),
- fontWeight: 700,
- fontSize: 11,
- }}
- >
- {reviewShort(reviewMap[black?.ply])}
+ color: reviewUnavailableMap[black?.ply] ? "#facc15" : reviewColor(reviewMap[black?.ply]),
+  fontWeight: 700,
+  fontSize: 11,
+  }}
+  title={reviewUnavailableMap[black?.ply] || reviewDisplayName(reviewMap[black?.ply])}
+  >
+ {reviewUnavailableMap[black?.ply] ? "—" : reviewShort(reviewMap[black?.ply])}
  </span>
  </button>
  </div>
