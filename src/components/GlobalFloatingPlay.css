@@ -1,13 +1,12 @@
 ﻿.global-floating-play-desktop {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: 16px;
+  bottom: 16px;
   z-index: 9000;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 10px;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 :root {
@@ -15,18 +14,49 @@
   --site-global-back-clearance: 0px;
 }
 
-.global-floating-play-desktop__panel {
-  pointer-events: auto;
+.global-floating-play-desktop__menu {
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .global-floating-play-desktop__panel {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
-  max-height: calc(100dvh - 96px);
+  gap: 6px;
+  margin-bottom: 6px;
+  max-height: calc(100dvh - 78px);
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.global-floating-play-desktop__tab {
+  min-height: 38px;
+  padding: 8px;
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  background: var(--theme-button-bg);
+  color: var(--theme-text);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.global-floating-play-desktop__tab:hover,
+.global-floating-play-desktop__tab:focus-visible {
+  background: var(--theme-button-hover);
+  border-color: color-mix(in srgb, var(--theme-accent) 55%, var(--theme-border));
+}
+
+.global-floating-play-desktop__panel > button,
+.global-floating-play-desktop__theme .theme-quick-toggle {
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 1.15;
 }
 
 .global-floating-play-desktop__theme {
@@ -38,8 +68,24 @@
   width: 100%;
 }
 
-/* The adaptive-course action is fixed independently of page layouts. Center
-   it so it never occupies the permanently expanded right-side menu column. */
+.global-floating-play-desktop__theme .theme-quick-toggle {
+  min-width: 0 !important;
+  min-height: 40px !important;
+  padding: 9px 6px !important;
+  font-size: 0 !important;
+}
+
+.global-floating-play-desktop__theme .theme-quick-toggle span {
+  display: none;
+}
+
+.global-floating-play-desktop__theme .theme-quick-toggle::after {
+  content: "Theme";
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* The adaptive-course action is fixed independently of page layouts. */
 .auto-training-controller {
   position: fixed;
   left: 50%;
@@ -48,32 +94,6 @@
   max-width: calc(100vw - 32px);
   box-sizing: border-box;
   transform: translateX(-50%);
-}
-
-/* At common laptop widths, the trainer's desktop side panel already uses the
-   right edge of the viewport. Keep every quick action visible, while fitting
-   the permanently expanded menu into the remaining gutter. */
-@media (min-width: 769px) and (max-width: 1421px) {
-  body {
-    box-sizing: border-box;
-    padding-right: 198px;
-  }
-
-  .global-floating-play-desktop__panel {
-    width: 170px;
-  }
-
-  .global-floating-play-desktop__theme .theme-quick-toggle {
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  .global-floating-play-desktop__theme .theme-quick-toggle span:last-child {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
 }
 
 .global-mobile-nav {

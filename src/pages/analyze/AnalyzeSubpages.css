@@ -77,16 +77,6 @@
   object-fit: contain;
 }
 
-/* The desktop menu is permanently visible. Review pages reserve its gutter
- * instead of expanding beneath it, and use a vertical review panel before a
- * narrow desktop width can clip the White or Black columns. */
-@media (min-width: 1422px) {
-  .analyze-board-page--review {
-    padding-right: 240px;
-    box-sizing: border-box;
-  }
-}
-
 @media (min-width: 769px) and (max-width: 1750px) {
   .analyze-board-page--review .trainer-shell-page--fixed {
     height: auto !important;

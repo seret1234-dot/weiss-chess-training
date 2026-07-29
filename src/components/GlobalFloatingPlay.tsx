@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useBoardUiContext } from "../context/BoardUiContext"
@@ -43,6 +43,34 @@ export default function GlobalFloatingPlay({
   const location = useLocation()
   const navigate = useNavigate()
   const { boardState } = useBoardUiContext()
+  const [desktopMenuExpanded, setDesktopMenuExpanded] = useState(false)
+  const desktopMenuRef = useRef<HTMLDivElement>(null)
+  const desktopMenuTabRef = useRef<HTMLButtonElement>(null)
+  const collapseTimerRef = useRef<number | null>(null)
+  const suppressNextMenuFocusRef = useRef(false)
+
+  const clearMenuCollapse = useCallback(() => {
+    if (collapseTimerRef.current !== null) {
+      window.clearTimeout(collapseTimerRef.current)
+      collapseTimerRef.current = null
+    }
+  }, [])
+
+  const expandDesktopMenu = useCallback(() => {
+    clearMenuCollapse()
+    setDesktopMenuExpanded(true)
+  }, [clearMenuCollapse])
+
+  const scheduleDesktopMenuCollapse = useCallback(() => {
+    clearMenuCollapse()
+    collapseTimerRef.current = window.setTimeout(() => {
+      if (!desktopMenuRef.current?.contains(document.activeElement)) {
+        setDesktopMenuExpanded(false)
+      }
+    }, 320)
+  }, [clearMenuCollapse])
+
+  useEffect(() => () => clearMenuCollapse(), [clearMenuCollapse])
 
   const fenFromUrl = new URLSearchParams(location.search).get("fen")
 
@@ -117,9 +145,33 @@ export default function GlobalFloatingPlay({
     <>
       <div className="global-floating-play-desktop">
         <div
-          className="global-floating-play-desktop__panel"
-          aria-label="Quick actions"
+          ref={desktopMenuRef}
+          className={`global-floating-play-desktop__menu${desktopMenuExpanded ? " global-floating-play-desktop__menu--expanded" : ""}`}
+          onPointerEnter={expandDesktopMenu}
+          onPointerLeave={scheduleDesktopMenuCollapse}
+          onFocusCapture={() => {
+            if (suppressNextMenuFocusRef.current) {
+              suppressNextMenuFocusRef.current = false
+              return
+            }
+            expandDesktopMenu()
+          }}
+          onBlurCapture={scheduleDesktopMenuCollapse}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              clearMenuCollapse()
+              suppressNextMenuFocusRef.current = true
+              setDesktopMenuExpanded(false)
+              desktopMenuTabRef.current?.focus()
+            }
+          }}
         >
+          <div
+            id="global-floating-play-desktop-panel"
+            className="global-floating-play-desktop__panel"
+            aria-label="Quick actions"
+            hidden={!desktopMenuExpanded}
+          >
             <button
               type="button"
               onClick={goHome}
@@ -133,7 +185,7 @@ export default function GlobalFloatingPlay({
               onClick={goFunChess}
               style={btnStyle}
             >
-              Fun Chess
+              Fun
             </button>
 
             <button
@@ -141,7 +193,7 @@ export default function GlobalFloatingPlay({
               onClick={goAnalyze}
               style={btnStyle}
             >
-              {hasBoard ? "Analyze Position" : "Analyze"}
+              Analyze
             </button>
 
             <button
@@ -154,7 +206,7 @@ export default function GlobalFloatingPlay({
                 color: "var(--theme-accent-text)",
               }}
             >
-              {hasBoard ? "Play Position" : "Play Computer"}
+              Play
             </button>
 
             {boardState.isAvailable && (
@@ -213,6 +265,20 @@ export default function GlobalFloatingPlay({
             >
               {isLoggedIn ? "Logout" : "Log In"}
             </button>
+          </div>
+          <button
+            ref={desktopMenuTabRef}
+            type="button"
+            className="global-floating-play-desktop__tab"
+            aria-controls="global-floating-play-desktop-panel"
+            aria-expanded={desktopMenuExpanded}
+            onClick={() => {
+              clearMenuCollapse()
+              setDesktopMenuExpanded((expanded) => !expanded)
+            }}
+          >
+            Menu
+          </button>
         </div>
       </div>
       <nav
@@ -299,8 +365,11 @@ export default function GlobalFloatingPlay({
 
 const btnStyle: React.CSSProperties = {
   borderRadius: 14,
-  padding: "12px 16px",
+  width: "100%",
+  minHeight: 40,
+  padding: "9px 6px",
   color: "var(--theme-text)",
+  fontSize: 12,
   fontWeight: 800,
   cursor: "pointer",
   background: "var(--theme-button-bg)",
