@@ -27,6 +27,20 @@ export type ChessComImportResult = ImportSummary & {
 
 const MAX_PER_CLASS = 50
 
+export class ChessComImportError extends Error {
+ code: "username_not_found" | "temporarily_unavailable"
+
+ constructor(code: "username_not_found" | "temporarily_unavailable") {
+  super(
+   code === "username_not_found"
+    ? "Enter a valid Chess.com username."
+    : "Chess.com is temporarily unavailable. Please try again.",
+  )
+  this.name = "ChessComImportError"
+  this.code = code
+ }
+}
+
 function cleanUsername(username: string) {
  return username.trim().toLowerCase()
 }
@@ -82,23 +96,26 @@ function userScore(game: any, username: string): number {
  return 0
 }
 
-export async function fetchChessComGames(username: string) {
+export async function fetchChessComGames(
+ username: string,
+ { fetchImpl = fetch }: { fetchImpl?: typeof fetch } = {},
+) {
  const clean = cleanUsername(username)
  if (!clean) throw new Error("Enter a Chess.com username to import your games.")
 
  try {
   console.log("Fetching Chess.com archives for:", clean)
 
-  const archivesRes = await fetch(
+  const archivesRes = await fetchImpl(
    `https://api.chess.com/pub/player/${clean}/games/archives`,
   )
 
   if (archivesRes.status === 404) {
-   throw new Error(`Chess.com username \"${clean}\" was not found.`)
+   throw new ChessComImportError("username_not_found")
   }
 
   if (!archivesRes.ok) {
-   throw new Error(`Chess.com could not load this account (HTTP ${archivesRes.status}).`)
+   throw new ChessComImportError("temporarily_unavailable")
   }
 
   const archivesData = await archivesRes.json()
@@ -124,7 +141,7 @@ export async function fetchChessComGames(username: string) {
    }
 
    try {
-    const res = await fetch(url)
+    const res = await fetchImpl(url)
     if (!res.ok) {
      console.error("Archive fetch failed:", url, res.status)
      continue
@@ -152,10 +169,10 @@ export async function fetchChessComGames(username: string) {
   console.log("CHESS.COM IMPORT COUNTS:", counts)
   console.log("CHESS.COM IMPORT TOTAL:", selected.length)
 
-  return selected
+ return selected
  } catch (error) {
-  if (error instanceof Error) throw error
-  throw new Error("Chess.com could not be reached. Please try again.")
+  if (error instanceof ChessComImportError) throw error
+  throw new ChessComImportError("temporarily_unavailable")
  }
 }
 

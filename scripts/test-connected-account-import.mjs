@@ -4,7 +4,7 @@ import { createServer } from "vite"
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" })
 
 try {
- const { normalizeChessComGames } = await vite.ssrLoadModule("/src/training/chesscomImport.ts")
+ const { ChessComImportError, fetchChessComGames, normalizeChessComGames } = await vite.ssrLoadModule("/src/training/chesscomImport.ts")
  const { normalizeLichessGames, reconstructLichessPgn } = await vite.ssrLoadModule("/src/training/lichessImport.ts")
  const { ConnectedImportFailure, mergeConnectedGames, sourceImportOutcome, requestedConnectedSources, resolveSavedConnectedAccounts, hasUnsavedConnectedAccountChanges, requiresVisibleImportFailure } = await vite.ssrLoadModule("/src/training/importConnectedAccounts.ts")
  const { sourceForImportedGame, buildSummary, PENDING_ENGINE_ANALYSIS_FILTER, getAnalysisTiming, hasHonestAnalysisCompletion } = await vite.ssrLoadModule("/src/training/engineAnalyzeImportedGames.ts")
@@ -76,12 +76,28 @@ try {
  assert.equal(rejected.games.length, 0, "variant, aborted, malformed, empty, and illegal games are excluded")
 
  const response = (status, body) => new Response(body, { status, headers: { "content-type": "application/x-ndjson" } })
+ const chessResponse = (status, body = "{}") => new Response(body, { status, headers: { "content-type": "application/json" } })
+ await assert.rejects(
+  () => fetchChessComGames("missing-user", { fetchImpl: async () => chessResponse(404) }),
+  (error) => error instanceof ChessComImportError && error.message === "Enter a valid Chess.com username.",
+  "a Chess.com 404 names an invalid username",
+ )
+ await assert.rejects(
+  () => fetchChessComGames("network-test", { fetchImpl: async () => { throw new TypeError("Failed to fetch") } }),
+  (error) => error instanceof ChessComImportError && error.message === "Chess.com is temporarily unavailable. Please try again.",
+  "a Chess.com network failure is not mislabeled as an invalid username",
+ )
+ await assert.rejects(
+  () => fetchChessComGames("upstream-test", { fetchImpl: async () => chessResponse(503) }),
+  (error) => error instanceof ChessComImportError && error.message === "Chess.com is temporarily unavailable. Please try again.",
+  "a Chess.com upstream failure stays distinct from a missing account",
+ )
  await assert.rejects(() => fetchLichessExport("Tester", { fetchImpl: async () => response(404, "") }), (error) => error instanceof LichessExportError && error.code === "username_not_found")
  await assert.rejects(() => fetchLichessExport("Tester", { fetchImpl: async () => response(429, "") }), (error) => error instanceof LichessExportError && error.code === "rate_limited")
  const exported = await fetchLichessExport("Tester", { fetchImpl: async () => response(200, `${JSON.stringify(lichessRaw[0])}\n`) })
  assert.equal(exported.games.length, 1, "Lichess NDJSON export parser")
 
- assert.equal(sourceImportOutcome(["chess.com"], ["Lichess: unavailable"]).partial, true, "one-source partial success continues")
+ assert.equal(sourceImportOutcome(["lichess"], ["Chess.com: Enter a valid Chess.com username."]).partial, true, "one-source partial success preserves the exact Chess.com error")
  assert.throws(() => sourceImportOutcome([], ["Chess.com: unavailable", "Lichess: unavailable"]), /Chess\.com/, "both-source failure stops")
  assert.equal(sourceForImportedGame({ source: "lichess" }), "lichess", "engine mistakes retain Lichess source")
  assert.equal(sourceForImportedGame({ source: "chess.com" }), "chess.com", "engine mistakes retain Chess.com source")
