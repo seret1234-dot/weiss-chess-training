@@ -9,9 +9,9 @@ import React, {
 
 export type SiteTheme = "nobleStandard" | "weiss3d" | "classic" | "qwertyxp2000"
 
-// Keep the site-wide fallback aligned with the cream-and-charcoal pieces used
-// by Play Computer. A saved user choice in localStorage still takes priority.
-export const DEFAULT_SITE_THEME: SiteTheme = "nobleStandard"
+// Use the Classic SVG set for users without a saved preference. A saved user
+// choice in localStorage still takes priority.
+export const DEFAULT_SITE_THEME: SiteTheme = "classic"
 
 type PieceRendererProps = {
   squareWidth: number
