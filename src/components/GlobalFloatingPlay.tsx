@@ -44,10 +44,9 @@ export default function GlobalFloatingPlay({
   const navigate = useNavigate()
   const { boardState } = useBoardUiContext()
   const [desktopMenuExpanded, setDesktopMenuExpanded] = useState(false)
-  const desktopMenuRef = useRef<HTMLDivElement>(null)
-  const desktopMenuTabRef = useRef<HTMLButtonElement>(null)
   const collapseTimerRef = useRef<number | null>(null)
-  const suppressNextMenuFocusRef = useRef(false)
+  const pointerInsideMenuRef = useRef(false)
+  const keyboardFocusWithinMenuRef = useRef(false)
 
   const clearMenuCollapse = useCallback(() => {
     if (collapseTimerRef.current !== null) {
@@ -61,14 +60,21 @@ export default function GlobalFloatingPlay({
     setDesktopMenuExpanded(true)
   }, [clearMenuCollapse])
 
+  const collapseDesktopMenu = useCallback(() => {
+    clearMenuCollapse()
+    setDesktopMenuExpanded(false)
+  }, [clearMenuCollapse])
+
   const scheduleDesktopMenuCollapse = useCallback(() => {
     clearMenuCollapse()
     collapseTimerRef.current = window.setTimeout(() => {
-      if (!desktopMenuRef.current?.contains(document.activeElement)) {
-        setDesktopMenuExpanded(false)
+      collapseTimerRef.current = null
+      if (keyboardFocusWithinMenuRef.current) {
+        return
       }
+      collapseDesktopMenu()
     }, 320)
-  }, [clearMenuCollapse])
+  }, [clearMenuCollapse, collapseDesktopMenu])
 
   useEffect(() => () => clearMenuCollapse(), [clearMenuCollapse])
 
@@ -145,32 +151,62 @@ export default function GlobalFloatingPlay({
     <>
       <div className="global-floating-play-desktop">
         <div
-          ref={desktopMenuRef}
           className={`global-floating-play-desktop__menu${desktopMenuExpanded ? " global-floating-play-desktop__menu--expanded" : ""}`}
-          onPointerEnter={expandDesktopMenu}
-          onPointerLeave={scheduleDesktopMenuCollapse}
-          onFocusCapture={() => {
-            if (suppressNextMenuFocusRef.current) {
-              suppressNextMenuFocusRef.current = false
-              return
-            }
+          onPointerEnter={() => {
+            pointerInsideMenuRef.current = true
+            keyboardFocusWithinMenuRef.current = false
             expandDesktopMenu()
           }}
-          onBlurCapture={scheduleDesktopMenuCollapse}
+          onPointerDownCapture={() => {
+            keyboardFocusWithinMenuRef.current = false
+          }}
+          onPointerLeave={() => {
+            pointerInsideMenuRef.current = false
+            scheduleDesktopMenuCollapse()
+          }}
+          onFocusCapture={(event) => {
+            if (
+              event.target instanceof HTMLElement &&
+              event.target.matches(":focus-visible")
+            ) {
+              keyboardFocusWithinMenuRef.current = true
+              expandDesktopMenu()
+            }
+          }}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget)) {
+              keyboardFocusWithinMenuRef.current = false
+            }
+            if (!pointerInsideMenuRef.current) {
+              scheduleDesktopMenuCollapse()
+            }
+          }}
           onKeyDown={(event) => {
+            keyboardFocusWithinMenuRef.current = true
             if (event.key === "Escape") {
-              clearMenuCollapse()
-              suppressNextMenuFocusRef.current = true
-              setDesktopMenuExpanded(false)
-              desktopMenuTabRef.current?.focus()
+              if (event.target instanceof HTMLElement) {
+                event.target.blur()
+              }
+              keyboardFocusWithinMenuRef.current = false
+              pointerInsideMenuRef.current = false
+              collapseDesktopMenu()
             }
           }}
         >
-          <div
+          {desktopMenuExpanded && (
+            <div
             id="global-floating-play-desktop-panel"
             className="global-floating-play-desktop__panel"
             aria-label="Quick actions"
-            hidden={!desktopMenuExpanded}
+            onClick={(event) => {
+              if (event.target instanceof HTMLElement) {
+                event.target.closest("button")?.blur()
+              }
+              if (!keyboardFocusWithinMenuRef.current) {
+                pointerInsideMenuRef.current = false
+                collapseDesktopMenu()
+              }
+            }}
           >
             <button
               type="button"
@@ -265,9 +301,9 @@ export default function GlobalFloatingPlay({
             >
               {isLoggedIn ? "Logout" : "Log In"}
             </button>
-          </div>
+            </div>
+          )}
           <button
-            ref={desktopMenuTabRef}
             type="button"
             className="global-floating-play-desktop__tab"
             aria-controls="global-floating-play-desktop-panel"
