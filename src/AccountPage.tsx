@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 import { useSubscription } from "./context/SubscriptionContext"
 import ThemeSelector from "./theme/ThemeSelector"
-import { runChessComImport } from "./training/chesscomImport"
+import { importConnectedAccounts } from "./training/importConnectedAccounts"
 import { analyzeImportedGamesWithStockfish } from "./training/engineAnalyzeImportedGames"
 import { getOrCreateAutoProfile } from "./training/getOrCreateAutoProfile"
 import "./AccountAutoStudy.css"
@@ -21,8 +21,9 @@ export default function AccountPage() {
  const [email, setEmail] = useState("")
  const [chessCom, setChessCom] = useState("")
  const [savedChessComUsername, setSavedChessComUsername] = useState("")
+ const [savedLichessUsername, setSavedLichessUsername] = useState("")
  const [importedGamesCount, setImportedGamesCount] = useState(0)
- const [needsChessComImport, setNeedsChessComImport] = useState(false)
+ const [needsConnectedImport, setNeedsConnectedImport] = useState(false)
  const [lichess, setLichess] = useState("")
  const [message, setMessage] = useState("")
  const [error, setError] = useState("")
@@ -97,7 +98,9 @@ export default function AccountPage() {
      setEmail(user?.email || "")
      setChessCom(savedUsername)
      setSavedChessComUsername(savedUsername)
-     setLichess(meta?.lichess_username || "")
+     const savedLichess = String(meta?.lichess_username || meta?.lichessUsername || "").trim()
+     setLichess(savedLichess)
+     setSavedLichessUsername(savedLichess)
 
      if (user) {
        const autoProfile = await getOrCreateAutoProfile(user.id)
@@ -105,14 +108,13 @@ export default function AccountPage() {
          0,
          Number(autoProfile?.imported_games_count) || 0,
        )
-       const importedUsername = String(
-         autoProfile?.chesscom_username || "",
-       ).trim()
+       const importedUsername = String(autoProfile?.chesscom_username || "").trim()
+       const importedLichess = String(autoProfile?.lichess_username || "").trim()
 
        setImportedGamesCount(importedCount)
-       setNeedsChessComImport(
-         Boolean(savedUsername) &&
-           (importedCount === 0 || importedUsername !== savedUsername),
+       setNeedsConnectedImport(
+         Boolean(savedUsername || savedLichess) &&
+           (importedCount === 0 || importedUsername !== savedUsername || importedLichess !== savedLichess),
        )
      }
    }
@@ -125,53 +127,57 @@ export default function AccountPage() {
    setMessage("")
    setError("")
 
-   const { error } = await supabase.auth.updateUser({
-     data: {
-       chess_com_username: chessCom.trim(),
-       lichess_username: lichess.trim(),
-     },
-   })
+   try {
+    const savedChesscom = chessCom.trim()
+    const savedLichess = lichess.trim()
+    const changed = savedChesscom !== savedChessComUsername || savedLichess !== savedLichessUsername
+    const { error: metadataError } = await supabase.auth.updateUser({
+      data: {
+       chess_com_username: savedChesscom || null,
+       chessComUsername: savedChesscom || null,
+       lichess_username: savedLichess || null,
+       lichessUsername: savedLichess || null,
+      },
+    })
+    if (metadataError) throw metadataError
 
-   setSaving(false)
+    const { data } = await supabase.auth.getUser()
+    if (!data.user) throw new Error("Please log in again before saving connected accounts.")
+    const profileFields = { chesscom_username: savedChesscom || null, lichess_username: savedLichess || null }
+    const { error: profileError } = await supabase.from("profiles").update(profileFields).eq("id", data.user.id)
+    if (profileError) throw profileError
+    const { error: autoProfileError } = await supabase.from("user_auto_profile").upsert({ user_id: data.user.id, ...profileFields })
+    if (autoProfileError) throw autoProfileError
 
-   if (error) {
-     setError(error.message)
-     return
-   }
-
-   const savedUsername = chessCom.trim()
-   const usernameChanged = savedUsername !== savedChessComUsername
-
-   setSavedChessComUsername(savedUsername)
-   setNeedsChessComImport(
-     Boolean(savedUsername) &&
-       (usernameChanged || importedGamesCount === 0),
-   )
-   setImportSummary("")
-   setImportProgress("")
-   setMessage(
-     usernameChanged && savedUsername
-       ? "Saved successfully. Starting Chess.com import..."
-       : "Saved successfully",
-   )
-
-   if (usernameChanged && savedUsername) {
-     await importChessComGames(savedUsername)
+    setSavedChessComUsername(savedChesscom)
+    setSavedLichessUsername(savedLichess)
+    setNeedsConnectedImport(Boolean(savedChesscom || savedLichess) && (changed || importedGamesCount === 0))
+    setImportSummary("")
+    setImportProgress("")
+    setMessage(changed && (savedChesscom || savedLichess) ? "Saved successfully. Starting connected-account import..." : "Saved successfully")
+    if (changed && (savedChesscom || savedLichess)) await importConnectedGames(savedChesscom, savedLichess)
+   } catch (saveError) {
+    setError(saveError instanceof Error ? saveError.message : "Could not save connected accounts.")
+   } finally {
+    setSaving(false)
    }
  }
 
- async function importChessComGames(usernameOverride = savedChessComUsername) {
-   const username = usernameOverride.trim()
-
-   if (!username) {
-     setError("Save a Chess.com username before importing games.")
+ async function importConnectedGames(
+   chesscomOverride = savedChessComUsername,
+   lichessOverride = savedLichessUsername,
+ ) {
+   const chesscom = chesscomOverride.trim()
+   const lichessUsername = lichessOverride.trim()
+   if (!chesscom && !lichessUsername) {
+     setError("Save a Chess.com or Lichess username before importing games.")
      return
    }
 
    setImportingGames(true)
    setError("")
    setImportSummary("")
-   setImportProgress("Fetching and importing Chess.com games...")
+   setImportProgress("Preparing connected-account import...")
 
    try {
      const { data, error: sessionError } = await supabase.auth.getUser()
@@ -181,10 +187,16 @@ export default function AccountPage() {
        throw new Error("Please log in again before importing games.")
      }
 
-     const imported = await runChessComImport(username, user.id)
-     setImportProgress(
-       `Imported ${imported.importedGamesCount} games. Starting Stockfish analysis...`,
-     )
+     const imported = await importConnectedAccounts({
+      userId: user.id,
+      chesscomUsername: chesscom,
+      lichessUsername,
+      onProgress: (progress) => {
+       setImportProgress(progress.message)
+       if (progress.warning) setMessage(`Partial import: ${progress.warning}`)
+      },
+     })
+     setImportProgress(`Imported ${imported.importedGamesCount} combined games. Starting Stockfish analysis...`)
 
      const analysis = await analyzeImportedGamesWithStockfish(user.id, {
        maxGames: 150,
@@ -198,34 +210,34 @@ export default function AccountPage() {
      const autoProfile = await getOrCreateAutoProfile(user.id)
      if (!autoProfile) {
        throw new Error(
-         "Chess.com games were processed, but your updated training profile could not be loaded.",
+         "Connected games were processed, but your updated training profile could not be loaded.",
        )
      }
 
      setImportedGamesCount(
        Math.max(0, Number(autoProfile.imported_games_count) || 0),
      )
-     setNeedsChessComImport(false)
+     setNeedsConnectedImport(false)
      setImportSummary(
-       `Imported ${imported.importedGamesCount} games. Analyzed ${analysis.gamesAnalyzed} games and found ${analysis.mistakesFound} training mistakes.`,
+       `Imported ${imported.importedGamesCount} games from ${imported.sourcesImported.length} account${imported.sourcesImported.length === 1 ? "" : "s"}. Analyzed ${analysis.gamesAnalyzed} games and found ${analysis.mistakesFound} training mistakes.`,
      )
      setImportProgress("")
    } catch (importError) {
-     console.error("Chess.com import from Account failed", importError)
+     console.error("Connected-account import from Account failed", importError)
      setError(
        importError instanceof Error
          ? importError.message
-         : "Could not import and analyze Chess.com games.",
+         : "Could not import and analyze connected games.",
      )
    } finally {
      setImportingGames(false)
    }
  }
 
- const chessComActionLabel =
-   !needsChessComImport && importedGamesCount > 0
-     ? "Refresh Chess.com games"
-     : "Import Chess.com games"
+ const connectedImportActionLabel =
+   !needsConnectedImport && importedGamesCount > 0
+     ? "Refresh connected games"
+     : "Import connected games"
 
  async function cancelRenewal() {
    if (
@@ -332,13 +344,13 @@ export default function AccountPage() {
  <button onClick={save} disabled={saving || importingGames} style={saveButtonStyle}>
  {saving ? "Saving..." : "Save changes"}
  </button>
- {savedChessComUsername && (
+ {(savedChessComUsername || savedLichessUsername) && (
   <button
-   onClick={importChessComGames}
+   onClick={() => void importConnectedGames()}
    disabled={importingGames}
    style={importButtonStyle}
   >
-   {importingGames ? "Importing Chess.com games..." : chessComActionLabel}
+   {importingGames ? "Importing connected games..." : connectedImportActionLabel}
   </button>
  )}
  </div>

@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase"
+import { pgnFingerprint, type ConnectedImportGame } from "./lichessImport"
 
 type OpeningRow = {
  key: string
@@ -318,6 +319,41 @@ function opponentRating(game: any, username: string): number | null {
  const side = userSide(game, username)
  const rating = side === "white" ? game?.black?.rating : side === "black" ? game?.white?.rating : null
  return typeof rating === "number" ? rating : null
+}
+
+export function normalizeChessComGames(games: any[], username: string): ConnectedImportGame[] {
+ const clean = cleanUsername(username)
+ return games.flatMap((game) => {
+  if (!game?.pgn) return []
+  const userColor = userSide(game, clean)
+  const timeClass = gameTimeClass(game)
+  if (!userColor || !timeClass) return []
+
+  const result = String(userResult(game, clean) || "").toLowerCase()
+  const userResultValue = result === "win"
+   ? "win"
+   : new Set(["agreed", "repetition", "stalemate", "insufficient", "50move", "timevsinsufficient"]).has(result)
+    ? "draw"
+    : "loss"
+  const endTimeValue = Number(game?.end_time)
+  const endTime = Number.isFinite(endTimeValue) ? endTimeValue : null
+  const pgn = String(game.pgn)
+  return [{
+   source: "chess.com",
+   sourceGameId: sourceGameId(game),
+   url: game?.url ?? null,
+   timeClass,
+   timeControl: game?.time_control ?? null,
+   endTime,
+   userColor,
+   userResult: userResultValue,
+   userRating: userRating(game, clean),
+   opponentUsername: opponentUsername(game, clean),
+   opponentRating: opponentRating(game, clean),
+   pgn,
+   fingerprint: pgnFingerprint(pgn, userColor, userResultValue, endTime),
+  }]
+ })
 }
 
 async function saveImportedGames(userId: string, username: string, games: any[]) {

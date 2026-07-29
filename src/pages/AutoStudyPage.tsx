@@ -18,7 +18,7 @@ import {
  prepareNextEndgameTransfer,
  recordRecentEndgameTrainer,
 } from "../training/endgameTransfer"
-import { runChessComImport } from "../training/chesscomImport"
+import { importConnectedAccounts } from "../training/importConnectedAccounts"
 import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
 import "../AccountAutoStudy.css"
 
@@ -149,23 +149,40 @@ export default function AutoStudyPage({ user }: { user: any }) {
  }, [state])
 
 
- async function refreshChessComGames() {
+ async function refreshConnectedGames() {
   if (!user || state.status !== "ready" || refreshingGames) return
 
-  const username =
+  const chesscomUsername =
    state.autoProfile?.chesscom_username ||
    user?.user_metadata?.chessComUsername ||
    localStorage.getItem("chessComUsername") ||
    ""
+  const lichessUsername =
+   state.autoProfile?.lichess_username ||
+   user?.user_metadata?.lichessUsername ||
+   user?.user_metadata?.lichess_username ||
+   ""
 
-  if (!username.trim()) {
-   alert("No Chess.com username found on this account.")
+  if (!chesscomUsername.trim() && !lichessUsername.trim()) {
+   alert("No connected Chess.com or Lichess username found on this account.")
    return
   }
 
   try {
    setRefreshingGames(true)
-   await runChessComImport(username, user.id)
+   setEngineProgress("Refreshing connected games...")
+   await importConnectedAccounts({
+    userId: user.id,
+    chesscomUsername,
+    lichessUsername,
+    onProgress: (progress) => setEngineProgress(progress.warning ? `${progress.message} ${progress.warning}` : progress.message),
+   })
+   await analyzeImportedGamesWithStockfish(user.id, {
+    maxGames: 150,
+    depth: 8,
+    minLossCp: 70,
+    onProgress: (progress) => setEngineProgress(progress.message),
+   })
 
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
@@ -173,8 +190,8 @@ export default function AutoStudyPage({ user }: { user: any }) {
     setState({ status: "ready", autoProfile, plan })
    }
   } catch (error) {
-   console.error("Refresh Chess.com games failed:", error)
-   alert("Could not refresh Chess.com games. Check console.")
+   console.error("Refresh connected games failed:", error)
+   alert(error instanceof Error ? error.message : "Could not refresh connected games.")
   } finally {
    setRefreshingGames(false)
   }
@@ -332,7 +349,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
      )}
      <div className="auto-study-page__header-actions">
      <button
-      onClick={refreshChessComGames}
+      onClick={refreshConnectedGames}
       disabled={refreshingGames}
       style={{
        marginTop: 12,
@@ -345,7 +362,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
        cursor: refreshingGames ? "wait" : "pointer",
       }}
       >
-       {refreshingGames ? "Refreshing games..." : "Refresh Chess.com games"}
+       {refreshingGames ? "Refreshing games..." : "Refresh connected games"}
       </button>
       <button
       onClick={analyzeGamesWithEngine}

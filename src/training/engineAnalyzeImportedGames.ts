@@ -6,6 +6,7 @@ import type { EvalInfo } from "../lib/chess/playComputerTypes"
 type ImportedGameRow = {
  id: string
  pgn: string
+ source: "chess.com" | "lichess"
  time_class: string | null
  user_color: "white" | "black" | null
  engine_analyzed: boolean
@@ -190,7 +191,7 @@ async function analyzeOneGame(
    mistakeRows.push({
     user_id: userId,
     imported_game_id: game.id,
-    source: "chess.com",
+    source: sourceForImportedGame(game),
     time_class: game.time_class,
     user_color: game.user_color,
     move_number: moveNumberFromPly(ply),
@@ -254,7 +255,7 @@ export async function analyzeImportedGamesWithStockfish(
 
  const { data: games, error } = await supabase
   .from("user_imported_games")
-  .select("id,pgn,time_class,user_color,engine_analyzed")
+  .select("id,pgn,source,time_class,user_color,engine_analyzed")
   .eq("user_id", userId)
   .eq("engine_analyzed", false)
   .order("end_time", { ascending: false })
@@ -314,4 +315,8 @@ export async function analyzeImportedGamesWithStockfish(
   mistakesFound,
   summary,
  }
+}
+
+export function sourceForImportedGame(game: Pick<ImportedGameRow, "source">) {
+ return game.source === "lichess" ? "lichess" : "chess.com"
 }
