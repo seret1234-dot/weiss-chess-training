@@ -6,7 +6,6 @@ import {
 import {
   getInitialCurrentStage,
   getInitialDifficultyCeiling,
-  getInitialStageDistribution,
   getCategoryWeights,
   normalizedRating,
 } from "./curriculumPlacement"
@@ -57,22 +56,6 @@ function stageProgress(state: CurriculumState, area: CurriculumArea, stage: numb
   return state.stageMastery?.[area]?.[stage]
 }
 
-function weightedStage(entries: Array<{ stage: number; weight: number }>, selectionIndex: number) {
-  // Spread previews across early sessions instead of placing every preview at
-  // the end of a 100-item cycle.
-  const slot = (((selectionIndex * 37) % 100) + 100) % 100
-  let cursor = 0
-  for (const entry of entries) {
-    cursor += entry.weight
-    if (slot < cursor) return entry.stage
-  }
-  return entries.at(-1)!.stage
-}
-
-function hasStageEvidence(area: "mates" | "tactics", state: CurriculumState) {
-  return Boolean(state.activeStages?.[area] || Object.keys(state.stageMastery?.[area] ?? {}).length)
-}
-
 function currentSequentialStage(area: "mates" | "tactics", state: CurriculumState) {
   const ratingStage = getInitialCurrentStage(area, state.rating)
   const themeProgress = getThemeMastery(area, state)
@@ -92,12 +75,14 @@ function currentSequentialStage(area: "mates" | "tactics", state: CurriculumStat
   }
 
   const requestedStage = state.activeStages?.[area]
-  return Math.max(1, Math.min(requestedStage ?? evidenceCeiling, evidenceCeiling))
+  const persistedCeiling = state.difficultyCeilings?.[area] ?? 4
+  return Math.max(1, Math.min(requestedStage ?? evidenceCeiling, evidenceCeiling, persistedCeiling))
 }
 
 function sequentialCeiling(area: "mates" | "tactics", state: CurriculumState, currentStage: number) {
   const initialCeiling = getInitialDifficultyCeiling(area, state.rating)
-  return Math.min(4, Math.max(initialCeiling, currentStage + 1))
+  const persistedCeiling = state.difficultyCeilings?.[area]
+  return Math.min(4, persistedCeiling ?? Math.max(initialCeiling, currentStage + 1))
 }
 
 function currentPieceMateStage(state: CurriculumState) {
@@ -117,23 +102,22 @@ export function isDueItemAllowedByCurriculum(item: CurriculumItem, state: Curric
     return true
   }
   if (item.area === "endgame-piece-mates") {
-    return item.stageOrder <= Math.min(5, currentPieceMateStage(state) + 1)
+    const persistedCeiling = state.difficultyCeilings?.[item.area] ?? 5
+    return item.stageOrder <= Math.min(5, persistedCeiling, currentPieceMateStage(state) + 1)
   }
   if (item.area === "endgame-studies") {
     const pieceMatesComplete = currentPieceMateStage(state) === 5 && Boolean(state.pieceMateMastery?.kbn)
-    return pieceMatesComplete || item.stageOrder === 1
+    const persistedCeiling = state.difficultyCeilings?.[item.area] ?? 1
+    return item.stageOrder <= persistedCeiling && (pieceMatesComplete || item.stageOrder === 1)
   }
-  return item.available
+  const persistedCeiling = state.difficultyCeilings?.[item.area]
+  return item.available && (persistedCeiling == null || item.stageOrder <= persistedCeiling)
 }
 
 function chooseSequentialItem(area: "mates" | "tactics", state: CurriculumState, selectionIndex: number) {
   const currentStage = currentSequentialStage(area, state)
   const ceiling = sequentialCeiling(area, state, currentStage)
-  const initialStage = !hasStageEvidence(area, state)
-    ? weightedStage(getInitialStageDistribution(area, state.rating), selectionIndex)
-    : currentStage
-  const targetBaseStage = Math.min(ceiling, initialStage)
-  const themes = getStageThemes(area, targetBaseStage)
+  const themes = getStageThemes(area, currentStage)
   const progress = getThemeMastery(area, state)
   const themeProgress = themes.map((theme) => progress[theme] ?? {})
   const mixedUnlocked = isMixedUnlocked(area, themes, state)
@@ -141,32 +125,24 @@ function chooseSequentialItem(area: "mates" | "tactics", state: CurriculumState,
   const allowed = getCurriculumItems(area).filter((item) => isDueItemAllowedByCurriculum(item, state))
 
   let kind: CurriculumRecommendationKind = "current"
-  let targetStage = targetBaseStage
+  let targetStage = currentStage
   let candidates: CurriculumItem[]
-  const slot = ((selectionIndex % 10) + 10) % 10
+  const previewSlot = ((selectionIndex % 10) + 10) % 10 === 9
 
   if (regression && currentStage > 1) {
     kind = "reinforcement"
     targetStage = currentStage - 1
     candidates = allowed.filter((item) => item.stageOrder === targetStage && !item.isMixed)
-  } else if (!mixedUnlocked) {
-    const unmastered = themes.filter((theme) => !progress[theme]?.mastered)
-    if (targetBaseStage > currentStage) kind = "preview"
-    if (targetBaseStage < currentStage) kind = "review"
-    const focusedTheme = cyclePick(unmastered.length ? unmastered : themes, selectionIndex)
-    candidates = allowed.filter((item) => item.stageOrder === targetBaseStage && item.theme === focusedTheme && !item.isMixed)
-  } else if (slot <= 6) {
-    candidates = allowed.filter((item) => item.stageOrder === currentStage && item.isMixed)
-  } else if (slot <= 8) {
-    kind = "review"
-    const weakThemes = themes.slice().sort((a, b) => (progress[a]?.recentAccuracy ?? 1) - (progress[b]?.recentAccuracy ?? 1))
-    candidates = allowed.filter((item) => item.stageOrder === currentStage && item.theme === weakThemes[0] && !item.isMixed)
-  } else if (currentStage < ceiling) {
+  } else if (previewSlot && currentStage < ceiling) {
     kind = "preview"
     targetStage = currentStage + 1
     candidates = allowed.filter((item) => item.stageOrder === targetStage && !item.isMixed)
+  } else if (!mixedUnlocked) {
+    const unmastered = themes.filter((theme) => !progress[theme]?.mastered)
+    const focusedTheme = cyclePick(unmastered.length ? unmastered : themes, selectionIndex)
+    candidates = allowed.filter((item) => item.stageOrder === currentStage && item.theme === focusedTheme && !item.isMixed)
   } else {
-    candidates = allowed.filter((item) => item.stageOrder === currentStage && !item.isMixed)
+    candidates = allowed.filter((item) => item.stageOrder === currentStage && item.isMixed)
   }
 
   const usable = candidates.length ? candidates : allowed.filter((item) => item.stageOrder <= ceiling && !item.isMixed)
@@ -179,13 +155,19 @@ function chooseOtherAreaItem(area: CurriculumArea, state: CurriculumState, selec
   if (!allowed.length) return null
   if (area === "endgame-piece-mates") {
     const currentStage = currentPieceMateStage(state)
-    const preview = selectionIndex % 10 === 9
-    const target = preview ? Math.min(5, currentStage + 1) : currentStage
+    const ceiling = Math.min(5, state.difficultyCeilings?.[area] ?? 5, currentStage + 1)
+    const preview = selectionIndex % 10 === 9 && currentStage < ceiling
+    const target = preview ? currentStage + 1 : currentStage
     const stageItems = allowed.filter((item) => item.stageOrder === target)
-    return { item: cyclePick(stageItems.length ? stageItems : allowed, selectionIndex), kind: preview ? "preview" as const : "current" as const, currentStage, ceiling: Math.min(5, currentStage + 1) }
+    return { item: cyclePick(stageItems.length ? stageItems : allowed, selectionIndex), kind: preview ? "preview" as const : "current" as const, currentStage, ceiling }
   }
-  const item = cyclePick(allowed, selectionIndex)
-  return { item, kind: "current" as const, currentStage: item.stageOrder, ceiling: item.stageOrder }
+  const currentStage = Math.max(1, state.activeStages?.[area] ?? 1)
+  const ceiling = Math.max(currentStage, state.difficultyCeilings?.[area] ?? currentStage)
+  const preview = selectionIndex % 10 === 9 && currentStage < ceiling
+  const target = preview ? currentStage + 1 : currentStage
+  const stageItems = allowed.filter((item) => item.stageOrder === target)
+  const item = cyclePick(stageItems.length ? stageItems : allowed, selectionIndex)
+  return { item, kind: preview ? "preview" as const : "current" as const, currentStage, ceiling }
 }
 
 export function selectCurriculumItem(input: CurriculumSelectionInput): CurriculumRecommendation | null {
@@ -221,6 +203,7 @@ export function selectCurriculumItem(input: CurriculumSelectionInput): Curriculu
       route: item.route,
       trainerKey: item.trainerKey,
       chunkIndex: item.chunkIndex,
+      theme: item.theme ?? null,
       kind: selected.kind,
       explanation: reason,
       evidence: {

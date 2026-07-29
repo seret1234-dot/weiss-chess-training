@@ -1,14 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import type { CSSProperties } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { getOrCreateAutoProfile } from "../training/getOrCreateAutoProfile"
 import {
  buildPersonalTrainingPlan,
- getRecommendedSection,
 } from "../training/buildPersonalTrainingPlan"
 import type { PersonalTrainingPlan, TrainingSection } from "../training/buildPersonalTrainingPlan"
-import { getDueSummary, getNextDueItem } from "../training/getNextDueItem"
-import { addAutoTrainingParams, buildAutoTrainingRoute } from "../training/autoTrainingRoute"
+import { getDueSummary } from "../training/getNextDueItem"
+import { addAutoTrainingParams } from "../training/autoTrainingRoute"
+import {
+ buildCurriculumAutoTrainingRoute,
+ getCurriculumDecisionForUser,
+ type CurriculumRuntimeDecision,
+} from "../training/curriculum/curriculumRuntime"
 import {
  getWeeklyTestStatus,
  type WeeklyTestPlanStatus,
@@ -71,6 +75,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
  const [engineBusy, setEngineBusy] = useState(false)
  const [engineProgress, setEngineProgress] = useState("")
  const [weeklyStatus, setWeeklyStatus] = useState<WeeklyTestPlanStatus | null>(null)
+ const [curriculumDecision, setCurriculumDecision] = useState<CurriculumRuntimeDecision | null>(null)
 
  const [state, setState] = useState<LoadState>({
   status: "loading",
@@ -102,11 +107,15 @@ export default function AutoStudyPage({ user }: { user: any }) {
     }
 
     const plan = buildPersonalTrainingPlan(autoProfile)
-    const nextWeeklyStatus = await getWeeklyTestStatus(user.id)
+    const [nextWeeklyStatus, nextCurriculumDecision] = await Promise.all([
+     getWeeklyTestStatus(user.id),
+     getCurriculumDecisionForUser(user.id),
+    ])
 
     if (!cancelled) {
      setState({ status: "ready", autoProfile, plan })
      setWeeklyStatus(nextWeeklyStatus)
+     setCurriculumDecision(nextCurriculumDecision)
     }
    } catch (error) {
     console.error("AUTO PAGE error:", error)
@@ -142,12 +151,6 @@ export default function AutoStudyPage({ user }: { user: any }) {
    window.removeEventListener("focus", handleFocus)
   }
  }, [user])
-
- const recommended = useMemo(() => {
-  if (state.status !== "ready") return null
-  return getRecommendedSection(state.plan)
- }, [state])
-
 
  async function refreshConnectedGames() {
   if (!user || state.status !== "ready" || refreshingGames) return
@@ -186,8 +189,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
-    const plan = buildPersonalTrainingPlan(autoProfile)
+   const plan = buildPersonalTrainingPlan(autoProfile)
     setState({ status: "ready", autoProfile, plan })
+    setCurriculumDecision(await getCurriculumDecisionForUser(user.id))
    }
   } catch (error) {
    console.error("Refresh connected games failed:", error)
@@ -216,8 +220,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
-    const plan = buildPersonalTrainingPlan(autoProfile)
+   const plan = buildPersonalTrainingPlan(autoProfile)
     setState({ status: "ready", autoProfile, plan })
+    setCurriculumDecision(await getCurriculumDecisionForUser(user.id))
    }
 
    setEngineProgress(
@@ -246,12 +251,14 @@ export default function AutoStudyPage({ user }: { user: any }) {
   setStartingTraining(true)
 
   try {
-   const [dueSummary, latestWeeklyStatus] = await Promise.all([
+   const [dueSummary, latestWeeklyStatus, nextCurriculumDecision] = await Promise.all([
     getDueSummary(user.id),
     getWeeklyTestStatus(user.id),
+    getCurriculumDecisionForUser(user.id),
    ])
 
    setWeeklyStatus(latestWeeklyStatus)
+   setCurriculumDecision(nextCurriculumDecision)
 
    if (latestWeeklyStatus.status === "in_progress") {
     navigate(addAutoTrainingParams("/play-computer?weekly=1"), { replace })
@@ -266,12 +273,12 @@ export default function AutoStudyPage({ user }: { user: any }) {
     return
    }
 
-   const nextItem = dueSummary?.nextItem ?? (await getNextDueItem(user.id))
+   const nextItem = nextCurriculumDecision
 
    if (nextItem?.route) {
     recordRecentAutoTrainer(nextItem.trainerKey, nextItem.route)
     recordRecentEndgameTrainer(nextItem.trainerKey, nextItem.route)
-    navigate(buildAutoTrainingRoute(nextItem), { replace })
+    navigate(buildCurriculumAutoTrainingRoute(nextItem), { replace })
     return
    }
 
@@ -627,9 +634,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
        </p>
       )}
 
-      {recommended && (
+      {curriculumDecision && (
        <p style={{ color: "#cfcfcf", fontSize: 13, lineHeight: 1.45 }}>
-        Recommended now: <strong>{recommended.label}</strong>
+        Recommended now: <strong>{curriculumDecision.label}</strong>
        </p>
       )}
      </aside>

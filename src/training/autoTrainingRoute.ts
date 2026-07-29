@@ -2,6 +2,11 @@ export type AutoTrainingItem = {
  route: string
  trainerKey: string
  chunkIndex?: number | null
+ curriculumArea?: string
+ curriculumStage?: string
+ curriculumTheme?: string | null
+ curriculumEventKind?: string
+ curriculumDecisionId?: string
 }
 
 function splitRoute(route: string) {
@@ -49,6 +54,11 @@ export function buildAutoTrainingRoute(item: AutoTrainingItem) {
   autoKey: item.trainerKey,
   autoChunk: safeChunk,
   autoRoute: item.route,
+  curriculumArea: item.curriculumArea,
+  curriculumStage: item.curriculumStage,
+  curriculumTheme: item.curriculumTheme,
+  curriculumEventKind: item.curriculumEventKind,
+  curriculumDecision: item.curriculumDecisionId,
  })
 }
 

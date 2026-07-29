@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { getNextDueItem } from '../training/getNextDueItem'
+import {
+ buildCurriculumAutoTrainingRoute,
+ getCurriculumDecisionForUser,
+} from '../training/curriculum/curriculumRuntime'
 
 export function useAutoStudyRedirect(user: any, profile: any) {
  const navigate = useNavigate()
@@ -12,7 +15,7 @@ export function useAutoStudyRedirect(user: any, profile: any) {
  if (!profile.onboarding_complete) return
 
  async function redirect() {
- const nextItem = await getNextDueItem(user.id)
+ const nextItem = await getCurriculumDecisionForUser(user.id)
 
  if (!nextItem) {
  console.log('AUTO REDIRECT: no next item')
@@ -21,13 +24,13 @@ export function useAutoStudyRedirect(user: any, profile: any) {
 
  console.log('AUTO REDIRECT RESULT:', nextItem)
 
- const route = nextItem.route || '/'
+ const route = buildCurriculumAutoTrainingRoute(nextItem)
 
  console.log('AUTO REDIRECT TO:', route)
 
- if (location.pathname !== route) {
+ if (`${location.pathname}${location.search}` !== route) {
  navigate(route)
- }
+}
  }
 
  redirect()

@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getDueSummary, type DueSummary } from '../training/getNextDueItem'
+import {
+ buildCurriculumAutoTrainingRoute,
+ getCurriculumDecisionForUser,
+ type CurriculumRuntimeDecision,
+} from '../training/curriculum/curriculumRuntime'
 
 type SemiStudyBannerProps = {
  user: any
@@ -13,6 +18,7 @@ export default function SemiStudyBanner({
 }: SemiStudyBannerProps) {
  const navigate = useNavigate()
  const [summary, setSummary] = useState<DueSummary | null>(null)
+ const [decision, setDecision] = useState<CurriculumRuntimeDecision | null>(null)
  const [loading, setLoading] = useState(true)
 
  useEffect(() => {
@@ -22,6 +28,7 @@ export default function SemiStudyBanner({
  if (!user || !profile) {
  if (!isCancelled) {
  setSummary(null)
+  setDecision(null)
  setLoading(false)
  }
  return
@@ -30,6 +37,7 @@ export default function SemiStudyBanner({
  if (profile.study_mode !== 'semi') {
  if (!isCancelled) {
  setSummary(null)
+  setDecision(null)
  setLoading(false)
  }
  return
@@ -38,6 +46,7 @@ export default function SemiStudyBanner({
  if (!profile.onboarding_complete) {
  if (!isCancelled) {
  setSummary(null)
+  setDecision(null)
  setLoading(false)
  }
  return
@@ -45,7 +54,10 @@ export default function SemiStudyBanner({
 
  setLoading(true)
 
- const nextSummary = await getDueSummary(user.id)
+ const [nextSummary, nextDecision] = await Promise.all([
+  getDueSummary(user.id),
+  getCurriculumDecisionForUser(user.id),
+ ])
 
  if (!isCancelled) {
  if (
@@ -55,9 +67,11 @@ export default function SemiStudyBanner({
  (nextSummary.nextItem.dueState === 'overdue' ||
  nextSummary.nextItem.dueState === 'due_today')
  ) {
- setSummary(nextSummary)
+  setSummary(nextSummary)
+  setDecision(nextDecision)
  } else {
- setSummary(null)
+  setSummary(null)
+  setDecision(null)
  }
 
  setLoading(false)
@@ -72,9 +86,9 @@ export default function SemiStudyBanner({
  }, [user?.id, profile?.study_mode, profile?.onboarding_complete])
 
  if (loading) return null
- if (!summary || !summary.nextItem) return null
+ if (!summary || !summary.nextItem || !decision) return null
 
- const { nextItem, dueCount } = summary
+ const { dueCount } = summary
 
  const dueLabel =
  dueCount === 1
@@ -114,12 +128,12 @@ export default function SemiStudyBanner({
  color: '#d6e2c8',
  }}
  >
- Next up: {nextItem.trainerKey.replace(/-/g, ' ')}
+ Next up: {decision.label}
  </div>
  </div>
 
  <button
- onClick={() => navigate(nextItem.route)}
+ onClick={() => navigate(buildCurriculumAutoTrainingRoute(decision))}
  style={{
  border: 'none',
  borderRadius: 10,

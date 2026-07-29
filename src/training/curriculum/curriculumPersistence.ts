@@ -34,12 +34,14 @@ function throwIfError(error: any, message: string) {
 
 function stateFromRows(stateRow: any, areaRows: any[], stageRows: any[], themeRows: any[]): CurriculumState {
   const activeStages: Partial<Record<CurriculumArea, number>> = {}
+  const difficultyCeilings: Partial<Record<CurriculumArea, number>> = {}
   const temporaryReinforcement: Partial<Record<CurriculumArea, boolean>> = {}
   const stageMastery: Partial<Record<CurriculumArea, Record<number, any>>> = {}
   const themeMastery: Partial<Record<CurriculumArea, Record<string, ThemeMastery>>> = {}
 
   for (const row of areaRows) {
     activeStages[row.area as CurriculumArea] = Number(row.current_stage)
+    difficultyCeilings[row.area as CurriculumArea] = Number(row.difficulty_ceiling ?? row.current_stage)
     temporaryReinforcement[row.area as CurriculumArea] = Boolean(row.temporary_reinforcement)
   }
   for (const row of stageRows) {
@@ -72,6 +74,7 @@ function stateFromRows(stateRow: any, areaRows: any[], stageRows: any[], themeRo
   return {
     rating: Number(stateRow.rating_snapshot ?? 600),
     activeStages,
+    difficultyCeilings,
     stageMastery,
     themeMastery,
     temporaryReinforcement,
@@ -177,6 +180,18 @@ export async function getOrCreateCurriculumState(userId: string, client: Supabas
     .eq("user_id", userId)
   throwIfError(completeError, "Could not finalize curriculum seed")
   return readCurriculumState(userId, client)
+}
+
+/** The completed-session count is a stable, read-only ordinal until Phase 3.2
+ * begins recording curriculum evidence. It lets the runtime choose the same
+ * deterministic recommendation for display and navigation. */
+export async function getCurriculumSelectionIndex(userId: string, client: SupabaseLike = supabase) {
+  const { count, error } = await client
+    .from(TABLES.session)
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+  throwIfError(error, "Could not read curriculum session count")
+  return Math.max(0, Number(count ?? 0))
 }
 
 export async function recordCurriculumSessionEvidence(event: CurriculumSessionEvidence, client: SupabaseLike = supabase) {

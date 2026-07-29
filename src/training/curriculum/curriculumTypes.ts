@@ -52,6 +52,8 @@ export type CurriculumState = {
   rating?: number | null
   /** Explicitly persisted stage state will be supplied in Phase 2. Phase 1 accepts it as pure input. */
   activeStages?: Partial<Record<CurriculumArea, number>>
+  /** Persisted ceilings are authoritative: rating and imported weaknesses may never exceed them. */
+  difficultyCeilings?: Partial<Record<CurriculumArea, number>>
   stageMastery?: Partial<Record<CurriculumArea, Record<number, StageMastery>>>
   themeMastery?: Partial<Record<CurriculumArea, Record<string, ThemeMastery>>>
   pieceMateMastery?: Partial<Record<"kqk" | "k2r" | "krk" | "k2b" | "kbn", boolean>>
@@ -89,6 +91,7 @@ export type CurriculumRecommendation = {
   route: string
   trainerKey: string
   chunkIndex: number | null
+  theme?: string | null
   kind: CurriculumRecommendationKind
   explanation: string
   evidence: CurriculumEvidence
