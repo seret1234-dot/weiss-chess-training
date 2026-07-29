@@ -184,6 +184,7 @@ begin
       table_name
     );
     execute format('revoke all on table public.%I from anon', table_name);
+    execute format('revoke all on table public.%I from authenticated', table_name);
     execute format('grant select, insert, update on table public.%I to authenticated', table_name);
   end loop;
 end;
