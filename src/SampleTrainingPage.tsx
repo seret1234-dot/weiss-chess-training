@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Chess } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from './theme/ThemedChessboard'
 import sampleChunk from './data/chunk_1.json'
 import { trackAnalyticsEvent } from './lib/analytics'
 
@@ -117,7 +117,7 @@ export default function SampleTrainingPage() {
             boxShadow: '0 12px 36px rgba(0,0,0,0.28)',
           }}
         >
-          <Chessboard
+          <ThemedChessboard
             id="sample-training-board"
             position={boardPosition}
             onPieceDrop={onPieceDrop}

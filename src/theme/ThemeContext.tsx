@@ -9,6 +9,10 @@ import React, {
 
 export type SiteTheme = "nobleStandard" | "weiss3d" | "classic" | "qwertyxp2000"
 
+// Keep the site-wide fallback aligned with the cream-and-charcoal pieces used
+// by Play Computer. A saved user choice in localStorage still takes priority.
+export const DEFAULT_SITE_THEME: SiteTheme = "nobleStandard"
+
 type PieceRendererProps = {
   squareWidth: number
 }
@@ -227,13 +231,13 @@ const classicPieces = buildPieces(createClassicPiece)
 const qwertyPieces = buildPieces(createQwertyPiece)
 
 function readInitialTheme(): SiteTheme {
-  if (typeof window === "undefined") return "nobleStandard"
+  if (typeof window === "undefined") return DEFAULT_SITE_THEME
 
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY) as SiteTheme | null
-    return saved && themeOrder.includes(saved) ? saved : "nobleStandard"
+    return saved && themeOrder.includes(saved) ? saved : DEFAULT_SITE_THEME
   } catch {
-    return "nobleStandard"
+    return DEFAULT_SITE_THEME
   }
 }
 
