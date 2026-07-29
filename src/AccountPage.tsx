@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 import { useSubscription } from "./context/SubscriptionContext"
 import ThemeSelector from "./theme/ThemeSelector"
-import { importConnectedAccounts } from "./training/importConnectedAccounts"
-import { analyzeImportedGamesWithStockfish } from "./training/engineAnalyzeImportedGames"
+import { ConnectedImportFailure, hasUnsavedConnectedAccountChanges, importConnectedAccounts, requiresVisibleImportFailure, resolveSavedConnectedAccounts } from "./training/importConnectedAccounts"
+import { analyzeImportedGamesWithStockfish, hasHonestAnalysisCompletion, type EngineAnalysisProgress } from "./training/engineAnalyzeImportedGames"
 import { getOrCreateAutoProfile } from "./training/getOrCreateAutoProfile"
 import "./AccountAutoStudy.css"
 
@@ -14,6 +14,31 @@ function formatDate(value: string | null | undefined) {
   return Number.isNaN(date.getTime())
     ? null
     : date.toLocaleDateString()
+}
+
+function formatDuration(milliseconds: number | null | undefined) {
+ const seconds = Math.max(0, Math.round((milliseconds || 0) / 1000))
+ if (seconds < 60) return `${seconds} second${seconds === 1 ? "" : "s"}`
+ const minutes = Math.round(seconds / 60)
+ return `${minutes} minute${minutes === 1 ? "" : "s"}`
+}
+
+function formatAnalysisProgress(progress: EngineAnalysisProgress) {
+ const parts = [progress.message]
+ if (progress.currentGame && progress.gamesTotal && progress.estimatedRemainingMs && progress.estimatedRemainingMs > 0) {
+  parts[0] += ` — about ${formatDuration(progress.estimatedRemainingMs)} remaining`
+ }
+ if (progress.gamesSkipped || progress.gamesFailed) parts.push(`${progress.gamesSkipped} skipped, ${progress.gamesFailed} failed`)
+ if (progress.gamesTotal) parts.push(`${formatDuration(progress.elapsedMs)} elapsed`)
+ return parts.join(" · ")
+}
+
+function formatSourceSummary(sourceCounts: { "chess.com": number; lichess: number }) {
+ return `Chess.com: ${sourceCounts["chess.com"]}; Lichess: ${sourceCounts.lichess}`
+}
+
+function normalizedUsername(value: unknown) {
+ return String(value || "").trim()
 }
 
 export default function AccountPage() {
@@ -90,32 +115,33 @@ export default function AccountPage() {
      }
 
      const user = data.user
-     const meta = user?.user_metadata
-     const savedUsername = String(
-       meta?.chess_com_username || meta?.chessComUsername || "",
-     ).trim()
-
      setEmail(user?.email || "")
-     setChessCom(savedUsername)
-     setSavedChessComUsername(savedUsername)
-     const savedLichess = String(meta?.lichess_username || meta?.lichessUsername || "").trim()
-     setLichess(savedLichess)
-     setSavedLichessUsername(savedLichess)
 
      if (user) {
        const autoProfile = await getOrCreateAutoProfile(user.id)
+       const saved = resolveSavedConnectedAccounts(
+        autoProfile as Record<string, unknown> | null,
+        user.user_metadata as Record<string, unknown> | null,
+       )
        const importedCount = Math.max(
          0,
          Number(autoProfile?.imported_games_count) || 0,
        )
-       const importedUsername = String(autoProfile?.chesscom_username || "").trim()
-       const importedLichess = String(autoProfile?.lichess_username || "").trim()
 
+       setChessCom(saved.chesscom)
+       setSavedChessComUsername(saved.chesscom)
+       setLichess(saved.lichess)
+       setSavedLichessUsername(saved.lichess)
        setImportedGamesCount(importedCount)
        setNeedsConnectedImport(
-         Boolean(savedUsername || savedLichess) &&
-           (importedCount === 0 || importedUsername !== savedUsername || importedLichess !== savedLichess),
+         Boolean(saved.chesscom || saved.lichess) && importedCount === 0,
        )
+     } else {
+       const saved = resolveSavedConnectedAccounts(null, user?.user_metadata as Record<string, unknown> | null)
+       setChessCom(saved.chesscom)
+       setSavedChessComUsername(saved.chesscom)
+       setLichess(saved.lichess)
+       setSavedLichessUsername(saved.lichess)
      }
    }
 
@@ -128,8 +154,8 @@ export default function AccountPage() {
    setError("")
 
    try {
-    const savedChesscom = chessCom.trim()
-    const savedLichess = lichess.trim()
+    const savedChesscom = normalizedUsername(chessCom)
+    const savedLichess = normalizedUsername(lichess)
     const changed = savedChesscom !== savedChessComUsername || savedLichess !== savedLichessUsername
     const { error: metadataError } = await supabase.auth.updateUser({
       data: {
@@ -163,12 +189,9 @@ export default function AccountPage() {
    }
  }
 
- async function importConnectedGames(
-   chesscomOverride = savedChessComUsername,
-   lichessOverride = savedLichessUsername,
- ) {
-   const chesscom = chesscomOverride.trim()
-   const lichessUsername = lichessOverride.trim()
+ async function importConnectedGames(chesscomOverride: string, lichessOverride: string) {
+   const chesscom = normalizedUsername(chesscomOverride)
+   const lichessUsername = normalizedUsername(lichessOverride)
    if (!chesscom && !lichessUsername) {
      setError("Save a Chess.com or Lichess username before importing games.")
      return
@@ -196,16 +219,39 @@ export default function AccountPage() {
        if (progress.warning) setMessage(`Partial import: ${progress.warning}`)
       },
      })
-     setImportProgress(`Imported ${imported.importedGamesCount} combined games. Starting Stockfish analysis...`)
+     if (requiresVisibleImportFailure(imported.failedSources, imported.importedGamesCount)) {
+      setImportSummary(
+       `No new games were added. ${formatSourceSummary(imported.retainedSourceCounts)} retained (${imported.retainedGamesCount} total). Already present: ${imported.alreadyPresent}.`,
+      )
+      throw new Error(imported.warnings.join(" "))
+     }
+
+     if (imported.importedGamesCount === 0) {
+      setImportedGamesCount(imported.retainedGamesCount)
+      setNeedsConnectedImport(false)
+      setImportSummary(
+       `No new games were added. ${formatSourceSummary(imported.retainedSourceCounts)} retained (${imported.retainedGamesCount} total). Already present: ${imported.alreadyPresent}. Cross-source duplicates removed: ${imported.crossSourceDuplicatesRemoved}. Excluded by the 150-game cap: ${imported.capExcluded}.`,
+      )
+      setImportProgress("")
+      return
+     }
+
+     setImportProgress(`Imported ${imported.importedGamesCount} new games. Preparing analysis...`)
 
      const analysis = await analyzeImportedGamesWithStockfish(user.id, {
        maxGames: 150,
        depth: 8,
-       minLossCp: 70,
-       onProgress: (progress) => {
-         setImportProgress(progress.message)
-       },
+      minLossCp: 70,
+      onProgress: (progress) => {
+        setImportProgress(formatAnalysisProgress(progress))
+      },
      })
+
+     if (!hasHonestAnalysisCompletion(imported.importedGamesCount, analysis)) {
+      throw new Error(
+       `No imported games were successfully analyzed. ${analysis.gamesSkipped} were skipped and ${analysis.gamesFailed} failed. Please refresh connected games to try again.`,
+      )
+     }
 
      const autoProfile = await getOrCreateAutoProfile(user.id)
      if (!autoProfile) {
@@ -219,11 +265,17 @@ export default function AccountPage() {
      )
      setNeedsConnectedImport(false)
      setImportSummary(
-       `Imported ${imported.importedGamesCount} games from ${imported.sourcesImported.length} account${imported.sourcesImported.length === 1 ? "" : "s"}. Analyzed ${analysis.gamesAnalyzed} games and found ${analysis.mistakesFound} training mistakes.`,
+       `New games: ${formatSourceSummary(imported.sourceCounts)}. ${formatSourceSummary(imported.retainedSourceCounts)} retained (${imported.retainedGamesCount} total). Already present: ${imported.alreadyPresent}. Cross-source duplicates removed: ${imported.crossSourceDuplicatesRemoved}. Excluded by the 150-game cap: ${imported.capExcluded}. Analyzed: ${analysis.gamesAnalyzed}. Skipped: ${analysis.gamesSkipped}. Failed: ${analysis.gamesFailed}. Training mistakes found: ${analysis.mistakesFound}. Total analysis time: ${formatDuration(analysis.elapsedMs)}.${imported.warnings.length ? ` Partial import warning: ${imported.warnings.join(" ")}` : ""}`,
      )
      setImportProgress("")
    } catch (importError) {
      console.error("Connected-account import from Account failed", importError)
+     if (importError instanceof ConnectedImportFailure) {
+      setImportedGamesCount(importError.retainedGamesCount)
+      setImportSummary(
+       `Import did not add games. ${formatSourceSummary(importError.retainedSourceCounts)} retained (${importError.retainedGamesCount} total).`,
+      )
+     }
      setError(
        importError instanceof Error
          ? importError.message
@@ -234,10 +286,17 @@ export default function AccountPage() {
    }
  }
 
- const connectedImportActionLabel =
-   !needsConnectedImport && importedGamesCount > 0
-     ? "Refresh connected games"
-     : "Import connected games"
+ const hasUnsavedConnectedAccounts = hasUnsavedConnectedAccountChanges(
+  chessCom,
+  lichess,
+  savedChessComUsername,
+  savedLichessUsername,
+ )
+ const hasCurrentUsername = Boolean(normalizedUsername(chessCom) || normalizedUsername(lichess))
+ const hasSavedConnectedAccount = Boolean(savedChessComUsername || savedLichessUsername)
+ const connectedAccountActionLabel = hasUnsavedConnectedAccounts
+  ? hasCurrentUsername ? "Save and Import Games" : "Save Changes"
+  : hasSavedConnectedAccount ? "Refresh Connected Games" : "Save Changes"
 
  async function cancelRenewal() {
    if (
@@ -341,19 +400,24 @@ export default function AccountPage() {
  </div>
 
  <div className="account-page__actions" style={actionsRowStyle}>
- <button onClick={save} disabled={saving || importingGames} style={saveButtonStyle}>
- {saving ? "Saving..." : "Save changes"}
+ <button
+  onClick={() => {
+   if (hasUnsavedConnectedAccounts || !hasSavedConnectedAccount) void save()
+   else void importConnectedGames(savedChessComUsername, savedLichessUsername)
+  }}
+  disabled={saving || importingGames}
+  style={saveButtonStyle}
+ >
+  {saving ? "Saving..." : importingGames ? "Importing connected games..." : connectedAccountActionLabel}
  </button>
- {(savedChessComUsername || savedLichessUsername) && (
-  <button
-   onClick={() => void importConnectedGames()}
-   disabled={importingGames}
-   style={importButtonStyle}
-  >
-   {importingGames ? "Importing connected games..." : connectedImportActionLabel}
-  </button>
- )}
  </div>
+ {hasUnsavedConnectedAccounts && (
+  <div style={helperStyle}>
+   {hasCurrentUsername
+    ? "Saving will update your connected accounts and import their recent games."
+    : "Saving will update your connected accounts."}
+  </div>
+ )}
 
  {message && <div style={successStyle}>{message}</div>}
  {importProgress && <div style={progressStyle}>{importProgress}</div>}

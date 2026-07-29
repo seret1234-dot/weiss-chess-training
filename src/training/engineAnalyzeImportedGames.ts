@@ -9,7 +9,7 @@ type ImportedGameRow = {
  source: "chess.com" | "lichess"
  time_class: string | null
  user_color: "white" | "black" | null
- engine_analyzed: boolean
+ engine_analyzed: boolean | null
 }
 
 export type EngineAnalysisProgress = {
@@ -18,6 +18,10 @@ export type EngineAnalysisProgress = {
  gamesTotal: number
  currentGame?: number
  mistakesFound: number
+ gamesSkipped: number
+ gamesFailed: number
+ elapsedMs: number
+ estimatedRemainingMs: number | null
  message: string
 }
 
@@ -26,6 +30,32 @@ type AnalyzeOptions = {
  depth?: number
  minLossCp?: number
  onProgress?: (progress: EngineAnalysisProgress) => void
+}
+
+export type EngineAnalysisResult = {
+ gamesAnalyzed: number
+ gamesSkipped: number
+ gamesFailed: number
+ mistakesFound: number
+ elapsedMs: number
+ summary: Awaited<ReturnType<typeof refreshProfileSummary>>
+}
+
+export const PENDING_ENGINE_ANALYSIS_FILTER = "engine_analyzed.is.false,engine_analyzed.is.null"
+
+export function getAnalysisTiming(startedAt: number, gamesDone: number, gamesTotal: number, now = Date.now()) {
+ const elapsedMs = Math.max(0, now - startedAt)
+ const remaining = Math.max(0, gamesTotal - gamesDone)
+ return {
+  elapsedMs,
+  estimatedRemainingMs: gamesDone > 0 && remaining > 0
+   ? Math.round((elapsedMs / gamesDone) * remaining)
+   : remaining === 0 ? 0 : null,
+ }
+}
+
+export function hasHonestAnalysisCompletion(importedGamesCount: number, analysis: Pick<EngineAnalysisResult, "gamesAnalyzed">) {
+ return importedGamesCount === 0 || analysis.gamesAnalyzed > 0
 }
 
 function sleep(ms: number) {
@@ -135,13 +165,33 @@ async function refreshProfileSummary(userId: string) {
  return summary
 }
 
+type GameAnalysisOutcome = {
+ status: "analyzed" | "skipped"
+ mistakesFound: number
+}
+
+async function markGameAnalyzed(userId: string, gameId: string) {
+ const { error } = await supabase
+  .from("user_imported_games")
+  .update({
+   engine_analyzed: true,
+   engine_analyzed_at: new Date().toISOString(),
+  })
+  .eq("user_id", userId)
+  .eq("id", gameId)
+ if (error) throw error
+}
+
 async function analyzeOneGame(
  userId: string,
  game: ImportedGameRow,
  depth: number,
  minLossCp: number,
-) {
- if (!game.pgn || !game.user_color) return 0
+): Promise<GameAnalysisOutcome> {
+ if (!game.pgn || !game.user_color) {
+  await markGameAnalyzed(userId, game.id)
+  return { status: "skipped", mistakesFound: 0 }
+ }
 
  const loaded = new Chess()
 
@@ -149,12 +199,19 @@ async function analyzeOneGame(
   ;(loaded as any).loadPgn(game.pgn)
  } catch (error) {
   console.warn("Could not parse PGN:", game.id, error)
-  return 0
+  await markGameAnalyzed(userId, game.id)
+  return { status: "skipped", mistakesFound: 0 }
  }
 
  const sans = loaded.history()
+ if (!sans.length) {
+  await markGameAnalyzed(userId, game.id)
+  return { status: "skipped", mistakesFound: 0 }
+ }
+
  const replay = new Chess()
  const mistakeRows: any[] = []
+ let replayFailed = false
 
  for (let index = 0; index < sans.length; index += 1) {
   const ply = index + 1
@@ -169,17 +226,17 @@ async function analyzeOneGame(
    userMove = null
   }
 
-  if (!userMove) break
+  if (!userMove) {
+   replayFailed = true
+   break
+  }
 
   if (sideToMove !== game.user_color) continue
 
   const userMoveUci = moveToUci(userMove)
-
   const best = await stockfishService.getBestMove(fenBefore)
   const bestMoveUci = best.bestMove || best.eval?.bestMove || ""
-
   const evalBeforeCp = userPerspectiveCp(best.eval, true)
-
   const evalAfter = await stockfishService.getEvaluation(replay.fen(), { depth })
   const evalAfterCp = userPerspectiveCp(evalAfter, false)
 
@@ -211,6 +268,11 @@ async function analyzeOneGame(
   await sleep(20)
  }
 
+ if (replayFailed) {
+  await markGameAnalyzed(userId, game.id)
+  return { status: "skipped", mistakesFound: 0 }
+ }
+
  if (mistakeRows.length) {
   const { error } = await supabase
    .from("user_engine_mistakes")
@@ -222,31 +284,27 @@ async function analyzeOneGame(
   }
  }
 
- await supabase
-  .from("user_imported_games")
-  .update({
-   engine_analyzed: true,
-   engine_analyzed_at: new Date().toISOString(),
-  })
-  .eq("user_id", userId)
-  .eq("id", game.id)
-
- return mistakeRows.length
+ await markGameAnalyzed(userId, game.id)
+ return { status: "analyzed", mistakesFound: mistakeRows.length }
 }
 
 export async function analyzeImportedGamesWithStockfish(
  userId: string,
  options: AnalyzeOptions = {},
-) {
+): Promise<EngineAnalysisResult> {
  const maxGames = options.maxGames ?? 3
  const depth = options.depth ?? 8
  const minLossCp = options.minLossCp ?? 70
+ const startedAt = Date.now()
 
  options.onProgress?.({
   status: "starting",
   gamesDone: 0,
   gamesTotal: 0,
   mistakesFound: 0,
+  gamesSkipped: 0,
+  gamesFailed: 0,
+  ...getAnalysisTiming(startedAt, 0, 0),
   message: "Starting Stockfish...",
  })
 
@@ -257,7 +315,7 @@ export async function analyzeImportedGamesWithStockfish(
   .from("user_imported_games")
   .select("id,pgn,source,time_class,user_color,engine_analyzed")
   .eq("user_id", userId)
-  .eq("engine_analyzed", false)
+  .or(PENDING_ENGINE_ANALYSIS_FILTER)
   .order("end_time", { ascending: false })
   .limit(maxGames)
 
@@ -265,13 +323,19 @@ export async function analyzeImportedGamesWithStockfish(
 
  const rows = (games || []) as ImportedGameRow[]
  let mistakesFound = 0
+ let gamesAnalyzed = 0
+ let gamesSkipped = 0
+ let gamesFailed = 0
 
  options.onProgress?.({
   status: "analyzing",
   gamesDone: 0,
   gamesTotal: rows.length,
   mistakesFound,
-  message: rows.length ? "Analyzing imported games..." : "No unanalyzed games found.",
+  gamesSkipped,
+  gamesFailed,
+  ...getAnalysisTiming(startedAt, 0, rows.length),
+  message: rows.length ? `Analyzing ${rows.length} combined games...` : "No pending imported games found.",
  })
 
  for (let i = 0; i < rows.length; i += 1) {
@@ -283,10 +347,21 @@ export async function analyzeImportedGamesWithStockfish(
    gamesTotal: rows.length,
    currentGame: i + 1,
    mistakesFound,
+   gamesSkipped,
+   gamesFailed,
+   ...getAnalysisTiming(startedAt, i, rows.length),
    message: `Analyzing game ${i + 1} of ${rows.length}...`,
   })
 
-  mistakesFound += await analyzeOneGame(userId, game, depth, minLossCp)
+  try {
+   const outcome = await analyzeOneGame(userId, game, depth, minLossCp)
+   mistakesFound += outcome.mistakesFound
+   if (outcome.status === "analyzed") gamesAnalyzed += 1
+   else gamesSkipped += 1
+  } catch (analysisError) {
+   gamesFailed += 1
+   console.error("Imported game analysis failed:", game.id, analysisError)
+  }
 
   options.onProgress?.({
    status: "saving",
@@ -294,7 +369,10 @@ export async function analyzeImportedGamesWithStockfish(
    gamesTotal: rows.length,
    currentGame: i + 1,
    mistakesFound,
-   message: `Saved game ${i + 1} of ${rows.length}.`,
+   gamesSkipped,
+   gamesFailed,
+   ...getAnalysisTiming(startedAt, i + 1, rows.length),
+   message: `Processed game ${i + 1} of ${rows.length}.`,
   })
 
   await sleep(80)
@@ -307,12 +385,18 @@ export async function analyzeImportedGamesWithStockfish(
   gamesDone: rows.length,
   gamesTotal: rows.length,
   mistakesFound,
+  gamesSkipped,
+  gamesFailed,
+  ...getAnalysisTiming(startedAt, rows.length, rows.length),
   message: `Done. Found ${mistakesFound} new mistakes.`,
  })
 
  return {
-  gamesAnalyzed: rows.length,
+  gamesAnalyzed,
+  gamesSkipped,
+  gamesFailed,
   mistakesFound,
+  elapsedMs: getAnalysisTiming(startedAt, rows.length, rows.length).elapsedMs,
   summary,
  }
 }
