@@ -31,6 +31,20 @@ import {
 } from '../../components/trainer/ui'
 
 import { reportTrainingItemCompleted } from "../../lib/trainingQuotaEvents"
+import {
+ createCanonicalExerciseIdentity,
+ getOrCreateMixedSessionPlan,
+ getRecentMixedCanonicalIdentities,
+ recordMixedCanonicalIdentity,
+ type MixedSessionCandidate,
+} from "../../training/mixedSessionSelector"
+import {
+  getLegacyCompletionCredit,
+  getM1LearnerProgressTrainerKey,
+ getPatternMateM1LearnerCurriculum,
+ M1_LEARNER_CURRICULUM_VERSION,
+ resolveLearnerFacingChunkIndex,
+} from "./m1LearnerCurriculum"
 
 type ManifestFile = {
  category?: string
@@ -61,6 +75,10 @@ type LichessChunkPuzzle = {
  gameUrl?: string
  openingTags?: string[]
  source?: string
+ sourceTheme?: string
+ sourceThemeTag?: string
+ sourceThemeKeys?: string[]
+ puzzleId?: string
  chunk?: number
  chunkNumber?: number
  chunkIndex?: number
@@ -88,6 +106,9 @@ export type PatternMatePuzzle = {
  chunkNumber: number
  chunkIndex: number
  rating?: number
+ sourceTheme?: string
+ sourceIdentity?: string
+ canonicalIdentity?: string
 }
 
 type PuzzleMastery = {
@@ -315,9 +336,11 @@ function normalizePuzzle(
  solutionLine,
  userMoveIndexes,
  chunkNumber,
- chunkIndex,
- rating: raw.rating,
- }
+  chunkIndex,
+  rating: raw.rating,
+  sourceTheme: raw.sourceThemeTag || raw.sourceTheme || raw.sourceThemeKeys?.[0] || raw.themes?.[0] || raw.theme || 'mate',
+  sourceIdentity: String(raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
+  }
 }
 
 function getMoveHighlightStyles(moveUci: string | null) {
@@ -464,14 +487,24 @@ export default function PatternMateTrainer({
  urlChunkParam !== null && !isNaN(Number(urlChunkParam))
  ? Math.max(0, Number(urlChunkParam))
  : null
+ const forcedLearnerCurriculum =
+ searchParams.get('learnerCurriculum') === M1_LEARNER_CURRICULUM_VERSION
 
- const manifestFetchPath = `${config.dataBasePath}/manifest.json`
- const storageKey = getStorageKey(config.trainerKey)
+  const learnerCurriculum = getPatternMateM1LearnerCurriculum(config.trainerKey)
+  const isMixedPatternMate = /^mixed-mate-[1-5]$/.test(config.trainerKey)
+  // The learner curriculum writes to its own stable namespace. Source-pool
+  // progress remains readable for compatibility credit and legacy reviews.
+  const progressTrainerKey = getM1LearnerProgressTrainerKey(config.trainerKey)
+  const activeDataBasePath = learnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
+  const manifestFetchPath = `${activeDataBasePath}/manifest.json`
+  const storageKey = getStorageKey(progressTrainerKey)
 
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
  const [chunkFiles, setChunkFiles] = useState<string[]>([])
- const [currentChunkIndex, setCurrentChunkIndex] = useState(0)
+  const [currentChunkIndex, setCurrentChunkIndex] = useState(0)
+  const legacyCompletionCreditRef = useRef(0)
+  const mixedSessionIdRef = useRef<string | null>(null)
 
  const [puzzles, setPuzzles] = useState<PatternMatePuzzle[]>([])
  const [loading, setLoading] = useState(true)
@@ -518,6 +551,10 @@ export default function PatternMateTrainer({
  const [chunkProgress, setChunkProgress] = useState<PuzzleMastery[]>([])
 
  const currentChunkFileName = chunkFiles[currentChunkIndex] || ''
+
+ function resolveActiveChunkIndex(requestedChunkIndex: number, isLearnerFacingRequest = false) {
+ return resolveLearnerFacingChunkIndex(requestedChunkIndex, learnerCurriculum, isLearnerFacingRequest)
+ }
 
  const customPieces = {
  wP: ({ squareWidth }: { squareWidth: number }) =>
@@ -568,7 +605,7 @@ export default function PatternMateTrainer({
  .from('user_chunk_progress')
  .select('chunk_index')
  .eq('user_id', userId)
- .eq('trainer_key', config.trainerKey)
+  .eq('trainer_key', progressTrainerKey)
  .eq('chunk_index', chunkNumber)
  .limit(1)
 
@@ -585,7 +622,7 @@ export default function PatternMateTrainer({
  .from('user_chunk_progress')
  .insert({
  user_id: userId,
- trainer_key: config.trainerKey,
+  trainer_key: progressTrainerKey,
  chunk_index: chunkNumber,
  mastered_puzzles_count: 0,
  is_mastered: false,
@@ -598,7 +635,7 @@ export default function PatternMateTrainer({
  console.error('Could not create initial chunk row', insertError)
  } else {
  console.log('Created chunk row:', {
- trainerKey: config.trainerKey,
+  trainerKey: progressTrainerKey,
  chunkIndex: chunkNumber,
  })
  }
@@ -626,7 +663,7 @@ export default function PatternMateTrainer({
  .from('user_chunk_progress')
  .select('review_stage, next_review_at, mastered_at')
  .eq('user_id', userId)
- .eq('trainer_key', config.trainerKey)
+  .eq('trainer_key', progressTrainerKey)
  .eq('chunk_index', chunkNumber)
  .maybeSingle()
 
@@ -655,7 +692,7 @@ export default function PatternMateTrainer({
 
  const { error } = await supabase.from('user_chunk_progress').upsert({
  user_id: userId,
- trainer_key: config.trainerKey,
+  trainer_key: progressTrainerKey,
  chunk_index: chunkNumber,
  mastered_puzzles_count: masteredCount,
  is_mastered: true,
@@ -672,7 +709,7 @@ export default function PatternMateTrainer({
  }
 
  console.log('Chunk mastered and review scheduled:', {
- trainerKey: config.trainerKey,
+  trainerKey: progressTrainerKey,
  chunkIndex: chunkNumber,
  masteredCount,
  reviewStage: nextStage,
@@ -696,7 +733,7 @@ function startChunkMasterySave(masteredCount: number) {
  return Promise.resolve(true)
  }
 
- const saveKey = `${config.trainerKey}:${currentChunkIndex}:${masteredCount}`
+  const saveKey = `${progressTrainerKey}:${currentChunkIndex}:${masteredCount}`
  if (
  chunkMasterySaveKeyRef.current === saveKey &&
  chunkMasteryPromiseRef.current
@@ -725,7 +762,7 @@ function startChunkMasterySave(masteredCount: number) {
  useEffect(() => {
  if (!currentUserId) return
  void ensureChunkExists(currentUserId, 1)
- }, [currentUserId, config.trainerKey])
+  }, [currentUserId, progressTrainerKey])
 
  function persistProgress(
  nextChunkIndex: number,
@@ -782,7 +819,7 @@ function startChunkMasterySave(masteredCount: number) {
  setLoadError('')
 
  try {
- const res = await fetch(`${config.dataBasePath}/${fileName}`)
+  const res = await fetch(`${activeDataBasePath}/${fileName}`)
  if (!res.ok) {
  throw new Error(`HTTP ${res.status}`)
  }
@@ -796,9 +833,36 @@ function startChunkMasterySave(masteredCount: number) {
  .map((item, index) => normalizePuzzle(item, index))
  .filter(Boolean) as PatternMatePuzzle[]
 
- if (normalized.length === 0) {
- throw new Error(`No valid puzzles found in ${fileName}`)
- }
+  if (normalized.length === 0) {
+  throw new Error(`No valid puzzles found in ${fileName}`)
+  }
+
+  const mixedSessionId = `${config.trainerKey}:${fileName}`
+  const sessionPuzzles = isMixedPatternMate
+  ? (() => {
+  const candidates: MixedSessionCandidate<PatternMatePuzzle>[] = normalized.map((puzzle) => {
+  const canonicalIdentity = createCanonicalExerciseIdentity({
+  fen: puzzle.fen,
+  preMove: puzzle.preMove,
+  objective: config.trainerKey,
+  solutionLine: puzzle.solutionLine,
+  sourceIdentity: puzzle.sourceIdentity ?? puzzle.id,
+  })
+  return {
+  item: { ...puzzle, canonicalIdentity },
+  theme: puzzle.sourceTheme ?? puzzle.theme,
+  canonicalIdentity,
+  stableId: puzzle.id,
+  }
+  })
+  const plan = getOrCreateMixedSessionPlan(candidates, {
+  sessionId: mixedSessionId,
+  recentlySeenCanonicalIdentities: getRecentMixedCanonicalIdentities(mixedSessionId),
+  })
+  mixedSessionIdRef.current = mixedSessionId
+  return plan.items
+  })()
+  : normalized
 
  const saved = getSavedState(storageKey)
  const savedProgress = saved.chunkProgressByFile[fileName] || []
@@ -825,7 +889,7 @@ function startChunkMasterySave(masteredCount: number) {
  .from('user_chunk_progress')
  .select('is_mastered, review_stage, next_review_at')
  .eq('user_id', currentUserId)
- .eq('trainer_key', config.trainerKey)
+  .eq('trainer_key', progressTrainerKey)
  .eq('chunk_index', chunkNumber)
  .maybeSingle()
 
@@ -849,7 +913,7 @@ function startChunkMasterySave(masteredCount: number) {
  updated_at: new Date().toISOString(),
  })
  .eq('user_id', currentUserId)
- .eq('trainer_key', config.trainerKey)
+  .eq('trainer_key', progressTrainerKey)
  .eq('chunk_index', chunkNumber)
 
  if (reopenError) {
@@ -870,7 +934,7 @@ function startChunkMasterySave(masteredCount: number) {
  }
  }
 
- let restoredChunkProgress = normalized.map((puzzle, i) => {
+  let restoredChunkProgress = sessionPuzzles.map((puzzle, i) => {
  const localValue = savedProgress[i] ?? 0
  const supaValue = supaProgress[puzzle.id] ?? 0
 
@@ -891,6 +955,16 @@ function startChunkMasterySave(masteredCount: number) {
  }))
  }
 
+ // The historical source progression shares this trainer key. Existing users
+ // receive deterministic, read-only equivalent credit without altering any of
+ // their legacy rows or puzzle IDs.
+ if (learnerCurriculum && chunkIndex < legacyCompletionCreditRef.current) {
+ chunkCanBeCompleted = false
+ restoredChunkProgress = restoredChunkProgress.map(() => ({
+ fastSolves: FAST_SOLVES_TO_MASTER,
+ }))
+ }
+
  chunkCanBeCompletedRef.current = chunkCanBeCompleted
  chunkMasterySaveKeyRef.current = null
  chunkMasteryPromiseRef.current = null
@@ -908,7 +982,7 @@ function startChunkMasterySave(masteredCount: number) {
  } else {
  const clamped = Math.max(
  0,
- Math.min(normalized.length - 1, desiredPuzzleIndex)
+  Math.min(sessionPuzzles.length - 1, desiredPuzzleIndex)
  )
  if (
  (restoredChunkProgress[clamped]?.fastSolves ?? 0) >=
@@ -927,10 +1001,10 @@ function startChunkMasterySave(masteredCount: number) {
  advanceUserMoveIndex(0)
  setCurrentChunkIndex(chunkIndex)
  setJumpChunkInput(String(chunkIndex + 1))
- setPuzzles(normalized)
+  setPuzzles(sessionPuzzles)
  setChunkProgress(restoredChunkProgress)
 
- const initialPuzzle = normalized[desiredPuzzleIndex]
+  const initialPuzzle = sessionPuzzles[desiredPuzzleIndex]
  if (initialPuzzle) {
  loadPuzzleImmediate(
  initialPuzzle,
@@ -967,6 +1041,14 @@ function startChunkMasterySave(masteredCount: number) {
  async function restartWholeProgression() {
  clearTimers()
  localStorage.removeItem(storageKey)
+
+ if (learnerCurriculum) {
+ // Do not delete source-pool rows: indexes 1-5 may be historical source
+ // chunks as well as the new learner-facing projection.
+ setMessage('Local learner view restarted. Your legacy review history is retained.')
+ await loadChunkByIndex(0, chunkFiles, 0)
+ return
+ }
 
  if (currentUserId) {
  if (config.studyCourse && config.studyTheme) {
@@ -1021,37 +1103,76 @@ function startChunkMasterySave(masteredCount: number) {
 
  const saved = getSavedState(storageKey)
 
+ let compatibilityCredit = 0
+ if (currentUserId && learnerCurriculum) {
+ const { data: legacyRows, error: legacyRowsError } = await supabase
+ .from('user_chunk_progress')
+ .select('chunk_index, is_mastered, mastered_puzzles_count')
+ .eq('user_id', currentUserId)
+ .eq('trainer_key', config.trainerKey)
+
+ if (legacyRowsError) {
+ console.error('Could not load legacy Pattern Mate completion credit', legacyRowsError)
+ } else {
+ compatibilityCredit = getLegacyCompletionCredit(
+ legacyRows ?? [],
+ learnerCurriculum,
+ ).completedActiveChunks
+ }
+ }
+ legacyCompletionCreditRef.current = compatibilityCredit
+
  let startChunkIndex: number
 
  if (forcedChunkIndex !== null) {
  startChunkIndex = Math.max(
  0,
- Math.min(files.length - 1, forcedChunkIndex)
+ Math.min(files.length - 1, resolveActiveChunkIndex(forcedChunkIndex, forcedLearnerCurriculum))
  )
  console.log('Using chunk from AUTO (URL):', startChunkIndex)
  } else {
  startChunkIndex = Math.max(
  0,
- Math.min(files.length - 1, saved.currentChunkIndex ?? 0)
+ Math.min(files.length - 1, resolveActiveChunkIndex(saved.currentChunkIndex ?? 0))
  )
 
- if (currentUserId) {
- const { data: dueChunk, error: dueChunkError } = await supabase.rpc(
- 'get_next_due_chunk',
- {
- p_user_id: currentUserId,
- p_trainer_key: config.trainerKey,
- }
- )
+  if (currentUserId) {
+  // Prefer review work recorded by the five-chunk learner curriculum. Legacy
+  // rows are only a compatibility fallback, so they can never overwrite the
+  // new curriculum's independent review schedule.
+  let dueTrainerKey = progressTrainerKey
+  let { data: dueChunk, error: dueChunkError } = await supabase.rpc(
+  'get_next_due_chunk',
+  {
+  p_user_id: currentUserId,
+  p_trainer_key: dueTrainerKey,
+  }
+  )
 
- if (dueChunkError) {
- console.error('Could not load due chunk', dueChunkError)
- } else if (dueChunk && dueChunk.length > 0) {
- startChunkIndex = Math.max(
- 0,
- Math.min(files.length - 1, dueChunk[0].chunk_index - 1)
- )
- console.log('Using due chunk from Supabase:', dueChunk[0])
+  if (!dueChunkError && (!dueChunk || dueChunk.length === 0) && learnerCurriculum) {
+  dueTrainerKey = config.trainerKey
+  const legacyDue = await supabase.rpc('get_next_due_chunk', {
+  p_user_id: currentUserId,
+  p_trainer_key: dueTrainerKey,
+  })
+  dueChunk = legacyDue.data
+  dueChunkError = legacyDue.error
+  }
+
+  if (dueChunkError) {
+  console.error('Could not load due chunk', dueChunkError)
+  } else if (dueChunk && dueChunk.length > 0) {
+  startChunkIndex = Math.max(
+  0,
+  Math.min(
+  files.length - 1,
+  resolveActiveChunkIndex(
+  dueChunk[0].chunk_index - 1,
+  learnerCurriculum !== null && dueTrainerKey === progressTrainerKey,
+  ),
+  )
+  )
+  console.log('Using due chunk from Supabase:', dueChunk[0])
  }
  }
  }
@@ -1075,10 +1196,14 @@ function startChunkMasterySave(masteredCount: number) {
  }
  }, [
  manifestFetchPath,
- storageKey,
+  storageKey,
+  activeDataBasePath,
+  progressTrainerKey,
  currentUserId,
  config.trainerKey,
  forcedChunkIndex,
+ forcedLearnerCurriculum,
+ learnerCurriculum,
  ])
 
  useEffect(() => {
@@ -1229,10 +1354,22 @@ useEffect(() => {
  nextChunkProgressArg?: PuzzleMastery[],
  nextChunkIndexArg?: number,
  fileNameOverride?: string
- ) {
- clearTimers()
+  ) {
+  clearTimers()
+  // Focused trainers never use the rotation planner, but recording the exact
+  // displayed exercise lets a later mixed session avoid an immediate source
+  // repeat when local history is available.
+  const servedSessionId = mixedSessionIdRef.current ?? `${config.trainerKey}:${fileNameOverride ?? currentChunkFileName}`
+  const canonicalIdentity = puzzle.canonicalIdentity ?? createCanonicalExerciseIdentity({
+  fen: puzzle.fen,
+  preMove: puzzle.preMove,
+  objective: config.trainerKey,
+  solutionLine: puzzle.solutionLine,
+  sourceIdentity: puzzle.sourceIdentity ?? puzzle.id,
+  })
+  recordMixedCanonicalIdentity(servedSessionId, canonicalIdentity)
 
- advanceUserMoveIndex(0)
+  advanceUserMoveIndex(0)
 
  const startChess = new Chess(puzzle.fen)
 

@@ -30,6 +30,13 @@ import {
 } from '../../components/trainer/ui'
 
 import { reportTrainingItemCompleted } from "../../lib/trainingQuotaEvents"
+import {
+ createCanonicalExerciseIdentity,
+ getOrCreateMixedSessionPlan,
+ getRecentMixedCanonicalIdentities,
+ recordMixedCanonicalIdentity,
+ type MixedSessionCandidate,
+} from "../../training/mixedSessionSelector"
 
 type ManifestFile = {
  category?: string
@@ -60,6 +67,11 @@ type LichessChunkPuzzle = {
  gameUrl?: string
  openingTags?: string[]
  source?: string
+ sourceTheme?: string
+ sourceThemeTag?: string
+ sourceThemeKeys?: string[]
+ sourceThemes?: string[]
+ puzzleId?: string
  chunk?: number
  chunkNumber?: number
  chunkIndex?: number
@@ -87,6 +99,9 @@ export type PatternTacticPuzzle = {
  chunkNumber: number
  chunkIndex: number
  rating?: number
+ sourceTheme?: string
+ sourceIdentity?: string
+ canonicalIdentity?: string
 }
 
 type PuzzleMastery = {
@@ -314,9 +329,11 @@ function normalizePuzzle(
  solutionLine,
  userMoveIndexes,
  chunkNumber,
- chunkIndex,
- rating: raw.rating,
- }
+  chunkIndex,
+  rating: raw.rating,
+  sourceTheme: raw.sourceThemeTag || raw.sourceTheme || raw.sourceThemeKeys?.[0] || raw.sourceThemes?.[0] || raw.themes?.[0] || raw.theme || 'tactic',
+  sourceIdentity: String(raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
+  }
 }
 
 function getMoveHighlightStyles(moveUci: string | null) {
@@ -434,6 +451,7 @@ export default function PatternTacticTrainer({
  config: PatternTacticTrainerConfig
 }) {
  const trainerExplanation = config.explanationKey ? siteExplanations[config.explanationKey] : null
+ const isMixedPatternTactic = /^tactic-mixed-m[1-4]$/.test(config.trainerKey)
 
  const containerRef = useRef<HTMLDivElement | null>(null)
  const autoNextTimerRef = useRef<number | null>(null)
@@ -471,6 +489,7 @@ export default function PatternTacticTrainer({
 
  const [chunkFiles, setChunkFiles] = useState<string[]>([])
  const [currentChunkIndex, setCurrentChunkIndex] = useState(0)
+ const mixedSessionIdRef = useRef<string | null>(null)
 
  const [puzzles, setPuzzles] = useState<PatternTacticPuzzle[]>([])
  const [loading, setLoading] = useState(true)
@@ -792,6 +811,33 @@ export default function PatternTacticTrainer({
  throw new Error(`No valid puzzles found in ${fileName}`)
  }
 
+ const mixedSessionId = `${config.trainerKey}:${fileName}`
+ const sessionPuzzles = isMixedPatternTactic
+ ? (() => {
+ const candidates: MixedSessionCandidate<PatternTacticPuzzle>[] = normalized.map((puzzle) => {
+ const canonicalIdentity = createCanonicalExerciseIdentity({
+ fen: puzzle.fen,
+ preMove: puzzle.preMove,
+ objective: config.trainerKey,
+ solutionLine: puzzle.solutionLine,
+ sourceIdentity: puzzle.sourceIdentity ?? puzzle.id,
+ })
+ return {
+ item: { ...puzzle, canonicalIdentity },
+ theme: puzzle.sourceTheme ?? puzzle.theme,
+ canonicalIdentity,
+ stableId: puzzle.id,
+ }
+ })
+ const plan = getOrCreateMixedSessionPlan(candidates, {
+ sessionId: mixedSessionId,
+ recentlySeenCanonicalIdentities: getRecentMixedCanonicalIdentities(mixedSessionId),
+ })
+ mixedSessionIdRef.current = mixedSessionId
+ return plan.items
+ })()
+ : normalized
+
  const saved = getSavedState(storageKey)
  const savedProgress = saved.chunkProgressByFile[fileName] || []
 
@@ -863,7 +909,7 @@ export default function PatternTacticTrainer({
  }
  }
 
- let restoredChunkProgress = normalized.map((puzzle, i) => {
+ let restoredChunkProgress = sessionPuzzles.map((puzzle, i) => {
  const localValue = savedProgress[i] ?? 0
  const supaValue = supaProgress[puzzle.id] ?? 0
 
@@ -901,7 +947,7 @@ export default function PatternTacticTrainer({
  } else {
  const clamped = Math.max(
  0,
- Math.min(normalized.length - 1, desiredPuzzleIndex)
+ Math.min(sessionPuzzles.length - 1, desiredPuzzleIndex)
  )
  if (
  (restoredChunkProgress[clamped]?.fastSolves ?? 0) >=
@@ -920,10 +966,10 @@ export default function PatternTacticTrainer({
  advanceUserMoveIndex(0)
  setCurrentChunkIndex(chunkIndex)
  setJumpChunkInput(String(chunkIndex + 1))
- setPuzzles(normalized)
+ setPuzzles(sessionPuzzles)
  setChunkProgress(restoredChunkProgress)
 
- const initialPuzzle = normalized[desiredPuzzleIndex]
+ const initialPuzzle = sessionPuzzles[desiredPuzzleIndex]
  if (initialPuzzle) {
  loadPuzzleImmediate(
  initialPuzzle,
@@ -1203,6 +1249,17 @@ export default function PatternTacticTrainer({
  fileNameOverride?: string
  ) {
  clearTimers()
+ // Focused trainers retain their normal ordering; this lightweight history
+ // record only helps a later mixed session avoid an immediate source repeat.
+ const servedSessionId = mixedSessionIdRef.current ?? `${config.trainerKey}:${fileNameOverride ?? currentChunkFileName}`
+ const canonicalIdentity = puzzle.canonicalIdentity ?? createCanonicalExerciseIdentity({
+ fen: puzzle.fen,
+ preMove: puzzle.preMove,
+ objective: config.trainerKey,
+ solutionLine: puzzle.solutionLine,
+ sourceIdentity: puzzle.sourceIdentity ?? puzzle.id,
+ })
+ recordMixedCanonicalIdentity(servedSessionId, canonicalIdentity)
 
  advanceUserMoveIndex(0)
 
