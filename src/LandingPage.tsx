@@ -217,21 +217,6 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  >
  {user ? 'Start Auto Training' : 'Create Free Account'}
  </button>
- <button
- onClick={() => navigate('/sample-training')}
- style={{
- padding: '14px 22px',
- borderRadius: 999,
- background: 'transparent',
- color: 'var(--theme-text)',
- border: '1px solid var(--theme-border)',
- fontSize: 16,
- fontWeight: 800,
- cursor: 'pointer',
- }}
- >
- Try a 2-minute training session
- </button>
  </div>
  </div>
 
