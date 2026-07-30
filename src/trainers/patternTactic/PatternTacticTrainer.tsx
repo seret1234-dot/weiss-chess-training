@@ -37,6 +37,17 @@ import {
  recordMixedCanonicalIdentity,
  type MixedSessionCandidate,
 } from "../../training/mixedSessionSelector"
+import {
+ MIXED_SESSION_SIZE,
+ formatMixedThemeName,
+ normaliseMixedThemeKey,
+ readRememberedMixedScope,
+ rememberMixedScope,
+ themesForMixedScope,
+ type MixedSessionScope,
+} from "../../training/mixedSessionScope"
+import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
+import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 
 type ManifestFile = {
  category?: string
@@ -47,6 +58,7 @@ type ManifestFile = {
  totalChunks?: number
  files?: string[]
  note?: string
+ sourceThemes?: string[]
 }
 
 type LichessChunkPuzzle = {
@@ -483,9 +495,15 @@ export default function PatternTacticTrainer({
  : null
 
  const manifestFetchPath = `${config.dataBasePath}/manifest.json`
- const storageKey = getStorageKey(config.trainerKey)
-
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+ const [mixedScope, setMixedScope] = useState<MixedSessionScope>(() => readRememberedMixedScope(config.trainerKey))
+ const [mixedScopeConfirmed, setMixedScopeConfirmed] = useState(!isMixedPatternTactic)
+ const [mixedAvailableThemes, setMixedAvailableThemes] = useState<string[]>([])
+ const [mixedCurriculum, setMixedCurriculum] = useState<CurriculumState | null>(null)
+ const [mixedSessionThemes, setMixedSessionThemes] = useState<string[]>([])
+ const storageKey = getStorageKey(
+  isMixedPatternTactic ? `${config.trainerKey}:mixed-v2:${mixedScope}` : config.trainerKey
+ )
 
  const [chunkFiles, setChunkFiles] = useState<string[]>([])
  const [currentChunkIndex, setCurrentChunkIndex] = useState(0)
@@ -578,6 +596,26 @@ export default function PatternTacticTrainer({
  listener.subscription.unsubscribe()
  }
  }, [])
+
+ useEffect(() => {
+  if (!isMixedPatternTactic || !currentUserId) {
+   setMixedCurriculum(null)
+   return
+  }
+
+  let cancelled = false
+  void readCurriculumState(currentUserId)
+   .then((state) => {
+    if (!cancelled) setMixedCurriculum(state?.curriculum ?? null)
+   })
+   .catch(() => {
+    if (!cancelled) setMixedCurriculum(null)
+   })
+
+  return () => {
+   cancelled = true
+  }
+ }, [currentUserId, isMixedPatternTactic])
 
  async function ensureChunkExists(userId: string, chunkNumber = 1) {
  try {
@@ -793,15 +831,14 @@ export default function PatternTacticTrainer({
  setLoadError('')
 
  try {
- const res = await fetch(`${config.dataBasePath}/${fileName}`)
- if (!res.ok) {
- throw new Error(`HTTP ${res.status}`)
- }
-
- const data = (await res.json()) as
- | LichessChunkPuzzle[]
- | { puzzles?: LichessChunkPuzzle[] }
- const rawList = Array.isArray(data) ? data : data.puzzles || []
+ const sourceFiles = isMixedPatternTactic ? files : [fileName]
+ const sourceLists = await Promise.all(sourceFiles.map(async (sourceFile) => {
+  const res = await fetch(`${config.dataBasePath}/${sourceFile}`)
+  if (!res.ok) throw new Error(`HTTP ${res.status} while loading ${sourceFile}`)
+  const data = (await res.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
+  return Array.isArray(data) ? data : data.puzzles || []
+ }))
+ const rawList = sourceLists.flat()
 
  const normalized = rawList
  .map((item, index) => normalizePuzzle(item, index))
@@ -811,7 +848,7 @@ export default function PatternTacticTrainer({
  throw new Error(`No valid puzzles found in ${fileName}`)
  }
 
- const mixedSessionId = `${config.trainerKey}:${fileName}`
+ const mixedSessionId = `v2:${config.trainerKey}:${mixedScope}:${fileName}`
  const sessionPuzzles = isMixedPatternTactic
  ? (() => {
  const candidates: MixedSessionCandidate<PatternTacticPuzzle>[] = normalized.map((puzzle) => {
@@ -824,15 +861,25 @@ export default function PatternTacticTrainer({
  })
  return {
  item: { ...puzzle, canonicalIdentity },
- theme: puzzle.sourceTheme ?? puzzle.theme,
+ theme: normaliseMixedThemeKey(puzzle.sourceTheme ?? puzzle.theme, "tactics"),
  canonicalIdentity,
  stableId: puzzle.id,
  }
  })
  const plan = getOrCreateMixedSessionPlan(candidates, {
  sessionId: mixedSessionId,
+ eligibleThemes: mixedScope === "unlocked"
+  ? themesForMixedScope({
+   area: "tactics",
+   availableThemes: candidates.map((candidate) => candidate.theme),
+   scope: mixedScope,
+   curriculum: mixedCurriculum,
+  })
+  : undefined,
  recentlySeenCanonicalIdentities: getRecentMixedCanonicalIdentities(mixedSessionId),
+ sessionSize: MIXED_SESSION_SIZE,
  })
+ setMixedSessionThemes(Object.keys(plan.themeCounts))
  mixedSessionIdRef.current = mixedSessionId
  return plan.items
  })()
@@ -1058,6 +1105,21 @@ export default function PatternTacticTrainer({
 
  setChunkFiles(files)
 
+ if (isMixedPatternTactic && !mixedScopeConfirmed) {
+  const manifestThemes = manifest.sourceThemes?.length
+   ? manifest.sourceThemes
+   : (await Promise.all(files.map(async (sourceFile) => {
+    const response = await fetch(`${config.dataBasePath}/${sourceFile}`)
+    if (!response.ok) throw new Error(`HTTP ${response.status} while reading mixed theme metadata`)
+    const data = (await response.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
+    const items = Array.isArray(data) ? data : data.puzzles || []
+    return items.flatMap((item) => item.sourceThemeKeys ?? item.sourceThemes ?? [item.sourceTheme ?? item.theme ?? "other"])
+   }))).flat()
+  setMixedAvailableThemes(manifestThemes.map((theme) => normaliseMixedThemeKey(theme, "tactics")))
+  setLoading(false)
+  return
+ }
+
  const saved = getSavedState(storageKey)
 
  let startChunkIndex: number
@@ -1118,7 +1180,11 @@ export default function PatternTacticTrainer({
  currentUserId,
  config.trainerKey,
  forcedChunkIndex,
- ])
+ isMixedPatternTactic,
+ mixedScopeConfirmed,
+ mixedScope,
+ mixedCurriculum,
+])
 
  useEffect(() => {
  function setInitialBoardSize() {
@@ -1927,6 +1993,42 @@ function onSquareClick(square: string) {
  }
  : null
 
+ const unlockedMixedThemes = themesForMixedScope({
+  area: "tactics",
+  availableThemes: mixedAvailableThemes,
+  scope: "unlocked",
+  curriculum: mixedCurriculum,
+ })
+ const beginMixedScope = (scope: MixedSessionScope) => {
+  setMixedScope(scope)
+  rememberMixedScope(config.trainerKey, scope)
+  setMixedScopeConfirmed(true)
+ }
+
+ if (isMixedPatternTactic && !mixedScopeConfirmed && chunkFiles.length > 0) {
+  const unlockedLabel = unlockedMixedThemes.length
+   ? unlockedMixedThemes.map(formatMixedThemeName).join(", ")
+   : "No focused themes are unlocked yet"
+  const allLabel = mixedAvailableThemes.map(formatMixedThemeName).join(", ")
+  return (
+   <main style={{ minHeight: "100dvh", background: "#161512", color: "#f3f3f3", padding: "max(24px, 6vh) 20px 120px", fontFamily: "Arial, sans-serif" }}>
+    <section style={{ maxWidth: 620, margin: "0 auto", background: "#292622", border: "1px solid #514b43", borderRadius: 14, padding: 24 }}>
+     <h1 style={{ marginTop: 0 }}>{config.trainerTitle}</h1>
+     <p style={{ lineHeight: 1.5 }}>Choose the themes for this mixed session. Theme rotation and canonical-puzzle deduplication apply in both modes.</p>
+     <div style={{ display: "grid", gap: 12 }}>
+      <button type="button" disabled={!unlockedMixedThemes.length} onClick={() => beginMixedScope("unlocked")} style={{ padding: 14, textAlign: "left", cursor: unlockedMixedThemes.length ? "pointer" : "not-allowed" }}>
+       <strong>Unlocked review</strong><br />{unlockedLabel}
+      </button>
+      <button type="button" onClick={() => beginMixedScope("all")} style={{ padding: 14, textAlign: "left", cursor: "pointer" }}>
+       <strong>Practice all themes</strong><br />{allLabel}
+      </button>
+     </div>
+     <p style={{ marginBottom: 0, color: "#c7c0b5", fontSize: 14 }}>All-theme practice is non-curriculum review: it does not unlock focused themes, raise a difficulty ceiling, or award focused-theme mastery.</p>
+    </section>
+   </main>
+  )
+ }
+
  if (loading) {
  return (
  <div
@@ -1968,7 +2070,9 @@ function onSquareClick(square: string) {
  return (
  <TrainerShell
  title={config.trainerTitle}
- subtitle={currentChunkFileName || 'chunk'}
+ subtitle={isMixedPatternTactic && mixedSessionThemes.length
+  ? `${mixedScope === "unlocked" ? "Unlocked review" : "All-theme practice"}: ${mixedSessionThemes.map(formatMixedThemeName).join(", ")}`
+  : currentChunkFileName || 'chunk'}
  boardSize={boardSize}
  isDragging={isDragging}
  isHandleHovered={isHandleHovered}

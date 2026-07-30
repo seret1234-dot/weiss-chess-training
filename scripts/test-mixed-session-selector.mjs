@@ -60,6 +60,7 @@ function rawCandidate(raw, family, selector) {
 try {
   const selector = await vite.ssrLoadModule("/src/training/mixedSessionSelector.ts")
   const curriculum = await vite.ssrLoadModule("/src/training/curriculum/selectCurriculumItem.ts")
+  const scope = await vite.ssrLoadModule("/src/training/mixedSessionScope.ts")
 
   const fourThemes = ["back-rank", "anastasia", "arabian", "boden"].flatMap((theme) =>
     Array.from({ length: 5 }, (_, index) => candidate(theme, index)),
@@ -83,6 +84,34 @@ try {
   })
   assert(locked.orderedCandidates.every((entry) => entry.theme === "back-rank" || entry.theme === "arabian"), "locked themes never enter the selected session")
   assertRotation(locked, 2)
+
+  const unlockedScopeThemes = scope.themesForMixedScope({
+    area: "mates",
+    availableThemes: ["Back Rank", "Arabian", "Anastasia", "Boden"],
+    scope: "unlocked",
+    curriculum: {
+      rating: 700,
+      themeMastery: { mates: { "back-rank": { mastered: true }, arabian: { mastered: true } } },
+    },
+  })
+  assert.deepEqual(unlockedScopeThemes, ["back-rank", "arabian"], "default scope includes every available unlocked theme and excludes locked themes")
+  const allScopeThemes = scope.themesForMixedScope({
+    area: "mates",
+    availableThemes: ["Back Rank", "Arabian", "Anastasia", "Boden"],
+    scope: "all",
+    curriculum: {
+      rating: 700,
+      themeMastery: { mates: { "back-rank": { mastered: true }, arabian: { mastered: true } } },
+    },
+  })
+  assert.deepEqual(allScopeThemes, ["back-rank", "arabian", "anastasia", "boden"], "all-themes practice retains every available theme without changing unlock state")
+  const scopedPlan = selector.planMixedSession(
+    fourThemes.map((entry) => ({ ...entry, theme: scope.normaliseMixedThemeKey(entry.theme, "mates") })),
+    { sessionId: "unlocked-scope", eligibleThemes: unlockedScopeThemes, sessionSize: 20 },
+  )
+  assert.equal(scopedPlan.items.length, 10, "a bounded session gracefully uses all available unlocked candidates")
+  assert(scopedPlan.orderedCandidates.every((entry) => unlockedScopeThemes.includes(entry.theme)), "the trainer-facing eligible list cannot leak locked themes")
+  assertRotation(scopedPlan, 2)
 
   const oneTheme = selector.planMixedSession(Array.from({ length: 4 }, (_, index) => candidate("hook", index)), { sessionId: "one-theme" })
   assert.equal(oneTheme.items.length, 4, "a one-theme pool remains usable")
@@ -125,9 +154,28 @@ try {
     }
   }
 
+  const mixedMateManifest = JSON.parse(await readFile(resolve(root, "public/data/pattern-mates/mixed/mate-in-1/manifest.json"), "utf8"))
+  const mixedMateRecords = (await Promise.all(mixedMateManifest.files.map(async (file) => {
+    const raw = JSON.parse(await readFile(resolve(root, `public/data/pattern-mates/mixed/mate-in-1/${file}`), "utf8"))
+    return Array.isArray(raw) ? raw : raw.puzzles ?? []
+  }))).flat()
+  const mixedMateCandidates = mixedMateRecords.map((record) => {
+    const entry = rawCandidate(record, "mates", selector)
+    return { ...entry, theme: scope.normaliseMixedThemeKey(entry.theme, "mates") }
+  })
+  const availableMateThemes = [...new Set(mixedMateCandidates.map((entry) => entry.theme))]
+  assert(availableMateThemes.length >= 8, "the complete active Mixed Mate M1 pool exposes broad source-theme coverage")
+  const allMatePlan = selector.planMixedSession(mixedMateCandidates, {
+    sessionId: "mixed-mate-m1-all-themes",
+    sessionSize: 20,
+  })
+  assert.equal(new Set(allMatePlan.orderedCandidates.slice(0, availableMateThemes.length).map((entry) => entry.theme)).size, availableMateThemes.length, "all active M1 mate themes appear before repetition in all-themes mode")
+  assertRotation(allMatePlan, availableMateThemes.length)
+
   console.log("PASS: deterministic mixed-theme rotation, balance, canonical recency, and one/two-theme fallbacks")
   console.log("PASS: every active mixed Pattern Mate and Pattern Tactic chunk can be reordered without duplicate canonical exercises")
   console.log("PASS: curriculum ceilings remain enforced before mixed-session selection")
+  console.log("PASS: unlocked and all-theme scopes preserve eligibility, balance, and deterministic diversity")
   console.log(`EXAMPLE: ${exampleSequence.join(" -> ")}`)
 } finally {
   await vite.close()

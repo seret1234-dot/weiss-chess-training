@@ -39,6 +39,17 @@ import {
  type MixedSessionCandidate,
 } from "../../training/mixedSessionSelector"
 import {
+ MIXED_SESSION_SIZE,
+ formatMixedThemeName,
+ normaliseMixedThemeKey,
+ readRememberedMixedScope,
+ rememberMixedScope,
+ themesForMixedScope,
+ type MixedSessionScope,
+} from "../../training/mixedSessionScope"
+import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
+import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
+import {
   getLegacyCompletionCredit,
   getM1LearnerProgressTrainerKey,
  getPatternMateM1LearnerCurriculum,
@@ -55,6 +66,7 @@ type ManifestFile = {
  totalChunks?: number
  files?: string[]
  note?: string
+ sourceThemes?: string[]
 }
 
 type LichessChunkPuzzle = {
@@ -497,9 +509,15 @@ export default function PatternMateTrainer({
   const progressTrainerKey = getM1LearnerProgressTrainerKey(config.trainerKey)
   const activeDataBasePath = learnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
   const manifestFetchPath = `${activeDataBasePath}/manifest.json`
-  const storageKey = getStorageKey(progressTrainerKey)
-
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [mixedScope, setMixedScope] = useState<MixedSessionScope>(() => readRememberedMixedScope(config.trainerKey))
+  const [mixedScopeConfirmed, setMixedScopeConfirmed] = useState(!isMixedPatternMate)
+  const [mixedAvailableThemes, setMixedAvailableThemes] = useState<string[]>([])
+  const [mixedCurriculum, setMixedCurriculum] = useState<CurriculumState | null>(null)
+  const [mixedSessionThemes, setMixedSessionThemes] = useState<string[]>([])
+  const storageKey = getStorageKey(
+   isMixedPatternMate ? `${progressTrainerKey}:mixed-v2:${mixedScope}` : progressTrainerKey
+  )
 
  const [chunkFiles, setChunkFiles] = useState<string[]>([])
   const [currentChunkIndex, setCurrentChunkIndex] = useState(0)
@@ -598,6 +616,28 @@ export default function PatternMateTrainer({
  listener.subscription.unsubscribe()
  }
  }, [])
+
+ useEffect(() => {
+  if (!isMixedPatternMate || !currentUserId) {
+   setMixedCurriculum(null)
+   return
+  }
+
+  let cancelled = false
+  void readCurriculumState(currentUserId)
+   .then((state) => {
+    if (!cancelled) setMixedCurriculum(state?.curriculum ?? null)
+   })
+   .catch(() => {
+    // A direct mixed route stays available as free practice if curriculum
+    // persistence is temporarily unavailable.
+    if (!cancelled) setMixedCurriculum(null)
+   })
+
+  return () => {
+   cancelled = true
+  }
+ }, [currentUserId, isMixedPatternMate])
 
  async function ensureChunkExists(userId: string, chunkNumber = 1) {
  try {
@@ -819,15 +859,14 @@ function startChunkMasterySave(masteredCount: number) {
  setLoadError('')
 
  try {
-  const res = await fetch(`${activeDataBasePath}/${fileName}`)
- if (!res.ok) {
- throw new Error(`HTTP ${res.status}`)
- }
-
- const data = (await res.json()) as
- | LichessChunkPuzzle[]
- | { puzzles?: LichessChunkPuzzle[] }
- const rawList = Array.isArray(data) ? data : data.puzzles || []
+  const sourceFiles = isMixedPatternMate ? files : [fileName]
+  const sourceLists = await Promise.all(sourceFiles.map(async (sourceFile) => {
+   const res = await fetch(`${activeDataBasePath}/${sourceFile}`)
+   if (!res.ok) throw new Error(`HTTP ${res.status} while loading ${sourceFile}`)
+   const data = (await res.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
+   return Array.isArray(data) ? data : data.puzzles || []
+  }))
+  const rawList = sourceLists.flat()
 
  const normalized = rawList
  .map((item, index) => normalizePuzzle(item, index))
@@ -837,7 +876,7 @@ function startChunkMasterySave(masteredCount: number) {
   throw new Error(`No valid puzzles found in ${fileName}`)
   }
 
-  const mixedSessionId = `${config.trainerKey}:${fileName}`
+  const mixedSessionId = `v2:${config.trainerKey}:${mixedScope}:${fileName}`
   const sessionPuzzles = isMixedPatternMate
   ? (() => {
   const candidates: MixedSessionCandidate<PatternMatePuzzle>[] = normalized.map((puzzle) => {
@@ -850,15 +889,25 @@ function startChunkMasterySave(masteredCount: number) {
   })
   return {
   item: { ...puzzle, canonicalIdentity },
-  theme: puzzle.sourceTheme ?? puzzle.theme,
+  theme: normaliseMixedThemeKey(puzzle.sourceTheme ?? puzzle.theme, "mates"),
   canonicalIdentity,
   stableId: puzzle.id,
   }
   })
   const plan = getOrCreateMixedSessionPlan(candidates, {
   sessionId: mixedSessionId,
+  eligibleThemes: mixedScope === "unlocked"
+   ? themesForMixedScope({
+    area: "mates",
+    availableThemes: candidates.map((candidate) => candidate.theme),
+    scope: mixedScope,
+    curriculum: mixedCurriculum,
+   })
+   : undefined,
   recentlySeenCanonicalIdentities: getRecentMixedCanonicalIdentities(mixedSessionId),
+  sessionSize: MIXED_SESSION_SIZE,
   })
+  setMixedSessionThemes(Object.keys(plan.themeCounts))
   mixedSessionIdRef.current = mixedSessionId
   return plan.items
   })()
@@ -1101,6 +1150,12 @@ function startChunkMasterySave(masteredCount: number) {
 
  setChunkFiles(files)
 
+ if (isMixedPatternMate && !mixedScopeConfirmed) {
+  setMixedAvailableThemes((manifest.sourceThemes ?? []).map((theme) => normaliseMixedThemeKey(theme, "mates")))
+  setLoading(false)
+  return
+ }
+
  const saved = getSavedState(storageKey)
 
  let compatibilityCredit = 0
@@ -1204,7 +1259,11 @@ function startChunkMasterySave(masteredCount: number) {
  forcedChunkIndex,
  forcedLearnerCurriculum,
  learnerCurriculum,
- ])
+ isMixedPatternMate,
+ mixedScopeConfirmed,
+ mixedScope,
+ mixedCurriculum,
+])
 
  useEffect(() => {
  function setInitialBoardSize() {
@@ -1964,6 +2023,42 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }
  : null
 
+ const unlockedMixedThemes = themesForMixedScope({
+  area: "mates",
+  availableThemes: mixedAvailableThemes,
+  scope: "unlocked",
+  curriculum: mixedCurriculum,
+ })
+ const beginMixedScope = (scope: MixedSessionScope) => {
+  setMixedScope(scope)
+  rememberMixedScope(config.trainerKey, scope)
+  setMixedScopeConfirmed(true)
+ }
+
+ if (isMixedPatternMate && !mixedScopeConfirmed && chunkFiles.length > 0) {
+  const unlockedLabel = unlockedMixedThemes.length
+   ? unlockedMixedThemes.map(formatMixedThemeName).join(", ")
+   : "No focused themes are unlocked yet"
+  const allLabel = mixedAvailableThemes.map(formatMixedThemeName).join(", ")
+  return (
+   <main style={{ minHeight: "100dvh", background: "#161512", color: "#f3f3f3", padding: "max(24px, 6vh) 20px 120px", fontFamily: "Arial, sans-serif" }}>
+    <section style={{ maxWidth: 620, margin: "0 auto", background: "#292622", border: "1px solid #514b43", borderRadius: 14, padding: 24 }}>
+     <h1 style={{ marginTop: 0 }}>{config.trainerTitle}</h1>
+     <p style={{ lineHeight: 1.5 }}>Choose the themes for this mixed session. Theme rotation and canonical-puzzle deduplication apply in both modes.</p>
+     <div style={{ display: "grid", gap: 12 }}>
+      <button type="button" disabled={!unlockedMixedThemes.length} onClick={() => beginMixedScope("unlocked")} style={{ padding: 14, textAlign: "left", cursor: unlockedMixedThemes.length ? "pointer" : "not-allowed" }}>
+       <strong>Unlocked review</strong><br />{unlockedLabel}
+      </button>
+      <button type="button" onClick={() => beginMixedScope("all")} style={{ padding: 14, textAlign: "left", cursor: "pointer" }}>
+       <strong>Practice all themes</strong><br />{allLabel}
+      </button>
+     </div>
+     <p style={{ marginBottom: 0, color: "#c7c0b5", fontSize: 14 }}>All-theme practice is non-curriculum review: it does not unlock focused themes, raise a difficulty ceiling, or award focused-theme mastery.</p>
+    </section>
+   </main>
+  )
+ }
+
  if (loading) {
  return (
  <div
@@ -2005,7 +2100,9 @@ return attemptUserMove(sourceSquare, targetSquare, {
  return (
  <TrainerShell
  title={config.trainerTitle}
- subtitle={currentChunkFileName || 'chunk'}
+ subtitle={isMixedPatternMate && mixedSessionThemes.length
+  ? `${mixedScope === "unlocked" ? "Unlocked review" : "All-theme practice"}: ${mixedSessionThemes.map(formatMixedThemeName).join(", ")}`
+  : currentChunkFileName || 'chunk'}
  sidePanelWidth={610}
  maxWidth={1720}
  preventPageScroll

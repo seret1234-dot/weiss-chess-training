@@ -15,6 +15,8 @@ export type MixedSessionPlanOptions = {
   sessionId: string
   eligibleThemes?: readonly string[]
   recentlySeenCanonicalIdentities?: readonly string[]
+  /** A mixed chunk is a session, not the entire source pool. */
+  sessionSize?: number
 }
 
 export type MixedSessionPlan<T> = {
@@ -82,8 +84,9 @@ export function createCanonicalExerciseIdentity(input: {
 function validStoredOrder<T>(
   storedIds: unknown,
   candidates: MixedSessionCandidate<T>[],
+  expectedSize: number,
 ) {
-  if (!Array.isArray(storedIds) || storedIds.length !== candidates.length) return null
+  if (!Array.isArray(storedIds) || storedIds.length !== expectedSize) return null
   const byId = new Map(candidates.map((candidate) => [candidate.canonicalIdentity, candidate]))
   const selected = storedIds.map((identity) => byId.get(String(identity)))
   return selected.every(Boolean) && new Set(storedIds).size === candidates.length
@@ -126,9 +129,10 @@ export function planMixedSession<T>(
   const recentThemes: string[] = []
   const recentlySeen = new Set(options.recentlySeenCanonicalIdentities ?? [])
   const orderedCandidates: MixedSessionCandidate<T>[] = []
-  const maxPerTheme = Math.ceil(remaining.length / Math.max(1, eligibleThemes.length)) + 1
+  const targetSize = Math.min(Math.max(0, options.sessionSize ?? remaining.length), remaining.length)
+  const maxPerTheme = Math.ceil(targetSize / Math.max(1, eligibleThemes.length)) + 1
 
-  while (remaining.length > 0) {
+  while (remaining.length > 0 && orderedCandidates.length < targetSize) {
     const availableThemes = [...new Set(remaining.map((candidate) => candidate.theme))]
     const chooseFrom = (themes: string[]) => themes.filter((theme) => remaining.some((candidate) => candidate.theme === theme))
     let themePool = availableThemes
@@ -174,11 +178,12 @@ export function getOrCreateMixedSessionPlan<T>(
   options: MixedSessionPlanOptions,
 ) {
   const prepared = selectionCandidates(candidates, options)
+  const expectedSize = Math.min(Math.max(0, options.sessionSize ?? prepared.length), prepared.length)
   if (typeof window !== "undefined") {
     try {
       const raw = window.localStorage.getItem(`${PLAN_STORAGE_PREFIX}${options.sessionId}`)
       const stored = raw ? JSON.parse(raw) : null
-      const orderedCandidates = validStoredOrder<T>(stored?.canonicalIdentities, prepared)
+      const orderedCandidates = validStoredOrder<T>(stored?.canonicalIdentities, prepared, expectedSize)
       if (orderedCandidates) {
         return {
           items: orderedCandidates.map((candidate) => candidate.item),
