@@ -1,5 +1,13 @@
 import { getNextDueItem, type NextDueItem } from "../getNextDueItem"
 import { buildAutoTrainingRoute, type AutoTrainingItem } from "../autoTrainingRoute"
+import { supabase } from "../../lib/supabase"
+import {
+  getM1LearnerCompletionByTrainer,
+  getM1LearnerProgressTrainerKey,
+ getPatternMateM1LearnerCurriculum,
+ M1_LEARNER_CURRICULUM_VERSION,
+ PATTERN_MATE_M1_LEARNER_CURRICULA,
+} from "../../trainers/patternMate/m1LearnerCurriculum"
 import {
   getCurriculumSelectionIndex,
   getOrCreateCurriculumState,
@@ -21,6 +29,7 @@ export type CurriculumRuntimeDecision = AutoTrainingItem & {
   curriculumEventKind?: CurriculumRecommendation["kind"]
   curriculumDecisionId?: string
   difficultyCeiling?: number
+  learnerCurriculumVersion?: string | null
   fallbackReason?: string
 }
 
@@ -30,6 +39,44 @@ export type CurriculumRuntimeDependencies = {
   getState?: (userId: string) => Promise<PersistedCurriculum>
   getSelectionIndex?: (userId: string) => Promise<number>
   getLegacyItem?: (userId: string) => Promise<NextDueItem | null>
+  getM1LearnerCompletion?: (userId: string) => Promise<Record<string, { complete: boolean }>>
+}
+
+async function readM1LearnerCompletion(userId: string) {
+  const trainerKeys = PATTERN_MATE_M1_LEARNER_CURRICULA.flatMap((entry) => [
+    entry.trainerKey,
+    getM1LearnerProgressTrainerKey(entry.trainerKey),
+  ])
+  const { data, error } = await supabase
+    .from("user_chunk_progress")
+    .select("trainer_key, chunk_index, is_mastered, mastered_puzzles_count")
+    .eq("user_id", userId)
+    .in("trainer_key", trainerKeys)
+  if (error) throw new Error(`Could not read M1 learner progress: ${error.message}`)
+  return getM1LearnerCompletionByTrainer(data ?? [])
+}
+
+function withM1LearnerCompletion(
+  persisted: PersistedCurriculum,
+  completion: Record<string, { complete: boolean }>,
+): PersistedCurriculum {
+  if (!persisted) return persisted
+  const themeMastery = { ...(persisted.curriculum.themeMastery ?? {}) }
+  const mateThemes = { ...(themeMastery.mates ?? {}) }
+  for (const definition of PATTERN_MATE_M1_LEARNER_CURRICULA) {
+    if (!completion[definition.trainerKey]?.complete) continue
+    mateThemes[definition.theme] = {
+      ...(mateThemes[definition.theme] ?? {}),
+      mastered: true,
+    }
+  }
+  return {
+    ...persisted,
+    curriculum: {
+      ...persisted.curriculum,
+      themeMastery: { ...themeMastery, mates: mateThemes },
+    },
+  }
 }
 
 function labelFor(recommendation: CurriculumRecommendation) {
@@ -54,6 +101,9 @@ export function buildCurriculumDecision(
     curriculumEventKind: recommendation.kind,
     curriculumDecisionId: `v1-${selectionIndex}-${recommendation.trainerKey}-${recommendation.stage}-${recommendation.kind}`,
     difficultyCeiling: recommendation.difficultyCeiling,
+    learnerCurriculumVersion: getPatternMateM1LearnerCurriculum(recommendation.trainerKey)
+      ? M1_LEARNER_CURRICULUM_VERSION
+      : null,
   }
 }
 
@@ -84,12 +134,15 @@ export async function getCurriculumDecisionForUser(
   const getState = dependencies.getState ?? getOrCreateCurriculumState
   const getSelectionIndex = dependencies.getSelectionIndex ?? getCurriculumSelectionIndex
   const getLegacyItem = dependencies.getLegacyItem ?? getNextDueItem
+  const getM1LearnerCompletion = dependencies.getM1LearnerCompletion ?? readM1LearnerCompletion
 
   try {
-    const [persisted, selectionIndex] = await Promise.all([
+    const [persistedState, selectionIndex, m1LearnerCompletion] = await Promise.all([
       getState(userId),
       getSelectionIndex(userId),
+      getM1LearnerCompletion(userId),
     ])
+    const persisted = withM1LearnerCompletion(persistedState, m1LearnerCompletion)
     if (!persisted?.curriculum) throw new Error("Curriculum state was unavailable.")
 
     const recommendation = selectCurriculumItem({

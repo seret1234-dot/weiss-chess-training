@@ -60,6 +60,7 @@ try {
   const decision = await runtime.getCurriculumDecisionForUser("test-user", {
     getState: async () => ({ curriculum: baseState() }),
     getSelectionIndex: async () => 9,
+    getM1LearnerCompletion: async () => ({}),
     getLegacyItem: async () => {
       throw new Error("legacy fallback must not be used for a valid curriculum decision")
     },
@@ -88,6 +89,7 @@ try {
       throw new Error("simulated persistence failure")
     },
     getSelectionIndex: async () => 0,
+    getM1LearnerCompletion: async () => ({}),
     getLegacyItem: async () => {
       legacyReads += 1
       return {

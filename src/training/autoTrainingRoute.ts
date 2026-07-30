@@ -7,6 +7,7 @@ export type AutoTrainingItem = {
  curriculumTheme?: string | null
  curriculumEventKind?: string
  curriculumDecisionId?: string
+ learnerCurriculumVersion?: string | null
 }
 
 function splitRoute(route: string) {
@@ -59,6 +60,7 @@ export function buildAutoTrainingRoute(item: AutoTrainingItem) {
   curriculumTheme: item.curriculumTheme,
   curriculumEventKind: item.curriculumEventKind,
   curriculumDecision: item.curriculumDecisionId,
+  learnerCurriculum: item.learnerCurriculumVersion,
  })
 }
 

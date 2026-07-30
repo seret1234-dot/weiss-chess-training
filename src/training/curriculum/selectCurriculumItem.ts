@@ -10,12 +10,13 @@ import {
   normalizedRating,
 } from "./curriculumPlacement"
 import {
-  getThemeMastery,
+ getThemeMastery,
   getThemeMasteryPercent,
   hasRegressionSignal,
   isMixedUnlocked,
   isStageMastered,
 } from "./curriculumMastery"
+import { getLearnerFacingChunkIndex } from "../../trainers/patternMate/m1LearnerCurriculum"
 import type {
   CurriculumArea,
   CurriculumItem,
@@ -202,7 +203,10 @@ export function selectCurriculumItem(input: CurriculumSelectionInput): Curriculu
       stage: item.stage,
       route: item.route,
       trainerKey: item.trainerKey,
-      chunkIndex: item.chunkIndex,
+      // Narrow M1 learner-facing curricula expose five deterministic chunks.
+      // Their source pools remain available for legacy review, but the same
+      // decision that is displayed to the learner launches one of these five.
+      chunkIndex: getLearnerFacingChunkIndex(item.trainerKey, selectionIndex) ?? item.chunkIndex,
       theme: item.theme ?? null,
       kind: selected.kind,
       explanation: reason,
