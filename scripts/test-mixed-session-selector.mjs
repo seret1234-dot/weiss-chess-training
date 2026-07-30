@@ -61,6 +61,32 @@ try {
   const selector = await vite.ssrLoadModule("/src/training/mixedSessionSelector.ts")
   const curriculum = await vite.ssrLoadModule("/src/training/curriculum/selectCurriculumItem.ts")
   const scope = await vite.ssrLoadModule("/src/training/mixedSessionScope.ts")
+  const route = await vite.ssrLoadModule("/src/training/autoTrainingRoute.ts")
+
+  const localStorageValues = new Map()
+  globalThis.window = {
+    localStorage: {
+      getItem: (key) => localStorageValues.get(key) ?? null,
+      setItem: (key, value) => localStorageValues.set(key, String(value)),
+    },
+  }
+  assert.equal(scope.shouldRevealMixedTheme("identified", false), true, "identified mode exposes the source theme before solving")
+  assert.equal(scope.shouldRevealMixedTheme("blind", false), false, "blind mode does not expose the source theme before solving")
+  assert.equal(scope.shouldRevealMixedTheme("blind", true), true, "blind mode reveals the source theme after an answer or hint")
+  const blindRoute = route.buildAutoTrainingRoute({ route: "/mates/m1/mixed", trainerKey: "mixed-mate-1", mixedPhase: "blind" })
+  assert.match(blindRoute, /mixedPhase=blind/, "mixed phase is preserved in route provenance without a source-theme leak")
+
+  const evidenceTrainer = "mixed-mate-test"
+  assert.equal(scope.getBlindMixedUnlockStatus(evidenceTrainer).unlocked, false, "blind mixed remains locked below the threshold")
+  scope.recordIdentifiedMixedSessionEvidence({ trainerKey: evidenceTrainer, sessionId: "all-themes", scope: "all", phase: "identified", correct: 30, attempts: 30, representedThemes: ["a", "b", "c", "d"] })
+  assert.equal(scope.getBlindMixedUnlockStatus(evidenceTrainer).qualifyingSessions, 0, "all-theme practice cannot unlock curriculum blind mixed")
+  scope.recordIdentifiedMixedSessionEvidence({ trainerKey: evidenceTrainer, sessionId: "too-narrow", scope: "unlocked", phase: "identified", correct: 30, attempts: 30, representedThemes: ["a", "b", "c"] })
+  assert.equal(scope.getBlindMixedUnlockStatus(evidenceTrainer).qualifyingSessions, 0, "sessions with fewer than four eligible themes do not unlock blind mixed")
+  scope.recordIdentifiedMixedSessionEvidence({ trainerKey: evidenceTrainer, sessionId: "qualifying-1", scope: "unlocked", phase: "identified", correct: 24, attempts: 30, representedThemes: ["a", "b", "c", "d"] })
+  scope.recordIdentifiedMixedSessionEvidence({ trainerKey: evidenceTrainer, sessionId: "qualifying-2", scope: "unlocked", phase: "identified", correct: 25, attempts: 30, representedThemes: ["a", "b", "c", "d"] })
+  assert.equal(scope.getBlindMixedUnlockStatus(evidenceTrainer).unlocked, false, "two qualifying identified sessions do not unlock blind mixed")
+  scope.recordIdentifiedMixedSessionEvidence({ trainerKey: evidenceTrainer, sessionId: "qualifying-3", scope: "unlocked", phase: "identified", correct: 26, attempts: 30, representedThemes: ["a", "b", "c", "d"] })
+  assert.equal(scope.getBlindMixedUnlockStatus(evidenceTrainer).unlocked, true, "three qualifying identified sessions unlock blind mixed locally")
 
   const fourThemes = ["back-rank", "anastasia", "arabian", "boden"].flatMap((theme) =>
     Array.from({ length: 5 }, (_, index) => candidate(theme, index)),

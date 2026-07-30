@@ -40,15 +40,23 @@ import {
 } from "../../training/mixedSessionSelector"
 import {
  MIXED_SESSION_SIZE,
+ getBlindMixedUnlockStatus,
  formatMixedThemeName,
  normaliseMixedThemeKey,
+ readRememberedMixedPhase,
  readRememberedMixedScope,
+ recordIdentifiedMixedSessionEvidence,
+ rememberMixedPhase,
  rememberMixedScope,
+ shouldRevealMixedTheme,
  themesForMixedScope,
+ type MixedSessionPhase,
  type MixedSessionScope,
 } from "../../training/mixedSessionScope"
 import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
+import { MATE_THEMES } from "../../training/curriculum/curriculumCatalog"
+import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
 import {
   getLegacyCompletionCredit,
   getM1LearnerProgressTrainerKey,
@@ -501,6 +509,7 @@ export default function PatternMateTrainer({
  : null
  const forcedLearnerCurriculum =
  searchParams.get('learnerCurriculum') === M1_LEARNER_CURRICULUM_VERSION
+ const requestedMixedPhase = searchParams.get("mixedPhase") === "blind" ? "blind" : null
 
   const learnerCurriculum = getPatternMateM1LearnerCurriculum(config.trainerKey)
   const isMixedPatternMate = /^mixed-mate-[1-5]$/.test(config.trainerKey)
@@ -510,11 +519,15 @@ export default function PatternMateTrainer({
   const activeDataBasePath = learnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
   const manifestFetchPath = `${activeDataBasePath}/manifest.json`
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
-  const [mixedScope, setMixedScope] = useState<MixedSessionScope>(() => readRememberedMixedScope(config.trainerKey))
+ const [mixedScope, setMixedScope] = useState<MixedSessionScope>(() => readRememberedMixedScope(config.trainerKey))
+  const [mixedPhase, setMixedPhase] = useState<MixedSessionPhase>(() => requestedMixedPhase ?? readRememberedMixedPhase(config.trainerKey))
   const [mixedScopeConfirmed, setMixedScopeConfirmed] = useState(!isMixedPatternMate)
   const [mixedAvailableThemes, setMixedAvailableThemes] = useState<string[]>([])
   const [mixedCurriculum, setMixedCurriculum] = useState<CurriculumState | null>(null)
   const [mixedSessionThemes, setMixedSessionThemes] = useState<string[]>([])
+  const [blindThemeRevealed, setBlindThemeRevealed] = useState(false)
+  const mixedSessionEvidenceRef = useRef({ attempts: 0, correct: 0, themes: new Set<string>(), recordedPuzzleIds: new Set<string>() })
+  const mixedPuzzleNeededHelpRef = useRef(false)
   const storageKey = getStorageKey(
    isMixedPatternMate ? `${progressTrainerKey}:mixed-v2:${mixedScope}` : progressTrainerKey
   )
@@ -876,7 +889,7 @@ function startChunkMasterySave(masteredCount: number) {
   throw new Error(`No valid puzzles found in ${fileName}`)
   }
 
-  const mixedSessionId = `v2:${config.trainerKey}:${mixedScope}:${fileName}`
+  const mixedSessionId = `v3:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
   const sessionPuzzles = isMixedPatternMate
   ? (() => {
   const candidates: MixedSessionCandidate<PatternMatePuzzle>[] = normalized.map((puzzle) => {
@@ -908,6 +921,9 @@ function startChunkMasterySave(masteredCount: number) {
   sessionSize: MIXED_SESSION_SIZE,
   })
   setMixedSessionThemes(Object.keys(plan.themeCounts))
+  if (mixedSessionIdRef.current !== mixedSessionId) {
+   mixedSessionEvidenceRef.current = { attempts: 0, correct: 0, themes: new Set<string>(), recordedPuzzleIds: new Set<string>() }
+  }
   mixedSessionIdRef.current = mixedSessionId
   return plan.items
   })()
@@ -1438,6 +1454,8 @@ useEffect(() => {
  setSelectedSquare(null)
  setLegalTargets([])
  setSolved(false)
+ setBlindThemeRevealed(false)
+ mixedPuzzleNeededHelpRef.current = false
  setHintMoveUci(null)
  setPhase('solving')
 
@@ -1539,6 +1557,18 @@ useEffect(() => {
  await startChunkMasterySave(latestProgress.length)
  }
 
+ if (isMixedPatternMate) {
+  recordIdentifiedMixedSessionEvidence({
+   trainerKey: config.trainerKey,
+   sessionId: mixedSessionIdRef.current ?? `v3:${config.trainerKey}:${mixedScope}:${mixedPhase}:${currentChunkFileName}`,
+   scope: mixedScope,
+   phase: mixedPhase,
+   correct: mixedSessionEvidenceRef.current.correct,
+   attempts: mixedSessionEvidenceRef.current.attempts,
+   representedThemes: [...mixedSessionEvidenceRef.current.themes],
+  })
+ }
+
  window.location.assign('/auto')
  }
 
@@ -1595,6 +1625,16 @@ useEffect(() => {
  setGameAndBoardFen(solvedGame)
  setDisplayTurn(solvedGame.turn())
  setSolved(true)
+ if (isMixedPatternMate) {
+  setBlindThemeRevealed(true)
+  const evidence = mixedSessionEvidenceRef.current
+  if (!evidence.recordedPuzzleIds.has(currentPuzzle.id)) {
+   evidence.recordedPuzzleIds.add(currentPuzzle.id)
+   evidence.attempts += 1
+   if (!mixedPuzzleNeededHelpRef.current) evidence.correct += 1
+   evidence.themes.add(normaliseMixedThemeKey(currentPuzzle.sourceTheme ?? currentPuzzle.theme, "mates"))
+  }
+ }
  setBoardLocked(true)
  setSelectedSquare(null)
  setLegalTargets([])
@@ -1785,6 +1825,10 @@ useEffect(() => {
  }
 
  setPhase('wrong')
+ if (isMixedPatternMate) {
+  mixedPuzzleNeededHelpRef.current = true
+  setBlindThemeRevealed(true)
+ }
  setWrongBoardMessage(isStalemateWrong ? wrongMoveMessage : null)
  if (isStalemateWrong) {
  window.setTimeout(() => {
@@ -1922,6 +1966,10 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }
 
  const currentPuzzleFastSolves = chunkProgress[currentIndex]?.fastSolves ?? 0
+ const currentMixedSourceTheme = currentPuzzle
+  ? formatMixedThemeName(normaliseMixedThemeKey(currentPuzzle.sourceTheme ?? currentPuzzle.theme, "mates"))
+  : ""
+ const showMixedTheme = isMixedPatternMate && shouldRevealMixedTheme(mixedPhase, blindThemeRevealed)
  const totalFastSolves = chunkProgress.reduce((sum, item) => sum + item.fastSolves, 0)
  const currentChunkTarget = Math.max(1, puzzles.length) * FAST_SOLVES_TO_MASTER
  const chunkPercent =
@@ -2023,15 +2071,26 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }
  : null
 
- const unlockedMixedThemes = themesForMixedScope({
+ const curriculumMixedUnlocked = mixedCurriculum
+  ? isMixedUnlocked("mates", [...MATE_THEMES], mixedCurriculum)
+  : false
+ const unlockedMixedThemes = curriculumMixedUnlocked ? themesForMixedScope({
   area: "mates",
   availableThemes: mixedAvailableThemes,
   scope: "unlocked",
   curriculum: mixedCurriculum,
- })
- const beginMixedScope = (scope: MixedSessionScope) => {
+ }) : []
+ const blindMixedUnlock = getBlindMixedUnlockStatus(config.trainerKey)
+ const beginMixedScope = (scope: MixedSessionScope, phase: MixedSessionPhase) => {
+  if (scope === "unlocked" && phase === "blind" && !blindMixedUnlock.unlocked) return
   setMixedScope(scope)
+  setMixedPhase(phase)
   rememberMixedScope(config.trainerKey, scope)
+  rememberMixedPhase(config.trainerKey, phase)
+  const params = new URLSearchParams(window.location.search)
+  params.set("mixedScope", scope)
+  params.set("mixedPhase", phase)
+  window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}${window.location.hash}`)
   setMixedScopeConfirmed(true)
  }
 
@@ -2044,13 +2103,20 @@ return attemptUserMove(sourceSquare, targetSquare, {
    <main style={{ minHeight: "100dvh", background: "#161512", color: "#f3f3f3", padding: "max(24px, 6vh) 20px 120px", fontFamily: "Arial, sans-serif" }}>
     <section style={{ maxWidth: 620, margin: "0 auto", background: "#292622", border: "1px solid #514b43", borderRadius: 14, padding: 24 }}>
      <h1 style={{ marginTop: 0 }}>{config.trainerTitle}</h1>
-     <p style={{ lineHeight: 1.5 }}>Choose the themes for this mixed session. Theme rotation and canonical-puzzle deduplication apply in both modes.</p>
+     <p style={{ lineHeight: 1.5 }}>Choose a theme scope and difficulty phase. Theme rotation and canonical-puzzle deduplication apply in both modes.</p>
      <div style={{ display: "grid", gap: 12 }}>
-      <button type="button" disabled={!unlockedMixedThemes.length} onClick={() => beginMixedScope("unlocked")} style={{ padding: 14, textAlign: "left", cursor: unlockedMixedThemes.length ? "pointer" : "not-allowed" }}>
-       <strong>Unlocked review</strong><br />{unlockedLabel}
+      <button type="button" disabled={!unlockedMixedThemes.length} onClick={() => beginMixedScope("unlocked", "identified")} style={{ padding: 14, textAlign: "left", cursor: unlockedMixedThemes.length ? "pointer" : "not-allowed" }}>
+       <strong>Identified mixed</strong><br />Unlocked review: {unlockedLabel}<br /><span>Theme shown before each puzzle</span>
       </button>
-      <button type="button" onClick={() => beginMixedScope("all")} style={{ padding: 14, textAlign: "left", cursor: "pointer" }}>
-       <strong>Practice all themes</strong><br />{allLabel}
+      <button type="button" disabled={!unlockedMixedThemes.length || !blindMixedUnlock.unlocked} onClick={() => beginMixedScope("unlocked", "blind")} style={{ padding: 14, textAlign: "left", cursor: unlockedMixedThemes.length && blindMixedUnlock.unlocked ? "pointer" : "not-allowed" }}>
+       <strong>Blind mixed</strong><br />Unlocked review: theme hidden until after your answer<br />
+       {!blindMixedUnlock.unlocked && <span>Unlock by completing identified mixed with 80% accuracy in 3 sessions ({blindMixedUnlock.qualifyingSessions}/3 temporary device-local sessions).</span>}
+      </button>
+      <button type="button" onClick={() => beginMixedScope("all", "identified")} style={{ padding: 14, textAlign: "left", cursor: "pointer" }}>
+       <strong>Practice all themes — identified</strong><br />{allLabel}
+      </button>
+      <button type="button" onClick={() => beginMixedScope("all", "blind")} style={{ padding: 14, textAlign: "left", cursor: "pointer" }}>
+       <strong>Practice all themes — blind</strong><br />Theme hidden until after your answer
       </button>
      </div>
      <p style={{ marginBottom: 0, color: "#c7c0b5", fontSize: 14 }}>All-theme practice is non-curriculum review: it does not unlock focused themes, raise a difficulty ceiling, or award focused-theme mastery.</p>
@@ -2100,7 +2166,9 @@ return attemptUserMove(sourceSquare, targetSquare, {
  return (
  <TrainerShell
  title={config.trainerTitle}
- subtitle={isMixedPatternMate && mixedSessionThemes.length
+ subtitle={isMixedPatternMate && mixedPhase === "blind"
+  ? `${mixedScope === "unlocked" ? "Unlocked" : "All-theme"} blind mixed review`
+  : isMixedPatternMate && mixedSessionThemes.length
   ? `${mixedScope === "unlocked" ? "Unlocked review" : "All-theme practice"}: ${mixedSessionThemes.map(formatMixedThemeName).join(", ")}`
   : currentChunkFileName || 'chunk'}
  sidePanelWidth={610}
@@ -2345,6 +2413,12 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <PanelCard>
  <SectionTitle>This puzzle</SectionTitle>
 
+ {isMixedPatternMate && (
+ <div role="status" aria-live="polite" style={{ marginBottom: 10, fontWeight: 800, color: showMixedTheme ? '#f2c14e' : '#c5c5c5' }}>
+ {showMixedTheme ? `Theme: ${currentMixedSourceTheme}` : 'Blind mixed — theme revealed after your answer'}
+ </div>
+ )}
+
  <div
  style={{
  display: 'grid',
@@ -2498,6 +2572,10 @@ return attemptUserMove(sourceSquare, targetSquare, {
  return uci ? { from: uci.slice(0, 2), to: uci.slice(2, 4) } : null
  }}
  onHintStage={(move, stage) => {
+ if (isMixedPatternMate) {
+  mixedPuzzleNeededHelpRef.current = true
+  setBlindThemeRevealed(true)
+ }
  setHintMoveUci(stage === 'square' ? `${move.from}${move.to}` : null)
  setMessage(
  stage === 'piece'
