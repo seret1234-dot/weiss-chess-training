@@ -11,6 +11,9 @@ const themes = [
   "boden",
   "smothered",
   "hook",
+  "kill-box",
+  "dovetail",
+  "double-bishop",
 ]
 
 function uciMove(game, uci) {
@@ -128,6 +131,11 @@ for (const theme of themes) {
   lines.push(`## ${theme.replaceAll("-", " ")} M1`, "")
   lines.push(`- Retained: **${records.length}** exercises across **${manifest.files.length}** learner chunks.`)
   lines.push(`- Source manifest: \`${manifest.sourceManifest}\`.`)
+  if (manifest.sourceStatistics) {
+    const stats = manifest.sourceStatistics
+    lines.push(`- Source positions: **${stats.sourcePositions}**; exact-FEN unique: **${stats.exactFenUnique}**; pedagogical families: **${stats.pedagogicalFamilyCount}**; retained families: **${stats.retainedFamilyCount}**.`)
+    lines.push(`- Largest source families: ${(stats.largestPedagogicalFamilies ?? []).slice(0, 3).map((entry) => `${entry.sourcePositions}×`).join(", ") || "n/a"}.`)
+  }
   lines.push("")
 
   for (const file of manifest.files) {
@@ -145,10 +153,16 @@ for (const theme of themes) {
     const summary = (counts) => [...counts.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([tag, count]) => `${tag.replace(/^[^:]+:/, "")}: ${count}`).join("; ")
     lines.push(`### Learner chunk ${Number(file.match(/\d+/)?.[0] ?? 0)}`, "")
     lines.push(`- Exercises: ${puzzles.length}; regions: ${summary(tagCounts)}; attackers: ${summary(attackerCounts)}.`, "")
-    lines.push("| # | Source chunk / index | Starting FEN | Expected move / solution | Canonical identity | Structural-diversity tags |", "|---:|---|---|---|---|---|")
+    lines.push("| # | Source chunk / index | Starting FEN | Expected move / solution | Canonical identity | Pedagogical family | Symmetry | Structural-diversity tags | Retention reason |", "|---:|---|---|---|---|---|---|---|---|")
     puzzles.forEach((puzzle, index) => {
-      const source = `${puzzle.chunk ?? "?"} / ${(puzzle.chunkIndex ?? puzzle.positionInChunk ?? "?") + (puzzle.chunkIndex == null ? 0 : 1)}`
-      lines.push(`| ${index + 1} | ${markdownCell(source)} | \`${markdownCell(puzzle.fen)}\` | \`${markdownCell(expectedLine(puzzle).join(" "))}\` | \`${markdownCell(canonicalIdentity(puzzle))}\` | ${markdownCell(structuralTags(puzzle).join("; "))} |`)
+      const learner = puzzle.learnerCurriculum ?? {}
+      const sourceChunk = learner.sourceChunkIndex ?? (puzzle.chunkNumber != null ? Number(puzzle.chunkNumber) - 1 : puzzle.chunk)
+      const sourceIndex = learner.sourcePuzzleIndex ?? puzzle.chunkIndex ?? puzzle.positionInChunk
+      const source = `${sourceChunk == null ? "?" : Number(sourceChunk) + 1} / ${sourceIndex == null ? "?" : Number(sourceIndex) + 1}`
+      const family = learner.pedagogicalFamily ?? puzzle.pedagogicalFamily ?? "legacy structural signature"
+      const symmetry = learner.symmetry ?? "n/a"
+      const reason = learner.retainedReason ?? "Committed v1 representative"
+      lines.push(`| ${index + 1} | ${markdownCell(source)} | \`${markdownCell(puzzle.fen)}\` | \`${markdownCell(expectedLine(puzzle).join(" "))}\` | \`${markdownCell(learner.canonicalIdentity ?? canonicalIdentity(puzzle))}\` | \`${markdownCell(family)}\` | ${markdownCell(symmetry)} | ${markdownCell((learner.diversityTags ?? structuralTags(puzzle)).join("; "))} | ${markdownCell(reason)} |`)
     })
     lines.push("")
   }

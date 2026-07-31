@@ -18,12 +18,21 @@ export type LegacyChunkProgressLike = {
 
 export type PatternMateM1LearnerCurriculum = {
   trainerKey: string
-  theme: "back-rank" | "anastasia" | "arabian" | "boden" | "smothered" | "hook"
+  theme:
+    | "back-rank"
+    | "anastasia"
+    | "arabian"
+    | "boden"
+    | "smothered"
+    | "hook"
+    | "kill-box"
+    | "dovetail"
+    | "double-bishop"
   sourceDataBasePath: string
   learnerDataBasePath: string
   legacyChunkCount: number
   activeChunkCount: typeof M1_LEARNER_CHUNK_COUNT
-  activeChunkSize: typeof M1_LEARNER_CHUNK_SIZE
+  activeChunkSize: number
 }
 
 const curriculum = [
@@ -81,12 +90,43 @@ const curriculum = [
     activeChunkCount: M1_LEARNER_CHUNK_COUNT,
     activeChunkSize: M1_LEARNER_CHUNK_SIZE,
   },
+  {
+    trainerKey: "kill-box-mate-1",
+    theme: "kill-box",
+    sourceDataBasePath: "/data/pattern-mates/kill-box/mate-in-1",
+    learnerDataBasePath: "/data/learner-curricula/pattern-mates/kill-box-m1-v1",
+    legacyChunkCount: 50,
+    activeChunkCount: M1_LEARNER_CHUNK_COUNT,
+    activeChunkSize: 20,
+  },
+  {
+    trainerKey: "dovetail-mate-1",
+    theme: "dovetail",
+    sourceDataBasePath: "/data/pattern-mates/dovetail/mate-in-1",
+    learnerDataBasePath: "/data/learner-curricula/pattern-mates/dovetail-m1-v1",
+    legacyChunkCount: 50,
+    activeChunkCount: M1_LEARNER_CHUNK_COUNT,
+    activeChunkSize: 20,
+  },
+  {
+    trainerKey: "double-bishop-mate-1",
+    theme: "double-bishop",
+    sourceDataBasePath: "/data/pattern-mates/double-bishop/mate-in-1",
+    learnerDataBasePath: "/data/learner-curricula/pattern-mates/double-bishop-m1-v1",
+    legacyChunkCount: 50,
+    activeChunkCount: M1_LEARNER_CHUNK_COUNT,
+    activeChunkSize: 20,
+  },
 ] as const satisfies readonly PatternMateM1LearnerCurriculum[]
 
 export const PATTERN_MATE_M1_LEARNER_CURRICULA = curriculum
 
 export function getPatternMateM1LearnerCurriculum(trainerKey: string) {
   return curriculum.find((entry) => entry.trainerKey === trainerKey) ?? null
+}
+
+export function getPatternMateM1LearnerCurriculumByTheme(theme: string) {
+  return curriculum.find((entry) => entry.theme === theme) ?? null
 }
 
 /**

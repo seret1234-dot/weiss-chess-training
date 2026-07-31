@@ -56,13 +56,18 @@ try {
     const manifestPath = resolve(root, `public${definition.learnerDataBasePath}/manifest.json`)
     const manifest = JSON.parse(await readFile(manifestPath, "utf8"))
     assert.equal(manifest.files.length, 5, `${definition.theme} exposes five chunks`)
-    assert.equal(manifest.totalPuzzles, 120, `${definition.theme} retains 120 exercises`)
+    assert.equal(
+      manifest.totalPuzzles,
+      definition.activeChunkCount * definition.activeChunkSize,
+      `${definition.theme} retains its configured learner-facing exercise count`,
+    )
 
     const identities = new Set()
     const contentIdentities = new Set()
     for (const file of manifest.files) {
       const data = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}`, file), "utf8"))
-      assert.equal(data.puzzles.length, 24, `${definition.theme}/${file} has 24 exercises`)
+      assert.equal(data.puzzles.length, definition.activeChunkSize, `${definition.theme}/${file} has its configured exercise count`)
+      const chunkFamilies = []
       for (const raw of data.puzzles) {
         const line = solutionLine(raw)
         assert(line.length > 0, `${definition.theme} puzzle has a solution`)
@@ -73,10 +78,19 @@ try {
         const contentKey = contentIdentity(raw)
         assert(!contentIdentities.has(contentKey), `${definition.theme} has no duplicate displayed position and solution`)
         contentIdentities.add(contentKey)
+        if (raw.learnerCurriculum?.pedagogicalFamily) {
+          chunkFamilies.push(raw.learnerCurriculum.pedagogicalFamily)
+        }
+      }
+      if (chunkFamilies.length > 0) {
+        assert.equal(new Set(chunkFamilies).size, chunkFamilies.length, `${definition.theme}/${file} has no repeated pedagogical family when alternatives exist`)
+        for (let index = 1; index < chunkFamilies.length; index += 1) {
+          assert.notEqual(chunkFamilies[index], chunkFamilies[index - 1], `${definition.theme}/${file} has no consecutive equivalent family`)
+        }
       }
     }
-    assert.equal(identities.size, 120)
-    assert.equal(contentIdentities.size, 120)
+    assert.equal(identities.size, definition.activeChunkCount * definition.activeChunkSize)
+    assert.equal(contentIdentities.size, definition.activeChunkCount * definition.activeChunkSize)
 
     const map = overlay.getLegacyChunkCompatibilityMap(definition)
     assert.equal(map.length, definition.legacyChunkCount)
@@ -120,7 +134,7 @@ try {
   assert.match(route, /chunk=0/)
   assert.match(route, /learnerCurriculum=m1-v1/)
 
-  console.log("PASS: six focused M1 themes expose exactly five deterministic 24-exercise chunks")
+  console.log("PASS: nine focused M1 themes expose exactly five deterministic learner-facing chunks")
   console.log("PASS: every active chunk loads, has solutions, and contains no duplicate canonical identity")
   console.log("PASS: every legacy chunk index maps safely, legacy rows are not reused for v1 writes, and five meaningful legacy chunks receive full credit")
   console.log("PASS: Phase 3 runtime launches the matching learner-facing M1 chunk")

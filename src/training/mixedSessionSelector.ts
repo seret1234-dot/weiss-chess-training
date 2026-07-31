@@ -9,6 +9,8 @@ export type MixedSessionCandidate<T> = {
   theme: string
   canonicalIdentity: string
   stableId: string
+  /** Optional chess-aware family used to keep mirrored/equivalent exercises apart. */
+  pedagogicalFamily?: string
 }
 
 export type MixedSessionPlanOptions = {
@@ -127,6 +129,7 @@ export function planMixedSession<T>(
   const eligibleThemes = [...new Set(remaining.map((candidate) => candidate.theme))]
   const themeCounts: Record<string, number> = Object.fromEntries(eligibleThemes.map((theme) => [theme, 0]))
   const recentThemes: string[] = []
+  const recentFamilies: string[] = []
   const recentlySeen = new Set(options.recentlySeenCanonicalIdentities ?? [])
   const orderedCandidates: MixedSessionCandidate<T>[] = []
   const targetSize = Math.min(Math.max(0, options.sessionSize ?? remaining.length), remaining.length)
@@ -155,13 +158,21 @@ export function planMixedSession<T>(
     const selectedTheme = themePool[0] ?? availableThemes[0]
     const themed = remaining.filter((candidate) => candidate.theme === selectedTheme)
     const notRecentlySeen = themed.filter((candidate) => !recentlySeen.has(candidate.canonicalIdentity))
-    const selected = (notRecentlySeen.length > 0 ? notRecentlySeen : themed)
+    const familyEligible = (notRecentlySeen.length > 0 ? notRecentlySeen : themed)
+    const notRecentlyEquivalent = familyEligible.filter((candidate) =>
+      !candidate.pedagogicalFamily || !recentFamilies.includes(candidate.pedagogicalFamily),
+    )
+    const selected = (notRecentlyEquivalent.length > 0 ? notRecentlyEquivalent : familyEligible)
       .sort((left, right) => stableCompare(`${options.sessionId}|${selectedTheme}|${orderedCandidates.length}`, left.stableId, right.stableId))[0]
 
     orderedCandidates.push(selected)
     themeCounts[selectedTheme] += 1
     recentThemes.push(selectedTheme)
     if (recentThemes.length > 3) recentThemes.shift()
+    if (selected.pedagogicalFamily) {
+      recentFamilies.push(selected.pedagogicalFamily)
+      if (recentFamilies.length > 3) recentFamilies.shift()
+    }
     recentlySeen.add(selected.canonicalIdentity)
     remaining.splice(remaining.indexOf(selected), 1)
   }

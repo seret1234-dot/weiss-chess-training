@@ -47,6 +47,7 @@ function rawCandidate(raw, family, selector) {
     item: raw,
     theme,
     stableId: String(raw.id ?? sourceIdentity),
+    pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
     canonicalIdentity: selector.createCanonicalExerciseIdentity({
       fen: raw.fen ?? raw.FEN,
       preMove: raw.preMove,
@@ -62,6 +63,8 @@ try {
   const curriculum = await vite.ssrLoadModule("/src/training/curriculum/selectCurriculumItem.ts")
   const scope = await vite.ssrLoadModule("/src/training/mixedSessionScope.ts")
   const route = await vite.ssrLoadModule("/src/training/autoTrainingRoute.ts")
+  const m1Curriculum = await vite.ssrLoadModule("/src/trainers/patternMate/m1LearnerCurriculum.ts")
+  const patternMateTrainerSource = await readFile(resolve(root, "src/trainers/patternMate/PatternMateTrainer.tsx"), "utf8")
 
   const localStorageValues = new Map()
   globalThis.window = {
@@ -144,6 +147,21 @@ try {
   const twoThemes = selector.planMixedSession([candidate("hook", 1), candidate("hook", 2), candidate("boden", 1), candidate("boden", 2)], { sessionId: "two-theme" })
   assertRotation(twoThemes, 2)
 
+  const familyCandidates = [
+    { ...candidate("arabian", 1), pedagogicalFamily: "family-a" },
+    { ...candidate("back-rank", 1), pedagogicalFamily: "family-a" },
+    { ...candidate("anastasia", 1), pedagogicalFamily: "family-b" },
+    { ...candidate("boden", 1), pedagogicalFamily: "family-c" },
+    { ...candidate("arabian", 2), pedagogicalFamily: "family-d" },
+    { ...candidate("back-rank", 2), pedagogicalFamily: "family-e" },
+  ]
+  const familyPlan = selector.planMixedSession(familyCandidates, { sessionId: "pedagogical-family-rotation", sessionSize: 6 })
+  const families = familyPlan.orderedCandidates.map((entry) => entry.pedagogicalFamily)
+  for (let index = 1; index < families.length; index += 1) {
+    const alternatives = families.slice(index).some((family) => family !== families[index - 1])
+    if (alternatives) assert.notEqual(families[index], families[index - 1], "equivalent mirrored pedagogical families cannot be adjacent when alternatives exist")
+  }
+
   const history = selector.planMixedSession(fourThemes, {
     sessionId: "history-aware",
     recentlySeenCanonicalIdentities: first.orderedCandidates.slice(0, 4).map((entry) => entry.canonicalIdentity),
@@ -198,10 +216,37 @@ try {
   assert.equal(new Set(allMatePlan.orderedCandidates.slice(0, availableMateThemes.length).map((entry) => entry.theme)).size, availableMateThemes.length, "all active M1 mate themes appear before repetition in all-themes mode")
   assertRotation(allMatePlan, availableMateThemes.length)
 
+  const extensionThemes = m1Curriculum.PATTERN_MATE_M1_LEARNER_CURRICULA.filter((definition) =>
+    ["kill-box", "dovetail", "double-bishop"].includes(definition.theme),
+  )
+  assert.equal(extensionThemes.length, 3, "all three extended M1 themes are in the learner curriculum")
+  assert.match(patternMateTrainerSource, /config\.trainerKey === "mixed-mate-1"/, "Mixed M1 has a dedicated learner-pool loader")
+  assert.match(patternMateTrainerSource, /PATTERN_MATE_M1_LEARNER_CURRICULA/, "Mixed M1 loads the versioned learner pools rather than the generated source pool")
+  const curatedCandidates = (await Promise.all(extensionThemes.map(async (definition) => {
+    const manifest = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/manifest.json`), "utf8"))
+    assert.equal(manifest.files.length, 5, `${definition.theme} exposes five learner chunks to mixed practice`)
+    const chunks = await Promise.all(manifest.files.map(async (file) => {
+      const raw = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/${file}`), "utf8"))
+      return (raw.puzzles ?? raw).map((record) => {
+        const entry = rawCandidate(record, "mates", selector)
+        return { ...entry, theme: scope.normaliseMixedThemeKey(entry.theme, "mates") }
+      })
+    }))
+    return chunks.flat()
+  }))).flat()
+  const curatedPlan = selector.planMixedSession(curatedCandidates, { sessionId: "curated-m1-extension", sessionSize: 20 })
+  assertRotation(curatedPlan, 3)
+  const curatedFamilies = curatedPlan.orderedCandidates.map((entry) => entry.pedagogicalFamily)
+  for (let index = 1; index < curatedFamilies.length; index += 1) {
+    const alternatives = curatedFamilies.slice(index).some((family) => family && family !== curatedFamilies[index - 1])
+    if (alternatives) assert.notEqual(curatedFamilies[index], curatedFamilies[index - 1], "curated mixed M1 keeps equivalent families apart when alternatives exist")
+  }
+
   console.log("PASS: deterministic mixed-theme rotation, balance, canonical recency, and one/two-theme fallbacks")
   console.log("PASS: every active mixed Pattern Mate and Pattern Tactic chunk can be reordered without duplicate canonical exercises")
   console.log("PASS: curriculum ceilings remain enforced before mixed-session selection")
   console.log("PASS: unlocked and all-theme scopes preserve eligibility, balance, and deterministic diversity")
+  console.log("PASS: curated M1 learner pools preserve theme rotation and pedagogical-family separation in mixed sessions")
   console.log(`EXAMPLE: ${exampleSequence.join(" -> ")}`)
 } finally {
   await vite.close()

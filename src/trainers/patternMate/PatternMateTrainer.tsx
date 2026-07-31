@@ -62,6 +62,7 @@ import {
   getM1LearnerProgressTrainerKey,
  getPatternMateM1LearnerCurriculum,
  M1_LEARNER_CURRICULUM_VERSION,
+  PATTERN_MATE_M1_LEARNER_CURRICULA,
  resolveLearnerFacingChunkIndex,
 } from "./m1LearnerCurriculum"
 import { acceptsPatternMateMove } from "./m1MateValidation"
@@ -99,6 +100,10 @@ type LichessChunkPuzzle = {
  sourceTheme?: string
  sourceThemeTag?: string
  sourceThemeKeys?: string[]
+ pedagogicalFamily?: string
+ learnerCurriculum?: {
+  pedagogicalFamily?: string
+ }
  puzzleId?: string
  chunk?: number
  chunkNumber?: number
@@ -130,6 +135,7 @@ export type PatternMatePuzzle = {
  sourceTheme?: string
  sourceIdentity?: string
  canonicalIdentity?: string
+ pedagogicalFamily?: string
 }
 
 type PuzzleMastery = {
@@ -361,6 +367,7 @@ function normalizePuzzle(
   rating: raw.rating,
   sourceTheme: raw.sourceThemeTag || raw.sourceTheme || raw.sourceThemeKeys?.[0] || raw.themes?.[0] || raw.theme || 'mate',
   sourceIdentity: String(raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
+  pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
   }
 }
 
@@ -873,13 +880,26 @@ function startChunkMasterySave(masteredCount: number) {
  setLoadError('')
 
  try {
-  const sourceFiles = isMixedPatternMate ? files : [fileName]
-  const sourceLists = await Promise.all(sourceFiles.map(async (sourceFile) => {
-   const res = await fetch(`${activeDataBasePath}/${sourceFile}`)
-   if (!res.ok) throw new Error(`HTTP ${res.status} while loading ${sourceFile}`)
-   const data = (await res.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
-   return Array.isArray(data) ? data : data.puzzles || []
-  }))
+  const sourceLists = isMixedPatternMate && config.trainerKey === "mixed-mate-1"
+   ? await Promise.all(PATTERN_MATE_M1_LEARNER_CURRICULA.map(async (definition) => {
+    const manifestResponse = await fetch(`${definition.learnerDataBasePath}/manifest.json`)
+    if (!manifestResponse.ok) throw new Error(`HTTP ${manifestResponse.status} while loading ${definition.theme} learner manifest`)
+    const learnerManifest = (await manifestResponse.json()) as ManifestFile
+    const learnerFiles = learnerManifest.files ?? []
+    const chunks = await Promise.all(learnerFiles.map(async (learnerFile) => {
+     const response = await fetch(`${definition.learnerDataBasePath}/${learnerFile}`)
+     if (!response.ok) throw new Error(`HTTP ${response.status} while loading ${definition.theme} learner chunk`)
+     const data = (await response.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
+     return Array.isArray(data) ? data : data.puzzles || []
+    }))
+    return chunks.flat()
+   }))
+   : await Promise.all((isMixedPatternMate ? files : [fileName]).map(async (sourceFile) => {
+    const res = await fetch(`${activeDataBasePath}/${sourceFile}`)
+    if (!res.ok) throw new Error(`HTTP ${res.status} while loading ${sourceFile}`)
+    const data = (await res.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
+    return Array.isArray(data) ? data : data.puzzles || []
+   }))
   const rawList = sourceLists.flat()
 
  const normalized = rawList
@@ -890,7 +910,7 @@ function startChunkMasterySave(masteredCount: number) {
   throw new Error(`No valid puzzles found in ${fileName}`)
   }
 
-  const mixedSessionId = `v3:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
+  const mixedSessionId = `v4:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
   const sessionPuzzles = isMixedPatternMate
   ? (() => {
   const candidates: MixedSessionCandidate<PatternMatePuzzle>[] = normalized.map((puzzle) => {
@@ -906,6 +926,7 @@ function startChunkMasterySave(masteredCount: number) {
   theme: normaliseMixedThemeKey(puzzle.sourceTheme ?? puzzle.theme, "mates"),
   canonicalIdentity,
   stableId: puzzle.id,
+  pedagogicalFamily: puzzle.pedagogicalFamily,
   }
   })
   const plan = getOrCreateMixedSessionPlan(candidates, {
