@@ -64,6 +64,7 @@ import {
  M1_LEARNER_CURRICULUM_VERSION,
  resolveLearnerFacingChunkIndex,
 } from "./m1LearnerCurriculum"
+import { acceptsPatternMateMove } from "./m1MateValidation"
 
 type ManifestFile = {
  category?: string
@@ -1796,7 +1797,15 @@ useEffect(() => {
 
  const playedUci = `${move.from}${move.to}${move.promotion ?? ''}`.toLowerCase()
 
- if (playedUci !== expectedUci.toLowerCase()) {
+ // Mate-in-1 is an objective, not a one-line recall drill. The stored move
+ // remains the deterministic hint/reference line, while every legal move
+ // that checkmates from the displayed (post-preMove) position is accepted.
+ if (!acceptsPatternMateMove({
+  trainerKey: config.trainerKey,
+  playedUci,
+  expectedUci,
+  resultingPositionIsCheckmate: testGame.isCheckmate(),
+ })) {
  if (wrongMoveTimerRef.current) {
  window.clearTimeout(wrongMoveTimerRef.current)
  wrongMoveTimerRef.current = null
