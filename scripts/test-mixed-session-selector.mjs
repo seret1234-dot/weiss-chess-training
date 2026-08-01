@@ -229,10 +229,10 @@ try {
     ["kill-box", "dovetail", "double-bishop"].includes(definition.theme),
   )
   assert.equal(extensionThemes.length, 3, "all three extended M1 themes are in the learner curriculum")
-  assert.match(patternMateTrainerSource, /config\.trainerKey === "mixed-mate-1"/, "Mixed M1 has a dedicated learner-pool loader")
+  assert.match(patternMateTrainerSource, /const mixedLearnerCurricula = mixedMateDistance === 1/, "Mixed M1 retains the shared learner-pool loader")
   assert.match(patternMateTrainerSource, /PATTERN_MATE_M1_LEARNER_CURRICULA/, "Mixed M1 loads the versioned learner pools rather than the generated source pool")
   assert.match(patternMateTrainerSource, /canonicalThemeKey: definition\.theme/, "trainer attributes each learner record to its catalog-owned canonical theme")
-  assert.match(patternMateTrainerSource, /PATTERN_MATE_M1_LEARNER_CURRICULA\.map\(\(definition\) => definition\.theme\)/, "scope chooser exposes only catalog-owned M1 themes")
+  assert.match(patternMateTrainerSource, /mixedLearnerCurricula\.map\(\(definition\) => definition\.theme\)/, "scope chooser exposes only catalog-owned themes at every mixed mate distance")
   const curatedCandidates = (await Promise.all(extensionThemes.map(async (definition) => {
     const manifest = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/manifest.json`), "utf8"))
     assert.equal(manifest.files.length, 5, `${definition.theme} exposes five learner chunks to mixed practice`)

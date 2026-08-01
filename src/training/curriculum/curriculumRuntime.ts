@@ -9,6 +9,12 @@ import {
  PATTERN_MATE_M1_LEARNER_CURRICULA,
 } from "../../trainers/patternMate/m1LearnerCurriculum"
 import {
+  getM2ToM5LearnerCompletionByTrainer,
+  getM2ToM5LearnerProgressTrainerKey,
+  getPatternMateM2ToM5LearnerCurriculum,
+  PATTERN_MATE_M2_TO_M5_LEARNER_CURRICULA,
+} from "../../trainers/patternMate/m2toM5LearnerCurriculum"
+import {
   getCurriculumSelectionIndex,
   getOrCreateCurriculumState,
 } from "./curriculumPersistence"
@@ -43,17 +49,26 @@ export type CurriculumRuntimeDependencies = {
 }
 
 async function readM1LearnerCompletion(userId: string) {
-  const trainerKeys = PATTERN_MATE_M1_LEARNER_CURRICULA.flatMap((entry) => [
+  const trainerKeys = [
+    ...PATTERN_MATE_M1_LEARNER_CURRICULA.flatMap((entry) => [
     entry.trainerKey,
     getM1LearnerProgressTrainerKey(entry.trainerKey),
-  ])
+    ]),
+    ...PATTERN_MATE_M2_TO_M5_LEARNER_CURRICULA.flatMap((entry) => [
+      entry.trainerKey,
+      getM2ToM5LearnerProgressTrainerKey(entry),
+    ]),
+  ]
   const { data, error } = await supabase
     .from("user_chunk_progress")
     .select("trainer_key, chunk_index, is_mastered, mastered_puzzles_count")
     .eq("user_id", userId)
     .in("trainer_key", trainerKeys)
-  if (error) throw new Error(`Could not read M1 learner progress: ${error.message}`)
-  return getM1LearnerCompletionByTrainer(data ?? [])
+  if (error) throw new Error(`Could not read Pattern Mate learner progress: ${error.message}`)
+  return {
+    ...getM1LearnerCompletionByTrainer(data ?? []),
+    ...getM2ToM5LearnerCompletionByTrainer(data ?? []),
+  }
 }
 
 function withM1LearnerCompletion(
@@ -64,6 +79,13 @@ function withM1LearnerCompletion(
   const themeMastery = { ...(persisted.curriculum.themeMastery ?? {}) }
   const mateThemes = { ...(themeMastery.mates ?? {}) }
   for (const definition of PATTERN_MATE_M1_LEARNER_CURRICULA) {
+    if (!completion[definition.trainerKey]?.complete) continue
+    mateThemes[definition.theme] = {
+      ...(mateThemes[definition.theme] ?? {}),
+      mastered: true,
+    }
+  }
+  for (const definition of PATTERN_MATE_M2_TO_M5_LEARNER_CURRICULA) {
     if (!completion[definition.trainerKey]?.complete) continue
     mateThemes[definition.theme] = {
       ...(mateThemes[definition.theme] ?? {}),
@@ -87,11 +109,14 @@ export function buildCurriculumDecision(
   recommendation: CurriculumRecommendation,
   selectionIndex: number,
 ): CurriculumRuntimeDecision {
+  const m2ToM5Learner = getPatternMateM2ToM5LearnerCurriculum(recommendation.trainerKey)
   return {
     source: "curriculum",
     route: recommendation.route,
     trainerKey: recommendation.trainerKey,
-    chunkIndex: recommendation.chunkIndex,
+    chunkIndex: m2ToM5Learner
+      ? ((selectionIndex % m2ToM5Learner.activeChunkCount) + m2ToM5Learner.activeChunkCount) % m2ToM5Learner.activeChunkCount
+      : recommendation.chunkIndex,
     label: labelFor(recommendation),
     explanation: recommendation.explanation,
     selectionIndex,
@@ -103,7 +128,7 @@ export function buildCurriculumDecision(
     difficultyCeiling: recommendation.difficultyCeiling,
     learnerCurriculumVersion: getPatternMateM1LearnerCurriculum(recommendation.trainerKey)
       ? M1_LEARNER_CURRICULUM_VERSION
-      : null,
+      : m2ToM5Learner?.version ?? null,
   }
 }
 

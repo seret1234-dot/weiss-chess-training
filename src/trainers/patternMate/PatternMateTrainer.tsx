@@ -67,6 +67,13 @@ import {
   PATTERN_MATE_M1_LEARNER_CURRICULA,
  resolveLearnerFacingChunkIndex,
 } from "./m1LearnerCurriculum"
+import {
+ getM2ToM5LearnerProgressTrainerKey,
+ getM2ToM5LegacyCompletionCredit,
+ getPatternMateM2ToM5LearnerCurriculum,
+ getPatternMateM2ToM5LearnerCurriculaForDistance,
+ resolveM2ToM5LearnerFacingChunkIndex,
+} from "./m2toM5LearnerCurriculum"
 import { acceptsPatternMateMove } from "./m1MateValidation"
 
 type ManifestFile = {
@@ -549,15 +556,30 @@ export default function PatternMateTrainer({
  urlChunkParam !== null && !isNaN(Number(urlChunkParam))
  ? Math.max(0, Number(urlChunkParam))
  : null
- const forcedLearnerCurriculum =
- searchParams.get('learnerCurriculum') === M1_LEARNER_CURRICULUM_VERSION
+ const requestedLearnerCurriculumVersion = searchParams.get('learnerCurriculum')
  const requestedMixedPhase = searchParams.get("mixedPhase") === "blind" ? "blind" : null
 
-  const learnerCurriculum = getPatternMateM1LearnerCurriculum(config.trainerKey)
+  const m1LearnerCurriculum = getPatternMateM1LearnerCurriculum(config.trainerKey)
+  const m2ToM5LearnerCurriculum = getPatternMateM2ToM5LearnerCurriculum(config.trainerKey)
+  const learnerCurriculum = m1LearnerCurriculum ?? m2ToM5LearnerCurriculum
+  const learnerCurriculumVersion = m1LearnerCurriculum
+   ? M1_LEARNER_CURRICULUM_VERSION
+   : m2ToM5LearnerCurriculum?.version ?? null
+  const forcedLearnerCurriculum = requestedLearnerCurriculumVersion === learnerCurriculumVersion
   const isMixedPatternMate = /^mixed-mate-[1-5]$/.test(config.trainerKey)
+  const mixedMateDistance = Number(config.trainerKey.match(/^mixed-mate-([1-5])$/)?.[1] ?? 0)
+  const mixedLearnerCurricula = mixedMateDistance === 1
+   ? PATTERN_MATE_M1_LEARNER_CURRICULA
+   : mixedMateDistance >= 2 && mixedMateDistance <= 5
+    ? getPatternMateM2ToM5LearnerCurriculaForDistance(mixedMateDistance)
+    : []
   // The learner curriculum writes to its own stable namespace. Source-pool
   // progress remains readable for compatibility credit and legacy reviews.
-  const progressTrainerKey = getM1LearnerProgressTrainerKey(config.trainerKey)
+  const progressTrainerKey = m1LearnerCurriculum
+   ? getM1LearnerProgressTrainerKey(config.trainerKey)
+   : m2ToM5LearnerCurriculum
+    ? getM2ToM5LearnerProgressTrainerKey(m2ToM5LearnerCurriculum)
+    : config.trainerKey
   const activeDataBasePath = learnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
   const manifestFetchPath = `${activeDataBasePath}/manifest.json`
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -626,7 +648,9 @@ export default function PatternMateTrainer({
  const currentChunkFileName = chunkFiles[currentChunkIndex] || ''
 
  function resolveActiveChunkIndex(requestedChunkIndex: number, isLearnerFacingRequest = false) {
- return resolveLearnerFacingChunkIndex(requestedChunkIndex, learnerCurriculum, isLearnerFacingRequest)
+ return m2ToM5LearnerCurriculum
+  ? resolveM2ToM5LearnerFacingChunkIndex(requestedChunkIndex, m2ToM5LearnerCurriculum, isLearnerFacingRequest)
+  : resolveLearnerFacingChunkIndex(requestedChunkIndex, m1LearnerCurriculum, isLearnerFacingRequest)
  }
 
  const customPieces = {
@@ -914,8 +938,8 @@ function startChunkMasterySave(masteredCount: number) {
  setLoadError('')
 
  try {
-  const sourceLists = isMixedPatternMate && config.trainerKey === "mixed-mate-1"
-   ? await Promise.all(PATTERN_MATE_M1_LEARNER_CURRICULA.map(async (definition) => {
+  const sourceLists = isMixedPatternMate && mixedLearnerCurricula.length
+   ? await Promise.all(mixedLearnerCurricula.map(async (definition) => {
     const manifestResponse = await fetch(`${definition.learnerDataBasePath}/manifest.json`)
     if (!manifestResponse.ok) throw new Error(`HTTP ${manifestResponse.status} while loading ${definition.theme} learner manifest`)
     const learnerManifest = (await manifestResponse.json()) as ManifestFile
@@ -929,7 +953,7 @@ function startChunkMasterySave(masteredCount: number) {
     return chunks.flat().map((record) => ({
      ...record,
      // The learner manifest defines the focused source collection. Generic
-     // record tags are retained separately and never drive mixed M1 labels.
+     // record tags are retained separately and never drive mixed labels.
      canonicalThemeKey: definition.theme,
      canonicalThemeLabel: getPatternMateM1CanonicalThemeLabel(definition.theme),
     }))
@@ -950,7 +974,7 @@ function startChunkMasterySave(masteredCount: number) {
   throw new Error(`No valid puzzles found in ${fileName}`)
   }
 
-  const mixedSessionId = `v5:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
+  const mixedSessionId = `v6:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
   const sessionPuzzles = isMixedPatternMate
   ? (() => {
   const candidates: MixedSessionCandidate<PatternMatePuzzle>[] = normalized.map((puzzle) => {
@@ -962,8 +986,8 @@ function startChunkMasterySave(masteredCount: number) {
   sourceIdentity: puzzle.sourceIdentity ?? puzzle.id,
   })
   const theme = getMixedPuzzleThemeKey(puzzle)
-  if (config.trainerKey === "mixed-mate-1" && !isPatternMateM1CanonicalTheme(theme)) {
-   throw new Error(`Mixed Mate M1 puzzle ${puzzle.id} has no canonical source theme`)
+  if (isMixedPatternMate && !isPatternMateM1CanonicalTheme(theme)) {
+   throw new Error(`Mixed Mate puzzle ${puzzle.id} has no canonical source theme`)
   }
   return {
   item: { ...puzzle, canonicalIdentity },
@@ -1234,8 +1258,8 @@ function startChunkMasterySave(masteredCount: number) {
 
  if (isMixedPatternMate && !mixedScopeConfirmed) {
   setMixedAvailableThemes(
-   config.trainerKey === "mixed-mate-1"
-    ? PATTERN_MATE_M1_LEARNER_CURRICULA.map((definition) => definition.theme)
+   mixedLearnerCurricula.length
+    ? mixedLearnerCurricula.map((definition) => definition.theme)
     : (manifest.sourceThemes ?? []).map((theme) => normaliseMixedThemeKey(theme, "mates")),
   )
   setLoading(false)
@@ -1255,10 +1279,9 @@ function startChunkMasterySave(masteredCount: number) {
  if (legacyRowsError) {
  console.error('Could not load legacy Pattern Mate completion credit', legacyRowsError)
  } else {
- compatibilityCredit = getLegacyCompletionCredit(
- legacyRows ?? [],
- learnerCurriculum,
- ).completedActiveChunks
+ compatibilityCredit = m2ToM5LearnerCurriculum
+  ? getM2ToM5LegacyCompletionCredit(legacyRows ?? [], m2ToM5LearnerCurriculum).completedActiveChunks
+  : getLegacyCompletionCredit(legacyRows ?? [], m1LearnerCurriculum!).completedActiveChunks
  }
  }
  legacyCompletionCreditRef.current = compatibilityCredit
@@ -1630,7 +1653,7 @@ useEffect(() => {
  if (isMixedPatternMate) {
   recordIdentifiedMixedSessionEvidence({
    trainerKey: config.trainerKey,
-   sessionId: mixedSessionIdRef.current ?? `v5:${config.trainerKey}:${mixedScope}:${mixedPhase}:${currentChunkFileName}`,
+   sessionId: mixedSessionIdRef.current ?? `v6:${config.trainerKey}:${mixedScope}:${mixedPhase}:${currentChunkFileName}`,
    scope: mixedScope,
    phase: mixedPhase,
    correct: mixedSessionEvidenceRef.current.correct,
