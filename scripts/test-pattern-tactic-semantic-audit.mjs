@@ -1,0 +1,23 @@
+import assert from "node:assert/strict"
+import { validateTacticRecord } from "./lib/pattern-tactic-semantic-validator.mjs"
+
+const fork = validateTacticRecord({ fen: "3k4/r7/8/8/1N6/8/8/4K3 w - - 0 1", solutionLine: ["b4c6"] }, "fork-knight")
+assert.equal(fork.status, "VALID", "known knight fork attacks king and rook")
+const falseBishopFork = validateTacticRecord({ fen: "4k3/8/8/8/8/8/2b5/4K3 b - - 0 1", solutionLine: ["c2d3"] }, "fork-bishop")
+assert.equal(falseBishopFork.status, "MISCLASSIFIED", "ordinary bishop move is not a fork")
+const capturedTarget = validateTacticRecord({ fen: "4k3/8/5r2/8/4N3/8/8/4K3 w - - 0 1", solutionLine: ["e4f6"] }, "fork-knight")
+assert.equal(capturedTarget.status, "MISCLASSIFIED", "captured destination piece is not counted as a surviving fork target")
+const absolutePin = validateTacticRecord({ fen: "4k3/4n3/8/8/8/8/4R3/4K3 w - - 0 1", solutionLine: ["e2e3"] }, "pin-rook")
+assert.equal(absolutePin.status, "VALID", "absolute pin passes")
+const ordinaryAttack = validateTacticRecord({ fen: "4k3/8/8/8/8/8/4R3/4K3 w - - 0 1", solutionLine: ["e2e3"] }, "pin-rook")
+assert.equal(ordinaryAttack.status, "MISCLASSIFIED", "ordinary rook attack is not a pin")
+const discoveredCheck = validateTacticRecord({ fen: "4k3/8/8/8/8/8/4B3/4R1K1 w - - 0 1", solutionLine: ["e2b5"] }, "discovered-check")
+assert.equal(discoveredCheck.status, "VALID", "discovered check needs a different revealed piece")
+const queenWorks = validateTacticRecord({ fen: "7k/P7/8/8/8/8/8/4K3 w - - 0 1", solutionLine: ["a7a8n"] }, "underpromotion-knight")
+assert.equal(queenWorks.status, "VALID BUT WEAK", "underpromotion is weak when queen promotion also checks")
+const mating = validateTacticRecord({ fen: "7k/5Q2/6K1/8/8/8/8/8 w - - 0 1", solutionLine: ["f7g7"] }, "mating-tactic")
+assert.equal(mating.status, "VALID", "mating tactic ends in legal mate")
+const deterministicA = JSON.stringify(validateTacticRecord({ fen: "3k4/r7/8/8/1N6/8/8/4K3 w - - 0 1", solutionLine: ["b4c6"] }, "fork-knight"))
+const deterministicB = JSON.stringify(validateTacticRecord({ fen: "3k4/r7/8/8/1N6/8/8/4K3 w - - 0 1", solutionLine: ["b4c6"] }, "fork-knight"))
+assert.equal(deterministicA, deterministicB, "semantic audit is deterministic")
+console.log("PASS: Pattern Tactic semantic validator detects valid and false forks, pins, discovered checks, underpromotions, and mating lines deterministically")
