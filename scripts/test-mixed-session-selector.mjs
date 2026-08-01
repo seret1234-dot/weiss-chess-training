@@ -38,11 +38,11 @@ function assertRotation(plan, eligibleThemeCount) {
   }
 }
 
-function rawCandidate(raw, family, selector) {
+function rawCandidate(raw, family, selector, canonicalThemeKey) {
   const sourceIdentity = String(raw.puzzleId ?? raw.lichessId ?? raw.lichess_id ?? raw.PuzzleId ?? raw.localId ?? raw.id)
-  const theme = family === "mates"
+  const theme = canonicalThemeKey ?? (family === "mates"
     ? raw.sourceThemeTag ?? raw.sourceTheme ?? raw.theme ?? "other"
-    : raw.sourceThemeKeys?.[0] ?? raw.sourceTheme ?? raw.theme ?? "other"
+    : raw.sourceThemeKeys?.[0] ?? raw.sourceTheme ?? raw.theme ?? "other")
   return {
     item: raw,
     theme,
@@ -198,17 +198,26 @@ try {
     }
   }
 
-  const mixedMateManifest = JSON.parse(await readFile(resolve(root, "public/data/pattern-mates/mixed/mate-in-1/manifest.json"), "utf8"))
-  const mixedMateRecords = (await Promise.all(mixedMateManifest.files.map(async (file) => {
-    const raw = JSON.parse(await readFile(resolve(root, `public/data/pattern-mates/mixed/mate-in-1/${file}`), "utf8"))
-    return Array.isArray(raw) ? raw : raw.puzzles ?? []
+  const canonicalM1Themes = Object.keys(m1Curriculum.PATTERN_MATE_M1_CANONICAL_THEMES)
+  assert.equal(canonicalM1Themes.length, 9, "Mixed Mate M1 exposes exactly nine canonical source themes")
+  const invalidM1ThemeNames = new Set(["endgame", "master", "mate", "hangingpiece", "discoveredcheck", "advancedpawn", "bishopendgame", "kingsideattack"])
+  const mixedMateCandidates = (await Promise.all(m1Curriculum.PATTERN_MATE_M1_LEARNER_CURRICULA.map(async (definition) => {
+    const manifest = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/manifest.json`), "utf8"))
+    const chunks = await Promise.all(manifest.files.map(async (file) => {
+      const raw = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/${file}`), "utf8"))
+      return (raw.puzzles ?? raw).map((record) => rawCandidate(record, "mates", selector, definition.theme))
+    }))
+    return chunks.flat()
   }))).flat()
-  const mixedMateCandidates = mixedMateRecords.map((record) => {
-    const entry = rawCandidate(record, "mates", selector)
-    return { ...entry, theme: scope.normaliseMixedThemeKey(entry.theme, "mates") }
-  })
   const availableMateThemes = [...new Set(mixedMateCandidates.map((entry) => entry.theme))]
-  assert(availableMateThemes.length >= 8, "the complete active Mixed Mate M1 pool exposes broad source-theme coverage")
+  assert.deepEqual([...availableMateThemes].sort(), [...canonicalM1Themes].sort(), "every Mixed Mate M1 puzzle receives exactly one canonical collection theme")
+  assert(mixedMateCandidates.every((entry) => !invalidM1ThemeNames.has(entry.theme)), "generic puzzle tags never enter Mate M1 theme rotation")
+  const hookCandidate = mixedMateCandidates.find((entry) => entry.item.theme === "hookMate")
+  assert.equal(hookCandidate?.theme, "hook", "hookMate records display Hook rather than a generic tag")
+  const smotheredCandidate = mixedMateCandidates.find((entry) => String(entry.item.id).startsWith("smothered-mate-in-1-"))
+  assert.equal(smotheredCandidate?.theme, "smothered", "smothered records display Smothered")
+  const bodenCandidate = mixedMateCandidates.find((entry) => String(entry.item.theme).toLowerCase().includes("boden"))
+  assert.equal(bodenCandidate?.theme, "boden", "Boden records display Boden")
   const allMatePlan = selector.planMixedSession(mixedMateCandidates, {
     sessionId: "mixed-mate-m1-all-themes",
     sessionSize: 20,
@@ -222,14 +231,15 @@ try {
   assert.equal(extensionThemes.length, 3, "all three extended M1 themes are in the learner curriculum")
   assert.match(patternMateTrainerSource, /config\.trainerKey === "mixed-mate-1"/, "Mixed M1 has a dedicated learner-pool loader")
   assert.match(patternMateTrainerSource, /PATTERN_MATE_M1_LEARNER_CURRICULA/, "Mixed M1 loads the versioned learner pools rather than the generated source pool")
+  assert.match(patternMateTrainerSource, /canonicalThemeKey: definition\.theme/, "trainer attributes each learner record to its catalog-owned canonical theme")
+  assert.match(patternMateTrainerSource, /PATTERN_MATE_M1_LEARNER_CURRICULA\.map\(\(definition\) => definition\.theme\)/, "scope chooser exposes only catalog-owned M1 themes")
   const curatedCandidates = (await Promise.all(extensionThemes.map(async (definition) => {
     const manifest = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/manifest.json`), "utf8"))
     assert.equal(manifest.files.length, 5, `${definition.theme} exposes five learner chunks to mixed practice`)
     const chunks = await Promise.all(manifest.files.map(async (file) => {
       const raw = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/${file}`), "utf8"))
       return (raw.puzzles ?? raw).map((record) => {
-        const entry = rawCandidate(record, "mates", selector)
-        return { ...entry, theme: scope.normaliseMixedThemeKey(entry.theme, "mates") }
+        return rawCandidate(record, "mates", selector, definition.theme)
       })
     }))
     return chunks.flat()
@@ -246,7 +256,7 @@ try {
   console.log("PASS: every active mixed Pattern Mate and Pattern Tactic chunk can be reordered without duplicate canonical exercises")
   console.log("PASS: curriculum ceilings remain enforced before mixed-session selection")
   console.log("PASS: unlocked and all-theme scopes preserve eligibility, balance, and deterministic diversity")
-  console.log("PASS: curated M1 learner pools preserve theme rotation and pedagogical-family separation in mixed sessions")
+  console.log("PASS: canonical M1 source themes exclude generic tags and preserve theme rotation and pedagogical-family separation")
   console.log(`EXAMPLE: ${exampleSequence.join(" -> ")}`)
 } finally {
   await vite.close()

@@ -59,8 +59,10 @@ import { MATE_THEMES } from "../../training/curriculum/curriculumCatalog"
 import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
 import {
   getLegacyCompletionCredit,
+  getPatternMateM1CanonicalThemeLabel,
   getM1LearnerProgressTrainerKey,
  getPatternMateM1LearnerCurriculum,
+ isPatternMateM1CanonicalTheme,
  M1_LEARNER_CURRICULUM_VERSION,
   PATTERN_MATE_M1_LEARNER_CURRICULA,
  resolveLearnerFacingChunkIndex,
@@ -100,6 +102,8 @@ type LichessChunkPuzzle = {
  sourceTheme?: string
  sourceThemeTag?: string
  sourceThemeKeys?: string[]
+ canonicalThemeKey?: string
+ canonicalThemeLabel?: string
  pedagogicalFamily?: string
  learnerCurriculum?: {
   pedagogicalFamily?: string
@@ -133,6 +137,9 @@ export type PatternMatePuzzle = {
  chunkIndex: number
  rating?: number
  sourceTheme?: string
+ canonicalThemeKey?: string
+ canonicalThemeLabel?: string
+ rawTags: string[]
  sourceIdentity?: string
  canonicalIdentity?: string
  pedagogicalFamily?: string
@@ -275,6 +282,30 @@ function normalizeThemeName(input?: string) {
  return input.replace(/_/g, ' ')
 }
 
+function collectRawPuzzleTags(raw: LichessChunkPuzzle) {
+ const values = [
+  raw.theme,
+  raw.subtheme,
+  raw.Themes,
+  raw.sourceTheme,
+  raw.sourceThemeTag,
+  ...(raw.themes ?? []),
+  ...(raw.sourceThemeKeys ?? []),
+ ]
+ return [...new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean))]
+}
+
+function getMixedPuzzleThemeKey(puzzle: Pick<PatternMatePuzzle, "canonicalThemeKey" | "sourceTheme" | "theme">) {
+ return puzzle.canonicalThemeKey ?? normaliseMixedThemeKey(puzzle.sourceTheme ?? puzzle.theme, "mates")
+}
+
+function getMixedPuzzleThemeLabel(puzzle: Pick<PatternMatePuzzle, "canonicalThemeKey" | "canonicalThemeLabel" | "sourceTheme" | "theme">) {
+ if (puzzle.canonicalThemeKey && isPatternMateM1CanonicalTheme(puzzle.canonicalThemeKey)) {
+  return puzzle.canonicalThemeLabel ?? getPatternMateM1CanonicalThemeLabel(puzzle.canonicalThemeKey)
+ }
+ return formatMixedThemeName(getMixedPuzzleThemeKey(puzzle))
+}
+
 function normalizePuzzle(
  raw: LichessChunkPuzzle,
  index: number
@@ -362,10 +393,13 @@ function normalizePuzzle(
  preMove: raw.preMove,
  solutionLine,
  userMoveIndexes,
- chunkNumber,
+  chunkNumber,
   chunkIndex,
   rating: raw.rating,
   sourceTheme: raw.sourceThemeTag || raw.sourceTheme || raw.sourceThemeKeys?.[0] || raw.themes?.[0] || raw.theme || 'mate',
+  canonicalThemeKey: raw.canonicalThemeKey,
+  canonicalThemeLabel: raw.canonicalThemeLabel,
+  rawTags: collectRawPuzzleTags(raw),
   sourceIdentity: String(raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
   pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
   }
@@ -892,7 +926,13 @@ function startChunkMasterySave(masteredCount: number) {
      const data = (await response.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
      return Array.isArray(data) ? data : data.puzzles || []
     }))
-    return chunks.flat()
+    return chunks.flat().map((record) => ({
+     ...record,
+     // The learner manifest defines the focused source collection. Generic
+     // record tags are retained separately and never drive mixed M1 labels.
+     canonicalThemeKey: definition.theme,
+     canonicalThemeLabel: getPatternMateM1CanonicalThemeLabel(definition.theme),
+    }))
    }))
    : await Promise.all((isMixedPatternMate ? files : [fileName]).map(async (sourceFile) => {
     const res = await fetch(`${activeDataBasePath}/${sourceFile}`)
@@ -910,7 +950,7 @@ function startChunkMasterySave(masteredCount: number) {
   throw new Error(`No valid puzzles found in ${fileName}`)
   }
 
-  const mixedSessionId = `v4:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
+  const mixedSessionId = `v5:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
   const sessionPuzzles = isMixedPatternMate
   ? (() => {
   const candidates: MixedSessionCandidate<PatternMatePuzzle>[] = normalized.map((puzzle) => {
@@ -921,9 +961,13 @@ function startChunkMasterySave(masteredCount: number) {
   solutionLine: puzzle.solutionLine,
   sourceIdentity: puzzle.sourceIdentity ?? puzzle.id,
   })
+  const theme = getMixedPuzzleThemeKey(puzzle)
+  if (config.trainerKey === "mixed-mate-1" && !isPatternMateM1CanonicalTheme(theme)) {
+   throw new Error(`Mixed Mate M1 puzzle ${puzzle.id} has no canonical source theme`)
+  }
   return {
   item: { ...puzzle, canonicalIdentity },
-  theme: normaliseMixedThemeKey(puzzle.sourceTheme ?? puzzle.theme, "mates"),
+  theme,
   canonicalIdentity,
   stableId: puzzle.id,
   pedagogicalFamily: puzzle.pedagogicalFamily,
@@ -1189,7 +1233,11 @@ function startChunkMasterySave(masteredCount: number) {
  setChunkFiles(files)
 
  if (isMixedPatternMate && !mixedScopeConfirmed) {
-  setMixedAvailableThemes((manifest.sourceThemes ?? []).map((theme) => normaliseMixedThemeKey(theme, "mates")))
+  setMixedAvailableThemes(
+   config.trainerKey === "mixed-mate-1"
+    ? PATTERN_MATE_M1_LEARNER_CURRICULA.map((definition) => definition.theme)
+    : (manifest.sourceThemes ?? []).map((theme) => normaliseMixedThemeKey(theme, "mates")),
+  )
   setLoading(false)
   return
  }
@@ -1582,7 +1630,7 @@ useEffect(() => {
  if (isMixedPatternMate) {
   recordIdentifiedMixedSessionEvidence({
    trainerKey: config.trainerKey,
-   sessionId: mixedSessionIdRef.current ?? `v3:${config.trainerKey}:${mixedScope}:${mixedPhase}:${currentChunkFileName}`,
+   sessionId: mixedSessionIdRef.current ?? `v5:${config.trainerKey}:${mixedScope}:${mixedPhase}:${currentChunkFileName}`,
    scope: mixedScope,
    phase: mixedPhase,
    correct: mixedSessionEvidenceRef.current.correct,
@@ -1654,7 +1702,7 @@ useEffect(() => {
    evidence.recordedPuzzleIds.add(currentPuzzle.id)
    evidence.attempts += 1
    if (!mixedPuzzleNeededHelpRef.current) evidence.correct += 1
-   evidence.themes.add(normaliseMixedThemeKey(currentPuzzle.sourceTheme ?? currentPuzzle.theme, "mates"))
+   evidence.themes.add(getMixedPuzzleThemeKey(currentPuzzle))
   }
  }
  setBoardLocked(true)
@@ -1997,7 +2045,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
  const currentPuzzleFastSolves = chunkProgress[currentIndex]?.fastSolves ?? 0
  const currentMixedSourceTheme = currentPuzzle
-  ? formatMixedThemeName(normaliseMixedThemeKey(currentPuzzle.sourceTheme ?? currentPuzzle.theme, "mates"))
+  ? getMixedPuzzleThemeLabel(currentPuzzle)
   : ""
  const showMixedTheme = isMixedPatternMate && shouldRevealMixedTheme(mixedPhase, blindThemeRevealed)
  const totalFastSolves = chunkProgress.reduce((sum, item) => sum + item.fastSolves, 0)

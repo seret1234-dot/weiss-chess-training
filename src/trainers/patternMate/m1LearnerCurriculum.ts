@@ -10,6 +10,32 @@ export const M1_LEARNER_CHUNK_COUNT = 5
 export const M1_LEARNER_CHUNK_SIZE = 24
 export const M1_LEARNER_CURRICULUM_VERSION = "m1-v1"
 
+/**
+ * Focused collection identity is deliberately independent from generator
+ * tags. A Hook record may also be tagged `discoveredCheck`, for example.
+ */
+export const PATTERN_MATE_M1_CANONICAL_THEMES = {
+  "back-rank": "Back Rank",
+  anastasia: "Anastasia",
+  arabian: "Arabian",
+  boden: "Boden",
+  smothered: "Smothered",
+  hook: "Hook",
+  "kill-box": "Kill Box",
+  dovetail: "Dovetail",
+  "double-bishop": "Double Bishop",
+} as const
+
+export type PatternMateM1CanonicalTheme = keyof typeof PATTERN_MATE_M1_CANONICAL_THEMES
+
+export function isPatternMateM1CanonicalTheme(value: string | null | undefined): value is PatternMateM1CanonicalTheme {
+  return !!value && Object.hasOwn(PATTERN_MATE_M1_CANONICAL_THEMES, value)
+}
+
+export function getPatternMateM1CanonicalThemeLabel(theme: PatternMateM1CanonicalTheme) {
+  return PATTERN_MATE_M1_CANONICAL_THEMES[theme]
+}
+
 export type LegacyChunkProgressLike = {
   chunk_index?: number | null
   is_mastered?: boolean | null
@@ -18,16 +44,7 @@ export type LegacyChunkProgressLike = {
 
 export type PatternMateM1LearnerCurriculum = {
   trainerKey: string
-  theme:
-    | "back-rank"
-    | "anastasia"
-    | "arabian"
-    | "boden"
-    | "smothered"
-    | "hook"
-    | "kill-box"
-    | "dovetail"
-    | "double-bishop"
+  theme: PatternMateM1CanonicalTheme
   sourceDataBasePath: string
   learnerDataBasePath: string
   legacyChunkCount: number
