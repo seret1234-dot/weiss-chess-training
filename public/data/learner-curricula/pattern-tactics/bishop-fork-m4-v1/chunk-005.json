@@ -1,0 +1,1629 @@
+{
+  "puzzles": [
+    {
+      "id": "fork-bishop-m4-oLMGR",
+      "puzzleId": "oLMGR",
+      "fen": "r2q2k1/1bp2pp1/p6p/1p1n1N2/3b4/1B6/PP3PPP/R1B1Q1K1 b - - 1 17",
+      "preMove": "d4a7",
+      "solutionLine": [
+        "b3d5",
+        "b7d5",
+        "e1e5",
+        "f7f6",
+        "e5d5",
+        "d8d5",
+        "f5e7",
+        "g8f7",
+        "e7d5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2367,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@0,1,bb@1,1,bk@6,0,bn@3,3,bq@3,0,br@0,0,wb@1,5,wb@2,7,wk@6,7,wn@5,3,wq@4,7,wr@0,7|line:wb:2,-2:n:->bb:2,2:b:->wq:0,-4:-:->bp:0,1:-:->wq:-1,0:b:->bq:0,3:q:->wn:-1,-2:-:->bk:-1,1:-:->wn:-1,2:q:-|outcome:capture:b,capture:n,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 8,
+        "sourceIndex": 15,
+        "sourceIdentity": "oLMGR",
+        "canonicalIdentity": "r2q2k1/bbp2pp1/p6p/1p1n1N2/8/1B6/PP3PPP/R1B1Q1K1 w - -|tactic-in-4|b3d5,b7d5,e1e5,f7f6,e5d5,d8d5,f5e7,g8f7,e7d5|oLMGR",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@0,1,bb@1,1,bk@6,0,bn@3,3,bq@3,0,br@0,0,wb@1,5,wb@2,7,wk@6,7,wn@5,3,wq@4,7,wr@0,7|line:wb:2,-2:n:->bb:2,2:b:->wq:0,-4:-:->bp:0,1:-:->wq:-1,0:b:->bq:0,3:q:->wn:-1,-2:-:->bk:-1,1:-:->wn:-1,2:q:-|outcome:capture:b,capture:n,capture:q,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:b3",
+          "first-to:d5",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 0
+      }
+    },
+    {
+      "id": "fork-bishop-m4-x2vKq",
+      "puzzleId": "x2vKq",
+      "fen": "rnb1k2r/ppp1qppp/3p4/8/1b1P4/5N1P/PP1BBPP1/R2QK2R b KQkq - 2 10",
+      "preMove": "b8c6",
+      "solutionLine": [
+        "d2b4",
+        "c6b4",
+        "d1a4",
+        "b4c6",
+        "d4d5",
+        "e8g8",
+        "d5c6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1548,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "opening",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "opening",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bb@4,1,bk@0,4,bn@2,2,bq@1,4,br@0,0,br@0,7,wb@6,3,wb@6,4,wk@7,4,wn@5,5,wq@7,3,wr@7,0,wr@7,7|line:wb:-2,-2:b:->bn:2,-1:b:->wq:-3,-3:-:->bn:-2,1:-:->wp:-1,0:-:->bk:0,2:-:->wp:-1,-1:n:-|outcome:capture:b,capture:n,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 28,
+        "sourceIdentity": "x2vKq",
+        "canonicalIdentity": "r1b1k2r/ppp1qppp/2np4/8/1b1P4/5N1P/PP1BBPP1/R2QK2R w KQkq -|tactic-in-4|d2b4,c6b4,d1a4,b4c6,d4d5,e8g8,d5c6|x2vKq",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bb@4,1,bk@0,4,bn@2,2,bq@1,4,br@0,0,br@0,7,wb@6,3,wb@6,4,wk@7,4,wn@5,5,wq@7,3,wr@7,0,wr@7,7|line:wb:-2,-2:b:->bn:2,-1:b:->wq:-3,-3:-:->bn:-2,1:-:->wp:-1,0:-:->bk:0,2:-:->wp:-1,-1:n:-|outcome:capture:b,capture:n,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d2",
+          "first-to:b4",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 1
+      }
+    },
+    {
+      "id": "fork-bishop-m4-wYp9q",
+      "puzzleId": "wYp9q",
+      "fen": "r1b2r1k/pppn1p1p/3b3B/3PN2n/2Bq4/8/PPPN2Q1/R2K2R1 b - - 1 16",
+      "preMove": "d7e5",
+      "solutionLine": [
+        "h6g7",
+        "h8g8",
+        "g7e5",
+        "c8g4",
+        "g2g4",
+        "d4g4",
+        "g1g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2186,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "discovered-check",
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Discovered Check",
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "discoveredAttack",
+        "discoveredCheck",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "crushing",
+        "discoveredAttack",
+        "discoveredCheck",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "discovered-attack",
+        "discovered-check",
+        "fork-bishop",
+        "Discovered Attack",
+        "Discovered Check",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bb@2,3,bk@0,7,bn@3,4,bn@3,7,bq@4,3,br@0,0,br@0,5,wb@2,7,wb@4,2,wk@7,3,wn@6,3,wq@6,6,wr@7,0,wr@7,6|line:wb:-1,-1:-:->bk:0,-1:-:->wb:2,-2:n:->bb:4,4:-:->wq:-2,0:b:->bq:0,3:q:->wr:-3,0:q:-|outcome:capture:b,capture:n,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 6,
+        "sourceIndex": 13,
+        "sourceIdentity": "wYp9q",
+        "canonicalIdentity": "r1b2r1k/ppp2p1p/3b3B/3Pn2n/2Bq4/8/PPPN2Q1/R2K2R1 w - -|tactic-in-4|h6g7,h8g8,g7e5,c8g4,g2g4,d4g4,g1g4|wYp9q",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bb@2,3,bk@0,7,bn@3,4,bn@3,7,bq@4,3,br@0,0,br@0,5,wb@2,7,wb@4,2,wk@7,3,wn@6,3,wq@6,6,wr@7,0,wr@7,6|line:wb:-1,-1:-:->bk:0,-1:-:->wb:2,-2:n:->bb:4,4:-:->wq:-2,0:b:->bq:0,3:q:->wr:-3,0:q:-|outcome:capture:b,capture:n,capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:h6",
+          "first-to:g7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 2
+      }
+    },
+    {
+      "id": "fork-bishop-m4-ylFNB",
+      "puzzleId": "ylFNB",
+      "fen": "r1b2rk1/pp3pbp/2n3pB/q3p3/7Q/PR3NP1/4PPBP/3R2K1 b - - 1 17",
+      "preMove": "f7f6",
+      "solutionLine": [
+        "h6g7",
+        "g8g7",
+        "b3b7",
+        "c8b7",
+        "d1d7",
+        "f8f7",
+        "d7f7",
+        "g7f7",
+        "h4h7",
+        "f7f8",
+        "h7b7",
+        "a8d8",
+        "b7c6",
+        "d8d1",
+        "g2f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "tacticDistance": 8,
+      "rating": 2338,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "skewer-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer",
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "master",
+        "masterVsMaster",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "master",
+        "masterVsMaster",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "fork-bishop",
+        "skewer-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bb@1,6,bk@0,6,bn@2,2,bq@3,0,br@0,0,br@0,5,wb@2,7,wb@6,6,wk@7,6,wn@5,5,wq@4,7,wr@5,1,wr@7,3|line:wb:-1,-1:b:->bk:1,0:b:->wr:-4,0:p:->bb:1,-1:r:->wr:-6,0:-:->br:1,0:-:->wr:0,2:r:->bk:0,-1:r:->wq:-3,0:p:->bk:-1,0:-:->wq:0,-6:b:->br:0,3:-:->wq:1,1:n:->br:7,0:-:->wb:1,-1:-:-|outcome:capture:b,capture:n,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 8,
+        "sourceIndex": 17,
+        "sourceIdentity": "ylFNB",
+        "canonicalIdentity": "r1b2rk1/pp4bp/2n2ppB/q3p3/7Q/PR3NP1/4PPBP/3R2K1 w - -|tactic-in-4|h6g7,g8g7,b3b7,c8b7,d1d7,f8f7,d7f7,g7f7,h4h7,f7f8,h7b7,a8d8,b7c6,d8d1,g2f1|ylFNB",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bb@1,6,bk@0,6,bn@2,2,bq@3,0,br@0,0,br@0,5,wb@2,7,wb@6,6,wk@7,6,wn@5,5,wq@4,7,wr@5,1,wr@7,3|line:wb:-1,-1:b:->bk:1,0:b:->wr:-4,0:p:->bb:1,-1:r:->wr:-6,0:-:->br:1,0:-:->wr:0,2:r:->bk:0,-1:r:->wq:-3,0:p:->bk:-1,0:-:->wq:0,-6:b:->br:0,3:-:->wq:1,1:n:->br:7,0:-:->wb:1,-1:-:-|outcome:capture:b,capture:n,capture:p,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:h6",
+          "first-to:g7",
+          "king-region:king-side",
+          "line-length:15",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 3
+      }
+    },
+    {
+      "id": "fork-bishop-m4-mUFaU",
+      "puzzleId": "mUFaU",
+      "fen": "3r1rk1/pb4b1/1pq1p1BP/4P3/5P1Q/4p3/PPP4R/R5K1 b - - 0 24",
+      "preMove": "c6f3",
+      "solutionLine": [
+        "g6h5",
+        "f3f4",
+        "h6g7",
+        "g8g7",
+        "h4e7",
+        "f8f7",
+        "e7f7",
+        "f4f7",
+        "h5f7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2826,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-bishop",
+        "decoy-attraction",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "attraction",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advancedPawn",
+        "advantage",
+        "attraction",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "advanced-pawn",
+        "fork-bishop",
+        "decoy-attraction",
+        "vulnerable-king",
+        "Advanced Pawn",
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@1,1,bb@1,6,bk@0,1,bq@5,2,br@0,2,br@0,4,wb@2,1,wk@7,1,wq@4,0,wr@6,0,wr@7,7|line:wb:1,-1:-:->bq:-1,0:p:->wp:-1,1:b:->bk:1,0:p:->wq:-3,3:-:->br:1,0:-:->wq:0,-1:r:->bq:-3,0:q:->wb:-2,2:q:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 10,
+        "sourceIndex": 0,
+        "sourceIdentity": "mUFaU",
+        "canonicalIdentity": "3r1rk1/pb4b1/1p2p1BP/4P3/5P1Q/4pq2/PPP4R/R5K1 w - -|tactic-in-4|g6h5,f3f4,h6g7,g8g7,h4e7,f8f7,e7f7,f4f7,h5f7|mUFaU",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@1,1,bb@1,6,bk@0,1,bq@5,2,br@0,2,br@0,4,wb@2,1,wk@7,1,wq@4,0,wr@6,0,wr@7,7|line:wb:1,-1:-:->bq:-1,0:p:->wp:-1,1:b:->bk:1,0:p:->wq:-3,3:-:->br:1,0:-:->wq:0,-1:r:->bq:-3,0:q:->wb:-2,2:q:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g6",
+          "first-to:h5",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 4
+      }
+    },
+    {
+      "id": "fork-bishop-m4-soWmI",
+      "puzzleId": "soWmI",
+      "fen": "1r6/p1R2ppk/5p1p/2N5/1b1P4/r3P2P/5PP1/1R4K1 w - - 5 27",
+      "preMove": "c7f7",
+      "solutionLine": [
+        "b4c5",
+        "b1b8",
+        "a3a1",
+        "g1h2",
+        "c5d6",
+        "f2f4",
+        "d6b8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1185,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong",
+        "fork-bishop",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@1,3,bk@7,6,br@0,2,br@1,7,wk@6,0,wn@2,4,wr@1,0,wr@5,6|line:bb:1,1:n:->wr:0,7:r:->br:0,-2:-:->wk:1,1:-:->bb:1,1:-:->wp:0,2:-:->bb:-2,2:r:-|outcome:capture:n,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 1,
+        "sourceIndex": 21,
+        "sourceIdentity": "soWmI",
+        "canonicalIdentity": "1r6/p4Rpk/5p1p/2N5/1b1P4/r3P2P/5PP1/1R4K1 b - -|tactic-in-4|b4c5,b1b8,a3a1,g1h2,c5d6,f2f4,d6b8|soWmI",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@1,3,bk@7,6,br@0,2,br@1,7,wk@6,0,wn@2,4,wr@1,0,wr@5,6|line:bb:1,1:n:->wr:0,7:r:->br:0,-2:-:->wk:1,1:-:->bb:1,1:-:->wp:0,2:-:->bb:-2,2:r:-|outcome:capture:n,capture:r,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:b4",
+          "first-to:c5",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 5
+      }
+    },
+    {
+      "id": "fork-bishop-m4-xprV2",
+      "puzzleId": "xprV2",
+      "fen": "2r2rk1/p1q1pp1p/1p3np1/4Q3/2P2P2/B1P4P/P5P1/1R3RK1 b - - 0 22",
+      "preMove": "c7c4",
+      "solutionLine": [
+        "a3e7",
+        "f6d7",
+        "e5d6",
+        "c4c5",
+        "d6c5",
+        "d7c5",
+        "e7f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1824,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bk@0,1,bn@2,2,bq@4,5,br@0,2,br@0,5,wb@5,7,wk@7,1,wq@3,3,wr@7,2,wr@7,6|line:wb:-4,-4:p:->bn:-1,2:-:->wq:-1,1:-:->bq:-1,0:-:->wq:1,1:q:->bn:2,1:q:->wb:-1,-1:r:-|outcome:capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 3,
+        "sourceIndex": 10,
+        "sourceIdentity": "xprV2",
+        "canonicalIdentity": "2r2rk1/p3pp1p/1p3np1/4Q3/2q2P2/B1P4P/P5P1/1R3RK1 w - -|tactic-in-4|a3e7,f6d7,e5d6,c4c5,d6c5,d7c5,e7f8|xprV2",
+        "pedagogicalFamily": "bishop-fork|pieces:bk@0,1,bn@2,2,bq@4,5,br@0,2,br@0,5,wb@5,7,wk@7,1,wq@3,3,wr@7,2,wr@7,6|line:wb:-4,-4:p:->bn:-1,2:-:->wq:-1,1:-:->bq:-1,0:-:->wq:1,1:q:->bn:2,1:q:->wb:-1,-1:r:-|outcome:capture:p,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:a3",
+          "first-to:e7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 6
+      }
+    },
+    {
+      "id": "fork-bishop-m4-wVtxi",
+      "puzzleId": "wVtxi",
+      "fen": "r3r1k1/p1pq1p2/1p1p1bpp/3P3n/2P3PQ/2N2P2/PP1B2KP/R4R2 w - - 1 20",
+      "preMove": "h4h3",
+      "solutionLine": [
+        "f6c3",
+        "b2c3",
+        "e8e2",
+        "f1f2",
+        "e2d2",
+        "f2d2",
+        "h5f4",
+        "g2g3",
+        "f4h3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1778,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-bishop",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@2,2,bk@0,1,bn@3,0,bq@1,4,br@0,3,br@0,7,wb@6,4,wk@6,1,wn@5,5,wq@5,0,wr@7,2,wr@7,7|line:bb:3,3:n:->wp:-1,-1:b:->br:6,0:-:->wr:-1,0:-:->br:0,1:b:->wr:0,2:r:->bn:1,2:-:->wk:-1,0:-:->bn:1,-2:q:-|outcome:capture:b,capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 3,
+        "sourceIndex": 19,
+        "sourceIdentity": "wVtxi",
+        "canonicalIdentity": "r3r1k1/p1pq1p2/1p1p1bpp/3P3n/2P3P1/2N2P1Q/PP1B2KP/R4R2 b - -|tactic-in-4|f6c3,b2c3,e8e2,f1f2,e2d2,f2d2,h5f4,g2g3,f4h3|wVtxi",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@2,2,bk@0,1,bn@3,0,bq@1,4,br@0,3,br@0,7,wb@6,4,wk@6,1,wn@5,5,wq@5,0,wr@7,2,wr@7,7|line:bb:3,3:n:->wp:-1,-1:b:->br:6,0:-:->wr:-1,0:-:->br:0,1:b:->wr:0,2:r:->bn:1,2:-:->wk:-1,0:-:->bn:1,-2:q:-|outcome:capture:b,capture:n,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f6",
+          "first-to:c3",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 7
+      }
+    },
+    {
+      "id": "fork-bishop-m4-xv1Vr",
+      "puzzleId": "xv1Vr",
+      "fen": "r2q1rk1/ppp2ppp/2nb2n1/8/2B1P1b1/2N2N2/PPP2PPP/R1BQ1RK1 w - - 7 10",
+      "preMove": "h2h3",
+      "solutionLine": [
+        "g4f3",
+        "d1f3",
+        "g6e5",
+        "f3e2",
+        "c6d4",
+        "e2d1",
+        "e5c4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2256,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "master",
+        "opening",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "master",
+        "opening",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@1,3,bb@4,5,bk@1,7,bn@1,5,bn@5,5,bq@4,7,br@2,7,br@7,7,wb@5,0,wb@5,3,wk@1,0,wn@2,2,wn@5,2,wq@4,0,wr@2,0,wr@7,0|line:bb:1,-1:n:->wq:-2,2:b:->bn:2,-1:-:->wq:1,-1:-:->bn:-1,-2:-:->wq:1,-1:-:->bn:2,-1:b:-|outcome:capture:b,capture:n",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 13,
+        "sourceIdentity": "xv1Vr",
+        "canonicalIdentity": "r2q1rk1/ppp2ppp/2nb2n1/8/2B1P1b1/2N2N1P/PPP2PP1/R1BQ1RK1 b - -|tactic-in-4|g4f3,d1f3,g6e5,f3e2,c6d4,e2d1,e5c4|xv1Vr",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@1,3,bb@4,5,bk@1,7,bn@1,5,bn@5,5,bq@4,7,br@2,7,br@7,7,wb@5,0,wb@5,3,wk@1,0,wn@2,2,wn@5,2,wq@4,0,wr@2,0,wr@7,0|line:bb:1,-1:n:->wq:-2,2:b:->bn:2,-1:-:->wq:1,-1:-:->bn:-1,-2:-:->wq:1,-1:-:->bn:2,-1:b:-|outcome:capture:b,capture:n",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g4",
+          "first-to:f3",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 8
+      }
+    },
+    {
+      "id": "fork-bishop-m4-zkiHz",
+      "puzzleId": "zkiHz",
+      "fen": "6k1/pppb2pp/3p1r2/3Pp2n/8/4BPqP/PPP3P1/R2QR2K w - - 5 24",
+      "preMove": "f3f4",
+      "solutionLine": [
+        "d7h3",
+        "d1f3",
+        "h3g2",
+        "f3g2",
+        "g3h4",
+        "g2h2",
+        "h4g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2576,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@1,3,bk@0,6,bn@3,7,bq@5,6,br@2,5,wb@5,4,wk@7,7,wq@7,3,wr@7,0,wr@7,4|line:bb:4,4:p:->wq:-2,2:-:->bb:1,-1:p:->wq:1,1:b:->bq:-1,1:-:->wq:0,1:-:->bq:0,-1:-:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 9,
+        "sourceIndex": 28,
+        "sourceIdentity": "zkiHz",
+        "canonicalIdentity": "6k1/pppb2pp/3p1r2/3Pp2n/5P2/4B1qP/PPP3P1/R2QR2K b - -|tactic-in-4|d7h3,d1f3,h3g2,f3g2,g3h4,g2h2,h4g4|zkiHz",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@1,3,bk@0,6,bn@3,7,bq@5,6,br@2,5,wb@5,4,wk@7,7,wq@7,3,wr@7,0,wr@7,4|line:bb:4,4:p:->wq:-2,2:-:->bb:1,-1:p:->wq:1,1:b:->bq:-1,1:-:->wq:0,1:-:->bq:0,-1:-:-|outcome:capture:b,capture:p,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d7",
+          "first-to:h3",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 9
+      }
+    },
+    {
+      "id": "fork-bishop-m4-wU2JJ",
+      "puzzleId": "wU2JJ",
+      "fen": "rn2k2r/1b2pp1p/p2q2p1/1p1P4/2p1R3/2P2N2/P1P2PPP/R1BQ2K1 b kq - 0 13",
+      "preMove": "b7d5",
+      "solutionLine": [
+        "c1a3",
+        "d6a3",
+        "d1d5",
+        "a8a7",
+        "d5d4",
+        "e8g8",
+        "d4a7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2552,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Deflection"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Deflection",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@3,3,bk@0,4,bn@0,1,bq@2,3,br@0,0,br@0,7,wb@7,2,wk@7,6,wn@5,5,wq@7,3,wr@4,4,wr@7,0|line:wb:-2,-2:-:->bq:3,-3:b:->wq:-4,0:b:->br:1,0:-:->wq:1,0:-:->bk:0,2:-:->wq:-3,-3:r:-|outcome:capture:b,capture:r",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 9,
+        "sourceIndex": 20,
+        "sourceIdentity": "wU2JJ",
+        "canonicalIdentity": "rn2k2r/4pp1p/p2q2p1/1p1b4/2p1R3/2P2N2/P1P2PPP/R1BQ2K1 w kq -|tactic-in-4|c1a3,d6a3,d1d5,a8a7,d5d4,e8g8,d4a7|wU2JJ",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@3,3,bk@0,4,bn@0,1,bq@2,3,br@0,0,br@0,7,wb@7,2,wk@7,6,wn@5,5,wq@7,3,wr@4,4,wr@7,0|line:wb:-2,-2:-:->bq:3,-3:b:->wq:-4,0:b:->br:1,0:-:->wq:1,0:-:->bk:0,2:-:->wq:-3,-3:r:-|outcome:capture:b,capture:r",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c1",
+          "first-to:a3",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 10
+      }
+    },
+    {
+      "id": "fork-bishop-m4-orgkY",
+      "puzzleId": "orgkY",
+      "fen": "2r3k1/5p2/4b1p1/q1B1Q2p/8/7P/P4PP1/2R3K1 b - - 2 28",
+      "preMove": "a5a2",
+      "solutionLine": [
+        "c5d4",
+        "c8c1",
+        "g1h2",
+        "f7f6",
+        "e5f6",
+        "c1c7",
+        "f6d8",
+        "g8f7",
+        "d8c7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2332,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "fork-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "quietMove",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "quietMove",
+        "sacrifice",
+        "veryLong",
+        "quiet-move",
+        "fork-bishop",
+        "sacrifice-bishop",
+        "Quiet Move",
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@2,3,bk@0,1,bq@6,7,br@0,5,wb@3,5,wk@7,1,wq@3,3,wr@7,5|line:wb:1,-1:-:->br:7,0:r:->wk:-1,-1:-:->bp:1,0:-:->wq:-1,-1:p:->br:-6,0:-:->wq:-2,2:-:->bk:1,1:-:->wq:1,1:r:-|outcome:capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 8,
+        "sourceIndex": 28,
+        "sourceIdentity": "orgkY",
+        "canonicalIdentity": "2r3k1/5p2/4b1p1/2B1Q2p/8/7P/q4PP1/2R3K1 w - -|tactic-in-4|c5d4,c8c1,g1h2,f7f6,e5f6,c1c7,f6d8,g8f7,d8c7|orgkY",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@2,3,bk@0,1,bq@6,7,br@0,5,wb@3,5,wk@7,1,wq@3,3,wr@7,5|line:wb:1,-1:-:->br:7,0:r:->wk:-1,-1:-:->bp:1,0:-:->wq:-1,-1:p:->br:-6,0:-:->wq:-2,2:-:->bk:1,1:-:->wq:1,1:r:-|outcome:capture:p,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c5",
+          "first-to:d4",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 11
+      }
+    },
+    {
+      "id": "fork-bishop-m4-zFQP8",
+      "puzzleId": "zFQP8",
+      "fen": "r2q1rk1/1bpp2p1/1p2p2p/4P1N1/8/pPPB4/P1Q2P1P/1K1R3R b - - 0 20",
+      "preMove": "b7h1",
+      "solutionLine": [
+        "d3h7",
+        "g8h8",
+        "h7g8",
+        "f8f5",
+        "g5f7",
+        "h8g8",
+        "f7d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1994,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@0,0,bk@1,7,bq@4,7,br@2,7,br@7,7,wb@4,2,wk@6,0,wn@1,4,wq@5,1,wr@4,0|line:wb:-4,4:-:->bk:-1,0:-:->wb:1,1:-:->br:0,-3:-:->wn:1,2:-:->bk:1,0:b:->wn:2,1:q:-|outcome:capture:b,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 5,
+        "sourceIndex": 17,
+        "sourceIdentity": "zFQP8",
+        "canonicalIdentity": "r2q1rk1/2pp2p1/1p2p2p/4P1N1/8/pPPB4/P1Q2P1P/1K1R3b w - -|tactic-in-4|d3h7,g8h8,h7g8,f8f5,g5f7,h8g8,f7d8|zFQP8",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@0,0,bk@1,7,bq@4,7,br@2,7,br@7,7,wb@4,2,wk@6,0,wn@1,4,wq@5,1,wr@4,0|line:wb:-4,4:-:->bk:-1,0:-:->wb:1,1:-:->br:0,-3:-:->wn:1,2:-:->bk:1,0:b:->wn:2,1:q:-|outcome:capture:b,capture:q,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d3",
+          "first-to:h7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 12
+      }
+    },
+    {
+      "id": "fork-bishop-m4-gXJWH",
+      "puzzleId": "gXJWH",
+      "fen": "2kr1b1r/1pp1pp2/p1n2n1p/3p4/3P4/2P1P2q/PP2BP1B/RN1Q2RK b - - 3 14",
+      "preMove": "f6e4",
+      "solutionLine": [
+        "e2g4",
+        "e7e6",
+        "g4h3",
+        "e4f2",
+        "h1g2",
+        "f2d1",
+        "g1d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 810,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "opening",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "opening",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bk@0,5,bn@2,5,bn@4,3,bq@5,0,br@0,0,br@0,4,wb@6,0,wb@6,3,wk@7,0,wn@7,6,wq@7,4,wr@7,1,wr@7,7|line:wb:-2,-2:-:->bp:1,0:-:->wb:1,-1:q:->bn:2,-1:p:->wk:-1,1:-:->bn:1,2:q:->wr:0,3:n:-|outcome:capture:n,capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 1,
+        "sourceIndex": 2,
+        "sourceIdentity": "gXJWH",
+        "canonicalIdentity": "2kr1b1r/1pp1pp2/p1n4p/3p4/3Pn3/2P1P2q/PP2BP1B/RN1Q2RK w - -|tactic-in-4|e2g4,e7e6,g4h3,e4f2,h1g2,f2d1,g1d1|gXJWH",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bk@0,5,bn@2,5,bn@4,3,bq@5,0,br@0,0,br@0,4,wb@6,0,wb@6,3,wk@7,0,wn@7,6,wq@7,4,wr@7,1,wr@7,7|line:wb:-2,-2:-:->bp:1,0:-:->wb:1,-1:q:->bn:2,-1:p:->wk:-1,1:-:->bn:1,2:q:->wr:0,3:n:-|outcome:capture:n,capture:p,capture:q,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e2",
+          "first-to:g4",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 13
+      }
+    },
+    {
+      "id": "fork-bishop-m4-lvBnN",
+      "puzzleId": "lvBnN",
+      "fen": "r4k2/p4p1B/1p5p/3P2p1/2P2b2/2N4q/PPQ2P1P/2R3K1 w - - 0 28",
+      "preMove": "f2f3",
+      "solutionLine": [
+        "f4e3",
+        "g1h1",
+        "h3f3",
+        "c2g2",
+        "f3g2",
+        "h1g2",
+        "e3c1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1853,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@2,3,bk@2,7,bq@0,2,br@7,7,wb@0,6,wk@1,0,wn@5,2,wq@5,1,wr@5,0|line:bb:1,-1:-:->wk:-1,0:-:->bq:2,0:p:->wq:-4,0:-:->bq:-1,-1:q:->wk:1,1:q:->bb:2,-2:r:-|outcome:capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 4,
+        "sourceIndex": 14,
+        "sourceIdentity": "lvBnN",
+        "canonicalIdentity": "r4k2/p4p1B/1p5p/3P2p1/2P2b2/2N2P1q/PPQ4P/2R3K1 b - -|tactic-in-4|f4e3,g1h1,h3f3,c2g2,f3g2,h1g2,e3c1|lvBnN",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@2,3,bk@2,7,bq@0,2,br@7,7,wb@0,6,wk@1,0,wn@5,2,wq@5,1,wr@5,0|line:bb:1,-1:-:->wk:-1,0:-:->bq:2,0:p:->wq:-4,0:-:->bq:-1,-1:q:->wk:1,1:q:->bb:2,-2:r:-|outcome:capture:p,capture:q,capture:r,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f4",
+          "first-to:e3",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 14
+      }
+    },
+    {
+      "id": "fork-bishop-m4-rGxiB",
+      "puzzleId": "rGxiB",
+      "fen": "2r2k2/5pbQ/p3r1p1/1p1pPq2/1P1P4/P1p1B1P1/5PK1/2R4R b - - 1 40",
+      "preMove": "c3c2",
+      "solutionLine": [
+        "e3h6",
+        "g7h6",
+        "h7h8",
+        "f8e7",
+        "h8c8",
+        "f5e4",
+        "g2g1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2286,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "defense",
+        "fork-bishop",
+        "skewer-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "fork",
+        "master",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "crushing",
+        "defensiveMove",
+        "fork",
+        "master",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "defense",
+        "fork-bishop",
+        "skewer-bishop",
+        "sacrifice-bishop",
+        "Defense",
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer",
+        "Bishop Sacrifice",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@1,1,bk@0,2,bq@3,2,br@0,5,br@2,3,wb@5,3,wk@6,1,wq@1,0,wr@7,0,wr@7,5|line:wb:-3,-3:-:->bb:1,-1:b:->wq:-1,0:-:->bk:1,1:-:->wq:0,5:r:->bq:1,1:-:->wk:1,0:-:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 5,
+        "sourceIdentity": "rGxiB",
+        "canonicalIdentity": "2r2k2/5pbQ/p3r1p1/1p1pPq2/1P1P4/P3B1P1/2p2PK1/2R4R w - -|tactic-in-4|e3h6,g7h6,h7h8,f8e7,h8c8,f5e4,g2g1|rGxiB",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@1,1,bk@0,2,bq@3,2,br@0,5,br@2,3,wb@5,3,wk@6,1,wq@1,0,wr@7,0,wr@7,5|line:wb:-3,-3:-:->bb:1,-1:b:->wq:-1,0:-:->bk:1,1:-:->wq:0,5:r:->bq:1,1:-:->wk:1,0:-:-|outcome:capture:b,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e3",
+          "first-to:h6",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 15
+      }
+    },
+    {
+      "id": "fork-bishop-m4-yeaJV",
+      "puzzleId": "yeaJV",
+      "fen": "r1b4Q/pp4np/6pk/3N4/6p1/3B4/PKPq3P/7R b - - 5 24",
+      "preMove": "d2g2",
+      "solutionLine": [
+        "d3g6",
+        "h6g6",
+        "d5f4",
+        "g6f7",
+        "f4g2",
+        "c8f5",
+        "h8a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2063,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "pin-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Pin",
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong",
+        "fork-bishop",
+        "pin-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Pin",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bk@2,7,bn@1,6,bq@6,6,br@0,0,wb@5,3,wk@6,1,wn@3,3,wq@0,7,wr@7,7|line:wb:-3,3:p:->bk:0,-1:b:->wn:1,2:-:->bk:-1,-1:-:->wn:2,1:q:->bb:3,3:-:->wq:0,-7:r:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 5,
+        "sourceIndex": 21,
+        "sourceIdentity": "yeaJV",
+        "canonicalIdentity": "r1b4Q/pp4np/6pk/3N4/6p1/3B4/PKP3qP/7R w - -|tactic-in-4|d3g6,h6g6,d5f4,g6f7,f4g2,c8f5,h8a8|yeaJV",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bk@2,7,bn@1,6,bq@6,6,br@0,0,wb@5,3,wk@6,1,wn@3,3,wq@0,7,wr@7,7|line:wb:-3,3:p:->bk:0,-1:b:->wn:1,2:-:->bk:-1,-1:-:->wn:2,1:q:->bb:3,3:-:->wq:0,-7:r:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d3",
+          "first-to:g6",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 16
+      }
+    },
+    {
+      "id": "fork-bishop-m4-sq5bv",
+      "puzzleId": "sq5bv",
+      "fen": "r4rk1/p1p1qppp/2N2n2/3b4/P7/6P1/1P2PPBP/2BQ1RK1 b - - 0 14",
+      "preMove": "e7d6",
+      "solutionLine": [
+        "g2d5",
+        "f6d5",
+        "d1d5",
+        "d6d5",
+        "c6e7",
+        "g8h8",
+        "e7d5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1662,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "master",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "master",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@3,3,bk@0,6,bn@2,5,bq@2,3,br@0,0,br@0,5,wb@6,6,wb@7,2,wk@7,6,wn@2,2,wq@7,3,wr@7,5|line:wb:-3,-3:b:->bn:1,-2:b:->wq:-4,0:n:->bq:1,0:q:->wn:-1,2:-:->bk:0,1:-:->wn:2,-1:q:-|outcome:capture:b,capture:n,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 9,
+        "sourceIdentity": "sq5bv",
+        "canonicalIdentity": "r4rk1/p1p2ppp/2Nq1n2/3b4/P7/6P1/1P2PPBP/2BQ1RK1 w - -|tactic-in-4|g2d5,f6d5,d1d5,d6d5,c6e7,g8h8,e7d5|sq5bv",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@3,3,bk@0,6,bn@2,5,bq@2,3,br@0,0,br@0,5,wb@6,6,wb@7,2,wk@7,6,wn@2,2,wq@7,3,wr@7,5|line:wb:-3,-3:b:->bn:1,-2:b:->wq:-4,0:n:->bq:1,0:q:->wn:-1,2:-:->bk:0,1:-:->wn:2,-1:q:-|outcome:capture:b,capture:n,capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g2",
+          "first-to:d5",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 17
+      }
+    },
+    {
+      "id": "fork-bishop-m4-sQOwt",
+      "puzzleId": "sQOwt",
+      "fen": "6k1/pb2q2p/1p2Nrp1/8/2Br4/8/PP2QP2/1K2R3 b - - 0 25",
+      "preMove": "f6e6",
+      "solutionLine": [
+        "c4e6",
+        "g8g7",
+        "e2e5",
+        "e7f6",
+        "e5c7",
+        "g7h6",
+        "c7b7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1992,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "veryLong",
+        "fork-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@1,1,bk@0,6,bq@1,4,br@2,4,br@4,3,wb@4,2,wk@7,1,wq@6,4,wr@7,4|line:wb:-2,2:r:->bk:1,0:-:->wq:-3,0:-:->bq:1,1:-:->wq:-2,-2:-:->bk:1,1:-:->wq:0,-1:b:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 5,
+        "sourceIndex": 23,
+        "sourceIdentity": "sQOwt",
+        "canonicalIdentity": "6k1/pb2q2p/1p2r1p1/8/2Br4/8/PP2QP2/1K2R3 w - -|tactic-in-4|c4e6,g8g7,e2e5,e7f6,e5c7,g7h6,c7b7|sQOwt",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@1,1,bk@0,6,bq@1,4,br@2,4,br@4,3,wb@4,2,wk@7,1,wq@6,4,wr@7,4|line:wb:-2,2:r:->bk:1,0:-:->wq:-3,0:-:->bq:1,1:-:->wq:-2,-2:-:->bk:1,1:-:->wq:0,-1:b:-|outcome:capture:b,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c4",
+          "first-to:e6",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 18
+      }
+    },
+    {
+      "id": "fork-bishop-m4-xsyKu",
+      "puzzleId": "xsyKu",
+      "fen": "r1bq3r/pp1k2p1/2pb3p/7Q/2p5/8/PP1B1PPP/3R1RK1 b - - 1 17",
+      "preMove": "d7c7",
+      "solutionLine": [
+        "d2f4",
+        "d6f4",
+        "d1d8",
+        "h8d8",
+        "h5f7",
+        "c7b6",
+        "f7f4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2071,
+      "label": "Bishop Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "discovered-attack",
+        "fork-bishop",
+        "Discovered Attack",
+        "Bishop Fork / Double Attack",
+        "Bishop Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bb@2,3,bk@1,2,bq@0,3,br@0,0,br@0,7,wb@6,3,wk@7,6,wq@3,7,wr@7,3,wr@7,5|line:wb:-2,2:-:->bb:2,2:b:->wr:-7,0:q:->br:0,-4:r:->wq:-2,-2:-:->bk:1,-1:-:->wq:3,0:b:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 5,
+        "sourceChunk": 5,
+        "sourceIndex": 24,
+        "sourceIdentity": "xsyKu",
+        "canonicalIdentity": "r1bq3r/ppk3p1/2pb3p/7Q/2p5/8/PP1B1PPP/3R1RK1 w - -|tactic-in-4|d2f4,d6f4,d1d8,h8d8,h5f7,c7b6,f7f4|xsyKu",
+        "pedagogicalFamily": "bishop-fork|pieces:bb@0,2,bb@2,3,bk@1,2,bq@0,3,br@0,0,br@0,7,wb@6,3,wk@7,6,wq@3,7,wr@7,3,wr@7,5|line:wb:-2,2:-:->bb:2,2:b:->wr:-7,0:q:->br:0,-4:r:->wq:-2,-2:-:->bk:1,-1:-:->wq:3,0:b:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d2",
+          "first-to:f4",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 19
+      }
+    }
+  ]
+}

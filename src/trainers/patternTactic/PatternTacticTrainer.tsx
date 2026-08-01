@@ -56,6 +56,13 @@ import { readCurriculumState } from "../../training/curriculum/curriculumPersist
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 import { getStageThemes } from "../../training/curriculum/curriculumCatalog"
 import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
+import {
+ getPatternTacticLearnerCurriculum,
+ getPatternTacticLearnerCurriculaForDistance,
+ getPatternTacticLegacyCompletionCredit,
+ getPatternTacticLearnerProgressTrainerKey,
+ resolvePatternTacticLearnerFacingChunkIndex,
+} from "./m1toM4LearnerCurriculum"
 
 type ManifestFile = {
  category?: string
@@ -67,6 +74,14 @@ type ManifestFile = {
  files?: string[]
  note?: string
  sourceThemes?: string[]
+ canonicalThemeKey?: string
+ canonicalThemeLabel?: string
+ rawTags?: string[]
+ pedagogicalFamily?: string
+ learnerCurriculum?: {
+  canonicalIdentity?: string
+  pedagogicalFamily?: string
+ }
 }
 
 type LichessChunkPuzzle = {
@@ -120,8 +135,12 @@ export type PatternTacticPuzzle = {
  chunkIndex: number
  rating?: number
  sourceTheme?: string
+ canonicalThemeKey?: string
+ canonicalThemeLabel?: string
+ rawTags?: string[]
  sourceIdentity?: string
  canonicalIdentity?: string
+ pedagogicalFamily?: string
 }
 
 type PuzzleMastery = {
@@ -351,8 +370,12 @@ function normalizePuzzle(
  chunkNumber,
   chunkIndex,
   rating: raw.rating,
-  sourceTheme: raw.sourceThemeTag || raw.sourceTheme || raw.sourceThemeKeys?.[0] || raw.sourceThemes?.[0] || raw.themes?.[0] || raw.theme || 'tactic',
+  sourceTheme: raw.canonicalThemeKey || raw.sourceThemeTag || raw.sourceTheme || raw.sourceThemeKeys?.[0] || raw.sourceThemes?.[0] || raw.themes?.[0] || raw.theme || 'tactic',
+  canonicalThemeKey: raw.canonicalThemeKey,
+  canonicalThemeLabel: raw.canonicalThemeLabel,
+  rawTags: raw.rawTags,
   sourceIdentity: String(raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
+  pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
   }
 }
 
@@ -496,14 +519,31 @@ export default function PatternTacticTrainer({
  } = useAnimatedReplies()
 
  const [searchParams] = useSearchParams()
+ const requestedLearnerCurriculumVersion = searchParams.get("learnerCurriculum")
+ const tacticLearnerCurriculum = getPatternTacticLearnerCurriculum(config.trainerKey)
+ const tacticDistance = Math.max(1, Number(config.trainerKey.match(/m([1-4])$/)?.[1] ?? 1))
+ const mixedLearnerCurricula = isMixedPatternTactic
+  ? getPatternTacticLearnerCurriculaForDistance(tacticDistance)
+  : []
+ const learnerCurriculumVersion = tacticLearnerCurriculum?.version ?? (isMixedPatternTactic ? `m${tacticDistance}-v1` : null)
+ const isLearnerFacingRequest = requestedLearnerCurriculumVersion === learnerCurriculumVersion
+ const progressTrainerKey = tacticLearnerCurriculum
+  ? getPatternTacticLearnerProgressTrainerKey(tacticLearnerCurriculum)
+  : config.trainerKey
+ const activeDataBasePath = isMixedPatternTactic
+  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-v1`
+  : tacticLearnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
  const urlChunkParam = searchParams.get('chunk')
- const forcedChunkIndex =
+ const requestedChunkIndex =
  urlChunkParam !== null && !isNaN(Number(urlChunkParam))
  ? Math.max(0, Number(urlChunkParam))
  : null
+ const forcedChunkIndex = requestedChunkIndex === null
+  ? null
+  : resolvePatternTacticLearnerFacingChunkIndex(requestedChunkIndex, tacticLearnerCurriculum, isLearnerFacingRequest)
  const requestedMixedPhase = searchParams.get("mixedPhase") === "blind" ? "blind" : null
 
- const manifestFetchPath = `${config.dataBasePath}/manifest.json`
+ const manifestFetchPath = `${activeDataBasePath}/manifest.json`
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
  const [mixedScope, setMixedScope] = useState<MixedSessionScope>(() => readRememberedMixedScope(config.trainerKey))
  const [mixedPhase, setMixedPhase] = useState<MixedSessionPhase>(() => requestedMixedPhase ?? readRememberedMixedPhase(config.trainerKey))
@@ -515,7 +555,7 @@ export default function PatternTacticTrainer({
  const mixedSessionEvidenceRef = useRef({ attempts: 0, correct: 0, themes: new Set<string>(), recordedPuzzleIds: new Set<string>() })
  const mixedPuzzleNeededHelpRef = useRef(false)
  const storageKey = getStorageKey(
-  isMixedPatternTactic ? `${config.trainerKey}:mixed-v2:${mixedScope}` : config.trainerKey
+  isMixedPatternTactic ? `${config.trainerKey}:mixed-v3:${mixedScope}:${mixedPhase}` : progressTrainerKey
  )
 
  const [chunkFiles, setChunkFiles] = useState<string[]>([])
@@ -636,7 +676,7 @@ export default function PatternTacticTrainer({
  .from('user_chunk_progress')
  .select('chunk_index')
  .eq('user_id', userId)
- .eq('trainer_key', config.trainerKey)
+ .eq('trainer_key', progressTrainerKey)
  .eq('chunk_index', chunkNumber)
  .limit(1)
 
@@ -653,7 +693,7 @@ export default function PatternTacticTrainer({
  .from('user_chunk_progress')
  .insert({
  user_id: userId,
- trainer_key: config.trainerKey,
+ trainer_key: progressTrainerKey,
  chunk_index: chunkNumber,
  mastered_puzzles_count: 0,
  is_mastered: false,
@@ -666,7 +706,7 @@ export default function PatternTacticTrainer({
  console.error('Could not create initial chunk row', insertError)
  } else {
  console.log('Created chunk row:', {
- trainerKey: config.trainerKey,
+ trainerKey: progressTrainerKey,
  chunkIndex: chunkNumber,
  })
  }
@@ -694,7 +734,7 @@ export default function PatternTacticTrainer({
  .from('user_chunk_progress')
  .select('review_stage, next_review_at, mastered_at')
  .eq('user_id', userId)
- .eq('trainer_key', config.trainerKey)
+ .eq('trainer_key', progressTrainerKey)
  .eq('chunk_index', chunkNumber)
  .maybeSingle()
 
@@ -723,7 +763,7 @@ export default function PatternTacticTrainer({
 
  const { error } = await supabase.from('user_chunk_progress').upsert({
  user_id: userId,
- trainer_key: config.trainerKey,
+ trainer_key: progressTrainerKey,
  chunk_index: chunkNumber,
  mastered_puzzles_count: masteredCount,
  is_mastered: true,
@@ -756,7 +796,7 @@ export default function PatternTacticTrainer({
  return Promise.resolve(true)
  }
 
- const saveKey = `${config.trainerKey}:${currentChunkIndex}:${masteredCount}`
+ const saveKey = `${progressTrainerKey}:${currentChunkIndex}:${masteredCount}`
  if (
  chunkMasterySaveKeyRef.current === saveKey &&
  chunkMasteryPromiseRef.current
@@ -786,7 +826,7 @@ export default function PatternTacticTrainer({
  useEffect(() => {
  if (!currentUserId) return
  void ensureChunkExists(currentUserId, 1)
- }, [currentUserId, config.trainerKey])
+ }, [currentUserId, progressTrainerKey])
 
  function persistProgress(
  nextChunkIndex: number,
@@ -846,7 +886,7 @@ export default function PatternTacticTrainer({
  try {
  const sourceFiles = isMixedPatternTactic ? files : [fileName]
  const sourceLists = await Promise.all(sourceFiles.map(async (sourceFile) => {
-  const res = await fetch(`${config.dataBasePath}/${sourceFile}`)
+  const res = await fetch(sourceFile.startsWith("/") ? sourceFile : `${activeDataBasePath}/${sourceFile}`)
   if (!res.ok) throw new Error(`HTTP ${res.status} while loading ${sourceFile}`)
   const data = (await res.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
   return Array.isArray(data) ? data : data.puzzles || []
@@ -874,9 +914,10 @@ export default function PatternTacticTrainer({
  })
  return {
  item: { ...puzzle, canonicalIdentity },
- theme: normaliseMixedThemeKey(puzzle.sourceTheme ?? puzzle.theme, "tactics"),
+ theme: normaliseMixedThemeKey(puzzle.canonicalThemeKey ?? puzzle.sourceTheme ?? puzzle.theme, "tactics"),
  canonicalIdentity,
  stableId: puzzle.id,
+ pedagogicalFamily: puzzle.pedagogicalFamily,
  }
  })
  const plan = getOrCreateMixedSessionPlan(candidates, {
@@ -926,7 +967,7 @@ export default function PatternTacticTrainer({
  .from('user_chunk_progress')
  .select('is_mastered, review_stage, next_review_at')
  .eq('user_id', currentUserId)
- .eq('trainer_key', config.trainerKey)
+ .eq('trainer_key', progressTrainerKey)
  .eq('chunk_index', chunkNumber)
  .maybeSingle()
 
@@ -951,7 +992,7 @@ export default function PatternTacticTrainer({
  updated_at: new Date().toISOString(),
  })
  .eq('user_id', currentUserId)
- .eq('trainer_key', config.trainerKey)
+ .eq('trainer_key', progressTrainerKey)
  .eq('chunk_index', chunkNumber)
 
  if (reopenError) {
@@ -1090,7 +1131,7 @@ export default function PatternTacticTrainer({
  .from('user_chunk_progress')
  .delete()
  .eq('user_id', currentUserId)
- .eq('trainer_key', config.trainerKey)
+ .eq('trainer_key', progressTrainerKey)
 
  if (chunkError) {
  console.error('Failed to restart mate chunk progression:', chunkError)
@@ -1127,7 +1168,7 @@ export default function PatternTacticTrainer({
   const manifestThemes = manifest.sourceThemes?.length
    ? manifest.sourceThemes
    : (await Promise.all(files.map(async (sourceFile) => {
-    const response = await fetch(`${config.dataBasePath}/${sourceFile}`)
+    const response = await fetch(sourceFile.startsWith("/") ? sourceFile : `${activeDataBasePath}/${sourceFile}`)
     if (!response.ok) throw new Error(`HTTP ${response.status} while reading mixed theme metadata`)
     const data = (await response.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
     const items = Array.isArray(data) ? data : data.puzzles || []
@@ -1141,6 +1182,34 @@ export default function PatternTacticTrainer({
  const saved = getSavedState(storageKey)
 
  let startChunkIndex: number
+ let compatibilityCredit = 0
+
+ if (currentUserId && tacticLearnerCurriculum) {
+  const { data: legacyRows, error: legacyError } = await supabase
+   .from("user_chunk_progress")
+   .select("chunk_index, is_mastered, mastered_puzzles_count")
+   .eq("user_id", currentUserId)
+   .eq("trainer_key", config.trainerKey)
+  if (legacyError) {
+   console.error("Could not read legacy tactic completion credit", legacyError)
+  } else {
+   compatibilityCredit = getPatternTacticLegacyCompletionCredit(legacyRows ?? [], tacticLearnerCurriculum).completedActiveChunks
+   if (compatibilityCredit > 0) {
+    const now = new Date().toISOString()
+    await Promise.all(Array.from({ length: compatibilityCredit }, (_, index) => supabase
+     .from("user_chunk_progress")
+     .upsert({
+      user_id: currentUserId,
+      trainer_key: progressTrainerKey,
+      chunk_index: index + 1,
+      mastered_puzzles_count: tacticLearnerCurriculum.activeChunkSize,
+      is_mastered: true,
+      mastered_at: now,
+      updated_at: now,
+     })))
+   }
+  }
+ }
 
  if (forcedChunkIndex !== null) {
  startChunkIndex = Math.max(
@@ -1151,7 +1220,7 @@ export default function PatternTacticTrainer({
  } else {
  startChunkIndex = Math.max(
  0,
- Math.min(files.length - 1, saved.currentChunkIndex ?? 0)
+ Math.min(files.length - 1, Math.max(saved.currentChunkIndex ?? 0, compatibilityCredit))
  )
 
  if (currentUserId) {
@@ -1159,7 +1228,7 @@ export default function PatternTacticTrainer({
  'get_next_due_chunk',
  {
  p_user_id: currentUserId,
- p_trainer_key: config.trainerKey,
+ p_trainer_key: progressTrainerKey,
  }
  )
 
@@ -1937,7 +2006,7 @@ function onSquareClick(square: string) {
 
  const currentPuzzleFastSolves = chunkProgress[currentIndex]?.fastSolves ?? 0
  const currentMixedSourceTheme = currentPuzzle
-  ? formatMixedThemeName(normaliseMixedThemeKey(currentPuzzle.sourceTheme ?? currentPuzzle.theme, "tactics"))
+  ? currentPuzzle.canonicalThemeLabel ?? formatMixedThemeName(normaliseMixedThemeKey(currentPuzzle.canonicalThemeKey ?? currentPuzzle.sourceTheme ?? currentPuzzle.theme, "tactics"))
   : ""
  const showMixedTheme = isMixedPatternTactic && shouldRevealMixedTheme(mixedPhase, blindThemeRevealed)
  const totalFastSolves = chunkProgress.reduce((sum, item) => sum + item.fastSolves, 0)

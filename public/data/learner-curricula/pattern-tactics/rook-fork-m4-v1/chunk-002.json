@@ -1,0 +1,1627 @@
+{
+  "puzzles": [
+    {
+      "id": "fork-rook-m4-zFXnv",
+      "puzzleId": "zFXnv",
+      "fen": "4r1k1/1b3pp1/p2p3p/1p1PrNq1/3QpnP1/P1N5/1PP2PP1/3RR1K1 w - - 7 26",
+      "preMove": "e1e4",
+      "solutionLine": [
+        "e5e4",
+        "c3e4",
+        "f4e2",
+        "g1f1",
+        "e2d4",
+        "e4g5",
+        "d4f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2047,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "Rook Fork / Double Attack",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@1,1,bk@0,6,bn@4,5,bq@3,6,br@0,4,br@3,4,wk@7,6,wn@3,5,wn@5,2,wq@4,3,wr@4,4,wr@7,3|line:br:1,0:r:->wn:-1,2:r:->bn:2,-1:-:->wk:0,-1:-:->bn:-2,-1:q:->wn:-1,2:q:->bn:-1,2:n:-|outcome:capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 6,
+        "sourceIndex": 23,
+        "sourceIdentity": "zFXnv",
+        "canonicalIdentity": "4r1k1/1b3pp1/p2p3p/1p1PrNq1/3QRnP1/P1N5/1PP2PP1/3R2K1 b - -|tactic-in-4|e5e4,c3e4,f4e2,g1f1,e2d4,e4g5,d4f5|zFXnv",
+        "pedagogicalFamily": "rook-fork|pieces:bb@1,1,bk@0,6,bn@4,5,bq@3,6,br@0,4,br@3,4,wk@7,6,wn@3,5,wn@5,2,wq@4,3,wr@4,4,wr@7,3|line:br:1,0:r:->wn:-1,2:r:->bn:2,-1:-:->wk:0,-1:-:->bn:-2,-1:q:->wn:-1,2:q:->bn:-1,2:n:-|outcome:capture:n,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e5",
+          "first-to:e4",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 0
+      }
+    },
+    {
+      "id": "fork-rook-m4-uzNsK",
+      "puzzleId": "uzNsK",
+      "fen": "r7/Bp3k2/4p2p/6p1/1nP5/1P5P/1P2RPP1/5K2 w - - 3 33",
+      "preMove": "a7d4",
+      "solutionLine": [
+        "a8a1",
+        "e2e1",
+        "a1e1",
+        "f1e1",
+        "b4c2",
+        "e1d2",
+        "c2d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1403,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-rook",
+        "decoy-attraction",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@1,2,bn@4,6,br@0,7,wb@4,4,wk@7,2,wr@6,3|line:br:7,0:-:->wr:1,0:-:->br:0,-4:r:->wk:0,1:r:->bn:2,-1:-:->wk:-1,1:-:->bn:-2,-1:b:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 2,
+        "sourceIndex": 0,
+        "sourceIdentity": "uzNsK",
+        "canonicalIdentity": "r7/1p3k2/4p2p/6p1/1nPB4/1P5P/1P2RPP1/5K2 b - -|tactic-in-4|a8a1,e2e1,a1e1,f1e1,b4c2,e1d2,c2d4|uzNsK",
+        "pedagogicalFamily": "rook-fork|pieces:bk@1,2,bn@4,6,br@0,7,wb@4,4,wk@7,2,wr@6,3|line:br:7,0:-:->wr:1,0:-:->br:0,-4:r:->wk:0,1:r:->bn:2,-1:-:->wk:-1,1:-:->bn:-2,-1:b:-|outcome:capture:b,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:a8",
+          "first-to:a1",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 1
+      }
+    },
+    {
+      "id": "fork-rook-m4-x7mhX",
+      "puzzleId": "x7mhX",
+      "fen": "5r1k/pQ2n1pp/8/6P1/3P3q/2P1B2P/PP2pP1K/R7 w - - 0 28",
+      "preMove": "a1e1",
+      "solutionLine": [
+        "f8f2",
+        "e3f2",
+        "h4f2",
+        "b7g2",
+        "f2e1",
+        "g2a8",
+        "e7g8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1039,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-rook",
+        "Rook Fork / Double Attack",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bn@1,3,bq@4,0,br@0,2,wb@5,3,wk@6,0,wq@1,6,wr@7,3|line:br:6,0:p:->wb:1,-1:r:->bq:2,2:b:->wq:5,-5:-:->bq:1,1:r:->wq:-6,6:-:->bn:-1,-2:-:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 19,
+        "sourceIdentity": "x7mhX",
+        "canonicalIdentity": "5r1k/pQ2n1pp/8/6P1/3P3q/2P1B2P/PP2pP1K/4R3 b - -|tactic-in-4|f8f2,e3f2,h4f2,b7g2,f2e1,g2a8,e7g8|x7mhX",
+        "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bn@1,3,bq@4,0,br@0,2,wb@5,3,wk@6,0,wq@1,6,wr@7,3|line:br:6,0:p:->wb:1,-1:r:->bq:2,2:b:->wq:5,-5:-:->bq:1,1:r:->wq:-6,6:-:->bn:-1,-2:-:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f8",
+          "first-to:f2",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 2
+      }
+    },
+    {
+      "id": "fork-rook-m4-yVqbh",
+      "puzzleId": "yVqbh",
+      "fen": "Q3R3/p2q2pk/3p1p1p/2p5/8/7P/PrP2PP1/6K1 b - - 3 28",
+      "preMove": "b2c2",
+      "solutionLine": [
+        "e8h8",
+        "h7g6",
+        "a8e4",
+        "d7f5",
+        "e4e8",
+        "g6g5",
+        "e8e3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2328,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-rook",
+        "Rook Fork / Double Attack",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@0,1,bq@4,1,br@5,6,wk@1,7,wq@7,0,wr@3,0|line:wr:-3,0:-:->bk:1,1:-:->wq:-4,4:-:->bq:-2,2:-:->wq:0,-4:-:->bk:0,1:-:->wq:0,5:-:-|outcome:check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 8,
+        "sourceIndex": 19,
+        "sourceIdentity": "yVqbh",
+        "canonicalIdentity": "Q3R3/p2q2pk/3p1p1p/2p5/8/7P/P1r2PP1/6K1 w - -|tactic-in-4|e8h8,h7g6,a8e4,d7f5,e4e8,g6g5,e8e3|yVqbh",
+        "pedagogicalFamily": "rook-fork|pieces:bk@0,1,bq@4,1,br@5,6,wk@1,7,wq@7,0,wr@3,0|line:wr:-3,0:-:->bk:1,1:-:->wq:-4,4:-:->bq:-2,2:-:->wq:0,-4:-:->bk:0,1:-:->wq:0,5:-:-|outcome:check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e8",
+          "first-to:h8",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 3
+      }
+    },
+    {
+      "id": "fork-rook-m4-y9FmR",
+      "puzzleId": "y9FmR",
+      "fen": "r5rk/ppp5/3p1q1p/3Pn2P/2PQ1p2/3N1P2/PP6/2KR2R1 w - - 1 25",
+      "preMove": "d3f4",
+      "solutionLine": [
+        "g8g1",
+        "d1g1",
+        "f6f4",
+        "d4f4",
+        "e5d3",
+        "c1d2",
+        "d3f4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1782,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook",
+        "zwischenzug"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice",
+        "Zwischenzug / Intermezzo"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "intermezzo",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "intermezzo",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook",
+        "zwischenzug",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice",
+        "Zwischenzug / Intermezzo",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bn@3,3,bq@2,2,br@0,1,br@0,7,wk@7,5,wn@4,2,wq@4,4,wr@7,1,wr@7,4|line:br:7,0:r:->wr:0,-3:r:->bq:2,0:n:->wq:0,-2:q:->bn:2,1:-:->wk:-1,-1:-:->bn:-1,-2:q:-|outcome:capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 4,
+        "sourceIndex": 12,
+        "sourceIdentity": "y9FmR",
+        "canonicalIdentity": "r5rk/ppp5/3p1q1p/3Pn2P/2PQ1N2/5P2/PP6/2KR2R1 b - -|tactic-in-4|g8g1,d1g1,f6f4,d4f4,e5d3,c1d2,d3f4|y9FmR",
+        "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bn@3,3,bq@2,2,br@0,1,br@0,7,wk@7,5,wn@4,2,wq@4,4,wr@7,1,wr@7,4|line:br:7,0:r:->wr:0,-3:r:->bq:2,0:n:->wq:0,-2:q:->bn:2,1:-:->wk:-1,-1:-:->bn:-1,-2:q:-|outcome:capture:n,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g8",
+          "first-to:g1",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 4
+      }
+    },
+    {
+      "id": "fork-rook-m4-z8LQK",
+      "puzzleId": "z8LQK",
+      "fen": "R7/2p2p1k/1p4pp/1PbP4/3n1P2/2Q3KP/4r1P1/8 w - - 0 42",
+      "preMove": "h3h4",
+      "solutionLine": [
+        "e2e3",
+        "c3e3",
+        "d4f5",
+        "g3f3",
+        "f5e3",
+        "d5d6",
+        "c7d6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2072,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@2,3,bk@7,1,bn@3,4,br@4,6,wk@6,5,wq@2,5,wr@0,0|line:br:0,-1:-:->wq:2,0:r:->bn:2,-1:-:->wk:-1,0:-:->bn:-1,2:q:->wp:0,-1:-:->bp:1,1:p:-|outcome:capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 6,
+        "sourceIndex": 10,
+        "sourceIdentity": "z8LQK",
+        "canonicalIdentity": "R7/2p2p1k/1p4pp/1PbP4/3n1P1P/2Q3K1/4r1P1/8 b - -|tactic-in-4|e2e3,c3e3,d4f5,g3f3,f5e3,d5d6,c7d6|z8LQK",
+        "pedagogicalFamily": "rook-fork|pieces:bb@2,3,bk@7,1,bn@3,4,br@4,6,wk@6,5,wq@2,5,wr@0,0|line:br:0,-1:-:->wq:2,0:r:->bn:2,-1:-:->wk:-1,0:-:->bn:-1,2:q:->wp:0,-1:-:->bp:1,1:p:-|outcome:capture:p,capture:q,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e2",
+          "first-to:e3",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 5
+      }
+    },
+    {
+      "id": "fork-rook-m4-tm5fQ",
+      "puzzleId": "tm5fQ",
+      "fen": "4r2k/1p3pp1/p4n1p/8/PP3R2/2q5/5Q2/3R2K1 b - - 3 34",
+      "preMove": "f6e4",
+      "solutionLine": [
+        "f4e4",
+        "e8e4",
+        "d1d8",
+        "h8h7",
+        "f2f5",
+        "g7g6",
+        "f5e4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1431,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bn@3,4,bq@5,5,br@3,0,wk@1,7,wq@2,6,wr@2,4,wr@4,7|line:wr:1,0:n:->br:0,4:r:->wr:0,-7:-:->bk:0,1:-:->wq:0,-3:-:->bp:0,1:-:->wq:1,1:r:-|outcome:capture:n,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 2,
+        "sourceIndex": 19,
+        "sourceIdentity": "tm5fQ",
+        "canonicalIdentity": "4r2k/1p3pp1/p6p/8/PP2nR2/2q5/5Q2/3R2K1 w - -|tactic-in-4|f4e4,e8e4,d1d8,h8h7,f2f5,g7g6,f5e4|tm5fQ",
+        "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bn@3,4,bq@5,5,br@3,0,wk@1,7,wq@2,6,wr@2,4,wr@4,7|line:wr:1,0:n:->br:0,4:r:->wr:0,-7:-:->bk:0,1:-:->wq:0,-3:-:->bp:0,1:-:->wq:1,1:r:-|outcome:capture:n,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f4",
+          "first-to:e4",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 6
+      }
+    },
+    {
+      "id": "fork-rook-m4-xtyEJ",
+      "puzzleId": "xtyEJ",
+      "fen": "4rrk1/pp2Qpp1/7p/2pP4/2Pp4/2qP3P/4BPP1/1R1K3R w - - 1 20",
+      "preMove": "e7c5",
+      "solutionLine": [
+        "e8e2",
+        "d1e2",
+        "f8e8",
+        "e2f1",
+        "c3d3",
+        "f1g1",
+        "d3b1",
+        "g1h2",
+        "b1e4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2453,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-deflection-combined",
+        "vulnerable-king",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy + Deflection",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "deflection",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "deflection",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "decoy-deflection-combined",
+        "vulnerable-king",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Decoy + Deflection",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@0,1,bq@5,5,br@0,2,br@0,3,wb@6,3,wk@7,4,wq@3,5,wr@7,0,wr@7,6|line:br:6,0:b:->wk:-1,-1:r:->br:0,1:-:->wk:1,-1:-:->bq:0,-1:p:->wk:0,-1:-:->bq:2,2:r:->wk:-1,-1:-:->bq:-3,-3:-:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 9,
+        "sourceIndex": 0,
+        "sourceIdentity": "xtyEJ",
+        "canonicalIdentity": "4rrk1/pp3pp1/7p/2QP4/2Pp4/2qP3P/4BPP1/1R1K3R b - -|tactic-in-4|e8e2,d1e2,f8e8,e2f1,c3d3,f1g1,d3b1,g1h2,b1e4|xtyEJ",
+        "pedagogicalFamily": "rook-fork|pieces:bk@0,1,bq@5,5,br@0,2,br@0,3,wb@6,3,wk@7,4,wq@3,5,wr@7,0,wr@7,6|line:br:6,0:b:->wk:-1,-1:r:->br:0,1:-:->wk:1,-1:-:->bq:0,-1:p:->wk:0,-1:-:->bq:2,2:r:->wk:-1,-1:-:->bq:-3,-3:-:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e8",
+          "first-to:e2",
+          "king-region:queen-side",
+          "line-length:9",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 7
+      }
+    },
+    {
+      "id": "fork-rook-m4-nNaKG",
+      "puzzleId": "nNaKG",
+      "fen": "7r/PR6/B2k4/3b4/8/6rp/2Q4K/8 w - - 0 39",
+      "preMove": "b7b5",
+      "solutionLine": [
+        "g3g2",
+        "h2h1",
+        "g2c2",
+        "b5d5",
+        "d6d5",
+        "a7a8q",
+        "h8a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1135,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "discovered-check",
+        "fork-rook",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Discovered Check",
+        "Rook Fork / Double Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "discoveredAttack",
+        "discoveredCheck",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "discoveredAttack",
+        "discoveredCheck",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "veryLong",
+        "discovered-attack",
+        "discovered-check",
+        "fork-rook",
+        "vulnerable-king",
+        "Discovered Attack",
+        "Discovered Check",
+        "Rook Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@3,3,bk@2,3,br@0,7,br@5,6,wb@2,0,wk@6,7,wq@6,2,wr@3,1|line:br:1,0:-:->wk:1,0:-:->br:0,-4:q:->wr:0,2:b:->bk:1,0:r:->wp:-1,0:-:q>br:0,-7:q:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 12,
+        "sourceIdentity": "nNaKG",
+        "canonicalIdentity": "7r/P7/B2k4/1R1b4/8/6rp/2Q4K/8 b - -|tactic-in-4|g3g2,h2h1,g2c2,b5d5,d6d5,a7a8q,h8a8|nNaKG",
+        "pedagogicalFamily": "rook-fork|pieces:bb@3,3,bk@2,3,br@0,7,br@5,6,wb@2,0,wk@6,7,wq@6,2,wr@3,1|line:br:1,0:-:->wk:1,0:-:->br:0,-4:q:->wr:0,2:b:->bk:1,0:r:->wp:-1,0:-:q>br:0,-7:q:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g3",
+          "first-to:g2",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 8
+      }
+    },
+    {
+      "id": "fork-rook-m4-zxofz",
+      "puzzleId": "zxofz",
+      "fen": "1n6/p1pkr1p1/3p3p/3P4/Q4R2/2P1q2P/Pr4P1/5R1K b - - 2 26",
+      "preMove": "d7c8",
+      "solutionLine": [
+        "f4f8",
+        "c8b7",
+        "f8b8",
+        "b7b8",
+        "f1f8",
+        "e7e8",
+        "f8e8",
+        "e3e8",
+        "a4e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1501,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@0,2,bn@0,1,bq@5,4,br@1,4,br@6,1,wk@7,7,wq@4,0,wr@4,5,wr@7,5|line:wr:-4,0:-:->bk:1,-1:-:->wr:0,-4:n:->bk:-1,0:r:->wr:-7,0:-:->br:-1,0:-:->wr:0,-1:r:->bq:-5,0:r:->wq:-4,4:q:-|outcome:capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 2,
+        "sourceIndex": 22,
+        "sourceIdentity": "zxofz",
+        "canonicalIdentity": "1nk5/p1p1r1p1/3p3p/3P4/Q4R2/2P1q2P/Pr4P1/5R1K w - -|tactic-in-4|f4f8,c8b7,f8b8,b7b8,f1f8,e7e8,f8e8,e3e8,a4e8|zxofz",
+        "pedagogicalFamily": "rook-fork|pieces:bk@0,2,bn@0,1,bq@5,4,br@1,4,br@6,1,wk@7,7,wq@4,0,wr@4,5,wr@7,5|line:wr:-4,0:-:->bk:1,-1:-:->wr:0,-4:n:->bk:-1,0:r:->wr:-7,0:-:->br:-1,0:-:->wr:0,-1:r:->bq:-5,0:r:->wq:-4,4:q:-|outcome:capture:n,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f4",
+          "first-to:f8",
+          "king-region:queen-side",
+          "line-length:9",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 9
+      }
+    },
+    {
+      "id": "fork-rook-m4-z9zjR",
+      "puzzleId": "z9zjR",
+      "fen": "1r6/5r1k/p2p2Rp/q1pPbb1P/2p2p2/2N2P2/PP4Q1/2K1B1R1 b - - 4 26",
+      "preMove": "f7b7",
+      "solutionLine": [
+        "g6h6",
+        "h7h6",
+        "g2g5",
+        "h6h7",
+        "g5f5",
+        "h7h8",
+        "e1h4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2403,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "defense",
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "defensiveMove",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "defensiveMove",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "defense",
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook",
+        "Defense",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@2,3,bb@3,3,bk@0,1,bq@7,3,br@6,0,br@6,1,wb@3,7,wk@5,7,wn@5,5,wq@1,6,wr@1,2,wr@1,7|line:wr:-1,0:p:->bk:0,1:r:->wq:0,-3:-:->bk:0,-1:-:->wq:1,0:b:->bk:0,-1:-:->wb:-3,-3:-:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 9,
+        "sourceIndex": 2,
+        "sourceIdentity": "z9zjR",
+        "canonicalIdentity": "1r6/1r5k/p2p2Rp/q1pPbb1P/2p2p2/2N2P2/PP4Q1/2K1B1R1 w - -|tactic-in-4|g6h6,h7h6,g2g5,h6h7,g5f5,h7h8,e1h4|z9zjR",
+        "pedagogicalFamily": "rook-fork|pieces:bb@2,3,bb@3,3,bk@0,1,bq@7,3,br@6,0,br@6,1,wb@3,7,wk@5,7,wn@5,5,wq@1,6,wr@1,2,wr@1,7|line:wr:-1,0:p:->bk:0,1:r:->wq:0,-3:-:->bk:0,-1:-:->wq:1,0:b:->bk:0,-1:-:->wb:-3,-3:-:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g6",
+          "first-to:h6",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 10
+      }
+    },
+    {
+      "id": "fork-rook-m4-urSb3",
+      "puzzleId": "urSb3",
+      "fen": "1k6/pp1r2pp/2p3b1/3q4/3p3P/7Q/PP1N2P1/4R1K1 b - - 0 27",
+      "preMove": "d5f5",
+      "solutionLine": [
+        "e1e8",
+        "b8c7",
+        "h3g3",
+        "c7b6",
+        "d2c4",
+        "b6c5",
+        "e8e5",
+        "d7d5",
+        "e5f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1902,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-rook",
+        "Rook Fork / Double Attack",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@1,2,bk@6,0,bq@2,3,br@4,1,wk@1,7,wn@4,6,wq@0,5,wr@3,7|line:wr:0,-7:-:->bk:-1,1:-:->wq:1,0:-:->bk:1,1:-:->wn:1,-2:-:->bk:-1,1:-:->wr:0,3:-:->br:0,2:-:->wr:-1,0:q:-|outcome:capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 5,
+        "sourceIndex": 2,
+        "sourceIdentity": "urSb3",
+        "canonicalIdentity": "1k6/pp1r2pp/2p3b1/5q2/3p3P/7Q/PP1N2P1/4R1K1 w - -|tactic-in-4|e1e8,b8c7,h3g3,c7b6,d2c4,b6c5,e8e5,d7d5,e5f5|urSb3",
+        "pedagogicalFamily": "rook-fork|pieces:bb@1,2,bk@6,0,bq@2,3,br@4,1,wk@1,7,wn@4,6,wq@0,5,wr@3,7|line:wr:0,-7:-:->bk:-1,1:-:->wq:1,0:-:->bk:1,1:-:->wn:1,-2:-:->bk:-1,1:-:->wr:0,3:-:->br:0,2:-:->wr:-1,0:q:-|outcome:capture:q,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e1",
+          "first-to:e8",
+          "king-region:queen-side",
+          "line-length:9",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 11
+      }
+    },
+    {
+      "id": "fork-rook-m4-Olbzo",
+      "puzzleId": "Olbzo",
+      "fen": "3r3k/1p1N1p1p/p1n3r1/7N/P5P1/7P/1PP2P2/2K1R3 b - - 6 27",
+      "preMove": "d8d7",
+      "solutionLine": [
+        "e1e8",
+        "g6g8",
+        "e8g8",
+        "h8g8",
+        "h5f6",
+        "g8f8",
+        "f6d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 720,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-rook",
+        "decoy-attraction",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bn@2,5,br@1,4,br@2,1,wk@7,5,wn@3,0,wr@7,3|line:wr:-7,0:-:->br:-2,0:-:->wr:0,-2:r:->bk:0,1:r:->wn:-1,2:-:->bk:0,1:-:->wn:-1,2:r:-|outcome:capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 25,
+        "sourceIdentity": "Olbzo",
+        "canonicalIdentity": "7k/1p1r1p1p/p1n3r1/7N/P5P1/7P/1PP2P2/2K1R3 w - -|tactic-in-4|e1e8,g6g8,e8g8,h8g8,h5f6,g8f8,f6d7|Olbzo",
+        "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bn@2,5,br@1,4,br@2,1,wk@7,5,wn@3,0,wr@7,3|line:wr:-7,0:-:->br:-2,0:-:->wr:0,-2:r:->bk:0,1:r:->wn:-1,2:-:->bk:0,1:-:->wn:-1,2:r:-|outcome:capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e1",
+          "first-to:e8",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 12
+      }
+    },
+    {
+      "id": "fork-rook-m4-nLzCt",
+      "puzzleId": "nLzCt",
+      "fen": "1r6/4qpk1/2QNpb1r/3p2P1/1P5p/2P4P/P5P1/5RK1 b - - 0 31",
+      "preMove": "f6g5",
+      "solutionLine": [
+        "f1f7",
+        "e7f7",
+        "d6f7",
+        "g5e3",
+        "g1f1",
+        "h6f6",
+        "f1e2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2121,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "Rook Fork / Double Attack",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@1,3,bk@1,1,bq@3,1,br@0,2,br@6,0,wk@1,7,wn@4,2,wq@5,2,wr@2,7|line:wr:0,-6:p:->bq:-1,0:r:->wn:-2,-1:q:->bb:2,2:-:->wk:1,0:-:->br:2,0:-:->wk:1,-1:-:-|outcome:capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 6,
+        "sourceIndex": 4,
+        "sourceIdentity": "nLzCt",
+        "canonicalIdentity": "1r6/4qpk1/2QNp2r/3p2b1/1P5p/2P4P/P5P1/5RK1 w - -|tactic-in-4|f1f7,e7f7,d6f7,g5e3,g1f1,h6f6,f1e2|nLzCt",
+        "pedagogicalFamily": "rook-fork|pieces:bb@1,3,bk@1,1,bq@3,1,br@0,2,br@6,0,wk@1,7,wn@4,2,wq@5,2,wr@2,7|line:wr:0,-6:p:->bq:-1,0:r:->wn:-2,-1:q:->bb:2,2:-:->wk:1,0:-:->br:2,0:-:->wk:1,-1:-:-|outcome:capture:p,capture:q,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f1",
+          "first-to:f7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 13
+      }
+    },
+    {
+      "id": "fork-rook-m4-zZOrX",
+      "puzzleId": "zZOrX",
+      "fen": "4r2r/ppk5/1q1bQ3/3p1p2/1P1p1P2/P2B4/2P3PP/RNB3K1 w - - 1 20",
+      "preMove": "e6d5",
+      "solutionLine": [
+        "e8e1",
+        "g1f2",
+        "e1c1",
+        "b1d2",
+        "c1a1",
+        "d2c4",
+        "b6c6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1511,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "Rook Fork / Double Attack",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@2,3,bk@1,2,bq@2,1,br@0,4,br@0,7,wb@5,3,wb@7,2,wk@7,6,wn@7,1,wq@3,3,wr@7,0|line:br:7,0:-:->wk:-1,-1:-:->br:0,-2:b:->wn:-1,2:-:->br:0,-2:r:->wn:-2,-1:-:->bq:0,1:-:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 2,
+        "sourceIndex": 28,
+        "sourceIdentity": "zZOrX",
+        "canonicalIdentity": "4r2r/ppk5/1q1b4/3Q1p2/1P1p1P2/P2B4/2P3PP/RNB3K1 b - -|tactic-in-4|e8e1,g1f2,e1c1,b1d2,c1a1,d2c4,b6c6|zZOrX",
+        "pedagogicalFamily": "rook-fork|pieces:bb@2,3,bk@1,2,bq@2,1,br@0,4,br@0,7,wb@5,3,wb@7,2,wk@7,6,wn@7,1,wq@3,3,wr@7,0|line:br:7,0:-:->wk:-1,-1:-:->br:0,-2:b:->wn:-1,2:-:->br:0,-2:r:->wn:-2,-1:-:->bq:0,1:-:-|outcome:capture:b,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e8",
+          "first-to:e1",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 14
+      }
+    },
+    {
+      "id": "fork-rook-m4-z5kuf",
+      "puzzleId": "z5kuf",
+      "fen": "7k/p1p1b1p1/3q2r1/1p1B2rp/2P5/1P1Q3P/P2P1PP1/R1B2RK1 w - - 1 25",
+      "preMove": "g2g3",
+      "solutionLine": [
+        "g5g3",
+        "f2g3",
+        "g6g3",
+        "d3g3",
+        "d6g3",
+        "d5g2",
+        "e7c5",
+        "g1h1",
+        "c5d6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1950,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "defense",
+        "fork-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "defensiveMove",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "defensiveMove",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "defense",
+        "fork-rook",
+        "sacrifice-rook",
+        "Defense",
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@1,3,bk@0,0,bq@2,4,br@2,1,br@3,1,wb@3,4,wb@7,5,wk@7,1,wq@5,4,wr@7,2,wr@7,7|line:br:2,0:p:->wp:-1,-1:r:->br:3,0:p:->wq:0,-3:r:->bq:3,-3:q:->wb:3,-3:-:->bb:2,2:-:->wk:0,-1:-:->bb:-1,-1:-:-|outcome:capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 5,
+        "sourceIndex": 8,
+        "sourceIdentity": "z5kuf",
+        "canonicalIdentity": "7k/p1p1b1p1/3q2r1/1p1B2rp/2P5/1P1Q2PP/P2P1P2/R1B2RK1 b - -|tactic-in-4|g5g3,f2g3,g6g3,d3g3,d6g3,d5g2,e7c5,g1h1,c5d6|z5kuf",
+        "pedagogicalFamily": "rook-fork|pieces:bb@1,3,bk@0,0,bq@2,4,br@2,1,br@3,1,wb@3,4,wb@7,5,wk@7,1,wq@5,4,wr@7,2,wr@7,7|line:br:2,0:p:->wp:-1,-1:r:->br:3,0:p:->wq:0,-3:r:->bq:3,-3:q:->wb:3,-3:-:->bb:2,2:-:->wk:0,-1:-:->bb:-1,-1:-:-|outcome:capture:p,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g5",
+          "first-to:g3",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 15
+      }
+    },
+    {
+      "id": "fork-rook-m4-z9s4w",
+      "puzzleId": "z9s4w",
+      "fen": "2r1r1kb/5p1p/6pP/p2N3q/2p2B2/2Pn1PQ1/PP4P1/R3R1K1 w - - 1 34",
+      "preMove": "d5e7",
+      "solutionLine": [
+        "e8e7",
+        "e1e7",
+        "h5c5",
+        "e7e3",
+        "h8e5",
+        "f4e5",
+        "c5e3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2608,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "deflection",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Deflection",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Deflection",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@0,0,bk@0,1,bn@5,4,bq@3,0,br@0,3,br@0,5,wb@4,2,wk@7,1,wn@1,3,wq@5,1,wr@7,3,wr@7,7|line:br:1,0:n:->wr:-6,0:r:->bq:0,5:-:->wr:4,0:-:->bb:3,3:-:->wb:-1,1:b:->bq:2,-2:r:-|outcome:capture:b,capture:n,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 10,
+        "sourceIndex": 10,
+        "sourceIdentity": "z9s4w",
+        "canonicalIdentity": "2r1r1kb/4Np1p/6pP/p6q/2p2B2/2Pn1PQ1/PP4P1/R3R1K1 b - -|tactic-in-4|e8e7,e1e7,h5c5,e7e3,h8e5,f4e5,c5e3|z9s4w",
+        "pedagogicalFamily": "rook-fork|pieces:bb@0,0,bk@0,1,bn@5,4,bq@3,0,br@0,3,br@0,5,wb@4,2,wk@7,1,wn@1,3,wq@5,1,wr@7,3,wr@7,7|line:br:1,0:n:->wr:-6,0:r:->bq:0,5:-:->wr:4,0:-:->bb:3,3:-:->wb:-1,1:b:->bq:2,-2:r:-|outcome:capture:b,capture:n,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e8",
+          "first-to:e7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 16
+      }
+    },
+    {
+      "id": "fork-rook-m4-zeJe1",
+      "puzzleId": "zeJe1",
+      "fen": "2kr3r/Rpp1qp2/4pn1p/4N1p1/1Pb5/2N1P1B1/1PK2PPP/7R b - - 0 17",
+      "preMove": "c8b8",
+      "solutionLine": [
+        "h1a1",
+        "c4a6",
+        "a1a6",
+        "b7a6",
+        "e5c6",
+        "b8c8",
+        "c6e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2438,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "fork-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "quietMove",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "quietMove",
+        "sacrifice",
+        "veryLong",
+        "quiet-move",
+        "fork-rook",
+        "sacrifice-rook",
+        "Quiet Move",
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bb@2,3,bk@1,7,bn@5,5,bq@4,6,br@3,7,br@7,7,wb@6,2,wk@2,1,wn@2,2,wn@4,4,wr@0,6,wr@7,0|line:wr:-7,0:-:->bb:-2,2:-:->wr:0,5:b:->bp:-1,-1:r:->wn:-2,1:-:->bk:1,0:-:->wn:2,1:q:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 9,
+        "sourceIndex": 18,
+        "sourceIdentity": "zeJe1",
+        "canonicalIdentity": "1k1r3r/Rpp1qp2/4pn1p/4N1p1/1Pb5/2N1P1B1/1PK2PPP/7R w - -|tactic-in-4|h1a1,c4a6,a1a6,b7a6,e5c6,b8c8,c6e7|zeJe1",
+        "pedagogicalFamily": "rook-fork|pieces:bb@2,3,bk@1,7,bn@5,5,bq@4,6,br@3,7,br@7,7,wb@6,2,wk@2,1,wn@2,2,wn@4,4,wr@0,6,wr@7,0|line:wr:-7,0:-:->bb:-2,2:-:->wr:0,5:b:->bp:-1,-1:r:->wn:-2,1:-:->bk:1,0:-:->wn:2,1:q:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:h1",
+          "first-to:a1",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 17
+      }
+    },
+    {
+      "id": "fork-rook-m4-xuKFg",
+      "puzzleId": "xuKFg",
+      "fen": "3rr3/pp3pkp/2p3p1/8/3PP3/5R2/qPQ3PP/5RK1 b - - 2 23",
+      "preMove": "d8d4",
+      "solutionLine": [
+        "f3f7",
+        "a2f7",
+        "f1f7",
+        "g7f7",
+        "c2f2",
+        "f7e6",
+        "f2d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1233,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-rook",
+        "decoy-attraction",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@1,1,bq@6,7,br@0,3,br@4,4,wk@7,1,wq@6,5,wr@5,2,wr@7,2|line:wr:-4,0:p:->bq:-5,-5:r:->wr:-6,0:q:->bk:0,1:r:->wq:0,-3:-:->bk:1,1:-:->wq:-2,2:r:-|outcome:capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 26,
+        "sourceIdentity": "xuKFg",
+        "canonicalIdentity": "4r3/pp3pkp/2p3p1/8/3rP3/5R2/qPQ3PP/5RK1 w - -|tactic-in-4|f3f7,a2f7,f1f7,g7f7,c2f2,f7e6,f2d4|xuKFg",
+        "pedagogicalFamily": "rook-fork|pieces:bk@1,1,bq@6,7,br@0,3,br@4,4,wk@7,1,wq@6,5,wr@5,2,wr@7,2|line:wr:-4,0:p:->bq:-5,-5:r:->wr:-6,0:q:->bk:0,1:r:->wq:0,-3:-:->bk:1,1:-:->wq:-2,2:r:-|outcome:capture:p,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f3",
+          "first-to:f7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 18
+      }
+    },
+    {
+      "id": "fork-rook-m4-vvi7Q",
+      "puzzleId": "vvi7Q",
+      "fen": "2r1r2k/Q4pp1/4p2p/8/3PP2q/5P1P/P4PK1/2BR4 w - - 1 26",
+      "preMove": "a7f7",
+      "solutionLine": [
+        "e8f8",
+        "f7e6",
+        "c8c1",
+        "d1c1",
+        "h4g5",
+        "e6g4",
+        "g5c1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2237,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bq@0,4,br@3,0,br@5,0,wb@5,7,wk@1,6,wq@2,1,wr@4,7|line:br:-1,0:-:->wq:1,1:p:->br:0,7:b:->wr:1,0:r:->bq:1,-1:-:->wq:-2,2:-:->bq:4,4:r:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 7,
+        "sourceIndex": 11,
+        "sourceIdentity": "vvi7Q",
+        "canonicalIdentity": "2r1r2k/5Qp1/4p2p/8/3PP2q/5P1P/P4PK1/2BR4 b - -|tactic-in-4|e8f8,f7e6,c8c1,d1c1,h4g5,e6g4,g5c1|vvi7Q",
+        "pedagogicalFamily": "rook-fork|pieces:bk@0,0,bq@0,4,br@3,0,br@5,0,wb@5,7,wk@1,6,wq@2,1,wr@4,7|line:br:-1,0:-:->wq:1,1:p:->br:0,7:b:->wr:1,0:r:->bq:1,-1:-:->wq:-2,2:-:->bq:4,4:r:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e8",
+          "first-to:f8",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 19
+      }
+    }
+  ]
+}

@@ -1,0 +1,1511 @@
+{
+  "puzzles": [
+    {
+      "id": "pin-rook-m3-xnmai",
+      "puzzleId": "xnmai",
+      "fen": "2r3k1/4p3/3r2pp/8/4P3/1Q2B3/P3q1PP/5RK1 b - - 3 26",
+      "preMove": "e2c4",
+      "solutionLine": [
+        "f1c1",
+        "c4b3",
+        "c1c8",
+        "g8f7",
+        "a2b3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1946,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "skewer-rook",
+        "vulnerable-king",
+        "sacrifice-rook",
+        "zwischenzug"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Rook Skewer",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice",
+        "Zwischenzug / Intermezzo"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "intermezzo",
+        "long",
+        "pin",
+        "sacrifice",
+        "skewer"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "intermezzo",
+        "long",
+        "pin",
+        "sacrifice",
+        "skewer",
+        "pin-rook",
+        "skewer-rook",
+        "vulnerable-king",
+        "sacrifice-rook",
+        "zwischenzug",
+        "Rook Pin",
+        "Rook Skewer",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice",
+        "Zwischenzug / Intermezzo",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bq@4,5,br@0,5,br@2,4,wb@5,3,wk@7,1,wq@5,6,wr@7,2|line:wr:0,3:-:->bq:1,1:q:->wr:-7,0:r:->bk:1,1:-:->wp:-1,-1:q:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 15,
+        "sourceIdentity": "xnmai",
+        "canonicalIdentity": "2r3k1/4p3/3r2pp/8/2q1P3/1Q2B3/P5PP/5RK1 w - -|tactic-in-3|f1c1,c4b3,c1c8,g8f7,a2b3|xnmai",
+        "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bq@4,5,br@0,5,br@2,4,wb@5,3,wk@7,1,wq@5,6,wr@7,2|line:wr:0,3:-:->bq:1,1:q:->wr:-7,0:r:->bk:1,1:-:->wp:-1,-1:q:-|outcome:capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f1",
+          "first-to:c1",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 0
+      }
+    },
+    {
+      "id": "pin-rook-m3-zcF9Q",
+      "puzzleId": "zcF9Q",
+      "fen": "1r4k1/5pPp/4p2P/5bB1/r2P4/1pP5/1Q3P1K/2R5 w - - 4 41",
+      "preMove": "c1a1",
+      "solutionLine": [
+        "a4a1",
+        "b2a1",
+        "b3b2",
+        "a1b2",
+        "b8b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1105,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Rook Pin"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "advanced-pawn",
+        "pin-rook",
+        "Advanced Pawn",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@2,3,bk@1,0,br@6,0,br@7,4,wb@1,3,wk@0,6,wq@6,6,wr@7,7|line:br:0,3:r:->wq:1,1:r:->bp:0,1:-:->wq:-1,-1:p:->br:0,6:q:-|outcome:capture:p,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 1,
+        "sourceIndex": 24,
+        "sourceIdentity": "zcF9Q",
+        "canonicalIdentity": "1r4k1/5pPp/4p2P/5bB1/r2P4/1pP5/1Q3P1K/R7 b - -|tactic-in-3|a4a1,b2a1,b3b2,a1b2,b8b2|zcF9Q",
+        "pedagogicalFamily": "rook-pin|pieces:bb@2,3,bk@1,0,br@6,0,br@7,4,wb@1,3,wk@0,6,wq@6,6,wr@7,7|line:br:0,3:r:->wq:1,1:r:->bp:0,1:-:->wq:-1,-1:p:->br:0,6:q:-|outcome:capture:p,capture:q,capture:r",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:a4",
+          "first-to:a1",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 1
+      }
+    },
+    {
+      "id": "pin-rook-m3-znu1u",
+      "puzzleId": "znu1u",
+      "fen": "1k1r4/1p6/p2p4/2qPnBr1/2P5/7P/P1Q3P1/1R3RK1 w - - 0 28",
+      "preMove": "c2f2",
+      "solutionLine": [
+        "g5f5",
+        "f2c5",
+        "f5f1",
+        "b1f1",
+        "d6c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2111,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "zwischenzug"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Zwischenzug / Intermezzo"
+      ],
+      "themes": [
+        "advantage",
+        "intermezzo",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "intermezzo",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "zwischenzug",
+        "Rook Pin",
+        "Zwischenzug / Intermezzo",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bn@3,4,bq@3,2,br@0,3,br@3,6,wb@3,5,wk@7,6,wq@6,5,wr@7,1,wr@7,5|line:br:0,-1:b:->wq:-3,-3:q:->br:4,0:r:->wr:0,4:r:->bp:1,-1:q:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 8,
+        "sourceIndex": 7,
+        "sourceIdentity": "znu1u",
+        "canonicalIdentity": "1k1r4/1p6/p2p4/2qPnBr1/2P5/7P/P4QP1/1R3RK1 b - -|tactic-in-3|g5f5,f2c5,f5f1,b1f1,d6c5|znu1u",
+        "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bn@3,4,bq@3,2,br@0,3,br@3,6,wb@3,5,wk@7,6,wq@6,5,wr@7,1,wr@7,5|line:br:0,-1:b:->wq:-3,-3:q:->br:4,0:r:->wr:0,4:r:->bp:1,-1:q:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g5",
+          "first-to:f5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 2
+      }
+    },
+    {
+      "id": "pin-rook-m3-zD8Az",
+      "puzzleId": "zD8Az",
+      "fen": "4rrk1/3q3b/p7/3p4/P1pPnpN1/2P2R2/2B2PP1/1R1Q2K1 b - - 0 33",
+      "preMove": "d7g4",
+      "solutionLine": [
+        "f3g3",
+        "g4g3",
+        "f2g3",
+        "f4f3",
+        "g2f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1661,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 16,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@0,1,bk@1,0,bn@3,4,bq@1,4,br@2,0,br@3,0,wb@5,6,wk@1,7,wq@4,7,wr@2,5,wr@6,7|line:wr:-1,0:-:->bq:0,1:r:->wp:-1,-1:q:->bp:0,1:-:->wp:1,-1:p:-|outcome:capture:p,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 4,
+        "sourceIndex": 16,
+        "sourceIdentity": "zD8Az",
+        "canonicalIdentity": "4rrk1/7b/p7/3p4/P1pPnpq1/2P2R2/2B2PP1/1R1Q2K1 w - -|tactic-in-3|f3g3,g4g3,f2g3,f4f3,g2f3|zD8Az",
+        "pedagogicalFamily": "rook-pin|pieces:bb@0,1,bk@1,0,bn@3,4,bq@1,4,br@2,0,br@3,0,wb@5,6,wk@1,7,wq@4,7,wr@2,5,wr@6,7|line:wr:-1,0:-:->bq:0,1:r:->wp:-1,-1:q:->bp:0,1:-:->wp:1,-1:p:-|outcome:capture:p,capture:q,capture:r",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f3",
+          "first-to:g3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 3
+      }
+    },
+    {
+      "id": "pin-rook-m3-zTlTg",
+      "puzzleId": "zTlTg",
+      "fen": "1k1r3r/pp2N2p/4P1pn/P7/1Pp5/2P2Q2/5KPq/3RR3 w - - 1 23",
+      "preMove": "d1d7",
+      "solutionLine": [
+        "d8f8",
+        "d7b7",
+        "b8a8",
+        "b7d7",
+        "f8f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2293,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bn@2,7,bq@6,7,br@0,3,br@0,7,wk@6,5,wn@1,4,wq@5,5,wr@1,3,wr@7,4|line:br:0,2:-:->wr:0,-2:p:->bk:0,-1:-:->wr:0,2:-:->br:5,0:q:-|outcome:capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 9,
+        "sourceIndex": 23,
+        "sourceIdentity": "zTlTg",
+        "canonicalIdentity": "1k1r3r/pp1RN2p/4P1pn/P7/1Pp5/2P2Q2/5KPq/4R3 b - -|tactic-in-3|d8f8,d7b7,b8a8,b7d7,f8f3|zTlTg",
+        "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bn@2,7,bq@6,7,br@0,3,br@0,7,wk@6,5,wn@1,4,wq@5,5,wr@1,3,wr@7,4|line:br:0,2:-:->wr:0,-2:p:->bk:0,-1:-:->wr:0,2:-:->br:5,0:q:-|outcome:capture:p,capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:d8",
+          "first-to:f8",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 4
+      }
+    },
+    {
+      "id": "pin-rook-m3-zv5AV",
+      "puzzleId": "zv5AV",
+      "fen": "4r3/2k1P3/p3K3/8/1p6/2b3P1/8/3R4 b - - 2 40",
+      "preMove": "b4b3",
+      "solutionLine": [
+        "d1c1",
+        "b3b2",
+        "c1c3",
+        "c7b6",
+        "c3b3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1965,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "long",
+        "pin",
+        "pin-rook",
+        "vulnerable-king",
+        "Rook Pin",
+        "Vulnerable / Exposed King",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@2,2,bk@2,6,br@4,7,wk@4,5,wr@3,0|line:wr:-1,0:-:->bp:0,-1:-:->wr:0,2:b:->bk:-1,-1:-:->wr:-1,0:-:-|outcome:capture:b,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 8,
+        "sourceIdentity": "zv5AV",
+        "canonicalIdentity": "4r3/2k1P3/p3K3/8/8/1pb3P1/8/3R4 w - -|tactic-in-3|d1c1,b3b2,c1c3,c7b6,c3b3|zv5AV",
+        "pedagogicalFamily": "rook-pin|pieces:bb@2,2,bk@2,6,br@4,7,wk@4,5,wr@3,0|line:wr:-1,0:-:->bp:0,-1:-:->wr:0,2:b:->bk:-1,-1:-:->wr:-1,0:-:-|outcome:capture:b,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:d1",
+          "first-to:c1",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 5
+      }
+    },
+    {
+      "id": "pin-rook-m3-zSkEF",
+      "puzzleId": "zSkEF",
+      "fen": "8/1p1b3k/2p4p/3p1p2/P4r2/1P3B2/5PKP/6R1 b - - 1 37",
+      "preMove": "d7e6",
+      "solutionLine": [
+        "g1e1",
+        "e6f7",
+        "e1e7",
+        "h7g6",
+        "e7b7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1957,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@2,3,bk@1,0,br@4,2,wb@5,2,wk@6,1,wr@7,1|line:wr:0,2:-:->bb:-1,-1:-:->wr:-6,0:-:->bk:1,1:-:->wr:0,3:p:-|outcome:capture:p",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 28,
+        "sourceIdentity": "zSkEF",
+        "canonicalIdentity": "8/1p5k/2p1b2p/3p1p2/P4r2/1P3B2/5PKP/6R1 w - -|tactic-in-3|g1e1,e6f7,e1e7,h7g6,e7b7|zSkEF",
+        "pedagogicalFamily": "rook-pin|pieces:bb@2,3,bk@1,0,br@4,2,wb@5,2,wk@6,1,wr@7,1|line:wr:0,2:-:->bb:-1,-1:-:->wr:-6,0:-:->bk:1,1:-:->wr:0,3:p:-|outcome:capture:p",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g1",
+          "first-to:e1",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 6
+      }
+    },
+    {
+      "id": "pin-rook-m3-u7T63",
+      "puzzleId": "u7T63",
+      "fen": "r2qrk2/8/p3ppQ1/Pb1p4/8/4R3/5PPP/R5K1 b - - 3 28",
+      "preMove": "d8e7",
+      "solutionLine": [
+        "e3g3",
+        "e7f7",
+        "g6h6",
+        "f8e7",
+        "g3g7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2035,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "pin-rook",
+        "vulnerable-king",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Rook Pin",
+        "Vulnerable / Exposed King",
+        "Clearance"
+      ],
+      "themes": [
+        "advantage",
+        "clearance",
+        "exposedKing",
+        "long",
+        "middlegame",
+        "pin",
+        "quietMove"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "clearance",
+        "exposedKing",
+        "long",
+        "middlegame",
+        "pin",
+        "quietMove",
+        "quiet-move",
+        "pin-rook",
+        "vulnerable-king",
+        "Quiet Move",
+        "Rook Pin",
+        "Vulnerable / Exposed King",
+        "Clearance",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@1,3,bk@5,0,bq@4,1,br@0,0,br@4,0,wk@6,7,wq@6,2,wr@0,7,wr@4,5|line:wr:2,0:-:->bq:1,0:-:->wq:1,0:-:->bk:-1,1:-:->wr:0,-4:-:-|outcome:check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 10,
+        "sourceIdentity": "u7T63",
+        "canonicalIdentity": "r3rk2/4q3/p3ppQ1/Pb1p4/8/4R3/5PPP/R5K1 w - -|tactic-in-3|e3g3,e7f7,g6h6,f8e7,g3g7|u7T63",
+        "pedagogicalFamily": "rook-pin|pieces:bb@1,3,bk@5,0,bq@4,1,br@0,0,br@4,0,wk@6,7,wq@6,2,wr@0,7,wr@4,5|line:wr:2,0:-:->bq:1,0:-:->wq:1,0:-:->bk:-1,1:-:->wr:0,-4:-:-|outcome:check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e3",
+          "first-to:g3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 7
+      }
+    },
+    {
+      "id": "pin-rook-m3-zrPKw",
+      "puzzleId": "zrPKw",
+      "fen": "6r1/p4pqk/2p1b2p/5p2/N4P2/1P3Br1/P6R/3R1Q1K w - - 6 33",
+      "preMove": "a4c5",
+      "solutionLine": [
+        "g3f3",
+        "f1f3",
+        "e6d5",
+        "f3d5",
+        "c6d5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1553,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "sacrifice-rook",
+        "Rook Pin",
+        "Rook Sacrifice",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@2,3,bk@1,0,bq@1,1,br@0,1,br@5,1,wb@5,2,wk@7,0,wn@3,5,wq@7,2,wr@6,0,wr@7,4|line:br:0,1:b:->wq:-2,0:r:->bb:1,1:-:->wq:-2,2:b:->bp:1,-1:q:-|outcome:capture:b,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 3,
+        "sourceIndex": 13,
+        "sourceIdentity": "zrPKw",
+        "canonicalIdentity": "6r1/p4pqk/2p1b2p/2N2p2/5P2/1P3Br1/P6R/3R1Q1K b - -|tactic-in-3|g3f3,f1f3,e6d5,f3d5,c6d5|zrPKw",
+        "pedagogicalFamily": "rook-pin|pieces:bb@2,3,bk@1,0,bq@1,1,br@0,1,br@5,1,wb@5,2,wk@7,0,wn@3,5,wq@7,2,wr@6,0,wr@7,4|line:br:0,1:b:->wq:-2,0:r:->bb:1,1:-:->wq:-2,2:b:->bp:1,-1:q:-|outcome:capture:b,capture:q,capture:r",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g3",
+          "first-to:f3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 8
+      }
+    },
+    {
+      "id": "pin-rook-m3-zAtOZ",
+      "puzzleId": "zAtOZ",
+      "fen": "r4rk1/ppp2pp1/3p3p/3qn3/7Q/3B2R1/PPP2PPP/R5K1 b - - 2 17",
+      "preMove": "e5g6",
+      "solutionLine": [
+        "g3g6",
+        "f7g6",
+        "d3c4",
+        "d5c4",
+        "h4c4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1821,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "sacrifice-rook",
+        "Rook Pin",
+        "Rook Sacrifice",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bn@2,1,bq@3,4,br@0,2,br@0,7,wb@5,4,wk@7,1,wq@4,0,wr@5,1,wr@7,7|line:wr:-3,0:n:->bp:1,-1:r:->wb:-1,1:-:->bq:1,1:b:->wq:0,5:q:-|outcome:capture:b,capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 6,
+        "sourceIndex": 3,
+        "sourceIdentity": "zAtOZ",
+        "canonicalIdentity": "r4rk1/ppp2pp1/3p2np/3q4/7Q/3B2R1/PPP2PPP/R5K1 w - -|tactic-in-3|g3g6,f7g6,d3c4,d5c4,h4c4|zAtOZ",
+        "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bn@2,1,bq@3,4,br@0,2,br@0,7,wb@5,4,wk@7,1,wq@4,0,wr@5,1,wr@7,7|line:wr:-3,0:n:->bp:1,-1:r:->wb:-1,1:-:->bq:1,1:b:->wq:0,5:q:-|outcome:capture:b,capture:n,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g3",
+          "first-to:g6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 9
+      }
+    },
+    {
+      "id": "pin-rook-m3-zZ417",
+      "puzzleId": "zZ417",
+      "fen": "4k3/8/4Pp2/p1p3r1/1pPb4/1P1P4/P5PB/5R1K w - - 1 46",
+      "preMove": "h2d6",
+      "solutionLine": [
+        "g5h5",
+        "d6h2",
+        "d4e5",
+        "g2g3",
+        "e5g3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1272,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@3,3,bk@4,7,br@6,4,wb@3,5,wk@7,0,wr@5,0|line:br:1,0:-:->wb:4,-4:-:->bb:1,1:-:->wp:0,1:-:->bb:2,-2:p:-|outcome:capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 20,
+        "sourceIdentity": "zZ417",
+        "canonicalIdentity": "4k3/8/3BPp2/p1p3r1/1pPb4/1P1P4/P5P1/5R1K b - -|tactic-in-3|g5h5,d6h2,d4e5,g2g3,e5g3|zZ417",
+        "pedagogicalFamily": "rook-pin|pieces:bb@3,3,bk@4,7,br@6,4,wb@3,5,wk@7,0,wr@5,0|line:br:1,0:-:->wb:4,-4:-:->bb:1,1:-:->wp:0,1:-:->bb:2,-2:p:-|outcome:capture:p,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g5",
+          "first-to:h5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 10
+      }
+    },
+    {
+      "id": "pin-rook-m3-zymJ3",
+      "puzzleId": "zymJ3",
+      "fen": "6r1/p3q2k/1p3p1p/2p2PPQ/2PrPp2/1P1P4/P5R1/5B1K b - - 0 40",
+      "preMove": "g8g5",
+      "solutionLine": [
+        "g2g5",
+        "f6g5",
+        "h5g6",
+        "h7h8",
+        "f5f6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2039,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "master",
+        "pin"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "master",
+        "pin",
+        "pin-rook",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bq@3,1,br@1,3,br@4,4,wb@2,7,wk@0,7,wq@0,3,wr@1,6|line:wr:0,-3:r:->bp:-1,1:r:->wq:1,-1:-:->bk:0,-1:-:->wp:0,-1:-:-|outcome:capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 25,
+        "sourceIdentity": "zymJ3",
+        "canonicalIdentity": "8/p3q2k/1p3p1p/2p2PrQ/2PrPp2/1P1P4/P5R1/5B1K w - -|tactic-in-3|g2g5,f6g5,h5g6,h7h8,f5f6|zymJ3",
+        "pedagogicalFamily": "rook-pin|pieces:bk@0,1,bq@3,1,br@1,3,br@4,4,wb@2,7,wk@0,7,wq@0,3,wr@1,6|line:wr:0,-3:r:->bp:-1,1:r:->wq:1,-1:-:->bk:0,-1:-:->wp:0,-1:-:-|outcome:capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g2",
+          "first-to:g5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 11
+      }
+    },
+    {
+      "id": "pin-rook-m3-ywE6k",
+      "puzzleId": "ywE6k",
+      "fen": "r1b3k1/pp1pb2p/2n1p1pQ/q1p1Pr2/2P1n3/1P3N2/PB1N1PPP/R3KB1R w KQ - 6 14",
+      "preMove": "a1d1",
+      "solutionLine": [
+        "f5f3",
+        "g2f3",
+        "e7g5",
+        "h6g5",
+        "e4g5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2073,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "sacrifice-rook",
+        "Rook Pin",
+        "Rook Sacrifice",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@0,2,bb@1,4,bk@0,6,bn@2,2,bn@4,4,bq@3,0,br@0,0,br@3,5,wb@6,1,wb@7,5,wk@7,4,wn@5,5,wn@6,3,wq@2,7,wr@7,3,wr@7,7|line:br:2,0:n:->wp:-1,-1:r:->bb:2,2:-:->wq:1,-1:b:->bn:-1,2:q:-|outcome:capture:b,capture:n,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 8,
+        "sourceIndex": 25,
+        "sourceIdentity": "ywE6k",
+        "canonicalIdentity": "r1b3k1/pp1pb2p/2n1p1pQ/q1p1Pr2/2P1n3/1P3N2/PB1N1PPP/3RKB1R b K -|tactic-in-3|f5f3,g2f3,e7g5,h6g5,e4g5|ywE6k",
+        "pedagogicalFamily": "rook-pin|pieces:bb@0,2,bb@1,4,bk@0,6,bn@2,2,bn@4,4,bq@3,0,br@0,0,br@3,5,wb@6,1,wb@7,5,wk@7,4,wn@5,5,wn@6,3,wq@2,7,wr@7,3,wr@7,7|line:br:2,0:n:->wp:-1,-1:r:->bb:2,2:-:->wq:1,-1:b:->bn:-1,2:q:-|outcome:capture:b,capture:n,capture:q,capture:r",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f5",
+          "first-to:f3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 12
+      }
+    },
+    {
+      "id": "pin-rook-m3-o5mn7",
+      "puzzleId": "o5mn7",
+      "fen": "r6k/6p1/4p1Qp/3pq3/7R/2p3PP/6PK/8 b - - 4 36",
+      "preMove": "e5f6",
+      "solutionLine": [
+        "h4h6",
+        "h8g8",
+        "g6h7",
+        "g8f7",
+        "h6f6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1223,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "endgame",
+        "long",
+        "pin",
+        "discovered-attack",
+        "pin-rook",
+        "Discovered Attack",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bk@0,0,bq@2,2,br@0,7,wk@6,0,wq@2,1,wr@4,0|line:wr:-2,0:p:->bk:0,1:-:->wq:-1,-1:-:->bk:1,1:-:->wr:0,2:q:-|outcome:capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 1,
+        "sourceIndex": 18,
+        "sourceIdentity": "o5mn7",
+        "canonicalIdentity": "r6k/6p1/4pqQp/3p4/7R/2p3PP/6PK/8 w - -|tactic-in-3|h4h6,h8g8,g6h7,g8f7,h6f6|o5mn7",
+        "pedagogicalFamily": "rook-pin|pieces:bk@0,0,bq@2,2,br@0,7,wk@6,0,wq@2,1,wr@4,0|line:wr:-2,0:p:->bk:0,1:-:->wq:-1,-1:-:->bk:1,1:-:->wr:0,2:q:-|outcome:capture:p,capture:q,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:h4",
+          "first-to:h6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 13
+      }
+    },
+    {
+      "id": "pin-rook-m3-uWsXc",
+      "puzzleId": "uWsXc",
+      "fen": "4rb1k/1pp2p1p/5p1B/5P1Q/1qPp4/2r5/3K1PPP/1R2R3 b - - 5 28",
+      "preMove": "b4c4",
+      "solutionLine": [
+        "e1e8",
+        "c4d3",
+        "d2e1",
+        "d3b1",
+        "h5d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1608,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "hanging-piece"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Hanging Piece"
+      ],
+      "themes": [
+        "crushing",
+        "hangingPiece",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "hangingPiece",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "hanging-piece",
+        "Rook Pin",
+        "Hanging Piece",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@0,2,bk@0,0,bq@4,5,br@0,3,br@5,5,wb@2,0,wk@6,4,wq@3,0,wr@7,3,wr@7,6|line:wr:-7,0:r:->bq:1,-1:-:->wk:1,-1:-:->bq:2,2:r:->wq:4,4:-:-|outcome:capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 4,
+        "sourceIndex": 8,
+        "sourceIdentity": "uWsXc",
+        "canonicalIdentity": "4rb1k/1pp2p1p/5p1B/5P1Q/2qp4/2r5/3K1PPP/1R2R3 w - -|tactic-in-3|e1e8,c4d3,d2e1,d3b1,h5d1|uWsXc",
+        "pedagogicalFamily": "rook-pin|pieces:bb@0,2,bk@0,0,bq@4,5,br@0,3,br@5,5,wb@2,0,wk@6,4,wq@3,0,wr@7,3,wr@7,6|line:wr:-7,0:r:->bq:1,-1:-:->wk:1,-1:-:->bq:2,2:r:->wq:4,4:-:-|outcome:capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e1",
+          "first-to:e8",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 14
+      }
+    },
+    {
+      "id": "pin-rook-m3-zekfA",
+      "puzzleId": "zekfA",
+      "fen": "1q3rk1/pB3pbp/4p1p1/2p5/2P2P2/3rBQ2/PP4PP/1R3RK1 w - - 2 22",
+      "preMove": "b7e4",
+      "solutionLine": [
+        "d3e3",
+        "f3e3",
+        "g7d4",
+        "e3d4",
+        "c5d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1390,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "sacrifice-rook",
+        "Rook Pin",
+        "Rook Sacrifice",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@1,1,bk@0,1,bq@0,6,br@0,2,br@5,4,wb@4,3,wb@5,3,wk@7,1,wq@5,2,wr@7,2,wr@7,6|line:br:0,-1:b:->wq:0,1:r:->bb:3,3:-:->wq:-1,1:b:->bp:1,-1:q:-|outcome:capture:b,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 2,
+        "sourceIdentity": "zekfA",
+        "canonicalIdentity": "1q3rk1/p4pbp/4p1p1/2p5/2P1BP2/3rBQ2/PP4PP/1R3RK1 b - -|tactic-in-3|d3e3,f3e3,g7d4,e3d4,c5d4|zekfA",
+        "pedagogicalFamily": "rook-pin|pieces:bb@1,1,bk@0,1,bq@0,6,br@0,2,br@5,4,wb@4,3,wb@5,3,wk@7,1,wq@5,2,wr@7,2,wr@7,6|line:br:0,-1:b:->wq:0,1:r:->bb:3,3:-:->wq:-1,1:b:->bp:1,-1:q:-|outcome:capture:b,capture:q,capture:r",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:d3",
+          "first-to:e3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 15
+      }
+    },
+    {
+      "id": "pin-rook-m3-zyYxd",
+      "puzzleId": "zyYxd",
+      "fen": "r1br4/1p4kp/5bp1/pQBP1p2/2P2q2/1P6/P5PP/3RR2K b - - 0 22",
+      "preMove": "f6e5",
+      "solutionLine": [
+        "e1e5",
+        "f4e5",
+        "c5d4",
+        "e5d4",
+        "d1d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1344,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "sacrifice-rook",
+        "Rook Pin",
+        "Rook Sacrifice",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@0,2,bb@3,4,bk@1,6,bq@4,5,br@0,0,br@0,3,wb@3,2,wk@7,7,wq@3,1,wr@7,3,wr@7,4|line:wr:-4,0:b:->bq:-1,-1:r:->wb:1,1:-:->bq:1,-1:b:->wr:-3,0:q:-|outcome:capture:b,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 0,
+        "sourceIdentity": "zyYxd",
+        "canonicalIdentity": "r1br4/1p4kp/6p1/pQBPbp2/2P2q2/1P6/P5PP/3RR2K w - -|tactic-in-3|e1e5,f4e5,c5d4,e5d4,d1d4|zyYxd",
+        "pedagogicalFamily": "rook-pin|pieces:bb@0,2,bb@3,4,bk@1,6,bq@4,5,br@0,0,br@0,3,wb@3,2,wk@7,7,wq@3,1,wr@7,3,wr@7,4|line:wr:-4,0:b:->bq:-1,-1:r:->wb:1,1:-:->bq:1,-1:b:->wr:-3,0:q:-|outcome:capture:b,capture:q,capture:r",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:e1",
+          "first-to:e5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 16
+      }
+    },
+    {
+      "id": "pin-rook-m3-zEx8X",
+      "puzzleId": "zEx8X",
+      "fen": "r1b2k1r/pp2nqpp/5B2/8/1Q1pR3/3P2P1/PPP2P1P/5RK1 b - - 0 20",
+      "preMove": "g7f6",
+      "solutionLine": [
+        "f1e1",
+        "a7a5",
+        "b4a3",
+        "f8g7",
+        "e4e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2413,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "quietMove"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "quietMove",
+        "quiet-move",
+        "pin-rook",
+        "Quiet Move",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@0,2,bk@0,5,bn@1,4,bq@1,5,br@0,0,br@0,7,wk@7,6,wq@4,1,wr@4,4,wr@7,5|line:wr:0,-1:-:->bp:2,0:-:->wq:1,-1:-:->bk:1,1:-:->wr:-3,0:n:-|outcome:capture:n",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 10,
+        "sourceIndex": 21,
+        "sourceIdentity": "zEx8X",
+        "canonicalIdentity": "r1b2k1r/pp2nq1p/5p2/8/1Q1pR3/3P2P1/PPP2P1P/5RK1 w - -|tactic-in-3|f1e1,a7a5,b4a3,f8g7,e4e7|zEx8X",
+        "pedagogicalFamily": "rook-pin|pieces:bb@0,2,bk@0,5,bn@1,4,bq@1,5,br@0,0,br@0,7,wk@7,6,wq@4,1,wr@4,4,wr@7,5|line:wr:0,-1:-:->bp:2,0:-:->wq:1,-1:-:->bk:1,1:-:->wr:-3,0:n:-|outcome:capture:n",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f1",
+          "first-to:e1",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 17
+      }
+    },
+    {
+      "id": "pin-rook-m3-x7ACQ",
+      "puzzleId": "x7ACQ",
+      "fen": "rn6/p5p1/1p1p1n2/2pPp1k1/2P1Pp1q/6r1/PP2BQ1P/R1B3RK b - - 5 26",
+      "preMove": "f6e4",
+      "solutionLine": [
+        "g1g3",
+        "e4g3",
+        "f2g3",
+        "h4g3",
+        "h2g3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1280,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "Rook Pin",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bk@1,3,bn@3,4,bn@6,0,bq@0,4,br@1,5,br@7,0,wb@3,6,wb@5,7,wk@0,7,wq@2,6,wr@1,7,wr@7,7|line:wr:0,-2:r:->bn:-2,1:r:->wq:-1,-1:n:->bq:1,1:q:->wp:1,-1:q:-|outcome:capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 18,
+        "sourceIdentity": "x7ACQ",
+        "canonicalIdentity": "rn6/p5p1/1p1p4/2pPp1k1/2P1np1q/6r1/PP2BQ1P/R1B3RK w - -|tactic-in-3|g1g3,e4g3,f2g3,h4g3,h2g3|x7ACQ",
+        "pedagogicalFamily": "rook-pin|pieces:bk@1,3,bn@3,4,bn@6,0,bq@0,4,br@1,5,br@7,0,wb@3,6,wb@5,7,wk@0,7,wq@2,6,wr@1,7,wr@7,7|line:wr:0,-2:r:->bn:-2,1:r:->wq:-1,-1:n:->bq:1,1:q:->wp:1,-1:q:-|outcome:capture:n,capture:q,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:g1",
+          "first-to:g3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 18
+      }
+    },
+    {
+      "id": "pin-rook-m3-yAJ70",
+      "puzzleId": "yAJ70",
+      "fen": "r4kr1/1pp1q3/2b1p2Q/p1N2n2/P7/5R2/1P3PP1/3R1K2 b - - 13 39",
+      "preMove": "e7g7",
+      "solutionLine": [
+        "f3f5",
+        "e6f5",
+        "c5e6",
+        "f8f7",
+        "e6g7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2328,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "pin-rook",
+        "vulnerable-king",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Pin",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "fork-rook",
+        "pin-rook",
+        "vulnerable-king",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Rook Pin",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|pieces:bb@2,2,bk@0,5,bn@3,5,bq@1,6,br@0,0,br@0,6,wk@7,5,wn@3,2,wq@2,7,wr@5,5,wr@7,3|line:wr:-2,0:n:->bp:1,1:r:->wn:-1,2:-:->bk:1,0:-:->wn:-1,2:q:-|outcome:capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 9,
+        "sourceIndex": 15,
+        "sourceIdentity": "yAJ70",
+        "canonicalIdentity": "r4kr1/1pp3q1/2b1p2Q/p1N2n2/P7/5R2/1P3PP1/3R1K2 w - -|tactic-in-3|f3f5,e6f5,c5e6,f8f7,e6g7|yAJ70",
+        "pedagogicalFamily": "rook-pin|pieces:bb@2,2,bk@0,5,bn@3,5,bq@1,6,br@0,0,br@0,6,wk@7,5,wn@3,2,wq@2,7,wr@5,5,wr@7,3|line:wr:-2,0:n:->bp:1,1:r:->wn:-1,2:-:->bk:1,0:-:->wn:-1,2:q:-|outcome:capture:n,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:f3",
+          "first-to:f5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 19
+      }
+    }
+  ]
+}

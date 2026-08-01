@@ -1,0 +1,1590 @@
+{
+  "puzzles": [
+    {
+      "id": "skewer-queen-m4-rWTru",
+      "puzzleId": "rWTru",
+      "fen": "rnb1qrnk/ppp2pb1/3pp1p1/6N1/2B1PN2/3P1Q2/PPP2PPP/R3K2R b KQ - 0 12",
+      "preMove": "g7b2",
+      "solutionLine": [
+        "f3h3",
+        "h8g7",
+        "h3h7",
+        "g7f6",
+        "h7h8",
+        "f6e7",
+        "h8b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1944,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "vulnerable-king",
+        "Queen Skewer",
+        "Vulnerable / Exposed King",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@0,2,bb@6,1,bk@0,7,bn@0,1,bn@0,6,bq@0,4,br@0,0,br@0,5,wb@4,2,wk@7,4,wn@3,6,wn@4,5,wq@5,5,wr@7,0,wr@7,7|line:wq:0,2:-:->bk:1,-1:-:->wq:-4,0:-:->bk:1,-1:-:->wq:-1,0:-:->bk:-1,-1:-:->wq:6,-6:b:-|outcome:capture:b,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 25,
+        "sourceIdentity": "rWTru",
+        "canonicalIdentity": "rnb1qrnk/ppp2p2/3pp1p1/6N1/2B1PN2/3P1Q2/PbP2PPP/R3K2R w KQ -|tactic-in-4|f3h3,h8g7,h3h7,g7f6,h7h8,f6e7,h8b2|rWTru",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@0,2,bb@6,1,bk@0,7,bn@0,1,bn@0,6,bq@0,4,br@0,0,br@0,5,wb@4,2,wk@7,4,wn@3,6,wn@4,5,wq@5,5,wr@7,0,wr@7,7|line:wq:0,2:-:->bk:1,-1:-:->wq:-4,0:-:->bk:1,-1:-:->wq:-1,0:-:->bk:-1,-1:-:->wq:6,-6:b:-|outcome:capture:b,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:f3",
+          "first-to:h3",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 0
+      }
+    },
+    {
+      "id": "skewer-queen-m4-n1swV",
+      "puzzleId": "n1swV",
+      "fen": "2r3k1/5ppp/p2bp3/1pr5/3p3q/5QN1/PP3PPP/R1B1R1K1 w - - 1 21",
+      "preMove": "g3e4",
+      "solutionLine": [
+        "h4h2",
+        "g1f1",
+        "c5c1",
+        "a1c1",
+        "c8c1",
+        "e1c1",
+        "h2h1",
+        "f1e2",
+        "h1c1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2650,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@2,3,bk@0,6,bq@4,7,br@0,2,br@3,2,wb@7,2,wk@7,6,wn@4,4,wq@5,5,wr@7,0,wr@7,4|line:bq:2,0:p:->wk:0,-1:-:->br:4,0:b:->wr:0,2:r:->br:7,0:r:->wr:0,-2:r:->bq:1,0:-:->wk:-1,-1:-:->bq:0,-5:r:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 10,
+        "sourceIndex": 2,
+        "sourceIdentity": "n1swV",
+        "canonicalIdentity": "2r3k1/5ppp/p2bp3/1pr5/3pN2q/5Q2/PP3PPP/R1B1R1K1 b - -|tactic-in-4|h4h2,g1f1,c5c1,a1c1,c8c1,e1c1,h2h1,f1e2,h1c1|n1swV",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@2,3,bk@0,6,bq@4,7,br@0,2,br@3,2,wb@7,2,wk@7,6,wn@4,4,wq@5,5,wr@7,0,wr@7,4|line:bq:2,0:p:->wk:0,-1:-:->br:4,0:b:->wr:0,2:r:->br:7,0:r:->wr:0,-2:r:->bq:1,0:-:->wk:-1,-1:-:->bq:0,-5:r:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:h4",
+          "first-to:h2",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 1
+      }
+    },
+    {
+      "id": "skewer-queen-m4-Vkold",
+      "puzzleId": "Vkold",
+      "fen": "r1q5/pp2p1k1/2np2p1/2p5/2P3Np/3P1QbP/P5B1/1R5K b - - 1 24",
+      "preMove": "a8b8",
+      "solutionLine": [
+        "f3e3",
+        "g7f8",
+        "b1f1",
+        "f8e8",
+        "g4f6",
+        "e8d8",
+        "f6d5",
+        "g3e5",
+        "f1f8",
+        "d8d7",
+        "f8c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "tacticDistance": 6,
+      "rating": 2683,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "pin-queen",
+        "skewer-queen",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Queen Pin",
+        "Queen Skewer",
+        "Clearance"
+      ],
+      "themes": [
+        "clearance",
+        "crushing",
+        "middlegame",
+        "pin",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "clearance",
+        "crushing",
+        "middlegame",
+        "pin",
+        "skewer",
+        "veryLong",
+        "pin-queen",
+        "skewer-queen",
+        "Queen Pin",
+        "Queen Skewer",
+        "Clearance",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@1,2,bk@1,6,bn@5,5,bq@5,7,br@6,7,wb@1,1,wk@0,0,wn@1,3,wq@2,2,wr@6,0|line:wq:1,0:-:->bk:1,1:-:->wr:-4,0:-:->bk:1,0:-:->wn:1,2:-:->bk:1,0:-:->wn:2,-1:-:->bb:2,2:-:->wr:0,7:-:->bk:0,-1:-:->wr:3,0:q:-|outcome:capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 10,
+        "sourceIndex": 11,
+        "sourceIdentity": "Vkold",
+        "canonicalIdentity": "1rq5/pp2p1k1/2np2p1/2p5/2P3Np/3P1QbP/P5B1/1R5K w - -|tactic-in-4|f3e3,g7f8,b1f1,f8e8,g4f6,e8d8,f6d5,g3e5,f1f8,d8d7,f8c8|Vkold",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@1,2,bk@1,6,bn@5,5,bq@5,7,br@6,7,wb@1,1,wk@0,0,wn@1,3,wq@2,2,wr@6,0|line:wq:1,0:-:->bk:1,1:-:->wr:-4,0:-:->bk:1,0:-:->wn:1,2:-:->bk:1,0:-:->wn:2,-1:-:->bb:2,2:-:->wr:0,7:-:->bk:0,-1:-:->wr:3,0:q:-|outcome:capture:q,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:f3",
+          "first-to:e3",
+          "king-region:king-side",
+          "line-length:11",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 2
+      }
+    },
+    {
+      "id": "skewer-queen-m4-zZNuH",
+      "puzzleId": "zZNuH",
+      "fen": "6rk/8/p3Rp2/3P3p/1Kp4Q/5B1P/PPPq1P2/8 w - - 1 36",
+      "preMove": "b4c4",
+      "solutionLine": [
+        "d2c2",
+        "c4d4",
+        "c2a4",
+        "b2b4",
+        "a4b4",
+        "d4e3",
+        "b4h4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2265,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "master",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "master",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@0,0,bq@4,6,br@1,0,wb@2,5,wk@5,4,wq@0,4,wr@3,2|line:bq:1,0:p:->wk:-1,0:-:->bq:2,-2:-:->wp:0,-2:-:->bq:-1,0:p:->wk:-1,1:-:->bq:-6,0:q:-|outcome:capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 8,
+        "sourceIndex": 20,
+        "sourceIdentity": "zZNuH",
+        "canonicalIdentity": "6rk/8/p3Rp2/3P3p/2K4Q/5B1P/PPPq1P2/8 b - -|tactic-in-4|d2c2,c4d4,c2a4,b2b4,a4b4,d4e3,b4h4|zZNuH",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@0,0,bq@4,6,br@1,0,wb@2,5,wk@5,4,wq@0,4,wr@3,2|line:bq:1,0:p:->wk:-1,0:-:->bq:2,-2:-:->wp:0,-2:-:->bq:-1,0:p:->wk:-1,1:-:->bq:-6,0:q:-|outcome:capture:p,capture:q,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:d2",
+          "first-to:c2",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 3
+      }
+    },
+    {
+      "id": "skewer-queen-m4-shckB",
+      "puzzleId": "shckB",
+      "fen": "6k1/5p2/2p3p1/2N1Q2p/1P5P/P4bP1/5P1K/3q4 w - - 5 41",
+      "preMove": "g3g4",
+      "solutionLine": [
+        "d1h1",
+        "h2g3",
+        "h1g2",
+        "g3f4",
+        "g2h2",
+        "f4f3",
+        "h2e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1867,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "vulnerable-king",
+        "Queen Skewer",
+        "Deflection",
+        "Vulnerable / Exposed King",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@2,2,bk@1,7,bq@4,0,wk@0,1,wn@5,4,wq@3,4|line:bq:-4,0:-:->wk:1,1:-:->bq:1,1:-:->wk:1,1:-:->bq:-1,0:-:->wk:0,-1:b:->bq:3,3:q:-|outcome:capture:b,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 14,
+        "sourceIdentity": "shckB",
+        "canonicalIdentity": "6k1/5p2/2p3p1/2N1Q2p/1P4PP/P4b2/5P1K/3q4 b - -|tactic-in-4|d1h1,h2g3,h1g2,g3f4,g2h2,f4f3,h2e5|shckB",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@2,2,bk@1,7,bq@4,0,wk@0,1,wn@5,4,wq@3,4|line:bq:-4,0:-:->wk:1,1:-:->bq:1,1:-:->wk:1,1:-:->bq:-1,0:-:->wk:0,-1:b:->bq:3,3:q:-|outcome:capture:b,capture:q,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:d1",
+          "first-to:h1",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 4
+      }
+    },
+    {
+      "id": "skewer-queen-m4-w8AE3",
+      "puzzleId": "w8AE3",
+      "fen": "2q3k1/p4p1p/b1p3p1/2P5/Q3B3/6P1/Pr3P1P/R5K1 w - - 0 20",
+      "preMove": "e4c6",
+      "solutionLine": [
+        "c8f5",
+        "a4d4",
+        "b2b1",
+        "a1b1",
+        "f5b1",
+        "g1g2",
+        "b1f1",
+        "g2f3",
+        "f1h1",
+        "f3e3",
+        "h1c6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "tacticDistance": 6,
+      "rating": 2182,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@0,2,bk@6,0,bq@2,0,br@1,6,wb@2,2,wk@6,7,wq@0,4,wr@0,7|line:bq:3,3:-:->wq:3,0:-:->br:0,1:-:->wr:1,0:r:->bq:-4,4:r:->wk:0,-1:-:->bq:4,0:-:->wk:-1,-1:-:->bq:2,0:-:->wk:-1,0:-:->bq:-5,-5:b:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 7,
+        "sourceIndex": 29,
+        "sourceIdentity": "w8AE3",
+        "canonicalIdentity": "2q3k1/p4p1p/b1B3p1/2P5/Q7/6P1/Pr3P1P/R5K1 b - -|tactic-in-4|c8f5,a4d4,b2b1,a1b1,f5b1,g1g2,b1f1,g2f3,f1h1,f3e3,h1c6|w8AE3",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@0,2,bk@6,0,bq@2,0,br@1,6,wb@2,2,wk@6,7,wq@0,4,wr@0,7|line:bq:3,3:-:->wq:3,0:-:->br:0,1:-:->wr:1,0:r:->bq:-4,4:r:->wk:0,-1:-:->bq:4,0:-:->wk:-1,-1:-:->bq:2,0:-:->wk:-1,0:-:->bq:-5,-5:b:-|outcome:capture:b,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:c8",
+          "first-to:f5",
+          "king-region:king-side",
+          "line-length:11",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 5
+      }
+    },
+    {
+      "id": "skewer-queen-m4-oTRVS",
+      "puzzleId": "oTRVS",
+      "fen": "Q4bk1/4qp1p/p5pB/8/2b5/P1N3P1/1P3P1P/6K1 w - - 7 28",
+      "preMove": "h6f8",
+      "solutionLine": [
+        "e7e1",
+        "g1g2",
+        "e1f1",
+        "g2f3",
+        "f1h1",
+        "f3e3",
+        "h1a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1951,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@2,3,bk@6,7,bq@4,6,wb@5,7,wk@6,0,wn@2,2,wq@0,7|line:bq:0,-6:-:->wk:0,1:-:->bq:1,0:-:->wk:-1,1:-:->bq:2,0:-:->wk:-1,0:-:->bq:-7,7:q:-|outcome:capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 28,
+        "sourceIdentity": "oTRVS",
+        "canonicalIdentity": "Q4Bk1/4qp1p/p5p1/8/2b5/P1N3P1/1P3P1P/6K1 b - -|tactic-in-4|e7e1,g1g2,e1f1,g2f3,f1h1,f3e3,h1a8|oTRVS",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@2,3,bk@6,7,bq@4,6,wb@5,7,wk@6,0,wn@2,2,wq@0,7|line:bq:0,-6:-:->wk:0,1:-:->bq:1,0:-:->wk:-1,1:-:->bq:2,0:-:->wk:-1,0:-:->bq:-7,7:q:-|outcome:capture:q,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:e7",
+          "first-to:e1",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 6
+      }
+    },
+    {
+      "id": "skewer-queen-m4-ipzbD",
+      "puzzleId": "ipzbD",
+      "fen": "7r/pp2k1p1/5p2/5Q2/1P1pPp2/P1qB4/2P4r/3R1RK1 w - - 0 34",
+      "preMove": "f5c5",
+      "solutionLine": [
+        "c3c5",
+        "b4c5",
+        "f4f3",
+        "f1f3",
+        "h2h1",
+        "g1g2",
+        "h1d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2212,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "master",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "master",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "vulnerable-king",
+        "Queen Skewer",
+        "Vulnerable / Exposed King",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@1,3,bq@5,5,br@0,0,br@6,0,wb@5,4,wk@7,1,wq@3,5,wr@7,2,wr@7,4|line:bq:-2,0:q:->wp:-1,-1:q:->bp:1,0:-:->wr:-2,0:p:->br:1,0:-:->wk:-1,0:-:->br:0,4:r:-|outcome:capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 7,
+        "sourceIndex": 0,
+        "sourceIdentity": "ipzbD",
+        "canonicalIdentity": "7r/pp2k1p1/5p2/2Q5/1P1pPp2/P1qB4/2P4r/3R1RK1 b - -|tactic-in-4|c3c5,b4c5,f4f3,f1f3,h2h1,g1g2,h1d1|ipzbD",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@1,3,bq@5,5,br@0,0,br@6,0,wb@5,4,wk@7,1,wq@3,5,wr@7,2,wr@7,4|line:bq:-2,0:q:->wp:-1,-1:q:->bp:1,0:-:->wr:-2,0:p:->br:1,0:-:->wk:-1,0:-:->br:0,4:r:-|outcome:capture:p,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:c3",
+          "first-to:c5",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:q"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 7
+      }
+    },
+    {
+      "id": "skewer-queen-m4-tDrrI",
+      "puzzleId": "tDrrI",
+      "fen": "3r4/5pk1/p3p1R1/1pp4Q/2P2q2/1P1r4/P4P1P/6RK b - - 0 29",
+      "preMove": "f7g6",
+      "solutionLine": [
+        "h5g6",
+        "g7f8",
+        "g6g8",
+        "f8e7",
+        "g1g7",
+        "e7d6",
+        "g8d8",
+        "d6e5",
+        "d8d3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2603,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection",
+        "interference"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection",
+        "Interference"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "interference",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "interference",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Deflection",
+        "Interference",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@1,1,bq@2,4,br@4,0,br@4,5,wk@0,7,wq@0,3,wr@1,7|line:wq:1,-1:p:->bk:1,-1:-:->wq:0,-2:-:->bk:1,1:-:->wr:0,-6:-:->bk:1,1:-:->wq:3,0:r:->bk:-1,1:-:->wq:0,5:r:-|outcome:capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 10,
+        "sourceIndex": 18,
+        "sourceIdentity": "tDrrI",
+        "canonicalIdentity": "3r4/6k1/p3p1p1/1pp4Q/2P2q2/1P1r4/P4P1P/6RK w - -|tactic-in-4|h5g6,g7f8,g6g8,f8e7,g1g7,e7d6,g8d8,d6e5,d8d3|tDrrI",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@1,1,bq@2,4,br@4,0,br@4,5,wk@0,7,wq@0,3,wr@1,7|line:wq:1,-1:p:->bk:1,-1:-:->wq:0,-2:-:->bk:1,1:-:->wr:0,-6:-:->bk:1,1:-:->wq:3,0:r:->bk:-1,1:-:->wq:0,5:r:-|outcome:capture:p,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:h5",
+          "first-to:g6",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 8
+      }
+    },
+    {
+      "id": "skewer-queen-m4-uiAul",
+      "puzzleId": "uiAul",
+      "fen": "3r3k/7p/Rr3ppP/8/1q6/4P3/2Q1BPP1/4K2R w - - 1 29",
+      "preMove": "e1f1",
+      "solutionLine": [
+        "b4b1",
+        "c2b1",
+        "b6b1",
+        "e2d1",
+        "b1d1",
+        "f1e2",
+        "d1h1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1819,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@0,0,bq@4,6,br@0,4,br@2,6,wb@6,3,wk@7,2,wq@6,5,wr@2,7,wr@7,0|line:bq:3,0:-:->wq:1,1:q:->br:5,0:q:->wb:1,1:-:->br:0,-2:b:->wk:-1,1:-:->br:0,-4:r:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 5,
+        "sourceIdentity": "uiAul",
+        "canonicalIdentity": "3r3k/7p/Rr3ppP/8/1q6/4P3/2Q1BPP1/5K1R b - -|tactic-in-4|b4b1,c2b1,b6b1,e2d1,b1d1,f1e2,d1h1|uiAul",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@0,0,bq@4,6,br@0,4,br@2,6,wb@6,3,wk@7,2,wq@6,5,wr@2,7,wr@7,0|line:bq:3,0:-:->wq:1,1:q:->br:5,0:q:->wb:1,1:-:->br:0,-2:b:->wk:-1,1:-:->br:0,-4:r:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:b4",
+          "first-to:b1",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 9
+      }
+    },
+    {
+      "id": "skewer-queen-m4-lKfeF",
+      "puzzleId": "lKfeF",
+      "fen": "8/5k1p/6p1/2qb4/1pp5/2Q5/6PP/5R1K b - - 1 41",
+      "preMove": "f7e8",
+      "solutionLine": [
+        "c3e5",
+        "e8d7",
+        "f1f7",
+        "d7c6",
+        "f7c7",
+        "c6b6",
+        "c7c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2242,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "vulnerable-king",
+        "Queen Skewer",
+        "Vulnerable / Exposed King",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@3,3,bk@0,4,bq@3,2,wk@7,7,wq@5,2,wr@7,5|line:wq:-2,2:-:->bk:1,-1:-:->wr:-6,0:-:->bk:1,-1:-:->wr:0,-3:-:->bk:0,-1:-:->wr:2,0:q:-|outcome:capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 8,
+        "sourceIndex": 3,
+        "sourceIdentity": "lKfeF",
+        "canonicalIdentity": "4k3/7p/6p1/2qb4/1pp5/2Q5/6PP/5R1K w - -|tactic-in-4|c3e5,e8d7,f1f7,d7c6,f7c7,c6b6,c7c5|lKfeF",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@3,3,bk@0,4,bq@3,2,wk@7,7,wq@5,2,wr@7,5|line:wq:-2,2:-:->bk:1,-1:-:->wr:-6,0:-:->bk:1,-1:-:->wr:0,-3:-:->bk:0,-1:-:->wr:2,0:q:-|outcome:capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:c3",
+          "first-to:e5",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 10
+      }
+    },
+    {
+      "id": "skewer-queen-m4-zGBdn",
+      "puzzleId": "zGBdn",
+      "fen": "7r/8/6k1/p1p2R2/2P1pKP1/PP1pP2q/3Q4/8 w - - 3 40",
+      "preMove": "f4e4",
+      "solutionLine": [
+        "h3g4",
+        "f5f4",
+        "g4e6",
+        "e4d3",
+        "h8d8",
+        "d3e2",
+        "d8d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2467,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@1,2,bq@0,5,br@0,0,wk@3,4,wq@4,6,wr@2,3|line:bq:1,-1:p:->wr:0,1:-:->bq:2,-2:-:->wk:1,1:p:->br:4,0:-:->wk:-1,1:-:->br:0,6:q:-|outcome:capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 9,
+        "sourceIndex": 20,
+        "sourceIdentity": "zGBdn",
+        "canonicalIdentity": "7r/8/6k1/p1p2R2/2P1K1P1/PP1pP2q/3Q4/8 b - -|tactic-in-4|h3g4,f5f4,g4e6,e4d3,h8d8,d3e2,d8d2|zGBdn",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@1,2,bq@0,5,br@0,0,wk@3,4,wq@4,6,wr@2,3|line:bq:1,-1:p:->wr:0,1:-:->bq:2,-2:-:->wk:1,1:p:->br:4,0:-:->wk:-1,1:-:->br:0,6:q:-|outcome:capture:p,capture:q,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:h3",
+          "first-to:g4",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 11
+      }
+    },
+    {
+      "id": "skewer-queen-m4-u31wK",
+      "puzzleId": "u31wK",
+      "fen": "4k3/5p2/4p2Q/3pPp2/5P1B/6KP/6P1/2r3q1 b - - 3 36",
+      "preMove": "c1c2",
+      "solutionLine": [
+        "h6h8",
+        "e8d7",
+        "h8d8",
+        "d7c6",
+        "d8c8",
+        "c6b5",
+        "c8c2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1336,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@0,3,bq@7,1,br@6,5,wb@4,0,wk@5,1,wq@2,0|line:wq:-2,0:-:->bk:1,1:-:->wq:0,4:-:->bk:1,1:-:->wq:0,1:-:->bk:1,1:-:->wq:6,0:r:-|outcome:capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 2,
+        "sourceIndex": 23,
+        "sourceIdentity": "u31wK",
+        "canonicalIdentity": "4k3/5p2/4p2Q/3pPp2/5P1B/6KP/2r3P1/6q1 w - -|tactic-in-4|h6h8,e8d7,h8d8,d7c6,d8c8,c6b5,c8c2|u31wK",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@0,3,bq@7,1,br@6,5,wb@4,0,wk@5,1,wq@2,0|line:wq:-2,0:-:->bk:1,1:-:->wq:0,4:-:->bk:1,1:-:->wq:0,1:-:->bk:1,1:-:->wq:6,0:r:-|outcome:capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:h6",
+          "first-to:h8",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 12
+      }
+    },
+    {
+      "id": "skewer-queen-m4-wWBFK",
+      "puzzleId": "wWBFK",
+      "fen": "5r2/pkp3p1/2p3r1/2q1P3/5P1p/2P1PQ1P/PP6/R2R1K2 w - - 7 24",
+      "preMove": "d1d4",
+      "solutionLine": [
+        "c5b5",
+        "f1e1",
+        "g6g1",
+        "e1f2",
+        "g1a1",
+        "d4b4",
+        "a1f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2415,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "vulnerable-king",
+        "Queen Skewer",
+        "Vulnerable / Exposed King",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@1,1,bq@2,3,br@5,0,br@6,2,wk@5,7,wq@5,5,wr@0,7,wr@3,4|line:bq:-1,0:-:->wk:-1,0:-:->br:0,5:-:->wk:1,-1:-:->br:-6,0:r:->wr:-2,0:-:->br:5,0:-:-|outcome:capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 9,
+        "sourceIndex": 19,
+        "sourceIdentity": "wWBFK",
+        "canonicalIdentity": "5r2/pkp3p1/2p3r1/2q1P3/3R1P1p/2P1PQ1P/PP6/R4K2 b - -|tactic-in-4|c5b5,f1e1,g6g1,e1f2,g1a1,d4b4,a1f1|wWBFK",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@1,1,bq@2,3,br@5,0,br@6,2,wk@5,7,wq@5,5,wr@0,7,wr@3,4|line:bq:-1,0:-:->wk:-1,0:-:->br:0,5:-:->wk:1,-1:-:->br:-6,0:r:->wr:-2,0:-:->br:5,0:-:-|outcome:capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:c5",
+          "first-to:b5",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 13
+      }
+    },
+    {
+      "id": "skewer-queen-m4-s8kyt",
+      "puzzleId": "s8kyt",
+      "fen": "4rbkr/pppb3p/2nq1P2/3p4/P2P1pN1/1PP1B3/4Q1PP/R3KB1R b KQ - 2 16",
+      "preMove": "d7g4",
+      "solutionLine": [
+        "e2g4",
+        "g8f7",
+        "g4h5",
+        "f7f6",
+        "h5e8",
+        "f8g7",
+        "e8h5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1856,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "advantage",
+        "deflection",
+        "kingsideAttack",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "deflection",
+        "kingsideAttack",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "kingside-attack",
+        "Queen Skewer",
+        "Deflection",
+        "Kingside Attack",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@0,2,bb@4,1,bk@0,1,bn@2,5,bq@2,4,br@0,0,br@0,3,wb@5,3,wb@7,2,wk@7,3,wq@6,3,wr@7,0,wr@7,7|line:wq:-2,-2:b:->bk:1,1:-:->wq:-1,-1:-:->bk:1,0:p:->wq:-3,3:r:->bb:1,-1:-:->wq:3,-3:-:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 27,
+        "sourceIdentity": "s8kyt",
+        "canonicalIdentity": "4rbkr/ppp4p/2nq1P2/3p4/P2P1pb1/1PP1B3/4Q1PP/R3KB1R w KQ -|tactic-in-4|e2g4,g8f7,g4h5,f7f6,h5e8,f8g7,e8h5|s8kyt",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@0,2,bb@4,1,bk@0,1,bn@2,5,bq@2,4,br@0,0,br@0,3,wb@5,3,wb@7,2,wk@7,3,wq@6,3,wr@7,0,wr@7,7|line:wq:-2,-2:b:->bk:1,1:-:->wq:-1,-1:-:->bk:1,0:p:->wq:-3,3:r:->bb:1,-1:-:->wq:3,-3:-:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:e2",
+          "first-to:g4",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 14
+      }
+    },
+    {
+      "id": "skewer-queen-m4-v9Q67",
+      "puzzleId": "v9Q67",
+      "fen": "2r3k1/p1q1p3/2b1r1pQ/1p6/2p4R/2P4P/P4PP1/2R3K1 b - - 1 31",
+      "preMove": "c7e5",
+      "solutionLine": [
+        "h6h7",
+        "g8f8",
+        "h7h8",
+        "e5h8",
+        "h4h8",
+        "f8f7",
+        "h8c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1631,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "vulnerable-king",
+        "Queen Skewer",
+        "Vulnerable / Exposed King",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@2,2,bk@0,6,bq@3,4,br@0,2,br@2,4,wk@7,6,wq@2,7,wr@4,7,wr@7,2|line:wq:-1,0:-:->bk:0,-1:-:->wq:-1,0:-:->bq:-3,3:q:->wr:-4,0:q:->bk:1,0:-:->wr:0,-5:r:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 19,
+        "sourceIdentity": "v9Q67",
+        "canonicalIdentity": "2r3k1/p3p3/2b1r1pQ/1p2q3/2p4R/2P4P/P4PP1/2R3K1 w - -|tactic-in-4|h6h7,g8f8,h7h8,e5h8,h4h8,f8f7,h8c8|v9Q67",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@2,2,bk@0,6,bq@3,4,br@0,2,br@2,4,wk@7,6,wq@2,7,wr@4,7,wr@7,2|line:wq:-1,0:-:->bk:0,-1:-:->wq:-1,0:-:->bq:-3,3:q:->wr:-4,0:q:->bk:1,0:-:->wr:0,-5:r:-|outcome:capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:h6",
+          "first-to:h7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 15
+      }
+    },
+    {
+      "id": "skewer-queen-m4-xhjQO",
+      "puzzleId": "xhjQO",
+      "fen": "2kr3r/p1p2ppp/1bp1p3/q7/2Qn2P1/2N1B2P/PP3P2/2KR3R b - - 1 17",
+      "preMove": "d4b5",
+      "solutionLine": [
+        "c4c6",
+        "b5d6",
+        "d1d6",
+        "d8d6",
+        "c6a8",
+        "c8d7",
+        "a8h8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2067,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "pin-queen",
+        "skewer-queen",
+        "queenside-attack"
+      ],
+      "sourceThemes": [
+        "Queen Pin",
+        "Queen Skewer",
+        "Queenside Attack"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "queensideAttack",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "queensideAttack",
+        "skewer",
+        "veryLong",
+        "pin-queen",
+        "skewer-queen",
+        "queenside-attack",
+        "Queen Pin",
+        "Queen Skewer",
+        "Queenside Attack",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@1,2,bk@2,0,bn@1,3,bq@0,3,br@3,0,br@7,0,wb@4,5,wk@2,7,wn@2,5,wq@2,4,wr@3,7,wr@7,7|line:wq:0,-2:p:->bn:2,-1:-:->wr:0,-5:n:->br:0,2:r:->wq:-2,-2:-:->bk:1,1:-:->wq:7,0:r:-|outcome:capture:n,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 6,
+        "sourceIndex": 28,
+        "sourceIdentity": "xhjQO",
+        "canonicalIdentity": "2kr3r/p1p2ppp/1bp1p3/qn6/2Q3P1/2N1B2P/PP3P2/2KR3R w - -|tactic-in-4|c4c6,b5d6,d1d6,d8d6,c6a8,c8d7,a8h8|xhjQO",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@1,2,bk@2,0,bn@1,3,bq@0,3,br@3,0,br@7,0,wb@4,5,wk@2,7,wn@2,5,wq@2,4,wr@3,7,wr@7,7|line:wq:0,-2:p:->bn:2,-1:-:->wr:0,-5:n:->br:0,2:r:->wq:-2,-2:-:->bk:1,1:-:->wq:7,0:r:-|outcome:capture:n,capture:p,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:c4",
+          "first-to:c6",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 16
+      }
+    },
+    {
+      "id": "skewer-queen-m4-sJyGM",
+      "puzzleId": "sJyGM",
+      "fen": "rn1q1rk1/pp2p3/3p1pp1/2pP2N1/2P1P1b1/6P1/P2N1PB1/Q3K2R b K - 0 14",
+      "preMove": "f6g5",
+      "solutionLine": [
+        "a1h8",
+        "g8f7",
+        "h1h7",
+        "f7e8",
+        "h8f8",
+        "e8f8",
+        "h7h8",
+        "f8g7",
+        "h8d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2323,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "decoy-attraction",
+        "vulnerable-king",
+        "kingside-attack",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "exposedKing",
+        "kingsideAttack",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "exposedKing",
+        "kingsideAttack",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "decoy-attraction",
+        "vulnerable-king",
+        "kingside-attack",
+        "sacrifice-queen",
+        "Queen Skewer",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Queen Sacrifice",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bb@1,3,bk@1,7,bn@6,7,bq@4,7,br@2,7,br@7,7,wb@1,1,wk@3,0,wn@4,1,wq@7,0,wr@0,0|line:wq:-7,7:-:->bk:1,-1:-:->wr:0,6:-:->bk:1,1:-:->wq:2,0:r:->bk:-1,0:q:->wr:0,1:-:->bk:-1,-1:-:->wr:4,0:q:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 8,
+        "sourceIndex": 4,
+        "sourceIdentity": "sJyGM",
+        "canonicalIdentity": "rn1q1rk1/pp2p3/3p2p1/2pP2p1/2P1P1b1/6P1/P2N1PB1/Q3K2R w K -|tactic-in-4|a1h8,g8f7,h1h7,f7e8,h8f8,e8f8,h7h8,f8g7,h8d8|sJyGM",
+        "pedagogicalFamily": "queen-skewer|pieces:bb@1,3,bk@1,7,bn@6,7,bq@4,7,br@2,7,br@7,7,wb@1,1,wk@3,0,wn@4,1,wq@7,0,wr@0,0|line:wq:-7,7:-:->bk:1,-1:-:->wr:0,6:-:->bk:1,1:-:->wq:2,0:r:->bk:-1,0:q:->wr:0,1:-:->bk:-1,-1:-:->wr:4,0:q:-|outcome:capture:q,capture:r,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:a1",
+          "first-to:h8",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 17
+      }
+    },
+    {
+      "id": "skewer-queen-m4-hpECg",
+      "puzzleId": "hpECg",
+      "fen": "3r1k1r/1Q1R1pp1/p3pqp1/1p6/2p3P1/2P4P/PP3P2/2KR4 b - - 5 25",
+      "preMove": "d8d7",
+      "solutionLine": [
+        "b7c8",
+        "f6d8",
+        "c8d8",
+        "d7d8",
+        "d1d8",
+        "f8e7",
+        "d8h8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1766,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "skewer-queen",
+        "xray-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Skewer",
+        "Queen X-Ray Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "skewer",
+        "veryLong",
+        "xRayAttack"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "skewer",
+        "veryLong",
+        "xRayAttack",
+        "fork-queen",
+        "skewer-queen",
+        "xray-queen",
+        "Queen Fork / Double Attack",
+        "Queen Skewer",
+        "Queen X-Ray Attack",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@0,2,bq@2,2,br@0,0,br@1,4,wk@7,5,wq@1,6,wr@7,4|line:wq:-1,-1:-:->bq:-2,2:-:->wq:0,-1:q:->br:-1,0:q:->wr:-7,0:r:->bk:1,1:-:->wr:0,-4:r:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 15,
+        "sourceIdentity": "hpECg",
+        "canonicalIdentity": "5k1r/1Q1r1pp1/p3pqp1/1p6/2p3P1/2P4P/PP3P2/2KR4 w - -|tactic-in-4|b7c8,f6d8,c8d8,d7d8,d1d8,f8e7,d8h8|hpECg",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@0,2,bq@2,2,br@0,0,br@1,4,wk@7,5,wq@1,6,wr@7,4|line:wq:-1,-1:-:->bq:-2,2:-:->wq:0,-1:q:->br:-1,0:q:->wr:-7,0:r:->bk:1,1:-:->wr:0,-4:r:-|outcome:capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:b7",
+          "first-to:c8",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 18
+      }
+    },
+    {
+      "id": "skewer-queen-m4-rDEW7",
+      "puzzleId": "rDEW7",
+      "fen": "r7/p4R1p/2pkr3/3p4/2N5/2P5/Pq2Q1PP/7K b - - 3 27",
+      "preMove": "d5c4",
+      "solutionLine": [
+        "e2d1",
+        "d6c5",
+        "d1g1",
+        "c5b5",
+        "f7b7",
+        "b5a6",
+        "b7b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2670,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "Queen Skewer",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|pieces:bk@2,3,bq@6,1,br@0,0,br@2,4,wk@7,7,wq@6,4,wr@1,5|line:wq:1,-1:-:->bk:1,-1:-:->wq:0,3:-:->bk:0,-1:-:->wr:0,-4:-:->bk:-1,-1:-:->wr:5,0:q:-|outcome:capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 7,
+        "sourceChunk": 10,
+        "sourceIndex": 28,
+        "sourceIdentity": "rDEW7",
+        "canonicalIdentity": "r7/p4R1p/2pkr3/8/2p5/2P5/Pq2Q1PP/7K w - -|tactic-in-4|e2d1,d6c5,d1g1,c5b5,f7b7,b5a6,b7b2|rDEW7",
+        "pedagogicalFamily": "queen-skewer|pieces:bk@2,3,bq@6,1,br@0,0,br@2,4,wk@7,7,wq@6,4,wr@1,5|line:wq:1,-1:-:->bk:1,-1:-:->wq:0,3:-:->bk:0,-1:-:->wr:0,-4:-:->bk:-1,-1:-:->wr:5,0:q:-|outcome:capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:e2",
+          "first-to:d1",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 19
+      }
+    }
+  ]
+}

@@ -1,0 +1,1611 @@
+{
+  "puzzles": [
+    {
+      "id": "skewer-bishop-m4-St1C5",
+      "puzzleId": "St1C5",
+      "fen": "4rk2/1p2bp2/p1p3q1/3p3R/1P1P1PK1/P5P1/3Q4/7R w - - 1 49",
+      "preMove": "h5g5",
+      "solutionLine": [
+        "e7g5",
+        "h1h8",
+        "f8g7",
+        "h8e8",
+        "g5f4",
+        "g4f4",
+        "g6h6",
+        "f4f3",
+        "h6d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2234,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "discovered-check",
+        "skewer-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Discovered Check",
+        "Bishop Skewer",
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "discoveredAttack",
+        "discoveredCheck",
+        "endgame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "discoveredAttack",
+        "discoveredCheck",
+        "endgame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "discovered-attack",
+        "discovered-check",
+        "skewer-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Discovered Attack",
+        "Discovered Check",
+        "Bishop Skewer",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@0,2,bq@2,1,br@0,3,wk@4,1,wq@6,4,wr@3,1,wr@7,0|line:bb:2,-2:r:->wr:-7,0:-:->bk:1,-1:-:->wr:0,3:r:->bb:1,1:p:->wk:0,1:b:->bq:0,-1:-:->wk:1,0:-:->bq:4,4:q:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 7,
+        "sourceIndex": 22,
+        "sourceIdentity": "St1C5",
+        "canonicalIdentity": "4rk2/1p2bp2/p1p3q1/3p2R1/1P1P1PK1/P5P1/3Q4/7R b - -|tactic-in-4|e7g5,h1h8,f8g7,h8e8,g5f4,g4f4,g6h6,f4f3,h6d2|St1C5",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@0,2,bq@2,1,br@0,3,wk@4,1,wq@6,4,wr@3,1,wr@7,0|line:bb:2,-2:r:->wr:-7,0:-:->bk:1,-1:-:->wr:0,3:r:->bb:1,1:p:->wk:0,1:b:->bq:0,-1:-:->wk:1,0:-:->bq:4,4:q:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e7",
+          "first-to:g5",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 0
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-EpM5q",
+      "puzzleId": "EpM5q",
+      "fen": "8/p2R4/5pkp/3B4/8/6P1/5PKP/1q6 b - - 4 31",
+      "preMove": "a7a5",
+      "solutionLine": [
+        "d5f7",
+        "g6f5",
+        "d7d5",
+        "f5e4",
+        "f7g6",
+        "e4d5",
+        "g6b1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1627,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bk@1,2,bq@6,7,wb@4,3,wk@1,6,wr@4,1|line:wb:-2,-2:-:->bk:1,1:-:->wr:0,2:-:->bk:1,1:-:->wb:-1,1:-:->bk:1,-1:r:->wb:5,5:q:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 3,
+        "sourceIndex": 10,
+        "sourceIdentity": "EpM5q",
+        "canonicalIdentity": "8/3R4/5pkp/p2B4/8/6P1/5PKP/1q6 w - -|tactic-in-4|d5f7,g6f5,d7d5,f5e4,f7g6,e4d5,g6b1|EpM5q",
+        "pedagogicalFamily": "bishop-skewer|pieces:bk@1,2,bq@6,7,wb@4,3,wk@1,6,wr@4,1|line:wb:-2,-2:-:->bk:1,1:-:->wr:0,2:-:->bk:1,1:-:->wb:-1,1:-:->bk:1,-1:r:->wb:5,5:q:-|outcome:capture:q,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d5",
+          "first-to:f7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 1
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-jCwuE",
+      "puzzleId": "jCwuE",
+      "fen": "rn2kbnr/ppp1pppp/2q3b1/1N6/Q2P2P1/7P/PP2PP2/R1B1KBN1 b Qkq - 3 8",
+      "preMove": "b8a6",
+      "solutionLine": [
+        "f1g2",
+        "c6d7",
+        "g2b7",
+        "a8b8",
+        "a4a6",
+        "b8b7",
+        "a6b7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2489,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "skewer-bishop",
+        "remove-the-defender"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer",
+        "Remove the Defender"
+      ],
+      "themes": [
+        "capturingDefender",
+        "crushing",
+        "fork",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "capturingDefender",
+        "crushing",
+        "fork",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "fork-bishop",
+        "skewer-bishop",
+        "remove-the-defender",
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer",
+        "Remove the Defender",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bb@2,1,bk@0,3,bn@0,1,bn@2,7,bq@2,5,br@0,0,br@0,7,wb@7,2,wb@7,5,wk@7,3,wn@3,6,wn@7,1,wq@4,7,wr@7,7|line:wb:-1,-1:-:->bq:-1,-1:-:->wb:-5,5:p:->br:0,-1:-:->wq:-2,0:n:->br:1,0:b:->wq:-1,-1:r:-|outcome:capture:b,capture:n,capture:p,capture:r",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 9,
+        "sourceIndex": 23,
+        "sourceIdentity": "jCwuE",
+        "canonicalIdentity": "r3kbnr/ppp1pppp/n1q3b1/1N6/Q2P2P1/7P/PP2PP2/R1B1KBN1 w Qkq -|tactic-in-4|f1g2,c6d7,g2b7,a8b8,a4a6,b8b7,a6b7|jCwuE",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bb@2,1,bk@0,3,bn@0,1,bn@2,7,bq@2,5,br@0,0,br@0,7,wb@7,2,wb@7,5,wk@7,3,wn@3,6,wn@7,1,wq@4,7,wr@7,7|line:wb:-1,-1:-:->bq:-1,-1:-:->wb:-5,5:p:->br:0,-1:-:->wq:-2,0:n:->br:1,0:b:->wq:-1,-1:r:-|outcome:capture:b,capture:n,capture:p,capture:r",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f1",
+          "first-to:g2",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 2
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-AeXlN",
+      "puzzleId": "AeXlN",
+      "fen": "3Q2bk/1p4p1/7p/8/r7/q4P2/2P3PP/1KNR3R w - - 2 28",
+      "preMove": "d8d4",
+      "solutionLine": [
+        "g8a2",
+        "c1a2",
+        "a3a2",
+        "b1c1",
+        "a4d4",
+        "d1d4",
+        "a2a1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1967,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "fork-bishop",
+        "skewer-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@0,1,bk@0,0,bq@5,7,br@4,7,wk@7,6,wn@7,5,wq@4,4,wr@7,0,wr@7,4|line:bb:6,6:-:->wn:-1,2:b:->bq:1,0:n:->wk:0,-1:-:->br:0,-3:q:->wr:-3,0:r:->bq:1,0:-:-|outcome:capture:b,capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 5,
+        "sourceIndex": 25,
+        "sourceIdentity": "AeXlN",
+        "canonicalIdentity": "6bk/1p4p1/7p/8/r2Q4/q4P2/2P3PP/1KNR3R b - -|tactic-in-4|g8a2,c1a2,a3a2,b1c1,a4d4,d1d4,a2a1|AeXlN",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@0,1,bk@0,0,bq@5,7,br@4,7,wk@7,6,wn@7,5,wq@4,4,wr@7,0,wr@7,4|line:bb:6,6:-:->wn:-1,2:b:->bq:1,0:n:->wk:0,-1:-:->br:0,-3:q:->wr:-3,0:r:->bq:1,0:-:-|outcome:capture:b,capture:n,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g8",
+          "first-to:a2",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 3
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-EDcrD",
+      "puzzleId": "EDcrD",
+      "fen": "3r2k1/1p3ppp/p2b1n2/3bq3/2p5/P1P1B2P/1PBNQPP1/R5K1 w - - 6 23",
+      "preMove": "d2f3",
+      "solutionLine": [
+        "d5f3",
+        "e2f3",
+        "e5h2",
+        "g1f1",
+        "h2h1",
+        "f1e2",
+        "h1a1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1325,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "crushing",
+        "kingsideAttack",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 16,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "kingsideAttack",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "kingside-attack",
+        "Bishop Skewer",
+        "Kingside Attack",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@2,3,bb@3,3,bk@0,6,bn@2,5,bq@3,4,br@0,3,wb@5,4,wb@6,2,wk@7,6,wn@5,5,wq@6,4,wr@7,0|line:bb:2,2:n:->wq:-1,1:b:->bq:3,3:-:->wk:0,-1:-:->bq:1,0:-:->wk:-1,-1:-:->bq:0,-7:r:-|outcome:capture:b,capture:n,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 16,
+        "sourceIdentity": "EDcrD",
+        "canonicalIdentity": "3r2k1/1p3ppp/p2b1n2/3bq3/2p5/P1P1BN1P/1PB1QPP1/R5K1 b - -|tactic-in-4|d5f3,e2f3,e5h2,g1f1,h2h1,f1e2,h1a1|EDcrD",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@2,3,bb@3,3,bk@0,6,bn@2,5,bq@3,4,br@0,3,wb@5,4,wb@6,2,wk@7,6,wn@5,5,wq@6,4,wr@7,0|line:bb:2,2:n:->wq:-1,1:b:->bq:3,3:-:->wk:0,-1:-:->bq:1,0:-:->wk:-1,-1:-:->bq:0,-7:r:-|outcome:capture:b,capture:n,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d5",
+          "first-to:f3",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 4
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-Z9MOX",
+      "puzzleId": "Z9MOX",
+      "fen": "r4rk1/p4p1p/b3q1pQ/4p3/8/1PBp1PP1/P2K4/7R b - - 1 22",
+      "preMove": "f8d8",
+      "solutionLine": [
+        "c3b4",
+        "d8d6",
+        "h6h7",
+        "g8f8",
+        "h7h8",
+        "f8e7",
+        "h8a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2468,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "pin-bishop",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Bishop Pin",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "middlegame",
+        "pin",
+        "quietMove",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "middlegame",
+        "pin",
+        "quietMove",
+        "skewer",
+        "veryLong",
+        "quiet-move",
+        "pin-bishop",
+        "skewer-bishop",
+        "Quiet Move",
+        "Bishop Pin",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bk@6,0,bq@4,2,br@0,0,br@3,0,wb@2,5,wk@3,6,wq@7,2,wr@7,7|line:wb:-1,-1:-:->br:0,2:-:->wq:0,-1:p:->bk:-1,0:-:->wq:0,-1:-:->bk:-1,1:-:->wq:-7,0:r:-|outcome:capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 9,
+        "sourceIndex": 2,
+        "sourceIdentity": "Z9MOX",
+        "canonicalIdentity": "r2r2k1/p4p1p/b3q1pQ/4p3/8/1PBp1PP1/P2K4/7R w - -|tactic-in-4|c3b4,d8d6,h6h7,g8f8,h7h8,f8e7,h8a8|Z9MOX",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bk@6,0,bq@4,2,br@0,0,br@3,0,wb@2,5,wk@3,6,wq@7,2,wr@7,7|line:wb:-1,-1:-:->br:0,2:-:->wq:0,-1:p:->bk:-1,0:-:->wq:0,-1:-:->bk:-1,1:-:->wq:-7,0:r:-|outcome:capture:p,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c3",
+          "first-to:b4",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 5
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-UNOdi",
+      "puzzleId": "UNOdi",
+      "fen": "4Q3/1b3pkp/p4p1q/2p5/3p1n2/3P1N1P/PPP2PP1/R5K1 w - - 1 24",
+      "preMove": "g1f1",
+      "solutionLine": [
+        "b7f3",
+        "g2f3",
+        "h6h3",
+        "f1e1",
+        "h3h1",
+        "e1d2",
+        "h1a1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1273,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@1,1,bk@1,6,bn@4,5,bq@2,7,wk@7,5,wn@5,5,wq@0,4,wr@7,0|line:bb:4,4:n:->wp:-1,-1:b:->bq:3,0:p:->wk:0,-1:-:->bq:2,0:-:->wk:-1,-1:-:->bq:0,-7:r:-|outcome:capture:b,capture:n,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 10,
+        "sourceIdentity": "UNOdi",
+        "canonicalIdentity": "4Q3/1b3pkp/p4p1q/2p5/3p1n2/3P1N1P/PPP2PP1/R4K2 b - -|tactic-in-4|b7f3,g2f3,h6h3,f1e1,h3h1,e1d2,h1a1|UNOdi",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@1,1,bk@1,6,bn@4,5,bq@2,7,wk@7,5,wn@5,5,wq@0,4,wr@7,0|line:bb:4,4:n:->wp:-1,-1:b:->bq:3,0:p:->wk:0,-1:-:->bq:2,0:-:->wk:-1,-1:-:->bq:0,-7:r:-|outcome:capture:b,capture:n,capture:p,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:b7",
+          "first-to:f3",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 6
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-kJczx",
+      "puzzleId": "kJczx",
+      "fen": "rn3rk1/1b2qp1p/2p3pQ/p7/1pPb2P1/3B4/PP2NPP1/R3K2R b KQ - 1 16",
+      "preMove": "f7f6",
+      "solutionLine": [
+        "d3g6",
+        "h7g6",
+        "h6h8",
+        "g8f7",
+        "h1h7",
+        "f7e8",
+        "h7e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1539,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "kingside-attack",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Kingside Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "kingsideAttack",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "kingsideAttack",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "kingside-attack",
+        "sacrifice-bishop",
+        "Bishop Skewer",
+        "Kingside Attack",
+        "Bishop Sacrifice",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@1,1,bb@3,4,bk@6,0,bn@1,0,bq@4,1,br@0,0,br@5,0,wb@3,5,wk@4,7,wn@4,6,wq@7,2,wr@0,7,wr@7,7|line:wb:3,-3:p:->bp:-1,1:b:->wq:0,-2:-:->bk:-1,1:-:->wr:0,-6:-:->bk:-1,-1:-:->wr:-3,0:q:-|outcome:capture:b,capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 2,
+        "sourceIndex": 9,
+        "sourceIdentity": "kJczx",
+        "canonicalIdentity": "rn3rk1/1b2q2p/2p2ppQ/p7/1pPb2P1/3B4/PP2NPP1/R3K2R w KQ -|tactic-in-4|d3g6,h7g6,h6h8,g8f7,h1h7,f7e8,h7e7|kJczx",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@1,1,bb@3,4,bk@6,0,bn@1,0,bq@4,1,br@0,0,br@5,0,wb@3,5,wk@4,7,wn@4,6,wq@7,2,wr@0,7,wr@7,7|line:wb:3,-3:p:->bp:-1,1:b:->wq:0,-2:-:->bk:-1,1:-:->wr:0,-6:-:->bk:-1,-1:-:->wr:-3,0:q:-|outcome:capture:b,capture:p,capture:q,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d3",
+          "first-to:g6",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 7
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-ybNnc",
+      "puzzleId": "ybNnc",
+      "fen": "r3k3/2qb1p2/2nppPn1/pB5Q/Pp2P3/8/1PP4P/3R2BK b q - 0 27",
+      "preMove": "e8c8",
+      "solutionLine": [
+        "b5a6",
+        "c8b8",
+        "h5b5",
+        "b8a8",
+        "g1b6",
+        "c7b8",
+        "b6d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1789,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "vulnerable-king",
+        "queenside-attack"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Vulnerable / Exposed King",
+        "Queenside Attack"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "master",
+        "middlegame",
+        "queensideAttack",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "master",
+        "middlegame",
+        "queensideAttack",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "vulnerable-king",
+        "queenside-attack",
+        "Bishop Skewer",
+        "Vulnerable / Exposed King",
+        "Queenside Attack",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@0,2,bn@2,2,bn@2,6,bq@1,2,br@0,3,wb@3,1,wb@7,6,wk@7,7,wq@3,7,wr@7,3|line:wb:-1,-1:-:->bk:0,-1:-:->wq:0,-6:-:->bk:0,-1:-:->wb:-5,-5:-:->bq:-1,-1:-:->wb:-2,2:r:-|outcome:capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 4,
+        "sourceIndex": 12,
+        "sourceIdentity": "ybNnc",
+        "canonicalIdentity": "2kr4/2qb1p2/2nppPn1/pB5Q/Pp2P3/8/1PP4P/3R2BK w - -|tactic-in-4|b5a6,c8b8,h5b5,b8a8,g1b6,c7b8,b6d8|ybNnc",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@0,2,bn@2,2,bn@2,6,bq@1,2,br@0,3,wb@3,1,wb@7,6,wk@7,7,wq@3,7,wr@7,3|line:wb:-1,-1:-:->bk:0,-1:-:->wq:0,-6:-:->bk:0,-1:-:->wb:-5,-5:-:->bq:-1,-1:-:->wb:-2,2:r:-|outcome:capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:b5",
+          "first-to:a6",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 8
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-YxhaI",
+      "puzzleId": "YxhaI",
+      "fen": "4rkB1/1p4p1/3R3p/p3Pp2/1P2b2q/P7/Q5P1/6K1 b - - 7 43",
+      "preMove": "h4h5",
+      "solutionLine": [
+        "g8h7",
+        "h5f7",
+        "a2f7",
+        "f8f7",
+        "h7g6",
+        "f7e7",
+        "g6e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2417,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "decoy-attraction",
+        "Bishop Skewer",
+        "Decoy / Attraction",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@3,3,bk@2,7,bq@0,4,br@3,7,wb@1,7,wk@1,0,wq@7,1,wr@4,5|line:wb:-1,-1:-:->bq:2,2:-:->wq:-5,5:q:->bk:0,-1:q:->wb:1,-1:-:->bk:1,0:-:->wb:2,2:r:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 9,
+        "sourceIndex": 29,
+        "sourceIdentity": "YxhaI",
+        "canonicalIdentity": "4rkB1/1p4p1/3R3p/p3Pp1q/1P2b3/P7/Q5P1/6K1 w - -|tactic-in-4|g8h7,h5f7,a2f7,f8f7,h7g6,f7e7,g6e8|YxhaI",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@3,3,bk@2,7,bq@0,4,br@3,7,wb@1,7,wk@1,0,wq@7,1,wr@4,5|line:wb:-1,-1:-:->bq:2,2:-:->wq:-5,5:q:->bk:0,-1:q:->wb:1,-1:-:->bk:1,0:-:->wb:2,2:r:-|outcome:capture:q,capture:r,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g8",
+          "first-to:h7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 9
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-OGygC",
+      "puzzleId": "OGygC",
+      "fen": "4r3/3b1p2/1B5p/6k1/P4p2/3p4/1R3PPP/3K4 w - - 1 39",
+      "preMove": "a4a5",
+      "solutionLine": [
+        "d7a4",
+        "d1c1",
+        "e8e1",
+        "c1d2",
+        "e1e2",
+        "d2d3",
+        "e2b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1645,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "vulnerable-king",
+        "Bishop Skewer",
+        "Vulnerable / Exposed King",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@3,6,br@0,4,wb@2,1,wk@7,3,wr@6,1|line:bb:3,-3:-:->wk:0,-1:-:->br:7,0:-:->wk:-1,1:-:->br:-1,0:-:->wk:-1,0:p:->br:0,-3:r:-|outcome:capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 3,
+        "sourceIndex": 17,
+        "sourceIdentity": "OGygC",
+        "canonicalIdentity": "4r3/3b1p2/1B5p/P5k1/5p2/3p4/1R3PPP/3K4 b - -|tactic-in-4|d7a4,d1c1,e8e1,c1d2,e1e2,d2d3,e2b2|OGygC",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@3,6,br@0,4,wb@2,1,wk@7,3,wr@6,1|line:bb:3,-3:-:->wk:0,-1:-:->br:7,0:-:->wk:-1,1:-:->br:-1,0:-:->wk:-1,0:p:->br:0,-3:r:-|outcome:capture:p,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d7",
+          "first-to:a4",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 10
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-DSEQM",
+      "puzzleId": "DSEQM",
+      "fen": "8/p5p1/k3Qp2/1p3P2/4n3/b5BP/P1Pq1P2/1K6 b - - 7 38",
+      "preMove": "a6a5",
+      "solutionLine": [
+        "g3c7",
+        "a5b4",
+        "e6e4",
+        "b4c5",
+        "e4e7",
+        "c5c6",
+        "e7a3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2317,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bk@0,4,bn@4,3,bq@3,1,wb@6,2,wk@1,0,wq@4,5|line:wb:-4,4:-:->bk:1,-1:-:->wq:0,-2:n:->bk:1,1:-:->wq:0,3:-:->bk:0,1:-:->wq:-4,-4:b:-|outcome:capture:b,capture:n,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 8,
+        "sourceIndex": 12,
+        "sourceIdentity": "DSEQM",
+        "canonicalIdentity": "8/p5p1/4Qp2/kp3P2/4n3/b5BP/P1Pq1P2/1K6 w - -|tactic-in-4|g3c7,a5b4,e6e4,b4c5,e4e7,c5c6,e7a3|DSEQM",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bk@0,4,bn@4,3,bq@3,1,wb@6,2,wk@1,0,wq@4,5|line:wb:-4,4:-:->bk:1,-1:-:->wq:0,-2:n:->bk:1,1:-:->wq:0,3:-:->bk:0,1:-:->wq:-4,-4:b:-|outcome:capture:b,capture:n,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g3",
+          "first-to:c7",
+          "king-region:queen-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 11
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-bv1Ve",
+      "puzzleId": "bv1Ve",
+      "fen": "6k1/3r4/2r3p1/p3p1p1/1p1bP3/3R1PB1/PP4R1/1K6 w - - 0 35",
+      "preMove": "g3e5",
+      "solutionLine": [
+        "d4e3",
+        "g2c2",
+        "d7d3",
+        "c2c6",
+        "d3d1",
+        "b1c2",
+        "d1c1",
+        "c2d3",
+        "c1c6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2014,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "discovered-attack",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Discovered Attack",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "discoveredAttack",
+        "endgame",
+        "quietMove",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "discoveredAttack",
+        "endgame",
+        "quietMove",
+        "skewer",
+        "veryLong",
+        "quiet-move",
+        "discovered-attack",
+        "skewer-bishop",
+        "Quiet Move",
+        "Discovered Attack",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@3,3,bk@6,7,br@2,5,br@3,6,wb@4,4,wk@1,0,wr@3,2,wr@6,1|line:bb:1,-1:-:->wr:-4,0:-:->br:0,-4:r:->wr:0,4:r:->br:0,-2:-:->wk:1,1:-:->br:-1,0:-:->wk:1,1:-:->br:0,5:r:-|outcome:capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 6,
+        "sourceIndex": 27,
+        "sourceIdentity": "bv1Ve",
+        "canonicalIdentity": "6k1/3r4/2r3p1/p3B1p1/1p1bP3/3R1P2/PP4R1/1K6 b - -|tactic-in-4|d4e3,g2c2,d7d3,c2c6,d3d1,b1c2,d1c1,c2d3,c1c6|bv1Ve",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@3,3,bk@6,7,br@2,5,br@3,6,wb@4,4,wk@1,0,wr@3,2,wr@6,1|line:bb:1,-1:-:->wr:-4,0:-:->br:0,-4:r:->wr:0,4:r:->br:0,-2:-:->wk:1,1:-:->br:-1,0:-:->wk:1,1:-:->br:0,5:r:-|outcome:capture:r,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d4",
+          "first-to:e3",
+          "king-region:queen-side",
+          "line-length:9",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 12
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-KLzN0",
+      "puzzleId": "KLzN0",
+      "fen": "2r2k1r/p4p2/b1nR2p1/8/8/1P2P1P1/P3NPBq/3QRK2 w - - 0 23",
+      "preMove": "d1c1",
+      "solutionLine": [
+        "a6e2",
+        "e1e2",
+        "h2h1",
+        "g2h1",
+        "h8h1",
+        "f1g2",
+        "h1c1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2125,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "sacrifice-bishop",
+        "Bishop Skewer",
+        "Bishop Sacrifice",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bk@5,0,bn@2,2,bq@7,6,br@2,0,br@7,0,wb@6,6,wk@5,7,wn@4,6,wq@2,7,wr@3,2,wr@4,7|line:bb:4,4:n:->wr:0,-1:b:->bq:0,1:-:->wb:1,1:q:->br:0,7:b:->wk:1,-1:-:->br:-5,0:q:-|outcome:capture:b,capture:n,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 7,
+        "sourceIndex": 28,
+        "sourceIdentity": "KLzN0",
+        "canonicalIdentity": "2r2k1r/p4p2/b1nR2p1/8/8/1P2P1P1/P3NPBq/2Q1RK2 b - -|tactic-in-4|a6e2,e1e2,h2h1,g2h1,h8h1,f1g2,h1c1|KLzN0",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bk@5,0,bn@2,2,bq@7,6,br@2,0,br@7,0,wb@6,6,wk@5,7,wn@4,6,wq@2,7,wr@3,2,wr@4,7|line:bb:4,4:n:->wr:0,-1:b:->bq:0,1:-:->wb:1,1:q:->br:0,7:b:->wk:1,-1:-:->br:-5,0:q:-|outcome:capture:b,capture:n,capture:q,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:a6",
+          "first-to:e2",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 13
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-sI0Nx",
+      "puzzleId": "sI0Nx",
+      "fen": "8/5R1p/p5pk/2r5/1p1p2PP/1Bp2K2/P2b4/8 b - - 0 46",
+      "preMove": "g6g5",
+      "solutionLine": [
+        "b3c2",
+        "g5h4",
+        "f7h7",
+        "h6g5",
+        "h7h5",
+        "g5f6",
+        "h5c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2146,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@5,7,br@4,2,wb@2,1,wk@2,5,wr@6,5|line:wb:-1,1:-:->bp:-1,1:p:->wr:0,2:p:->bk:-1,-1:-:->wr:-2,0:-:->bk:1,-1:-:->wr:0,-5:r:-|outcome:capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 7,
+        "sourceIndex": 10,
+        "sourceIdentity": "sI0Nx",
+        "canonicalIdentity": "8/5R1p/p6k/2r3p1/1p1p2PP/1Bp2K2/P2b4/8 w - -|tactic-in-4|b3c2,g5h4,f7h7,h6g5,h7h5,g5f6,h5c5|sI0Nx",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@5,7,br@4,2,wb@2,1,wk@2,5,wr@6,5|line:wb:-1,1:-:->bp:-1,1:p:->wr:0,2:p:->bk:-1,-1:-:->wr:-2,0:-:->bk:1,-1:-:->wr:0,-5:r:-|outcome:capture:p,capture:r,check",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:b3",
+          "first-to:c2",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 14
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-k6zsB",
+      "puzzleId": "k6zsB",
+      "fen": "2k5/Qp6/4q3/3p3p/2p2R2/2P1P1rb/PP6/4R1K1 w - - 0 28",
+      "preMove": "g1h1",
+      "solutionLine": [
+        "h3g2",
+        "h1g1",
+        "g2e4",
+        "g1f2",
+        "g3g2",
+        "f2f1",
+        "g2b2",
+        "f4f8",
+        "c8d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2779,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "defense",
+        "discovered-attack",
+        "discovered-check",
+        "skewer-bishop",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Discovered Attack",
+        "Discovered Check",
+        "Bishop Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "discoveredAttack",
+        "discoveredCheck",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "defensiveMove",
+        "discoveredAttack",
+        "discoveredCheck",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong",
+        "defense",
+        "discovered-attack",
+        "discovered-check",
+        "skewer-bishop",
+        "vulnerable-king",
+        "Defense",
+        "Discovered Attack",
+        "Discovered Check",
+        "Bishop Skewer",
+        "Vulnerable / Exposed King",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bk@5,7,bq@3,5,br@1,2,wk@0,0,wq@7,6,wr@2,3,wr@3,0|line:bb:1,-1:-:->wk:1,0:-:->bb:2,2:-:->wk:1,1:-:->br:0,-1:-:->wk:0,-1:-:->br:5,0:p:->wr:0,4:-:->bk:-1,-1:-:-|outcome:capture:p,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 10,
+        "sourceIndex": 18,
+        "sourceIdentity": "k6zsB",
+        "canonicalIdentity": "2k5/Qp6/4q3/3p3p/2p2R2/2P1P1rb/PP6/4R2K b - -|tactic-in-4|h3g2,h1g1,g2e4,g1f2,g3g2,f2f1,g2b2,f4f8,c8d7|k6zsB",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@0,2,bk@5,7,bq@3,5,br@1,2,wk@0,0,wq@7,6,wr@2,3,wr@3,0|line:bb:1,-1:-:->wk:1,0:-:->bb:2,2:-:->wk:1,1:-:->br:0,-1:-:->wk:0,-1:-:->br:5,0:p:->wr:0,4:-:->bk:-1,-1:-:-|outcome:capture:p,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:h3",
+          "first-to:g2",
+          "king-region:king-side",
+          "line-length:9",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 15
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-skcr6",
+      "puzzleId": "skcr6",
+      "fen": "2r2rk1/1p4pp/p2p4/1n1Pp1q1/4Q3/2P2PbB/PP6/R2K3R b - - 0 22",
+      "preMove": "g3f4",
+      "solutionLine": [
+        "h3e6",
+        "f8f7",
+        "e4h7",
+        "g8f8",
+        "h7h8",
+        "f8e7",
+        "h8c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1556,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "pin-bishop",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Pin",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "pin",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "pin",
+        "skewer",
+        "veryLong",
+        "fork-bishop",
+        "pin-bishop",
+        "skewer-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Pin",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@2,3,bk@1,7,bn@6,4,bq@1,4,br@2,7,br@5,7,wb@0,2,wk@4,0,wq@3,3,wr@0,0,wr@7,0|line:wb:3,3:-:->br:0,-1:-:->wq:-3,3:p:->bk:1,0:-:->wq:0,1:-:->bk:1,-1:-:->wq:5,0:r:-|outcome:capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 2,
+        "sourceIndex": 29,
+        "sourceIdentity": "skcr6",
+        "canonicalIdentity": "2r2rk1/1p4pp/p2p4/1n1Pp1q1/4Qb2/2P2P1B/PP6/R2K3R w - -|tactic-in-4|h3e6,f8f7,e4h7,g8f8,h7h8,f8e7,h8c8|skcr6",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@2,3,bk@1,7,bn@6,4,bq@1,4,br@2,7,br@5,7,wb@0,2,wk@4,0,wq@3,3,wr@0,0,wr@7,0|line:wb:3,3:-:->br:0,-1:-:->wq:-3,3:p:->bk:1,0:-:->wq:0,1:-:->bk:1,-1:-:->wq:5,0:r:-|outcome:capture:p,capture:r,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:h3",
+          "first-to:e6",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 16
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-hiNkQ",
+      "puzzleId": "hiNkQ",
+      "fen": "r4k2/3r1pbQ/3q2p1/p1p2P2/1p2p2B/4P3/PPP5/1NK4R b - - 0 31",
+      "preMove": "g7f6",
+      "solutionLine": [
+        "h4f6",
+        "d6f6",
+        "h7h8",
+        "f6h8",
+        "h1h8",
+        "f8g7",
+        "h8a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1824,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@2,2,bk@0,2,bq@2,4,br@0,7,br@1,4,wb@4,0,wk@7,5,wn@7,6,wq@1,0,wr@7,0|line:wb:-2,2:b:->bq:0,-2:b:->wq:-1,0:-:->bq:-2,-2:q:->wr:-7,0:q:->bk:1,-1:-:->wr:0,7:r:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 4,
+        "sourceIndex": 9,
+        "sourceIdentity": "hiNkQ",
+        "canonicalIdentity": "r4k2/3r1p1Q/3q1bp1/p1p2P2/1p2p2B/4P3/PPP5/1NK4R w - -|tactic-in-4|h4f6,d6f6,h7h8,f6h8,h1h8,f8g7,h8a8|hiNkQ",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@2,2,bk@0,2,bq@2,4,br@0,7,br@1,4,wb@4,0,wk@7,5,wn@7,6,wq@1,0,wr@7,0|line:wb:-2,2:b:->bq:0,-2:b:->wq:-1,0:-:->bq:-2,-2:q:->wr:-7,0:q:->bk:1,-1:-:->wr:0,7:r:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:h4",
+          "first-to:f6",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 17
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-ySdFy",
+      "puzzleId": "ySdFy",
+      "fen": "r3qk2/p3b1p1/1p1B1p1p/2pQP3/8/8/PP3PPP/3R2K1 b - - 0 24",
+      "preMove": "a8d8",
+      "solutionLine": [
+        "d6e7",
+        "f8e7",
+        "e5f6",
+        "g7f6",
+        "d1e1",
+        "e7f8",
+        "e1e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1776,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "decoy-attraction",
+        "Bishop Skewer",
+        "Decoy / Attraction",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@0,2,bq@0,3,br@0,4,wb@2,4,wk@7,1,wq@3,4,wr@7,4|line:wb:-1,-1:b:->bk:1,1:b:->wp:-1,-1:p:->bp:1,1:p:->wr:0,-1:-:->bk:-1,-1:-:->wr:-7,0:q:-|outcome:capture:b,capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 4,
+        "sourceIndex": 10,
+        "sourceIdentity": "ySdFy",
+        "canonicalIdentity": "3rqk2/p3b1p1/1p1B1p1p/2pQP3/8/8/PP3PPP/3R2K1 w - -|tactic-in-4|d6e7,f8e7,e5f6,g7f6,d1e1,e7f8,e1e8|ySdFy",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@0,2,bq@0,3,br@0,4,wb@2,4,wk@7,1,wq@3,4,wr@7,4|line:wb:-1,-1:b:->bk:1,1:b:->wp:-1,-1:p:->bp:1,1:p:->wr:0,-1:-:->bk:-1,-1:-:->wr:-7,0:q:-|outcome:capture:b,capture:p,capture:q,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d6",
+          "first-to:e7",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 18
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-5SaRv",
+      "puzzleId": "5SaRv",
+      "fen": "r3k2r/1p1b1ppp/1q2pn2/1N1p4/P7/4PQ1P/3P1PP1/R3KB1R w KQkq - 1 16",
+      "preMove": "f1e2",
+      "solutionLine": [
+        "d7b5",
+        "e2b5",
+        "b6b5",
+        "a4b5",
+        "a8a1",
+        "e1e2",
+        "a1h1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1589,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "Bishop Skewer",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@0,4,bn@2,5,bq@2,1,br@0,0,br@0,7,wb@6,4,wk@7,4,wn@3,1,wq@5,5,wr@7,0,wr@7,7|line:bb:2,-2:n:->wb:-3,-3:b:->bq:1,0:b:->wp:-1,1:q:->br:7,0:r:->wk:-1,0:-:->br:0,7:r:-|outcome:capture:b,capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m4-v1",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "sourceChunk": 3,
+        "sourceIndex": 8,
+        "sourceIdentity": "5SaRv",
+        "canonicalIdentity": "r3k2r/1p1b1ppp/1q2pn2/1N1p4/P7/4PQ1P/3PBPP1/R3K2R b KQkq -|tactic-in-4|d7b5,e2b5,b6b5,a4b5,a8a1,e1e2,a1h1|5SaRv",
+        "pedagogicalFamily": "bishop-skewer|pieces:bb@1,3,bk@0,4,bn@2,5,bq@2,1,br@0,0,br@0,7,wb@6,4,wk@7,4,wn@3,1,wq@5,5,wr@7,0,wr@7,7|line:bb:2,-2:n:->wb:-3,-3:b:->bq:1,0:b:->wp:-1,1:q:->br:7,0:r:->wk:-1,0:-:->br:0,7:r:-|outcome:capture:b,capture:n,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d7",
+          "first-to:b5",
+          "king-region:king-side",
+          "line-length:7",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 19
+      }
+    }
+  ]
+}

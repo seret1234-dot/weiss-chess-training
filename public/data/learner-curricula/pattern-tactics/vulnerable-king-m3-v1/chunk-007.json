@@ -1,0 +1,1535 @@
+{
+  "puzzles": [
+    {
+      "id": "vulnerable-king-m3-xCtLT",
+      "puzzleId": "xCtLT",
+      "fen": "r1bq1rk1/5pB1/p1p3B1/3p3Q/8/2b5/PPP2PPP/R4RK1 b - - 0 15",
+      "preMove": "f7g6",
+      "solutionLine": [
+        "h5h8",
+        "g8f7",
+        "h8f8",
+        "d8f8",
+        "g7f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1673,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "vulnerable-king",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Vulnerable / Exposed King",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "skewer"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 16,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "skewer",
+        "skewer-queen",
+        "vulnerable-king",
+        "kingside-attack",
+        "Queen Skewer",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@0,2,bb@5,2,bk@0,6,bq@0,3,br@0,0,br@0,5,wb@1,6,wk@7,6,wq@3,7,wr@7,0,wr@7,5|line:wq:-3,0:-:->bk:1,-1:-:->wq:0,-2:r:->bq:0,2:q:->wb:-1,-1:q:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 16,
+        "sourceIdentity": "xCtLT",
+        "canonicalIdentity": "r1bq1rk1/6B1/p1p3p1/3p3Q/8/2b5/PPP2PPP/R4RK1 w - -|tactic-in-3|h5h8,g8f7,h8f8,d8f8,g7f8|xCtLT",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@0,2,bb@5,2,bk@0,6,bq@0,3,br@0,0,br@0,5,wb@1,6,wk@7,6,wq@3,7,wr@7,0,wr@7,5|line:wq:-3,0:-:->bk:1,-1:-:->wq:0,-2:r:->bq:0,2:q:->wb:-1,-1:q:-|outcome:capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:h5",
+          "first-to:h8",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 0
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zoPv3",
+      "puzzleId": "zoPv3",
+      "fen": "r5k1/bp3pp1/p2p2np/3P2q1/8/P1N1P3/1P3QBN/2R3K1 w - - 5 28",
+      "preMove": "c3e4",
+      "solutionLine": [
+        "g5e3",
+        "f2e3",
+        "a7e3",
+        "g1h1",
+        "e3c1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1620,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "crushing",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "fork-queen",
+        "vulnerable-king",
+        "Queen Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@0,1,bk@6,0,bn@6,2,bq@6,3,br@0,0,wb@6,6,wk@6,7,wn@4,4,wn@7,6,wq@5,6,wr@2,7|line:bq:-2,2:p:->wq:-1,-1:q:->bb:4,4:q:->wk:1,0:-:->bb:-2,2:r:-|outcome:capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 28,
+        "sourceIdentity": "zoPv3",
+        "canonicalIdentity": "r5k1/bp3pp1/p2p2np/3P2q1/4N3/P3P3/1P3QBN/2R3K1 b - -|tactic-in-3|g5e3,f2e3,a7e3,g1h1,e3c1|zoPv3",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@0,1,bk@6,0,bn@6,2,bq@6,3,br@0,0,wb@6,6,wk@6,7,wn@4,4,wn@7,6,wq@5,6,wr@2,7|line:bq:-2,2:p:->wq:-1,-1:q:->bb:4,4:q:->wk:1,0:-:->bb:-2,2:r:-|outcome:capture:p,capture:q,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:g5",
+          "first-to:e3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 1
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zDKk4",
+      "puzzleId": "zDKk4",
+      "fen": "r7/pp5k/2pR3N/2n4p/1q2Pr1P/1b6/1Q3PP1/1KR5 b - - 3 28",
+      "preMove": "c5a4",
+      "solutionLine": [
+        "d6d7",
+        "f4f7",
+        "d7f7",
+        "b3f7",
+        "b2b4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1359,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "exposedKing",
+        "long",
+        "middlegame"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "crushing",
+        "exposedKing",
+        "long",
+        "middlegame",
+        "vulnerable-king",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@1,2,bk@7,6,bn@0,3,bq@1,3,br@0,7,br@5,3,wk@1,0,wn@7,5,wq@1,1,wr@2,0,wr@3,5|line:wr:0,1:-:->br:0,3:-:->wr:2,0:r:->bb:4,4:r:->wq:0,2:q:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 2,
+        "sourceIndex": 20,
+        "sourceIdentity": "zDKk4",
+        "canonicalIdentity": "r7/pp5k/2pR3N/7p/nq2Pr1P/1b6/1Q3PP1/1KR5 w - -|tactic-in-3|d6d7,f4f7,d7f7,b3f7,b2b4|zDKk4",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@1,2,bk@7,6,bn@0,3,bq@1,3,br@0,7,br@5,3,wk@1,0,wn@7,5,wq@1,1,wr@2,0,wr@3,5|line:wr:0,1:-:->br:0,3:-:->wr:2,0:r:->bb:4,4:r:->wq:0,2:q:-|outcome:capture:q,capture:r,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:d6",
+          "first-to:d7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 2
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-ztYUt",
+      "puzzleId": "ztYUt",
+      "fen": "8/1p6/p4k1p/4p3/P3B3/2P1B1PP/1r6/6K1 w - - 4 40",
+      "preMove": "e3c1",
+      "solutionLine": [
+        "b2e2",
+        "e4b7",
+        "e2e1",
+        "g1f2",
+        "e1c1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1554,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "long"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "long",
+        "fork-rook",
+        "vulnerable-king",
+        "Rook Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bk@2,2,br@6,6,wb@3,4,wb@5,7,wk@1,7|line:br:-3,0:-:->wb:3,-3:p:->br:0,1:-:->wk:1,-1:-:->br:2,0:b:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 7,
+        "sourceIdentity": "ztYUt",
+        "canonicalIdentity": "8/1p6/p4k1p/4p3/P3B3/2P3PP/1r6/2B3K1 b - -|tactic-in-3|b2e2,e4b7,e2e1,g1f2,e1c1|ztYUt",
+        "pedagogicalFamily": "vulnerable-king|pieces:bk@2,2,br@6,6,wb@3,4,wb@5,7,wk@1,7|line:br:-3,0:-:->wb:3,-3:p:->br:0,1:-:->wk:1,-1:-:->br:2,0:b:-|outcome:capture:b,capture:p,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:b2",
+          "first-to:e2",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 3
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zzvu8",
+      "puzzleId": "zzvu8",
+      "fen": "rn2k2r/pp2P2p/5p2/5bp1/4P3/2P2NB1/P2N1KPP/q4B1R b kq - 0 13",
+      "preMove": "f5g4",
+      "solutionLine": [
+        "f1b5",
+        "g4d7",
+        "b5d7",
+        "e8e7",
+        "h1a1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1598,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "long",
+        "middlegame"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 16,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "long",
+        "middlegame",
+        "vulnerable-king",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@1,3,bk@3,7,bn@6,7,bq@7,0,br@0,7,br@7,7,wb@1,2,wb@2,0,wk@2,1,wn@2,2,wn@4,1,wr@0,0|line:wb:4,4:-:->bb:3,3:-:->wb:-2,2:b:->bk:0,-1:p:->wr:7,0:q:-|outcome:capture:b,capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 16,
+        "sourceIdentity": "zzvu8",
+        "canonicalIdentity": "rn2k2r/pp2P2p/5p2/6p1/4P1b1/2P2NB1/P2N1KPP/q4B1R w kq -|tactic-in-3|f1b5,g4d7,b5d7,e8e7,h1a1|zzvu8",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@1,3,bk@3,7,bn@6,7,bq@7,0,br@0,7,br@7,7,wb@1,2,wb@2,0,wk@2,1,wn@2,2,wn@4,1,wr@0,0|line:wb:4,4:-:->bb:3,3:-:->wb:-2,2:b:->bk:0,-1:p:->wr:7,0:q:-|outcome:capture:b,capture:p,capture:q,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f1",
+          "first-to:b5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 4
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-yd2oD",
+      "puzzleId": "yd2oD",
+      "fen": "4R3/1p3pp1/2p2k2/8/P4PPR/8/r2r3P/5K2 b - - 0 37",
+      "preMove": "a2a4",
+      "solutionLine": [
+        "g4g5",
+        "f6g6",
+        "f4f5",
+        "g6g5",
+        "h4a4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1398,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "endgame",
+        "exposedKing",
+        "long",
+        "master",
+        "rookEndgame"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "endgame",
+        "exposedKing",
+        "long",
+        "master",
+        "rookEndgame",
+        "discovered-attack",
+        "vulnerable-king",
+        "Discovered Attack",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bk@2,2,br@4,6,br@7,4,wk@2,7,wr@0,4,wr@3,0|line:wp:0,-1:-:->bk:-1,0:-:->wp:0,-1:-:->bk:0,1:p:->wr:7,0:r:-|outcome:capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 19,
+        "sourceIdentity": "yd2oD",
+        "canonicalIdentity": "4R3/1p3pp1/2p2k2/8/r4PPR/8/3r3P/5K2 w - -|tactic-in-3|g4g5,f6g6,f4f5,g6g5,h4a4|yd2oD",
+        "pedagogicalFamily": "vulnerable-king|pieces:bk@2,2,br@4,6,br@7,4,wk@2,7,wr@0,4,wr@3,0|line:wp:0,-1:-:->bk:-1,0:-:->wp:0,-1:-:->bk:0,1:p:->wr:7,0:r:-|outcome:capture:p,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:p",
+          "first-from:g4",
+          "first-to:g5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 5
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zxq9h",
+      "puzzleId": "zxq9h",
+      "fen": "8/pk6/1p3Qp1/8/8/2P1n2P/PP1r1RK1/3r4 w - - 8 32",
+      "preMove": "g2f3",
+      "solutionLine": [
+        "d2f2",
+        "f3f2",
+        "d1f1",
+        "f2e3",
+        "f1f6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1380,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "decoy-attraction",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "long",
+        "skewer"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "long",
+        "skewer",
+        "skewer-rook",
+        "decoy-attraction",
+        "vulnerable-king",
+        "Rook Skewer",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bk@1,1,bn@4,5,br@3,6,br@3,7,wk@5,5,wq@5,2,wr@5,6|line:br:2,0:r:->wk:0,1:r:->br:2,0:-:->wk:-1,-1:n:->br:0,-5:q:-|outcome:capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 9,
+        "sourceIdentity": "zxq9h",
+        "canonicalIdentity": "8/pk6/1p3Qp1/8/8/2P1nK1P/PP1r1R2/3r4 b - -|tactic-in-3|d2f2,f3f2,d1f1,f2e3,f1f6|zxq9h",
+        "pedagogicalFamily": "vulnerable-king|pieces:bk@1,1,bn@4,5,br@3,6,br@3,7,wk@5,5,wq@5,2,wr@5,6|line:br:2,0:r:->wk:0,1:r:->br:2,0:-:->wk:-1,-1:n:->br:0,-5:q:-|outcome:capture:n,capture:q,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:d2",
+          "first-to:f2",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 6
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zeuuj",
+      "puzzleId": "zeuuj",
+      "fen": "7r/p7/1p1p4/2pP2k1/3pP1n1/3P4/PP4Q1/4K3 w - - 2 36",
+      "preMove": "e1d1",
+      "solutionLine": [
+        "h8h1",
+        "g2h1",
+        "g4f2",
+        "d1d2",
+        "f2h1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1281,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "vulnerable-king",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "long",
+        "sacrifice"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "long",
+        "sacrifice",
+        "fork-rook",
+        "decoy-attraction",
+        "vulnerable-king",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bk@1,3,bn@1,4,br@0,0,wk@4,7,wq@1,6|line:br:0,7:-:->wq:-1,1:r:->bn:1,2:-:->wk:0,-1:-:->bn:-2,1:q:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 2,
+        "sourceIndex": 13,
+        "sourceIdentity": "zeuuj",
+        "canonicalIdentity": "7r/p7/1p1p4/2pP2k1/3pP1n1/3P4/PP4Q1/3K4 b - -|tactic-in-3|h8h1,g2h1,g4f2,d1d2,f2h1|zeuuj",
+        "pedagogicalFamily": "vulnerable-king|pieces:bk@1,3,bn@1,4,br@0,0,wk@4,7,wq@1,6|line:br:0,7:-:->wq:-1,1:r:->bn:1,2:-:->wk:0,-1:-:->bn:-2,1:q:-|outcome:capture:q,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:h8",
+          "first-to:h1",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 7
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-xdksr",
+      "puzzleId": "xdksr",
+      "fen": "5k2/1p1Q4/p3r1pq/4P3/5Pp1/1P6/P5K1/6R1 w - - 6 45",
+      "preMove": "d7e6",
+      "solutionLine": [
+        "h6h3",
+        "g2f2",
+        "g4g3",
+        "g1g3",
+        "h3e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2287,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "endgame",
+        "exposedKing",
+        "long"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "endgame",
+        "exposedKing",
+        "long",
+        "discovered-attack",
+        "vulnerable-king",
+        "Discovered Attack",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bk@0,2,bq@2,0,wk@6,1,wq@2,3,wr@7,1|line:bq:3,0:-:->wk:0,1:-:->bp:1,0:-:->wr:-2,0:p:->bq:-3,3:q:-|outcome:capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 9,
+        "sourceIndex": 18,
+        "sourceIdentity": "xdksr",
+        "canonicalIdentity": "5k2/1p6/p3Q1pq/4P3/5Pp1/1P6/P5K1/6R1 b - -|tactic-in-3|h6h3,g2f2,g4g3,g1g3,h3e6|xdksr",
+        "pedagogicalFamily": "vulnerable-king|pieces:bk@0,2,bq@2,0,wk@6,1,wq@2,3,wr@7,1|line:bq:3,0:-:->wk:0,1:-:->bp:1,0:-:->wr:-2,0:p:->bq:-3,3:q:-|outcome:capture:p,capture:q,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:h6",
+          "first-to:h3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 8
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zH4da",
+      "puzzleId": "zH4da",
+      "fen": "4r1k1/3nppb1/Q2p2p1/P2Pn1Bp/2p1P1PP/2N2P1R/1q3N2/2R1K3 w - - 0 25",
+      "preMove": "a6b5",
+      "solutionLine": [
+        "e5d3",
+        "f2d3",
+        "g7c3",
+        "c1c3",
+        "b2b5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2354,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "fork-knight",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Knight Fork / Double Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "discovered-attack",
+        "fork-knight",
+        "vulnerable-king",
+        "Discovered Attack",
+        "Knight Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@1,1,bk@0,1,bn@1,4,bn@3,3,bq@6,6,br@0,3,wb@3,1,wk@7,3,wn@5,5,wn@6,2,wq@3,6,wr@5,0,wr@7,5|line:bn:2,1:-:->wn:-1,2:n:->bb:4,4:n:->wr:-2,0:b:->bq:-3,0:q:-|outcome:capture:b,capture:n,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 10,
+        "sourceIndex": 10,
+        "sourceIdentity": "zH4da",
+        "canonicalIdentity": "4r1k1/3nppb1/3p2p1/PQ1Pn1Bp/2p1P1PP/2N2P1R/1q3N2/2R1K3 b - -|tactic-in-3|e5d3,f2d3,g7c3,c1c3,b2b5|zH4da",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@1,1,bk@0,1,bn@1,4,bn@3,3,bq@6,6,br@0,3,wb@3,1,wk@7,3,wn@5,5,wn@6,2,wq@3,6,wr@5,0,wr@7,5|line:bn:2,1:-:->wn:-1,2:n:->bb:4,4:n:->wr:-2,0:b:->bq:-3,0:q:-|outcome:capture:b,capture:n,capture:q,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:n",
+          "first-from:e5",
+          "first-to:d3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 9
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zoKHP",
+      "puzzleId": "zoKHP",
+      "fen": "8/6pp/2qQ1p1k/2B1n2P/8/1P3pP1/P4K2/8 b - - 3 35",
+      "preMove": "e5d3",
+      "solutionLine": [
+        "d6d3",
+        "c6c5",
+        "d3e3",
+        "c5e3",
+        "f2e3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1425,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "long"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "long",
+        "vulnerable-king",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bk@0,2,bn@4,5,bq@5,2,wb@5,3,wk@2,6,wq@4,2|line:wq:0,3:n:->bq:0,1:b:->wq:-1,0:-:->bq:-2,2:q:->wk:1,-1:q:-|outcome:capture:b,capture:n,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 11,
+        "sourceIdentity": "zoKHP",
+        "canonicalIdentity": "8/6pp/2qQ1p1k/2B4P/8/1P1n1pP1/P4K2/8 w - -|tactic-in-3|d6d3,c6c5,d3e3,c5e3,f2e3|zoKHP",
+        "pedagogicalFamily": "vulnerable-king|pieces:bk@0,2,bn@4,5,bq@5,2,wb@5,3,wk@2,6,wq@4,2|line:wq:0,3:n:->bq:0,1:b:->wq:-1,0:-:->bq:-2,2:q:->wk:1,-1:q:-|outcome:capture:b,capture:n,capture:q,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:d6",
+          "first-to:d3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 10
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zZwkK",
+      "puzzleId": "zZwkK",
+      "fen": "r1b3k1/6b1/1p4Q1/q2pp2P/3p1rN1/1P6/P1R2P2/5R1K b - - 0 26",
+      "preMove": "f4g4",
+      "solutionLine": [
+        "c2c8",
+        "a8c8",
+        "g6e6",
+        "g8h7",
+        "e6f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2629,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "vulnerable-king",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "fork-rook",
+        "vulnerable-king",
+        "sacrifice-rook",
+        "Rook Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@0,2,bb@1,6,bk@0,6,bq@3,0,br@0,0,br@4,6,wk@7,7,wq@2,6,wr@6,2,wr@7,5|line:wr:-6,0:b:->br:0,2:r:->wq:0,-2:-:->bk:1,1:-:->wq:1,1:-:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 10,
+        "sourceIndex": 9,
+        "sourceIdentity": "zZwkK",
+        "canonicalIdentity": "r1b3k1/6b1/1p4Q1/q2pp2P/3p2r1/1P6/P1R2P2/5R1K w - -|tactic-in-3|c2c8,a8c8,g6e6,g8h7,e6f5|zZwkK",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@0,2,bb@1,6,bk@0,6,bq@3,0,br@0,0,br@4,6,wk@7,7,wq@2,6,wr@6,2,wr@7,5|line:wr:-6,0:b:->br:0,2:r:->wq:0,-2:-:->bk:1,1:-:->wq:1,1:-:-|outcome:capture:b,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:c2",
+          "first-to:c8",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 11
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zxF2G",
+      "puzzleId": "zxF2G",
+      "fen": "5r1k/1p6/pQ5p/4b3/P3P2P/6P1/2R4K/5q2 b - - 0 36",
+      "preMove": "f1f3",
+      "solutionLine": [
+        "b6h6",
+        "h8g8",
+        "h6e6",
+        "g8h7",
+        "e6e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2307,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "long"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "long",
+        "fork-queen",
+        "vulnerable-king",
+        "Queen Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@3,3,bk@0,0,bq@2,5,br@2,0,wk@0,6,wq@6,2,wr@5,6|line:wq:-6,0:p:->bk:1,0:-:->wq:3,0:-:->bk:-1,1:-:->wq:0,1:b:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 9,
+        "sourceIndex": 17,
+        "sourceIdentity": "zxF2G",
+        "canonicalIdentity": "5r1k/1p6/pQ5p/4b3/P3P2P/5qP1/2R4K/8 w - -|tactic-in-3|b6h6,h8g8,h6e6,g8h7,e6e5|zxF2G",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@3,3,bk@0,0,bq@2,5,br@2,0,wk@0,6,wq@6,2,wr@5,6|line:wq:-6,0:p:->bk:1,0:-:->wq:3,0:-:->bk:-1,1:-:->wq:0,1:b:-|outcome:capture:b,capture:p,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:b6",
+          "first-to:h6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 12
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zypSs",
+      "puzzleId": "zypSs",
+      "fen": "1r6/8/8/p1Pkp1pp/P3R3/3K1P2/6PP/8 w - - 1 37",
+      "preMove": "e4c4",
+      "solutionLine": [
+        "b8b3",
+        "c4c3",
+        "b3c3",
+        "d3c3",
+        "d5c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1405,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "vulnerable-king",
+        "zugzwang"
+      ],
+      "sourceThemes": [
+        "Vulnerable / Exposed King",
+        "Zugzwang"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "long",
+        "rookEndgame",
+        "zugzwang"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "long",
+        "rookEndgame",
+        "zugzwang",
+        "vulnerable-king",
+        "Vulnerable / Exposed King",
+        "Zugzwang",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bk@3,3,br@0,1,wk@5,3,wr@4,2|line:br:5,0:-:->wr:1,0:-:->br:0,1:r:->wk:0,-1:r:->bk:0,-1:p:-|outcome:capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 5,
+        "sourceIdentity": "zypSs",
+        "canonicalIdentity": "1r6/8/8/p1Pkp1pp/P1R5/3K1P2/6PP/8 b - -|tactic-in-3|b8b3,c4c3,b3c3,d3c3,d5c5|zypSs",
+        "pedagogicalFamily": "vulnerable-king|pieces:bk@3,3,br@0,1,wk@5,3,wr@4,2|line:br:5,0:-:->wr:1,0:-:->br:0,1:r:->wk:0,-1:r:->bk:0,-1:p:-|outcome:capture:p,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:r",
+          "first-from:b8",
+          "first-to:b3",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 13
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zvBsl",
+      "puzzleId": "zvBsl",
+      "fen": "4r1k1/p1p2pp1/2pb3p/8/3P1P2/2PBB1q1/PP1Q4/4R1K1 w - - 1 23",
+      "preMove": "g1h1",
+      "solutionLine": [
+        "d6f4",
+        "e3f4",
+        "e8e1",
+        "d2e1",
+        "g3e1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1674,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "vulnerable-king",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Vulnerable / Exposed King",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "vulnerable-king",
+        "kingside-attack",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@2,3,bk@0,6,bq@5,6,br@0,4,wb@5,3,wb@5,4,wk@7,7,wq@6,3,wr@7,4|line:bb:2,2:p:->wb:-1,1:b:->br:7,0:r:->wq:1,1:r:->bq:2,-2:q:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 20,
+        "sourceIdentity": "zvBsl",
+        "canonicalIdentity": "4r1k1/p1p2pp1/2pb3p/8/3P1P2/2PBB1q1/PP1Q4/4R2K b - -|tactic-in-3|d6f4,e3f4,e8e1,d2e1,g3e1|zvBsl",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@2,3,bk@0,6,bq@5,6,br@0,4,wb@5,3,wb@5,4,wk@7,7,wq@6,3,wr@7,4|line:bb:2,2:p:->wb:-1,1:b:->br:7,0:r:->wq:1,1:r:->bq:2,-2:q:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d6",
+          "first-to:f4",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 14
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zvI0d",
+      "puzzleId": "zvI0d",
+      "fen": "7k/2p2p2/5N1p/3P2pP/8/4b2q/1Q4R1/6K1 w - - 1 41",
+      "preMove": "g1f1",
+      "solutionLine": [
+        "h3h1",
+        "f1e2",
+        "h1g2",
+        "e2e3",
+        "g2b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1143,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "exposedKing",
+        "long",
+        "master",
+        "skewer"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "exposedKing",
+        "long",
+        "master",
+        "skewer",
+        "skewer-queen",
+        "vulnerable-king",
+        "Queen Skewer",
+        "Deflection",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@2,3,bk@7,0,bq@2,0,wk@0,2,wn@5,2,wq@1,6,wr@1,1|line:bq:-2,0:-:->wk:1,1:-:->bq:1,1:r:->wk:1,0:b:->bq:0,5:q:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 1,
+        "sourceIndex": 15,
+        "sourceIdentity": "zvI0d",
+        "canonicalIdentity": "7k/2p2p2/5N1p/3P2pP/8/4b2q/1Q4R1/5K2 b - -|tactic-in-3|h3h1,f1e2,h1g2,e2e3,g2b2|zvI0d",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@2,3,bk@7,0,bq@2,0,wk@0,2,wn@5,2,wq@1,6,wr@1,1|line:bq:-2,0:-:->wk:1,1:-:->bq:1,1:r:->wk:1,0:b:->bq:0,5:q:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "anti-transpose",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:h3",
+          "first-to:h1",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 15
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-z3fzq",
+      "puzzleId": "z3fzq",
+      "fen": "k1r5/pp4B1/2p5/8/PPP1Q1p1/8/4nqB1/1K1R4 w - - 2 39",
+      "preMove": "d1d2",
+      "solutionLine": [
+        "f2e1",
+        "b1c2",
+        "e1c1",
+        "c2b3",
+        "c1d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2242,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "deflection",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Deflection",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "exposedKing",
+        "fork",
+        "long",
+        "master",
+        "middlegame"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "exposedKing",
+        "fork",
+        "long",
+        "master",
+        "middlegame",
+        "fork-queen",
+        "vulnerable-king",
+        "Queen Fork / Double Attack",
+        "Deflection",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bk@0,0,bn@4,6,bq@5,6,br@2,0,wb@6,1,wb@6,6,wk@1,7,wq@4,4,wr@3,6|line:bq:-1,1:-:->wk:1,-1:-:->bq:-2,0:-:->wk:-1,-1:-:->bq:1,-1:r:-|outcome:capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 9,
+        "sourceIndex": 25,
+        "sourceIdentity": "z3fzq",
+        "canonicalIdentity": "k1r5/pp4B1/2p5/8/PPP1Q1p1/8/3RnqB1/1K6 b - -|tactic-in-3|f2e1,b1c2,e1c1,c2b3,c1d2|z3fzq",
+        "pedagogicalFamily": "vulnerable-king|pieces:bk@0,0,bn@4,6,bq@5,6,br@2,0,wb@6,1,wb@6,6,wk@1,7,wq@4,4,wr@3,6|line:bq:-1,1:-:->wk:1,-1:-:->bq:-2,0:-:->wk:-1,-1:-:->bq:1,-1:r:-|outcome:capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:q",
+          "first-from:f2",
+          "first-to:e1",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 16
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zjKCh",
+      "puzzleId": "zjKCh",
+      "fen": "k1q5/4Rp2/1p1p1p2/pP3N2/b7/3B3p/5KpP/4R3 b - - 3 34",
+      "preMove": "a4b5",
+      "solutionLine": [
+        "d3e4",
+        "a8b8",
+        "e7b7",
+        "c8b7",
+        "e4b7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2172,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "long"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "long",
+        "vulnerable-king",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@1,3,bk@0,0,bq@2,0,wb@3,5,wk@5,6,wn@5,3,wr@4,1,wr@4,7|line:wb:1,-1:-:->bk:1,0:-:->wr:-3,0:-:->bq:-1,1:r:->wb:-3,-3:q:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 9,
+        "sourceIndex": 21,
+        "sourceIdentity": "zjKCh",
+        "canonicalIdentity": "k1q5/4Rp2/1p1p1p2/pb3N2/8/3B3p/5KpP/4R3 w - -|tactic-in-3|d3e4,a8b8,e7b7,c8b7,e4b7|zjKCh",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@1,3,bk@0,0,bq@2,0,wb@3,5,wk@5,6,wn@5,3,wr@4,1,wr@4,7|line:wb:1,-1:-:->bk:1,0:-:->wr:-3,0:-:->bq:-1,1:r:->wb:-3,-3:q:-|outcome:capture:q,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d3",
+          "first-to:e4",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 17
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-z5hk0",
+      "puzzleId": "z5hk0",
+      "fen": "2r4k/6p1/1p3b1p/3P1p1P/pPq2N2/P1BR2P1/K2Q4/8 w - - 3 37",
+      "preMove": "a2a1",
+      "solutionLine": [
+        "f6c3",
+        "d2c3",
+        "c4c3",
+        "d3c3",
+        "c8c3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1160,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "fork-bishop",
+        "vulnerable-king",
+        "Bishop Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@2,2,bk@0,0,bq@4,5,br@0,5,wb@5,5,wk@7,7,wn@4,2,wq@6,4,wr@5,4|line:bb:3,3:b:->wq:-1,1:b:->bq:1,0:q:->wr:0,1:q:->br:5,0:r:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 1,
+        "sourceIndex": 1,
+        "sourceIdentity": "z5hk0",
+        "canonicalIdentity": "2r4k/6p1/1p3b1p/3P1p1P/pPq2N2/P1BR2P1/3Q4/K7 b - -|tactic-in-3|f6c3,d2c3,c4c3,d3c3,c8c3|z5hk0",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@2,2,bk@0,0,bq@4,5,br@0,5,wb@5,5,wk@7,7,wn@4,2,wq@6,4,wr@5,4|line:bb:3,3:b:->wq:-1,1:b:->bq:1,0:q:->wr:0,1:q:->br:5,0:r:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f6",
+          "first-to:c3",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 18
+      }
+    },
+    {
+      "id": "vulnerable-king-m3-zteQ1",
+      "puzzleId": "zteQ1",
+      "fen": "r2qk3/ppp3rp/2n1N3/2b5/2pp4/8/PPP2PPP/RNBQ2K1 b q - 0 12",
+      "preMove": "d8f6",
+      "solutionLine": [
+        "e6g7",
+        "f6g7",
+        "d1h5",
+        "g7g6",
+        "h5c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2142,
+      "label": "Vulnerable / Exposed King - Tactic in 3",
+      "theme": "vulnerable-king",
+      "sourceThemeKeys": [
+        "fork-knight",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Knight Fork / Double Attack",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "vulnerable-king",
+      "canonicalThemeLabel": "Vulnerable King",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "fork-knight",
+        "vulnerable-king",
+        "Knight Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Vulnerable / Exposed King - Tactic in 3"
+      ],
+      "pedagogicalFamily": "vulnerable-king|pieces:bb@2,3,bk@4,0,bn@2,2,bq@5,2,br@0,0,br@6,1,wb@2,7,wk@6,7,wn@1,7,wn@4,2,wq@3,7,wr@0,7|line:wn:2,-1:r:->bq:1,-1:n:->wq:4,-4:-:->bq:0,1:-:->wq:-5,0:b:-|outcome:capture:b,capture:n,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 8,
+        "sourceIndex": 0,
+        "sourceIdentity": "zteQ1",
+        "canonicalIdentity": "r3k3/ppp3rp/2n1Nq2/2b5/2pp4/8/PPP2PPP/RNBQ2K1 w q -|tactic-in-3|e6g7,f6g7,d1h5,g7g6,h5c5|zteQ1",
+        "pedagogicalFamily": "vulnerable-king|pieces:bb@2,3,bk@4,0,bn@2,2,bq@5,2,br@0,0,br@6,1,wb@2,7,wk@6,7,wn@1,7,wn@4,2,wq@3,7,wr@0,7|line:wn:2,-1:r:->bq:1,-1:n:->wq:4,-4:-:->bq:0,1:-:->wq:-5,0:b:-|outcome:capture:b,capture:n,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:n",
+          "first-from:e6",
+          "first-to:g7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:r"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 19
+      }
+    }
+  ]
+}

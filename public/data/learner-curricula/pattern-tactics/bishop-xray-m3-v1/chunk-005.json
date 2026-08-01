@@ -1,0 +1,1507 @@
+{
+  "puzzles": [
+    {
+      "id": "xray-bishop-m3-kKe0e",
+      "puzzleId": "kKe0e",
+      "fen": "r3r1k1/pp4pp/1b2P3/3PB1q1/2Q5/2N5/PP4PP/2KR3R w - - 3 21",
+      "preMove": "c4f4",
+      "solutionLine": [
+        "b6e3",
+        "f4e3",
+        "g5e3",
+        "c1b1",
+        "e3e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1043,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "fork-bishop",
+        "xray-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,2,bk@6,0,bq@6,3,br@0,0,br@4,0,wb@4,3,wk@2,7,wn@2,5,wq@5,4,wr@3,7,wr@7,7|line:bb:3,3:-:->wq:-1,1:b:->bq:-2,2:q:->wk:-1,0:-:->bq:0,-2:b:-|outcome:capture:b,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 1,
+        "sourceIndex": 4,
+        "sourceIdentity": "kKe0e",
+        "canonicalIdentity": "r3r1k1/pp4pp/1b2P3/3PB1q1/5Q2/2N5/PP4PP/2KR3R b - -|tactic-in-3|b6e3,f4e3,g5e3,c1b1,e3e5|kKe0e",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,2,bk@6,0,bq@6,3,br@0,0,br@4,0,wb@4,3,wk@2,7,wn@2,5,wq@5,4,wr@3,7,wr@7,7|line:bb:3,3:-:->wq:-1,1:b:->bq:-2,2:q:->wk:-1,0:-:->bq:0,-2:b:-|outcome:capture:b,capture:q,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:b6",
+          "first-to:e3",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 0
+      }
+    },
+    {
+      "id": "xray-bishop-m3-cH2Ms",
+      "puzzleId": "cH2Ms",
+      "fen": "3r1rk1/pp3ppp/3b4/7P/5P2/1BpP3q/PPP5/R1BQ1RK1 w - - 5 19",
+      "preMove": "f1f3",
+      "solutionLine": [
+        "d6c5",
+        "c1e3",
+        "c5e3",
+        "f3e3",
+        "h3e3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1597,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop",
+        "vulnerable-king",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack",
+        "Vulnerable / Exposed King",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "crushing",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "vulnerable-king",
+        "kingside-attack",
+        "Bishop X-Ray Attack",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,6,bq@5,7,br@0,3,br@0,5,wb@5,1,wb@7,2,wk@7,6,wq@7,3,wr@5,5,wr@7,0|line:bb:1,-1:-:->wb:-2,2:-:->bb:2,2:b:->wr:0,-1:b:->bq:0,-3:r:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 3,
+        "sourceIndex": 10,
+        "sourceIdentity": "cH2Ms",
+        "canonicalIdentity": "3r1rk1/pp3ppp/3b4/7P/5P2/1BpP1R1q/PPP5/R1BQ2K1 b - -|tactic-in-3|d6c5,c1e3,c5e3,f3e3,h3e3|cH2Ms",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,6,bq@5,7,br@0,3,br@0,5,wb@5,1,wb@7,2,wk@7,6,wq@7,3,wr@5,5,wr@7,0|line:bb:1,-1:-:->wb:-2,2:-:->bb:2,2:b:->wr:0,-1:b:->bq:0,-3:r:-|outcome:capture:b,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d6",
+          "first-to:c5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 1
+      }
+    },
+    {
+      "id": "xray-bishop-m3-wz8Yb",
+      "puzzleId": "wz8Yb",
+      "fen": "3rr1k1/pppq2pp/2nb4/5p2/4p3/PP4PP/1BP1NPB1/R2QK2R w KQ - 0 16",
+      "preMove": "d1d2",
+      "solutionLine": [
+        "d6b4",
+        "b2c3",
+        "d7d2",
+        "c3d2",
+        "b4d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2232,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "pin-bishop",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Bishop Pin",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "long",
+        "middlegame",
+        "pin",
+        "xRayAttack"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "long",
+        "middlegame",
+        "pin",
+        "xRayAttack",
+        "discovered-attack",
+        "pin-bishop",
+        "xray-bishop",
+        "Discovered Attack",
+        "Bishop Pin",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,6,bn@2,2,bq@1,3,br@0,3,br@0,4,wb@6,1,wb@6,6,wk@7,4,wn@6,4,wq@6,3,wr@7,0,wr@7,7|line:bb:2,-2:-:->wb:-1,1:-:->bq:5,0:q:->wb:1,1:q:->bb:2,2:b:-|outcome:capture:b,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 9,
+        "sourceIndex": 24,
+        "sourceIdentity": "wz8Yb",
+        "canonicalIdentity": "3rr1k1/pppq2pp/2nb4/5p2/4p3/PP4PP/1BPQNPB1/R3K2R b KQ -|tactic-in-3|d6b4,b2c3,d7d2,c3d2,b4d2|wz8Yb",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,6,bn@2,2,bq@1,3,br@0,3,br@0,4,wb@6,1,wb@6,6,wk@7,4,wn@6,4,wq@6,3,wr@7,0,wr@7,7|line:bb:2,-2:-:->wb:-1,1:-:->bq:5,0:q:->wb:1,1:q:->bb:2,2:b:-|outcome:capture:b,capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d6",
+          "first-to:b4",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 2
+      }
+    },
+    {
+      "id": "xray-bishop-m3-bZhAf",
+      "puzzleId": "bZhAf",
+      "fen": "1Rr3k1/2P1pp1p/3n2p1/pN6/Pb4b1/4P1P1/5PBP/6K1 w - - 3 28",
+      "preMove": "b5d6",
+      "solutionLine": [
+        "b4d6",
+        "g2b7",
+        "c8b8",
+        "c7b8q",
+        "d6b8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1748,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "xRayAttack"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "xRayAttack",
+        "xray-bishop",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,3,bb@6,3,bk@1,7,br@5,7,wb@1,1,wk@1,0,wn@4,5,wr@6,7|line:bb:-2,2:n:->wb:5,5:-:->br:1,0:r:->wp:1,1:r:q>bb:2,2:q:-|outcome:capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 5,
+        "sourceIndex": 18,
+        "sourceIdentity": "bZhAf",
+        "canonicalIdentity": "1Rr3k1/2P1pp1p/3N2p1/p7/Pb4b1/4P1P1/5PBP/6K1 b - -|tactic-in-3|b4d6,g2b7,c8b8,c7b8q,d6b8|bZhAf",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,3,bb@6,3,bk@1,7,br@5,7,wb@1,1,wk@1,0,wn@4,5,wr@6,7|line:bb:-2,2:n:->wb:5,5:-:->br:1,0:r:->wp:1,1:r:q>bb:2,2:q:-|outcome:capture:n,capture:q,capture:r,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:b4",
+          "first-to:d6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 3
+      }
+    },
+    {
+      "id": "xray-bishop-m3-puBPW",
+      "puzzleId": "puBPW",
+      "fen": "r2k1r2/pp1q2b1/n1p1Rn2/3p1QBp/3P3P/2N2P2/PPP3P1/R5K1 w - - 3 19",
+      "preMove": "g5f6",
+      "solutionLine": [
+        "g7f6",
+        "e6f6",
+        "d7f5",
+        "f6f5",
+        "f8f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1919,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,1,bk@0,4,bn@2,7,bq@1,4,br@0,2,br@0,7,wb@2,2,wk@7,1,wn@5,5,wq@3,2,wr@2,3,wr@7,7|line:bb:1,1:b:->wr:0,-1:b:->bq:2,-2:q:->wr:1,0:q:->br:3,0:r:-|outcome:capture:b,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 6,
+        "sourceIndex": 3,
+        "sourceIdentity": "puBPW",
+        "canonicalIdentity": "r2k1r2/pp1q2b1/n1p1RB2/3p1Q1p/3P3P/2N2P2/PPP3P1/R5K1 b - -|tactic-in-3|g7f6,e6f6,d7f5,f6f5,f8f5|puBPW",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,1,bk@0,4,bn@2,7,bq@1,4,br@0,2,br@0,7,wb@2,2,wk@7,1,wn@5,5,wq@3,2,wr@2,3,wr@7,7|line:bb:1,1:b:->wr:0,-1:b:->bq:2,-2:q:->wr:1,0:q:->br:3,0:r:-|outcome:capture:b,capture:q,capture:r",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g7",
+          "first-to:f6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 4
+      }
+    },
+    {
+      "id": "xray-bishop-m3-g7fYZ",
+      "puzzleId": "g7fYZ",
+      "fen": "3rr2k/3b1ppp/1q6/pp3P2/4BQ2/2P4R/PP4PP/3R2K1 w - - 4 26",
+      "preMove": "g1h1",
+      "solutionLine": [
+        "d7f5",
+        "h3d3",
+        "d8d3",
+        "e4d3",
+        "f5d3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2171,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,3,bk@0,7,bq@2,1,br@0,3,br@0,4,wb@4,4,wk@7,7,wq@4,5,wr@5,7,wr@7,3|line:bb:2,2:p:->wr:0,-4:-:->br:5,0:r:->wb:1,-1:r:->bb:2,-2:b:-|outcome:capture:b,capture:p,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 9,
+        "sourceIndex": 26,
+        "sourceIdentity": "g7fYZ",
+        "canonicalIdentity": "3rr2k/3b1ppp/1q6/pp3P2/4BQ2/2P4R/PP4PP/3R3K b - -|tactic-in-3|d7f5,h3d3,d8d3,e4d3,f5d3|g7fYZ",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,3,bk@0,7,bq@2,1,br@0,3,br@0,4,wb@4,4,wk@7,7,wq@4,5,wr@5,7,wr@7,3|line:bb:2,2:p:->wr:0,-4:-:->br:5,0:r:->wb:1,-1:r:->bb:2,-2:b:-|outcome:capture:b,capture:p,capture:r",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d7",
+          "first-to:f5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 5
+      }
+    },
+    {
+      "id": "xray-bishop-m3-7iafM",
+      "puzzleId": "7iafM",
+      "fen": "6k1/1ppq1r1p/3p2pb/2nPp3/1pP1P2N/P1N3Pb/2Q3BP/5RK1 w - - 0 25",
+      "preMove": "a3b4",
+      "solutionLine": [
+        "h6e3",
+        "g1h1",
+        "f7f1",
+        "g2f1",
+        "h3f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1654,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop",
+        "deflection",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack",
+        "Deflection",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "kingside-attack",
+        "Bishop X-Ray Attack",
+        "Deflection",
+        "Kingside Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bb@0,5,bk@1,0,bn@5,3,bq@4,1,br@2,1,wb@1,6,wk@1,7,wn@0,4,wn@5,5,wq@5,6,wr@2,7|line:bb:3,3:-:->wk:-1,0:-:->br:0,6:r:->wb:1,1:r:->bb:2,2:b:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 4,
+        "sourceIndex": 29,
+        "sourceIdentity": "7iafM",
+        "canonicalIdentity": "6k1/1ppq1r1p/3p2pb/2nPp3/1PP1P2N/2N3Pb/2Q3BP/5RK1 b - -|tactic-in-3|h6e3,g1h1,f7f1,g2f1,h3f1|7iafM",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bb@0,5,bk@1,0,bn@5,3,bq@4,1,br@2,1,wb@1,6,wk@1,7,wn@0,4,wn@5,5,wq@5,6,wr@2,7|line:bb:3,3:-:->wk:-1,0:-:->br:0,6:r:->wb:1,1:r:->bb:2,2:b:-|outcome:capture:b,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:h6",
+          "first-to:e3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 6
+      }
+    },
+    {
+      "id": "xray-bishop-m3-ELm27",
+      "puzzleId": "ELm27",
+      "fen": "8/5p2/Pb6/3k4/2p3P1/8/2K5/4B3 b - - 1 39",
+      "preMove": "d5c5",
+      "solutionLine": [
+        "e1f2",
+        "c5c6",
+        "a6a7",
+        "b6a7",
+        "f2a7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1856,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "long",
+        "xRayAttack"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "long",
+        "xRayAttack",
+        "advanced-pawn",
+        "xray-bishop",
+        "Advanced Pawn",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,2,bk@2,3,wb@4,7,wk@2,6|line:wb:1,-1:-:->bk:0,-1:-:->wp:0,-1:-:->bb:-1,-1:p:->wb:-5,-5:b:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 6,
+        "sourceIndex": 26,
+        "sourceIdentity": "ELm27",
+        "canonicalIdentity": "8/5p2/Pb6/2k5/2p3P1/8/2K5/4B3 w - -|tactic-in-3|e1f2,c5c6,a6a7,b6a7,f2a7|ELm27",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,2,bk@2,3,wb@4,7,wk@2,6|line:wb:1,-1:-:->bk:0,-1:-:->wp:0,-1:-:->bb:-1,-1:p:->wb:-5,-5:b:-|outcome:capture:b,capture:p,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e1",
+          "first-to:f2",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 7
+      }
+    },
+    {
+      "id": "xray-bishop-m3-7rWM6",
+      "puzzleId": "7rWM6",
+      "fen": "r2r2k1/1p2bpp1/pq2b2p/4n3/1P2Q3/P3P2P/1B2BPP1/R2R2K1 w - - 0 19",
+      "preMove": "e4e5",
+      "solutionLine": [
+        "e7f6",
+        "b2d4",
+        "d8d4",
+        "e5d4",
+        "f6d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2031,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,3,bb@2,3,bk@0,1,bq@2,6,br@0,4,br@0,7,wb@6,3,wb@6,6,wk@7,1,wq@3,3,wr@7,4,wr@7,7|line:bb:1,-1:-:->wb:-2,-2:-:->br:4,0:b:->wq:1,1:r:->bb:2,2:q:-|outcome:capture:b,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 15,
+        "sourceIdentity": "7rWM6",
+        "canonicalIdentity": "r2r2k1/1p2bpp1/pq2b2p/4Q3/1P6/P3P2P/1B2BPP1/R2R2K1 b - -|tactic-in-3|e7f6,b2d4,d8d4,e5d4,f6d4|7rWM6",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,3,bb@2,3,bk@0,1,bq@2,6,br@0,4,br@0,7,wb@6,3,wb@6,6,wk@7,1,wq@3,3,wr@7,4,wr@7,7|line:bb:1,-1:-:->wb:-2,-2:-:->br:4,0:b:->wq:1,1:r:->bb:2,2:q:-|outcome:capture:b,capture:q,capture:r",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e7",
+          "first-to:f6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 8
+      }
+    },
+    {
+      "id": "xray-bishop-m3-n8n3M",
+      "puzzleId": "n8n3M",
+      "fen": "4rr1k/p1q4p/1p1pb3/1P2pNQ1/2P1n3/8/PB4PP/3R1R1K w - - 1 26",
+      "preMove": "g5g4",
+      "solutionLine": [
+        "e6f5",
+        "f1f5",
+        "e4f2",
+        "f5f2",
+        "f8f2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2160,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "long",
+        "master",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "long",
+        "master",
+        "middlegame",
+        "xRayAttack",
+        "fork-bishop",
+        "xray-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,0,bn@4,3,bq@1,5,br@0,2,br@0,3,wb@6,6,wk@7,0,wn@3,2,wq@4,1,wr@7,2,wr@7,4|line:bb:1,-1:n:->wr:-4,0:b:->bn:2,-1:-:->wr:3,0:n:->br:6,0:r:-|outcome:capture:b,capture:n,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 9,
+        "sourceIndex": 3,
+        "sourceIdentity": "n8n3M",
+        "canonicalIdentity": "4rr1k/p1q4p/1p1pb3/1P2pN2/2P1n1Q1/8/PB4PP/3R1R1K b - -|tactic-in-3|e6f5,f1f5,e4f2,f5f2,f8f2|n8n3M",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,0,bn@4,3,bq@1,5,br@0,2,br@0,3,wb@6,6,wk@7,0,wn@3,2,wq@4,1,wr@7,2,wr@7,4|line:bb:1,-1:n:->wr:-4,0:b:->bn:2,-1:-:->wr:3,0:n:->br:6,0:r:-|outcome:capture:b,capture:n,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e6",
+          "first-to:f5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 9
+      }
+    },
+    {
+      "id": "xray-bishop-m3-1sqXf",
+      "puzzleId": "1sqXf",
+      "fen": "r1b1r1k1/pp2Bpbp/6p1/q2P4/4P3/2PB1Q2/P4PPP/R3K2R w KQ - 1 14",
+      "preMove": "e7b4",
+      "solutionLine": [
+        "g7c3",
+        "b4c3",
+        "a5c3",
+        "e1e2",
+        "c3b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1559,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "fork-bishop",
+        "xray-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bb@1,6,bk@0,6,bq@3,0,br@0,0,br@0,4,wb@4,1,wb@5,3,wk@7,4,wq@5,5,wr@7,0,wr@7,7|line:bb:4,-4:p:->wb:1,1:b:->bq:2,2:b:->wk:-1,0:-:->bq:1,-1:-:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 3,
+        "sourceIndex": 17,
+        "sourceIdentity": "1sqXf",
+        "canonicalIdentity": "r1b1r1k1/pp3pbp/6p1/q2P4/1B2P3/2PB1Q2/P4PPP/R3K2R b KQ -|tactic-in-3|g7c3,b4c3,a5c3,e1e2,c3b2|1sqXf",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bb@1,6,bk@0,6,bq@3,0,br@0,0,br@0,4,wb@4,1,wb@5,3,wk@7,4,wq@5,5,wr@7,0,wr@7,7|line:bb:4,-4:p:->wb:1,1:b:->bq:2,2:b:->wk:-1,0:-:->bq:1,-1:-:-|outcome:capture:b,capture:p,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g7",
+          "first-to:c3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 10
+      }
+    },
+    {
+      "id": "xray-bishop-m3-tkzVC",
+      "puzzleId": "tkzVC",
+      "fen": "r4rk1/ppp2ppp/3b4/3P4/5P2/2N4q/PPP5/R1BQ1RK1 w - - 1 17",
+      "preMove": "d1f3",
+      "solutionLine": [
+        "d6c5",
+        "c1e3",
+        "c5e3",
+        "f3e3",
+        "h3e3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1288,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop",
+        "vulnerable-king",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack",
+        "Vulnerable / Exposed King",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "crushing",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "vulnerable-king",
+        "kingside-attack",
+        "Bishop X-Ray Attack",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,6,bq@5,7,br@0,0,br@0,5,wb@7,2,wk@7,6,wn@5,2,wq@5,5,wr@7,0,wr@7,5|line:bb:1,-1:-:->wb:-2,2:-:->bb:2,2:b:->wq:0,-1:b:->bq:0,-3:q:-|outcome:capture:b,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 8,
+        "sourceIdentity": "tkzVC",
+        "canonicalIdentity": "r4rk1/ppp2ppp/3b4/3P4/5P2/2N2Q1q/PPP5/R1B2RK1 b - -|tactic-in-3|d6c5,c1e3,c5e3,f3e3,h3e3|tkzVC",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,6,bq@5,7,br@0,0,br@0,5,wb@7,2,wk@7,6,wn@5,2,wq@5,5,wr@7,0,wr@7,5|line:bb:1,-1:-:->wb:-2,2:-:->bb:2,2:b:->wq:0,-1:b:->bq:0,-3:q:-|outcome:capture:b,capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d6",
+          "first-to:c5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 11
+      }
+    },
+    {
+      "id": "xray-bishop-m3-v3Lbh",
+      "puzzleId": "v3Lbh",
+      "fen": "6r1/p2k4/1qp1b3/n1b5/8/3P4/PPP2P1P/RNB1KQ1R w KQ - 3 22",
+      "preMove": "h1g1",
+      "solutionLine": [
+        "c5f2",
+        "f1f2",
+        "g8g1",
+        "f2g1",
+        "b6g1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1867,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "xray-bishop",
+        "attacking-f2-f7"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack",
+        "Attacking f2/f7"
+      ],
+      "themes": [
+        "attackingF2F7",
+        "crushing",
+        "fork",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "attackingF2F7",
+        "crushing",
+        "fork",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "fork-bishop",
+        "xray-bishop",
+        "attacking-f2-f7",
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack",
+        "Attacking f2/f7",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bb@3,5,bk@1,4,bn@3,7,bq@2,6,br@0,1,wb@7,5,wk@7,3,wn@7,6,wq@7,2,wr@7,1,wr@7,7|line:bb:3,-3:p:->wq:-1,0:b:->br:7,0:r:->wq:1,-1:r:->bq:5,-5:q:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 6,
+        "sourceIndex": 6,
+        "sourceIdentity": "v3Lbh",
+        "canonicalIdentity": "6r1/p2k4/1qp1b3/n1b5/8/3P4/PPP2P1P/RNB1KQR1 b Q -|tactic-in-3|c5f2,f1f2,g8g1,f2g1,b6g1|v3Lbh",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bb@3,5,bk@1,4,bn@3,7,bq@2,6,br@0,1,wb@7,5,wk@7,3,wn@7,6,wq@7,2,wr@7,1,wr@7,7|line:bb:3,-3:p:->wq:-1,0:b:->br:7,0:r:->wq:1,-1:r:->bq:5,-5:q:-|outcome:capture:b,capture:p,capture:q,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c5",
+          "first-to:f2",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 12
+      }
+    },
+    {
+      "id": "xray-bishop-m3-LZzHN",
+      "puzzleId": "LZzHN",
+      "fen": "r1b4r/pp1pppkp/5Np1/8/2qnP3/8/P2B1PPP/2RQ1RK1 b - - 1 14",
+      "preMove": "c4e2",
+      "solutionLine": [
+        "d2h6",
+        "g7h6",
+        "f6g4",
+        "e2g4",
+        "d1g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2362,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "xRayAttack"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "xRayAttack",
+        "xray-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Bishop X-Ray Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bk@1,6,bn@4,3,bq@6,4,br@0,0,br@0,7,wb@6,3,wk@7,6,wn@2,5,wq@7,3,wr@7,2,wr@7,5|line:wb:-4,4:-:->bk:1,1:b:->wn:2,1:-:->bq:-2,2:n:->wq:-3,3:q:-|outcome:capture:b,capture:n,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 10,
+        "sourceIndex": 2,
+        "sourceIdentity": "LZzHN",
+        "canonicalIdentity": "r1b4r/pp1pppkp/5Np1/8/3nP3/8/P2BqPPP/2RQ1RK1 w - -|tactic-in-3|d2h6,g7h6,f6g4,e2g4,d1g4|LZzHN",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bk@1,6,bn@4,3,bq@6,4,br@0,0,br@0,7,wb@6,3,wk@7,6,wn@2,5,wq@7,3,wr@7,2,wr@7,5|line:wb:-4,4:-:->bk:1,1:b:->wn:2,1:-:->bq:-2,2:n:->wq:-3,3:q:-|outcome:capture:b,capture:n,capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d2",
+          "first-to:h6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 13
+      }
+    },
+    {
+      "id": "xray-bishop-m3-v9foH",
+      "puzzleId": "v9foH",
+      "fen": "5r1r/pp1b2k1/3ppRp1/6P1/2P3P1/1P3R2/P3N2P/7K w - - 6 27",
+      "preMove": "h1g2",
+      "solutionLine": [
+        "d7c6",
+        "e2d4",
+        "c6f3",
+        "f6f3",
+        "f8f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1598,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "pin-bishop",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "xRayAttack"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "xRayAttack",
+        "pin-bishop",
+        "xray-bishop",
+        "Bishop Pin",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,3,bk@1,6,br@0,5,br@0,7,wk@6,6,wn@6,4,wr@2,5,wr@5,5|line:bb:1,-1:-:->wn:-2,-1:-:->bb:3,3:r:->wr:3,0:b:->br:5,0:r:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 3,
+        "sourceIndex": 15,
+        "sourceIdentity": "v9foH",
+        "canonicalIdentity": "5r1r/pp1b2k1/3ppRp1/6P1/2P3P1/1P3R2/P3N1KP/8 b - -|tactic-in-3|d7c6,e2d4,c6f3,f6f3,f8f3|v9foH",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,3,bk@1,6,br@0,5,br@0,7,wk@6,6,wn@6,4,wr@2,5,wr@5,5|line:bb:1,-1:-:->wn:-2,-1:-:->bb:3,3:r:->wr:3,0:b:->br:5,0:r:-|outcome:capture:b,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d7",
+          "first-to:c6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 14
+      }
+    },
+    {
+      "id": "xray-bishop-m3-yuSPW",
+      "puzzleId": "yuSPW",
+      "fen": "2r5/1b2qk2/p1pR2p1/2Q1pp2/8/5BP1/PP3PK1/8 w - - 4 35",
+      "preMove": "f3c6",
+      "solutionLine": [
+        "b7c6",
+        "d6c6",
+        "e7c5",
+        "c6c5",
+        "c8c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2493,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "xRayAttack"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "xRayAttack",
+        "xray-bishop",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,1,bk@1,5,bq@1,4,br@0,2,wb@2,2,wk@6,6,wq@3,2,wr@2,3|line:bb:1,1:b:->wr:0,-1:b:->bq:2,-2:q:->wr:1,0:q:->br:3,0:r:-|outcome:capture:b,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 10,
+        "sourceIndex": 20,
+        "sourceIdentity": "yuSPW",
+        "canonicalIdentity": "2r5/1b2qk2/p1BR2p1/2Q1pp2/8/6P1/PP3PK1/8 b - -|tactic-in-3|b7c6,d6c6,e7c5,c6c5,c8c5|yuSPW",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,1,bk@1,5,bq@1,4,br@0,2,wb@2,2,wk@6,6,wq@3,2,wr@2,3|line:bb:1,1:b:->wr:0,-1:b:->bq:2,-2:q:->wr:1,0:q:->br:3,0:r:-|outcome:capture:b,capture:q,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:b7",
+          "first-to:c6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:b"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 15
+      }
+    },
+    {
+      "id": "xray-bishop-m3-hd8lz",
+      "puzzleId": "hd8lz",
+      "fen": "5rk1/5ppp/2p1b3/4P1P1/qb3Q1P/2P1P3/1P6/1K1R3R w - - 0 24",
+      "preMove": "f4b4",
+      "solutionLine": [
+        "e6f5",
+        "e3e4",
+        "f5e4",
+        "b4e4",
+        "a4e4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1859,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "long",
+        "xRayAttack"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "long",
+        "xRayAttack",
+        "fork-bishop",
+        "xray-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,1,bq@4,7,br@0,2,wk@7,6,wq@4,6,wr@7,0,wr@7,4|line:bb:1,-1:-:->wp:-1,0:-:->bb:1,1:p:->wq:0,-3:b:->bq:0,-4:q:-|outcome:capture:b,capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 6,
+        "sourceIndex": 18,
+        "sourceIdentity": "hd8lz",
+        "canonicalIdentity": "5rk1/5ppp/2p1b3/4P1P1/qQ5P/2P1P3/1P6/1K1R3R b - -|tactic-in-3|e6f5,e3e4,f5e4,b4e4,a4e4|hd8lz",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@2,3,bk@0,1,bq@4,7,br@0,2,wk@7,6,wq@4,6,wr@7,0,wr@7,4|line:bb:1,-1:-:->wp:-1,0:-:->bb:1,1:p:->wq:0,-3:b:->bq:0,-4:q:-|outcome:capture:b,capture:p,capture:q,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e6",
+          "first-to:f5",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 16
+      }
+    },
+    {
+      "id": "xray-bishop-m3-w9Oks",
+      "puzzleId": "w9Oks",
+      "fen": "r6r/ppp1k2p/1b1p4/4q3/1PQ1PB2/2P2R2/P5PP/nN5K b - - 0 18",
+      "preMove": "e5e6",
+      "solutionLine": [
+        "f4g5",
+        "e7d7",
+        "f3f7",
+        "e6f7",
+        "c4f7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1238,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@1,2,bk@4,1,bn@0,7,bq@4,2,br@0,0,br@7,0,wb@5,4,wk@7,7,wn@1,7,wq@2,4,wr@5,5|line:wb:1,-1:-:->bk:-1,0:-:->wr:0,-4:-:->bq:1,-1:r:->wq:3,-3:q:-|outcome:capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 1,
+        "sourceIndex": 12,
+        "sourceIdentity": "w9Oks",
+        "canonicalIdentity": "r6r/ppp1k2p/1b1pq3/8/1PQ1PB2/2P2R2/P5PP/nN5K w - -|tactic-in-3|f4g5,e7d7,f3f7,e6f7,c4f7|w9Oks",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@1,2,bk@4,1,bn@0,7,bq@4,2,br@0,0,br@7,0,wb@5,4,wk@7,7,wn@1,7,wq@2,4,wr@5,5|line:wb:1,-1:-:->bk:-1,0:-:->wr:0,-4:-:->bq:1,-1:r:->wq:3,-3:q:-|outcome:capture:q,capture:r,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f4",
+          "first-to:g5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 17
+      }
+    },
+    {
+      "id": "xray-bishop-m3-BKF71",
+      "puzzleId": "BKF71",
+      "fen": "rnbq1rk1/ppp5/3p3Q/2b2p2/3pP3/3B4/PPPN1PPP/R3K2R b KQ - 1 11",
+      "preMove": "d8f6",
+      "solutionLine": [
+        "d3c4",
+        "c8e6",
+        "c4e6",
+        "f6e6",
+        "h6e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1487,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop",
+        "vulnerable-king",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack",
+        "Vulnerable / Exposed King",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "crushing",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 16,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "vulnerable-king",
+        "kingside-attack",
+        "Bishop X-Ray Attack",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bb@3,2,bk@0,6,bn@0,1,bq@2,5,br@0,0,br@0,5,wb@5,3,wk@7,4,wn@6,3,wq@2,7,wr@7,0,wr@7,7|line:wb:-1,-1:-:->bb:2,2:-:->wb:-2,2:b:->bq:0,-1:b:->wq:0,-3:q:-|outcome:capture:b,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 16,
+        "sourceIdentity": "BKF71",
+        "canonicalIdentity": "rnb2rk1/ppp5/3p1q1Q/2b2p2/3pP3/3B4/PPPN1PPP/R3K2R w KQ -|tactic-in-3|d3c4,c8e6,c4e6,f6e6,h6e6|BKF71",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bb@3,2,bk@0,6,bn@0,1,bq@2,5,br@0,0,br@0,5,wb@5,3,wk@7,4,wn@6,3,wq@2,7,wr@7,0,wr@7,7|line:wb:-1,-1:-:->bb:2,2:-:->wb:-2,2:b:->bq:0,-1:b:->wq:0,-3:q:-|outcome:capture:b,capture:q,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d3",
+          "first-to:c4",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 18
+      }
+    },
+    {
+      "id": "xray-bishop-m3-wXQNR",
+      "puzzleId": "wXQNR",
+      "fen": "q5k1/p3Qp1p/5np1/2pN4/2Pb1B2/6Pb/P4P1P/3R2K1 w - - 4 21",
+      "preMove": "d5f6",
+      "solutionLine": [
+        "d4f6",
+        "d1d8",
+        "a8d8",
+        "e7d8",
+        "f6d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1426,
+      "label": "Bishop X-Ray Attack - Tactic in 3",
+      "theme": "xray-bishop",
+      "sourceThemeKeys": [
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "middlegame",
+        "xRayAttack"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "bishop-xray",
+      "canonicalThemeLabel": "Bishop X-Ray",
+      "rawTags": [
+        "crushing",
+        "long",
+        "middlegame",
+        "xRayAttack",
+        "xray-bishop",
+        "Bishop X-Ray Attack",
+        "Bishop X-Ray Attack - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bb@4,3,bk@1,7,bq@7,7,wb@2,3,wk@1,0,wn@2,5,wq@3,6,wr@4,0|line:bb:-2,2:n:->wr:0,7:-:->bq:-3,0:r:->wq:1,1:q:->bb:2,2:q:-|outcome:capture:n,capture:q,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 5,
+        "sourceChunk": 2,
+        "sourceIndex": 28,
+        "sourceIdentity": "wXQNR",
+        "canonicalIdentity": "q5k1/p3Qp1p/5Np1/2p5/2Pb1B2/6Pb/P4P1P/3R2K1 b - -|tactic-in-3|d4f6,d1d8,a8d8,e7d8,f6d8|wXQNR",
+        "pedagogicalFamily": "bishop-xray|pieces:bb@0,2,bb@4,3,bk@1,7,bq@7,7,wb@2,3,wk@1,0,wn@2,5,wq@3,6,wr@4,0|line:bb:-2,2:n:->wr:0,7:-:->bq:-3,0:r:->wq:1,1:q:->bb:2,2:q:-|outcome:capture:n,capture:q,capture:r,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d4",
+          "first-to:f6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 19
+      }
+    }
+  ]
+}

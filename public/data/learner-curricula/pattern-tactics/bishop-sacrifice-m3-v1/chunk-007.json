@@ -1,0 +1,1566 @@
+{
+  "puzzles": [
+    {
+      "id": "sacrifice-bishop-m3-wnFes",
+      "puzzleId": "wnFes",
+      "fen": "rn2kb1r/pp3ppp/2p2n2/3p4/8/2NBBP1P/PPP2P2/2K1R2R b kq - 3 12",
+      "preMove": "f8e7",
+      "solutionLine": [
+        "e3c5",
+        "f6g8",
+        "e1e7",
+        "g8e7",
+        "h1e1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1880,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "pin-bishop",
+        "sacrifice-bishop",
+        "clearance-sacrifice"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Bishop Pin",
+        "Bishop Sacrifice",
+        "Clearance Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "clearance",
+        "discoveredAttack",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "clearance",
+        "discoveredAttack",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "discovered-attack",
+        "pin-bishop",
+        "sacrifice-bishop",
+        "clearance-sacrifice",
+        "Discovered Attack",
+        "Bishop Pin",
+        "Bishop Sacrifice",
+        "Clearance Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,3,bk@0,3,bn@0,6,bn@2,2,br@0,0,br@0,7,wb@5,3,wb@5,4,wk@7,5,wn@5,5,wr@7,0,wr@7,3|line:wb:-2,2:-:->bn:-2,-1:-:->wr:-6,0:b:->bn:1,2:r:->wr:0,3:-:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 7,
+        "sourceIdentity": "wnFes",
+        "canonicalIdentity": "rn2k2r/pp2bppp/2p2n2/3p4/8/2NBBP1P/PPP2P2/2K1R2R w kq -|tactic-in-3|e3c5,f6g8,e1e7,g8e7,h1e1|wnFes",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,3,bk@0,3,bn@0,6,bn@2,2,br@0,0,br@0,7,wb@5,3,wb@5,4,wk@7,5,wn@5,5,wr@7,0,wr@7,3|line:wb:-2,2:-:->bn:-2,-1:-:->wr:-6,0:b:->bn:1,2:r:->wr:0,3:-:-|outcome:capture:b,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e3",
+          "first-to:c5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 0
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-wt6sZ",
+      "puzzleId": "wt6sZ",
+      "fen": "r1b1r1k1/pp4pp/2p1p2q/5B2/8/2P3P1/P4P1P/R2QR1K1 b - - 0 20",
+      "preMove": "h6f6",
+      "solutionLine": [
+        "f5h7",
+        "g8h7",
+        "d1h5",
+        "h7g8",
+        "h5e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1960,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "fork",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "fork",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "fork-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@0,6,bq@2,5,br@0,0,br@0,4,wb@3,5,wk@7,6,wq@7,3,wr@7,0,wr@7,4|line:wb:-2,2:p:->bk:1,1:b:->wq:-4,4:-:->bk:-1,-1:-:->wq:-3,-3:r:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 24,
+        "sourceIdentity": "wt6sZ",
+        "canonicalIdentity": "r1b1r1k1/pp4pp/2p1pq2/5B2/8/2P3P1/P4P1P/R2QR1K1 w - -|tactic-in-3|f5h7,g8h7,d1h5,h7g8,h5e8|wt6sZ",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@0,6,bq@2,5,br@0,0,br@0,4,wb@3,5,wk@7,6,wq@7,3,wr@7,0,wr@7,4|line:wb:-2,2:p:->bk:1,1:b:->wq:-4,4:-:->bk:-1,-1:-:->wq:-3,-3:r:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f5",
+          "first-to:h7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 1
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-wlUMy",
+      "puzzleId": "wlUMy",
+      "fen": "rn1qkb1r/1p3pp1/2p1bp1p/p7/3P4/2Q2N2/PP2PPPP/RN2KB1R w KQkq - 0 9",
+      "preMove": "a2a3",
+      "solutionLine": [
+        "f8b4",
+        "a3b4",
+        "a5b4",
+        "a1a8",
+        "b4c3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1631,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "pin-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "opening",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "crushing",
+        "long",
+        "opening",
+        "pin",
+        "sacrifice",
+        "pin-bishop",
+        "sacrifice-bishop",
+        "Bishop Pin",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bb@2,3,bk@0,3,bn@0,6,bq@0,4,br@0,0,br@0,7,wb@7,2,wk@7,3,wn@5,2,wn@7,6,wq@5,5,wr@7,0,wr@7,7|line:bb:4,4:-:->wp:-1,-1:b:->bp:1,-1:p:->wr:-7,0:r:->bp:1,-1:q:-|outcome:capture:b,capture:p,capture:q,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 2,
+        "sourceIndex": 29,
+        "sourceIdentity": "wlUMy",
+        "canonicalIdentity": "rn1qkb1r/1p3pp1/2p1bp1p/p7/3P4/P1Q2N2/1P2PPPP/RN2KB1R b KQkq -|tactic-in-3|f8b4,a3b4,a5b4,a1a8,b4c3|wlUMy",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bb@2,3,bk@0,3,bn@0,6,bq@0,4,br@0,0,br@0,7,wb@7,2,wk@7,3,wn@5,2,wn@7,6,wq@5,5,wr@7,0,wr@7,7|line:bb:4,4:-:->wp:-1,-1:b:->bp:1,-1:p:->wr:-7,0:r:->bp:1,-1:q:-|outcome:capture:b,capture:p,capture:q,capture:r",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f8",
+          "first-to:b4",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 2
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-zlnoE",
+      "puzzleId": "zlnoE",
+      "fen": "r3k2r/pq3ppp/1bp1p3/1p2P3/1P5B/P2B1Q2/5PPP/5R1K b kq - 0 22",
+      "preMove": "e8g8",
+      "solutionLine": [
+        "d3h7",
+        "g8h7",
+        "f3h5",
+        "h7g8",
+        "h4f6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2731,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "decoy-attraction",
+        "kingside-attack",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Decoy / Attraction",
+        "Kingside Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "decoy-attraction",
+        "kingside-attack",
+        "sacrifice-bishop",
+        "Decoy / Attraction",
+        "Kingside Attack",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,2,bk@6,0,bq@1,1,br@0,0,br@5,0,wb@3,5,wb@7,4,wk@7,7,wq@5,5,wr@5,7|line:wb:4,-4:p:->bk:1,1:b:->wq:2,-2:-:->bk:-1,-1:-:->wb:-2,-2:-:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 10,
+        "sourceIndex": 20,
+        "sourceIdentity": "zlnoE",
+        "canonicalIdentity": "r4rk1/pq3ppp/1bp1p3/1p2P3/1P5B/P2B1Q2/5PPP/5R1K w - -|tactic-in-3|d3h7,g8h7,f3h5,h7g8,h4f6|zlnoE",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,2,bk@6,0,bq@1,1,br@0,0,br@5,0,wb@3,5,wb@7,4,wk@7,7,wq@5,5,wr@5,7|line:wb:4,-4:p:->bk:1,1:b:->wq:2,-2:-:->bk:-1,-1:-:->wb:-2,-2:-:-|outcome:capture:b,capture:p,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d3",
+          "first-to:h7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 3
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-yzUVe",
+      "puzzleId": "yzUVe",
+      "fen": "1r4k1/5p1p/1pQ1p1pb/4P3/P2P4/q3PB1P/5KP1/1R6 w - - 3 25",
+      "preMove": "c6c1",
+      "solutionLine": [
+        "h6e3",
+        "c1e3",
+        "a3a2",
+        "f2g3",
+        "a2b1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1763,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "long",
+        "sacrifice"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "fork",
+        "long",
+        "sacrifice",
+        "fork-bishop",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@1,0,bq@7,5,br@6,0,wb@2,5,wk@2,6,wq@5,7,wr@6,7|line:bb:3,3:p:->wq:-2,-2:b:->bq:0,1:-:->wk:-1,-1:-:->bq:-1,1:r:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 27,
+        "sourceIdentity": "yzUVe",
+        "canonicalIdentity": "1r4k1/5p1p/1p2p1pb/4P3/P2P4/q3PB1P/5KP1/1RQ5 b - -|tactic-in-3|h6e3,c1e3,a3a2,f2g3,a2b1|yzUVe",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@1,0,bq@7,5,br@6,0,wb@2,5,wk@2,6,wq@5,7,wr@6,7|line:bb:3,3:p:->wq:-2,-2:b:->bq:0,1:-:->wk:-1,-1:-:->bq:-1,1:r:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:h6",
+          "first-to:e3",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 4
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-xbZLH",
+      "puzzleId": "xbZLH",
+      "fen": "2q2r1k/p5pp/8/1p1BB3/3N4/3p2P1/PP3P1P/3R2K1 b - - 0 29",
+      "preMove": "c8c5",
+      "solutionLine": [
+        "e5g7",
+        "h8g7",
+        "d4e6",
+        "g7f6",
+        "e6c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1469,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "fork",
+        "long",
+        "sacrifice"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "fork",
+        "long",
+        "sacrifice",
+        "fork-bishop",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bk@0,0,bq@3,5,br@0,2,wb@3,3,wb@3,4,wk@7,1,wn@4,4,wr@7,4|line:wb:-2,-2:p:->bk:1,1:b:->wn:-2,-1:-:->bk:1,1:-:->wn:1,2:q:-|outcome:capture:b,capture:p,capture:q,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 1,
+        "sourceIndex": 27,
+        "sourceIdentity": "xbZLH",
+        "canonicalIdentity": "5r1k/p5pp/8/1pqBB3/3N4/3p2P1/PP3P1P/3R2K1 w - -|tactic-in-3|e5g7,h8g7,d4e6,g7f6,e6c5|xbZLH",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bk@0,0,bq@3,5,br@0,2,wb@3,3,wb@3,4,wk@7,1,wn@4,4,wr@7,4|line:wb:-2,-2:p:->bk:1,1:b:->wn:-2,-1:-:->bk:1,1:-:->wn:1,2:q:-|outcome:capture:b,capture:p,capture:q,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e5",
+          "first-to:g7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 5
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-zzlCv",
+      "puzzleId": "zzlCv",
+      "fen": "rn1qkb1r/pp2pppp/2pp4/3nP3/2BP2b1/5N2/PPP2PPP/RNBQ1RK1 b kq - 3 6",
+      "preMove": "d5b6",
+      "solutionLine": [
+        "c4f7",
+        "e8f7",
+        "f3g5",
+        "f7g8",
+        "d1g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1271,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "decoy-attraction",
+        "attacking-f2-f7",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Decoy / Attraction",
+        "Attacking f2/f7",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "attackingF2F7",
+        "attraction",
+        "crushing",
+        "discoveredAttack",
+        "long",
+        "opening",
+        "sacrifice"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "attackingF2F7",
+        "attraction",
+        "crushing",
+        "discoveredAttack",
+        "long",
+        "opening",
+        "sacrifice",
+        "discovered-attack",
+        "decoy-attraction",
+        "attacking-f2-f7",
+        "sacrifice-bishop",
+        "Discovered Attack",
+        "Decoy / Attraction",
+        "Attacking f2/f7",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bb@4,1,bk@0,3,bn@0,6,bn@2,6,bq@0,4,br@0,0,br@0,7,wb@4,5,wb@7,5,wk@7,1,wn@5,2,wn@7,6,wq@7,4,wr@7,2,wr@7,7|line:wb:-3,-3:p:->bk:1,-1:b:->wn:-2,-1:-:->bk:-1,-1:-:->wq:-3,-3:b:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 1,
+        "sourceIndex": 14,
+        "sourceIdentity": "zzlCv",
+        "canonicalIdentity": "rn1qkb1r/pp2pppp/1npp4/4P3/2BP2b1/5N2/PPP2PPP/RNBQ1RK1 w kq -|tactic-in-3|c4f7,e8f7,f3g5,f7g8,d1g4|zzlCv",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bb@4,1,bk@0,3,bn@0,6,bn@2,6,bq@0,4,br@0,0,br@0,7,wb@4,5,wb@7,5,wk@7,1,wn@5,2,wn@7,6,wq@7,4,wr@7,2,wr@7,7|line:wb:-3,-3:p:->bk:1,-1:b:->wn:-2,-1:-:->bk:-1,-1:-:->wq:-3,-3:b:-|outcome:capture:b,capture:p,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c4",
+          "first-to:f7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 6
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-yGEIi",
+      "puzzleId": "yGEIi",
+      "fen": "8/1pk5/p1p2p2/2Pp1Pp1/1P1P2P1/P3B1b1/4K3/8 b - - 10 52",
+      "preMove": "c7b8",
+      "solutionLine": [
+        "e3g5",
+        "f6g5",
+        "f5f6",
+        "b8c7",
+        "f6f7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1832,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "long",
+        "sacrifice"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "long",
+        "sacrifice",
+        "advanced-pawn",
+        "sacrifice-bishop",
+        "Advanced Pawn",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,2,bk@6,7,wb@3,2,wk@3,1|line:wb:-2,2:p:->bp:-1,-1:b:->wp:0,1:-:->bk:-1,-1:-:->wp:0,1:-:-|outcome:capture:b,capture:p",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 4,
+        "sourceIdentity": "yGEIi",
+        "canonicalIdentity": "1k6/1p6/p1p2p2/2Pp1Pp1/1P1P2P1/P3B1b1/4K3/8 w - -|tactic-in-3|e3g5,f6g5,f5f6,b8c7,f6f7|yGEIi",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,2,bk@6,7,wb@3,2,wk@3,1|line:wb:-2,2:p:->bp:-1,-1:b:->wp:0,1:-:->bk:-1,-1:-:->wp:0,1:-:-|outcome:capture:b,capture:p",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:e3",
+          "first-to:g5",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 7
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-rs8M9",
+      "puzzleId": "rs8M9",
+      "fen": "6k1/2p1r2p/3pP3/p1p2B2/2PbP2R/1P3R2/P3K3/6r1 b - - 12 41",
+      "preMove": "e7g7",
+      "solutionLine": [
+        "f5h7",
+        "g7h7",
+        "h4h7",
+        "g8h7",
+        "e6e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1741,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "long",
+        "sacrifice"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "long",
+        "sacrifice",
+        "advanced-pawn",
+        "sacrifice-bishop",
+        "Advanced Pawn",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@3,3,bk@6,7,br@6,0,br@6,6,wb@5,4,wk@4,1,wr@5,2,wr@7,3|line:wb:2,2:p:->br:1,0:b:->wr:0,3:r:->bk:1,-1:r:->wp:0,1:-:-|outcome:capture:b,capture:p,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 18,
+        "sourceIdentity": "rs8M9",
+        "canonicalIdentity": "6k1/2p3rp/3pP3/p1p2B2/2PbP2R/1P3R2/P3K3/6r1 w - -|tactic-in-3|f5h7,g7h7,h4h7,g8h7,e6e7|rs8M9",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@3,3,bk@6,7,br@6,0,br@6,6,wb@5,4,wk@4,1,wr@5,2,wr@7,3|line:wb:2,2:p:->br:1,0:b:->wr:0,3:r:->bk:1,-1:r:->wp:0,1:-:-|outcome:capture:b,capture:p,capture:r,check",
+        "symmetry": "identity",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f5",
+          "first-to:h7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 8
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-y4qO9",
+      "puzzleId": "y4qO9",
+      "fen": "2r4k/p1P3p1/1p1r3p/3Bp3/8/6Pb/P2R1P1P/2R3K1 b - - 2 28",
+      "preMove": "d6d7",
+      "solutionLine": [
+        "d5g2",
+        "d7d2",
+        "g2h3",
+        "c8c7",
+        "c1c7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2170,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "sacrifice"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "sacrifice",
+        "sacrifice-bishop",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@0,7,br@4,6,br@5,7,wb@4,4,wk@1,0,wr@4,1,wr@5,0|line:wb:-3,-3:-:->br:0,-5:r:->wb:-1,1:b:->br:0,-1:p:->wr:0,6:r:-|outcome:capture:b,capture:p,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 7,
+        "sourceIndex": 9,
+        "sourceIdentity": "y4qO9",
+        "canonicalIdentity": "2r4k/p1Pr2p1/1p5p/3Bp3/8/6Pb/P2R1P1P/2R3K1 w - -|tactic-in-3|d5g2,d7d2,g2h3,c8c7,c1c7|y4qO9",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@0,7,br@4,6,br@5,7,wb@4,4,wk@1,0,wr@4,1,wr@5,0|line:wb:-3,-3:-:->br:0,-5:r:->wb:-1,1:b:->br:0,-1:p:->wr:0,6:r:-|outcome:capture:b,capture:p,capture:r",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d5",
+          "first-to:g2",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 9
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-ykHK1",
+      "puzzleId": "ykHK1",
+      "fen": "2kr3r/pp1npR2/5b2/6Np/7P/2P5/PP1N2P1/5RK1 w - - 3 23",
+      "preMove": "f7h7",
+      "solutionLine": [
+        "f6g5",
+        "h7h8",
+        "g5e3",
+        "g1h2",
+        "d8h8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1774,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "sacrifice-bishop",
+        "zwischenzug"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice",
+        "Zwischenzug / Intermezzo"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "intermezzo",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "intermezzo",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "fork-bishop",
+        "sacrifice-bishop",
+        "zwischenzug",
+        "Bishop Fork / Double Attack",
+        "Bishop Sacrifice",
+        "Zwischenzug / Intermezzo",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@2,2,bk@0,5,bn@1,4,br@0,0,br@0,4,wk@7,1,wn@3,1,wn@6,4,wr@1,0,wr@7,2|line:bb:1,-1:n:->wr:-1,0:r:->bb:2,2:-:->wk:-1,-1:-:->br:0,-4:r:-|outcome:capture:n,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 24,
+        "sourceIdentity": "ykHK1",
+        "canonicalIdentity": "2kr3r/pp1np2R/5b2/6Np/7P/2P5/PP1N2P1/5RK1 b - -|tactic-in-3|f6g5,h7h8,g5e3,g1h2,d8h8|ykHK1",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@2,2,bk@0,5,bn@1,4,br@0,0,br@0,4,wk@7,1,wn@3,1,wn@6,4,wr@1,0,wr@7,2|line:bb:1,-1:n:->wr:-1,0:r:->bb:2,2:-:->wk:-1,-1:-:->br:0,-4:r:-|outcome:capture:n,capture:r,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f6",
+          "first-to:g5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:n"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 10
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-zS0Yu",
+      "puzzleId": "zS0Yu",
+      "fen": "r1b2rk1/p4ppp/2p1p3/6B1/3P4/1P3P2/2PQ1P1P/q2NK2R b K - 0 16",
+      "preMove": "c8a6",
+      "solutionLine": [
+        "g5f6",
+        "g7f6",
+        "h1g1",
+        "g8h8",
+        "d2h6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2317,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 16,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "crushing",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "sacrifice-bishop",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@6,0,bq@0,7,br@0,0,br@5,0,wb@6,3,wk@4,7,wn@3,7,wq@3,6,wr@7,7|line:wb:-1,-1:-:->bp:-1,1:b:->wr:-1,0:-:->bk:1,0:-:->wq:4,-4:-:-|outcome:capture:b,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 8,
+        "sourceIndex": 16,
+        "sourceIdentity": "zS0Yu",
+        "canonicalIdentity": "r4rk1/p4ppp/b1p1p3/6B1/3P4/1P3P2/2PQ1P1P/q2NK2R w K -|tactic-in-3|g5f6,g7f6,h1g1,g8h8,d2h6|zS0Yu",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@6,0,bq@0,7,br@0,0,br@5,0,wb@6,3,wk@4,7,wn@3,7,wq@3,6,wr@7,7|line:wb:-1,-1:-:->bp:-1,1:b:->wr:-1,0:-:->bk:1,0:-:->wq:4,-4:-:-|outcome:capture:b,check",
+        "symmetry": "mirror-rank",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:g5",
+          "first-to:f6",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 11
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-xZZQh",
+      "puzzleId": "xZZQh",
+      "fen": "r3r1k1/pp4q1/2n5/3p4/3P2bQ/2PB4/P5PP/R4RK1 b - - 4 21",
+      "preMove": "e8e3",
+      "solutionLine": [
+        "d3h7",
+        "g7h7",
+        "h4g5",
+        "g8h8",
+        "g5e3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2325,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "vulnerable-king",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "fork-bishop",
+        "vulnerable-king",
+        "sacrifice-bishop",
+        "Bishop Fork / Double Attack",
+        "Vulnerable / Exposed King",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,3,bk@1,7,bn@5,5,bq@1,6,br@3,2,br@7,7,wb@4,2,wk@1,0,wq@0,3,wr@2,0,wr@7,0|line:wb:-4,4:-:->bq:-1,0:b:->wq:1,1:-:->bk:-1,0:-:->wq:2,-2:r:-|outcome:capture:b,capture:r,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 9,
+        "sourceIndex": 5,
+        "sourceIdentity": "xZZQh",
+        "canonicalIdentity": "r5k1/pp4q1/2n5/3p4/3P2bQ/2PBr3/P5PP/R4RK1 w - -|tactic-in-3|d3h7,g7h7,h4g5,g8h8,g5e3|xZZQh",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,3,bk@1,7,bn@5,5,bq@1,6,br@3,2,br@7,7,wb@4,2,wk@1,0,wq@0,3,wr@2,0,wr@7,0|line:wb:-4,4:-:->bq:-1,0:b:->wq:1,1:-:->bk:-1,0:-:->wq:2,-2:r:-|outcome:capture:b,capture:r,check",
+        "symmetry": "mirror-file",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d3",
+          "first-to:h7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 12
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-wm5LX",
+      "puzzleId": "wm5LX",
+      "fen": "r1bqk2r/pp3ppp/2nb1n2/1Bpp4/8/1P2P3/PBPP1PPP/RN1QK1NR w KQkq - 5 7",
+      "preMove": "d1f3",
+      "solutionLine": [
+        "c8g4",
+        "b2f6",
+        "g4f3",
+        "f6d8",
+        "f3g2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1689,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "trapped-piece",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Trapped Piece",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "opening",
+        "sacrifice",
+        "trappedPiece"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "long",
+        "opening",
+        "sacrifice",
+        "trappedPiece",
+        "trapped-piece",
+        "sacrifice-bishop",
+        "Trapped Piece",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bb@2,3,bk@0,4,bn@2,2,bn@2,5,bq@0,3,br@0,0,br@0,7,wb@3,1,wb@6,1,wk@7,4,wn@7,1,wn@7,6,wq@5,5,wr@7,0,wr@7,7|line:bb:4,4:-:->wb:-4,4:n:->bb:1,-1:q:->wb:-2,-2:q:->bb:1,1:p:-|outcome:capture:n,capture:p,capture:q",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 2,
+        "sourceIndex": 6,
+        "sourceIdentity": "wm5LX",
+        "canonicalIdentity": "r1bqk2r/pp3ppp/2nb1n2/1Bpp4/8/1P2PQ2/PBPP1PPP/RN2K1NR b KQkq -|tactic-in-3|c8g4,b2f6,g4f3,f6d8,f3g2|wm5LX",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bb@2,3,bk@0,4,bn@2,2,bn@2,5,bq@0,3,br@0,0,br@0,7,wb@3,1,wb@6,1,wk@7,4,wn@7,1,wn@7,6,wq@5,5,wr@7,0,wr@7,7|line:bb:4,4:-:->wb:-4,4:n:->bb:1,-1:q:->wb:-2,-2:q:->bb:1,1:p:-|outcome:capture:n,capture:p,capture:q",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c8",
+          "first-to:g4",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 13
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-zfm8N",
+      "puzzleId": "zfm8N",
+      "fen": "6k1/4bpr1/1q1pNp2/7p/B1r1P2P/Pp6/1P1Q2P1/1K1R1R2 b - - 0 33",
+      "preMove": "f7e6",
+      "solutionLine": [
+        "a4d7",
+        "c4e4",
+        "d7e6",
+        "e4e6",
+        "d2d5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2101,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "pin-bishop",
+        "vulnerable-king",
+        "kingside-attack",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "master",
+        "masterVsMaster",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "master",
+        "masterVsMaster",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-bishop",
+        "vulnerable-king",
+        "kingside-attack",
+        "sacrifice-bishop",
+        "Bishop Pin",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,3,bk@0,1,bq@2,6,br@1,1,br@4,5,wb@4,7,wk@7,6,wq@6,4,wr@7,2,wr@7,4|line:wb:-3,-3:-:->br:0,-2:p:->wb:1,-1:p:->br:-2,0:b:->wq:-3,0:-:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 6,
+        "sourceIndex": 25,
+        "sourceIdentity": "zfm8N",
+        "canonicalIdentity": "6k1/4b1r1/1q1ppp2/7p/B1r1P2P/Pp6/1P1Q2P1/1K1R1R2 w - -|tactic-in-3|a4d7,c4e4,d7e6,e4e6,d2d5|zfm8N",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,3,bk@0,1,bq@2,6,br@1,1,br@4,5,wb@4,7,wk@7,6,wq@6,4,wr@7,2,wr@7,4|line:wb:-3,-3:-:->br:0,-2:p:->wb:1,-1:p:->br:-2,0:b:->wq:-3,0:-:-|outcome:capture:b,capture:p,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:a4",
+          "first-to:d7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 14
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-sgoWq",
+      "puzzleId": "sgoWq",
+      "fen": "5r2/p2k2p1/p1p1pbPp/3pNn1P/5P2/1PB5/P1P5/1K2R3 b - - 10 31",
+      "preMove": "d7d6",
+      "solutionLine": [
+        "c3b4",
+        "c6c5",
+        "b4c5",
+        "d6c5",
+        "e5d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1929,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "decoy-attraction",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Decoy / Attraction",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "long",
+        "sacrifice"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "long",
+        "sacrifice",
+        "decoy-attraction",
+        "sacrifice-bishop",
+        "Decoy / Attraction",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@2,2,bk@2,4,bn@3,2,br@0,2,wb@5,5,wk@7,6,wn@3,3,wr@7,3|line:wb:-1,1:-:->bp:1,0:-:->wb:-1,-1:p:->bk:1,1:b:->wn:-2,1:-:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 10,
+        "sourceIdentity": "sgoWq",
+        "canonicalIdentity": "5r2/p5p1/p1pkpbPp/3pNn1P/5P2/1PB5/P1P5/1K2R3 w - -|tactic-in-3|c3b4,c6c5,b4c5,d6c5,e5d7|sgoWq",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@2,2,bk@2,4,bn@3,2,br@0,2,wb@5,5,wk@7,6,wn@3,3,wr@7,3|line:wb:-1,1:-:->bp:1,0:-:->wb:-1,-1:p:->bk:1,1:b:->wn:-2,1:-:-|outcome:capture:b,capture:p,check",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c3",
+          "first-to:b4",
+          "king-region:queen-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 15
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-urKbW",
+      "puzzleId": "urKbW",
+      "fen": "5b2/8/2p3k1/1pP1p1P1/pP2P3/P4K1N/8/8 w - - 1 51",
+      "preMove": "f3g4",
+      "solutionLine": [
+        "f8c5",
+        "b4c5",
+        "b5b4",
+        "a3b4",
+        "a4a3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1455,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "sacrifice"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "sacrifice",
+        "sacrifice-bishop",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@2,1,wk@4,1,wn@5,0|line:bb:3,3:p:->wp:-1,-1:b:->bp:1,0:-:->wp:-1,-1:p:->bp:1,0:-:-|outcome:capture:b,capture:p",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 1,
+        "sourceIndex": 0,
+        "sourceIdentity": "urKbW",
+        "canonicalIdentity": "5b2/8/2p3k1/1pP1p1P1/pP2P1K1/P6N/8/8 b - -|tactic-in-3|f8c5,b4c5,b5b4,a3b4,a4a3|urKbW",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@2,1,wk@4,1,wn@5,0|line:bb:3,3:p:->wp:-1,-1:b:->bp:1,0:-:->wp:-1,-1:p:->bp:1,0:-:-|outcome:capture:b,capture:p",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:f8",
+          "first-to:c5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 16
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-njI26",
+      "puzzleId": "njI26",
+      "fen": "r3kb1r/1pB1ppp1/p7/7p/2B5/5n1P/PP3PK1/2R2R2 b kq - 1 17",
+      "preMove": "f3d2",
+      "solutionLine": [
+        "c4d5",
+        "d2f1",
+        "d5b7",
+        "e8d7",
+        "b7a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2219,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "crushing",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "sacrifice-bishop",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@0,3,bn@6,4,br@0,0,br@0,7,wb@1,5,wb@4,5,wk@6,1,wr@7,2,wr@7,5|line:wb:-1,-1:-:->bn:1,-2:r:->wb:-2,2:p:->bk:1,1:-:->wb:-1,1:r:-|outcome:capture:p,capture:r",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 8,
+        "sourceIndex": 9,
+        "sourceIdentity": "njI26",
+        "canonicalIdentity": "r3kb1r/1pB1ppp1/p7/7p/2B5/7P/PP1n1PK1/2R2R2 w kq -|tactic-in-3|c4d5,d2f1,d5b7,e8d7,b7a8|njI26",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bk@0,3,bn@6,4,br@0,0,br@0,7,wb@1,5,wb@4,5,wk@6,1,wr@7,2,wr@7,5|line:wb:-1,-1:-:->bn:1,-2:r:->wb:-2,2:p:->bk:1,1:-:->wb:-1,1:r:-|outcome:capture:p,capture:r",
+        "symmetry": "anti-rotate",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c4",
+          "first-to:d5",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:none"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 17
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-uJKj4",
+      "puzzleId": "uJKj4",
+      "fen": "r1bqr1k1/1ppnppbp/p2p1np1/8/2BP1B2/2N1PN1P/PPP2PP1/R2QR1K1 b - - 1 9",
+      "preMove": "b7b5",
+      "solutionLine": [
+        "c4f7",
+        "g8f7",
+        "f3g5",
+        "f7g8",
+        "g5e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1745,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "decoy-attraction",
+        "kingside-attack",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Decoy / Attraction",
+        "Kingside Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "sacrifice",
+        "decoy-attraction",
+        "kingside-attack",
+        "sacrifice-bishop",
+        "Decoy / Attraction",
+        "Kingside Attack",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bb@1,6,bk@0,6,bn@1,3,bn@2,5,bq@0,3,br@0,0,br@0,4,wb@4,2,wb@4,5,wk@7,6,wn@5,2,wn@5,5,wq@7,3,wr@7,0,wr@7,4|line:wb:-3,3:p:->bk:1,-1:b:->wn:-2,1:-:->bk:-1,1:-:->wn:-1,-2:-:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 5,
+        "sourceIdentity": "uJKj4",
+        "canonicalIdentity": "r1bqr1k1/2pnppbp/p2p1np1/1p6/2BP1B2/2N1PN1P/PPP2PP1/R2QR1K1 w - -|tactic-in-3|c4f7,g8f7,f3g5,f7g8,g5e6|uJKj4",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@0,2,bb@1,6,bk@0,6,bn@1,3,bn@2,5,bq@0,3,br@0,0,br@0,4,wb@4,2,wb@4,5,wk@7,6,wn@5,2,wn@5,5,wq@7,3,wr@7,0,wr@7,4|line:wb:-3,3:p:->bk:1,-1:b:->wn:-2,1:-:->bk:-1,1:-:->wn:-1,-2:-:-|outcome:capture:b,capture:p,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:c4",
+          "first-to:f7",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 18
+      }
+    },
+    {
+      "id": "sacrifice-bishop-m3-w7aBN",
+      "puzzleId": "w7aBN",
+      "fen": "4r3/1p1b1pk1/p2b1q2/2r4p/3N2p1/2PBP3/P2Q1PPP/4RRK1 w - - 0 26",
+      "preMove": "f2f3",
+      "solutionLine": [
+        "d6h2",
+        "g1h2",
+        "f6h4",
+        "h2g1",
+        "g4g3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1911,
+      "label": "Bishop Sacrifice - Tactic in 3",
+      "theme": "sacrifice-bishop",
+      "sourceThemeKeys": [
+        "decoy-attraction",
+        "kingside-attack",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Decoy / Attraction",
+        "Kingside Attack",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "kingsideAttack",
+        "long",
+        "master",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-sacrifice",
+      "canonicalThemeLabel": "Bishop Sacrifice",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "kingsideAttack",
+        "long",
+        "master",
+        "middlegame",
+        "sacrifice",
+        "decoy-attraction",
+        "kingside-attack",
+        "sacrifice-bishop",
+        "Decoy / Attraction",
+        "Kingside Attack",
+        "Bishop Sacrifice",
+        "Bishop Sacrifice - Tactic in 3"
+      ],
+      "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,3,bb@2,3,bk@1,6,bq@2,5,br@0,4,br@3,2,wb@5,3,wk@7,6,wn@4,3,wq@6,3,wr@7,4,wr@7,5|line:bb:4,4:p:->wk:-1,1:b:->bq:2,2:-:->wk:1,-1:-:->bp:1,0:-:-|outcome:capture:b,capture:p,check",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "tacticDistance": 3,
+        "learnerChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 25,
+        "sourceIdentity": "w7aBN",
+        "canonicalIdentity": "4r3/1p1b1pk1/p2b1q2/2r4p/3N2p1/2PBPP2/P2Q2PP/4RRK1 b - -|tactic-in-3|d6h2,g1h2,f6h4,h2g1,g4g3|w7aBN",
+        "pedagogicalFamily": "bishop-sacrifice|pieces:bb@1,3,bb@2,3,bk@1,6,bq@2,5,br@0,4,br@3,2,wb@5,3,wk@7,6,wn@4,3,wq@6,3,wr@7,4,wr@7,5|line:bb:4,4:p:->wk:-1,1:b:->bq:2,2:-:->wk:1,-1:-:->bp:1,0:-:-|outcome:capture:b,capture:p,check",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "first-piece:b",
+          "first-from:d6",
+          "first-to:h2",
+          "king-region:king-side",
+          "line-length:5",
+          "first-capture:p"
+        ],
+        "retainedReason": "Deterministic full-pool selection with exact-identity deduplication and pedagogical-family spacing.",
+        "orderInChunk": 19
+      }
+    }
+  ]
+}
