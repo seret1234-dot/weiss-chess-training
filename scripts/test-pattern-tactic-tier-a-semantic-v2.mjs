@@ -32,6 +32,7 @@ for (const stage of [1, 2, 3, 4]) {
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" })
 try {
   const curriculum = await vite.ssrLoadModule("/src/trainers/patternTactic/m1toM4LearnerCurriculum.ts")
+  const disclosureRuntime = await vite.ssrLoadModule("/src/trainers/patternTactic/semanticDisclosure.ts")
   const kingForkM3 = curriculum.getPatternTacticLearnerCurriculum("tactic-king-fork-m3")
   assert.equal(kingForkM3.activeChunkCount, 0, "King Fork M3 has no learner-facing chunks")
   assert.match(kingForkM3.unavailableReason, /Not enough semantically verified material/, "King Fork M3 presents an explicit unavailable state")
@@ -44,6 +45,21 @@ try {
   assert.equal(completePrior[bishopFork.trainerKey].completedActiveChunks, 5, "completed v1 learner progress receives proportional semantic-v2 credit")
   const partialLegacy = curriculum.getPatternTacticLearnerCompletionByTrainer([{ trainer_key: bishopFork.trainerKey, chunk_index: 1, is_mastered: true, mastered_puzzles_count: 30 }])
   assert.equal(partialLegacy[bishopFork.trainerKey].completedActiveChunks, 1, "legacy progress receives deterministic proportional completion credit")
+
+  let disclosure = disclosureRuntime.nextSemanticDisclosureState(false, "reveal")
+  assert.equal(disclosure, true, "a correct answer, wrong attempt, hint, or solution reveal discloses semantic evidence")
+  disclosure = disclosureRuntime.nextSemanticDisclosureState(disclosure, "timer")
+  assert.equal(disclosure, true, "semantic disclosure remains visible after feedback timers expire")
+  const retainedPresentation = disclosureRuntime.getSemanticDisclosurePresentation("Verified fork", ["d4", "g1", "c5"], disclosure)
+  assert.equal(retainedPresentation.visible, true, "semantic explanation remains visible until navigation")
+  assert.deepEqual(retainedPresentation.squares.sort(), ["c5", "d4", "g1"], "verified relationship highlights remain with the explanation")
+  const blindBeforeAnswer = disclosureRuntime.getSemanticDisclosurePresentation("Verified fork", ["d4", "g1", "c5"], false)
+  assert.equal(blindBeforeAnswer.visible, false, "blind mixed mode does not leak semantic evidence before an answer or hint")
+  assert.deepEqual(blindBeforeAnswer.squares, [], "blind mixed mode has no pre-answer semantic highlights")
+  disclosure = disclosureRuntime.nextSemanticDisclosureState(disclosure, "next-puzzle")
+  assert.equal(disclosure, false, "Next Puzzle clears semantic disclosure")
+  assert.equal(disclosureRuntime.getSemanticDisclosurePresentation("Verified fork", ["d4", "g1", "c5"], disclosure).visible, false, "Next Puzzle clears explanation and highlights together")
+  assert.equal(disclosureRuntime.nextSemanticDisclosureState(true, "restart"), false, "Restart progression clears semantic disclosure")
 } finally {
   await vite.close()
 }
@@ -51,5 +67,8 @@ const trainer = fs.readFileSync(path.join(root, "src", "trainers", "patternTacti
 assert.match(trainer, /semantic-v2/, "trainer loads semantic-v2 mixed overlay")
 assert.match(trainer, /semanticExplanation/, "trainer exposes post-answer semantic explanations")
 assert.match(trainer, /semanticEvidenceSquares/, "trainer highlights only validator-proven tactical relationships after disclosure")
+assert.match(trainer, /semanticDisclosureRevealed/, "trainer keeps semantic disclosure independently of transient feedback state")
+assert.match(trainer, /if \(!semanticExplanation\(currentPuzzle\)\)/, "semantic puzzles do not auto-advance before their explanation can be read")
+assert.match(trainer, /aria-live="polite"/, "semantic explanation is announced accessibly when revealed")
 assert.match(trainer, /unavailableReason/, "trainer presents unavailable state without v1 fallback")
 console.log("PASS: Tier A semantic-v2 overlays retain strict VALID records only, preserve approved counts, omit unavailable King Fork M3/M4, and carry verified explanation evidence")

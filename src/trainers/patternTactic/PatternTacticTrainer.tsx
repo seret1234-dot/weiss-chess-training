@@ -64,6 +64,7 @@ import {
  getPatternTacticLearnerProgressTrainerKey,
  resolvePatternTacticLearnerFacingChunkIndex,
 } from "./m1toM4LearnerCurriculum"
+import { getSemanticDisclosurePresentation, nextSemanticDisclosureState, type SemanticDisclosureEvent } from "./semanticDisclosure"
 
 type ManifestFile = {
  category?: string
@@ -618,6 +619,15 @@ export default function PatternTacticTrainer({
  const [phase, setPhase] = useState<Phase>('loading')
  const [solved, setSolved] = useState(false)
  const [hintMoveUci, setHintMoveUci] = useState<string | null>(null)
+ const [semanticDisclosureRevealed, setSemanticDisclosureRevealed] = useState(false)
+
+ function revealSemanticDisclosure() {
+  setSemanticDisclosureRevealed((current) => nextSemanticDisclosureState(current, 'reveal'))
+ }
+
+ function clearSemanticDisclosure(event: 'next-puzzle' | 'restart') {
+  setSemanticDisclosureRevealed((current) => nextSemanticDisclosureState(current, event))
+ }
 
  function advanceUserMoveIndex(nextIndex: number) {
  currentUserMoveIndexRef.current = nextIndex
@@ -1147,6 +1157,7 @@ export default function PatternTacticTrainer({
 
  async function restartWholeProgression() {
  clearTimers()
+ clearSemanticDisclosure('restart')
  localStorage.removeItem(storageKey)
 
  if (currentUserId) {
@@ -1459,6 +1470,7 @@ export default function PatternTacticTrainer({
  fileNameOverride?: string
  ) {
  clearTimers()
+ clearSemanticDisclosure('next-puzzle')
  // Focused trainers retain their normal ordering; this lightweight history
  // record only helps a later mixed session avoid an immediate source repeat.
  const servedSessionId = mixedSessionIdRef.current ?? `${config.trainerKey}:${fileNameOverride ?? currentChunkFileName}`
@@ -1650,6 +1662,7 @@ export default function PatternTacticTrainer({
  setGameAndBoardFen(solvedGame)
  setDisplayTurn(solvedGame.turn())
  setSolved(true)
+ revealSemanticDisclosure()
  if (isMixedPatternTactic) {
   setBlindThemeRevealed(true)
   const evidence = mixedSessionEvidenceRef.current
@@ -1720,9 +1733,13 @@ export default function PatternTacticTrainer({
  theme: config.studyTheme,
  })
 
- autoNextTimerRef.current = window.setTimeout(() => {
- goToNextPuzzle()
- }, AUTO_NEXT_DELAY_MS)
+ // A verified Tier A explanation must remain readable until the learner
+ // explicitly moves on. Existing non-semantic courses retain auto-next.
+ if (!semanticExplanation(currentPuzzle)) {
+  autoNextTimerRef.current = window.setTimeout(() => {
+   goToNextPuzzle()
+  }, AUTO_NEXT_DELAY_MS)
+ }
  }
 
  function completeCorrectMove(
@@ -1897,6 +1914,7 @@ export default function PatternTacticTrainer({
  }
 
  setPhase('wrong')
+ revealSemanticDisclosure()
  if (isMixedPatternTactic) {
   mixedPuzzleNeededHelpRef.current = true
   setBlindThemeRevealed(true)
@@ -2063,8 +2081,9 @@ function onSquareClick(square: string) {
 
  const currentPuzzleFastSolves = chunkProgress[currentIndex]?.fastSolves ?? 0
  const currentSemanticExplanation = semanticExplanation(currentPuzzle)
- const showSemanticExplanation = Boolean(currentSemanticExplanation) && (solved || phase === 'wrong' || Boolean(hintMoveUci) || (isMixedPatternTactic && blindThemeRevealed))
- const semanticSquares = showSemanticExplanation ? semanticEvidenceSquares(currentPuzzle) : []
+ const semanticDisclosure = getSemanticDisclosurePresentation(currentSemanticExplanation, semanticEvidenceSquares(currentPuzzle), semanticDisclosureRevealed)
+ const showSemanticExplanation = semanticDisclosure.visible
+ const semanticSquares = semanticDisclosure.squares
  const currentMixedSourceTheme = currentPuzzle
   ? currentPuzzle.canonicalThemeLabel ?? formatMixedThemeName(normaliseMixedThemeKey(currentPuzzle.canonicalThemeKey ?? currentPuzzle.sourceTheme ?? currentPuzzle.theme, "tactics"))
   : ""
@@ -2092,13 +2111,6 @@ function onSquareClick(square: string) {
 
  const customSquareStyles = {
  ...getMoveHighlightStyles(lastMoveHighlight),
- ...(semanticSquares.reduce<Record<string, CSSProperties>>((acc, square) => {
-  acc[square] = {
-   background: 'radial-gradient(circle, rgba(202,162,39,0.28) 34%, rgba(202,162,39,0.55) 35%, transparent 61%)',
-   boxShadow: 'inset 0 0 8px rgba(242,193,78,0.72)',
-  }
-  return acc
- }, {})),
  ...(replySquare
  ? {
  [replySquare]: {
@@ -2132,6 +2144,15 @@ function onSquareClick(square: string) {
  },
  }
  : {}),
+ // Verified semantic relationships remain visible above transient move UI
+ // until the learner explicitly changes puzzle.
+ ...(semanticSquares.reduce<Record<string, CSSProperties>>((acc, square) => {
+  acc[square] = {
+   background: 'radial-gradient(circle, rgba(202,162,39,0.28) 34%, rgba(202,162,39,0.55) 35%, transparent 61%)',
+   boxShadow: 'inset 0 0 8px rgba(242,193,78,0.72)',
+  }
+  return acc
+ }, {})),
  }
  const hintArrow =
  hintMoveUci && !boardLocked
@@ -2501,7 +2522,7 @@ function onSquareClick(square: string) {
  )}
 
  {showSemanticExplanation && (
- <div role="status" style={{ marginBottom: 10, padding: 10, borderRadius: 8, background: '#263b2a', color: '#d8f5d0', fontSize: 13, lineHeight: 1.45 }}>
+ <div role="status" aria-live="polite" style={{ marginBottom: 10, padding: '14px 16px', borderRadius: 8, background: '#263b2a', color: '#d8f5d0', fontSize: 15, lineHeight: 1.6, overflowWrap: 'anywhere' }}>
  {currentSemanticExplanation}
  </div>
  )}
@@ -2659,6 +2680,7 @@ function onSquareClick(square: string) {
   mixedPuzzleNeededHelpRef.current = true
   setBlindThemeRevealed(true)
  }
+ revealSemanticDisclosure()
  setHintMoveUci(stage === 'square' ? `${move.from}${move.to}` : null)
  setMessage(
  stage === 'piece'
