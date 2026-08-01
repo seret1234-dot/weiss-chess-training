@@ -1,0 +1,1640 @@
+{
+  "puzzles": [
+    {
+      "id": "pin-bishop-first-move-m1-xFFNN",
+      "puzzleId": "xFFNN",
+      "fen": "r1b1kbnr/pp1p1ppp/2q5/8/4P3/2Q5/PP3PPP/RNB1KB1R w KQkq - 3 9",
+      "preMove": "f1d3",
+      "solutionLine": [
+        "f8b4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1350,
+      "sourceThemeKeys": [
+        "pin-bishop",
+        "skewer-bishop",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Bishop Pin",
+        "Bishop Skewer",
+        "Deflection"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "long",
+        "opening",
+        "pin",
+        "skewer"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m3-xFFNN",
+        "originalPuzzleId": "xFFNN",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m3",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 2,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "long",
+        "opening",
+        "pin",
+        "skewer",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|r1b1kbnr/pp1p1ppp/2q5/8/4P3/2QB4/PP3PPP/RNB1K2R b KQkq -|f8b4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bb@b4",
+              "pinned": "wq@c3",
+              "target": "wk@e1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 0,
+        "sourceChunk": 2,
+        "sourceIndex": 25,
+        "sourceIdentity": "xFFNN",
+        "canonicalIdentity": "r1b1kbnr/pp1p1ppp/2q5/8/4P3/2QB4/PP3PPP/RNB1K2R b KQkq -|bishop-pin|f8b4|xFFNN",
+        "pedagogicalFamily": "bishop-pin|r1b1kbnr/pp1p1ppp/2q5/8/4P3/2QB4/PP3PPP/RNB1K2R b KQkq -|f8b4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-z6KGA",
+      "puzzleId": "z6KGA",
+      "fen": "q3k2r/5p2/p1p1pp2/1p2b3/7p/5PP1/PPQ4P/R1B2RK1 w k - 0 20",
+      "preMove": "f3f4",
+      "solutionLine": [
+        "e5d4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 2210,
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "discovered-attack",
+        "fork-bishop",
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Discovered Attack",
+        "Bishop Fork / Double Attack",
+        "Bishop Pin"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "discoveredAttack",
+        "fork",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "derivedFrom": {
+        "originalId": "fork-bishop-m4-z6KGA",
+        "originalPuzzleId": "z6KGA",
+        "originalTheme": "fork-bishop",
+        "originalLevel": "m4",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 8,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advancedPawn",
+        "advantage",
+        "discoveredAttack",
+        "fork",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|q3k2r/5p2/p1p1pp2/1p2b3/5P1p/6P1/PPQ4P/R1B2RK1 b k -|e5d4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bb@d4",
+              "pinned": "wp@b2",
+              "target": "wr@a1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 1,
+        "sourceChunk": 8,
+        "sourceIndex": 1,
+        "sourceIdentity": "z6KGA",
+        "canonicalIdentity": "q3k2r/5p2/p1p1pp2/1p2b3/5P1p/6P1/PPQ4P/R1B2RK1 b k -|bishop-pin|e5d4|z6KGA",
+        "pedagogicalFamily": "bishop-pin|q3k2r/5p2/p1p1pp2/1p2b3/5P1p/6P1/PPQ4P/R1B2RK1 b k -|e5d4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-s5PrO",
+      "puzzleId": "s5PrO",
+      "fen": "5rk1/pp4p1/7p/2prqpbR/6P1/3B1Q2/PPP5/1K3R2 b - - 0 23",
+      "preMove": "f8e8",
+      "solutionLine": [
+        "d3c4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1867,
+      "sourceThemeKeys": [
+        "pin-bishop",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "xRayAttack"
+      ],
+      "derivedFrom": {
+        "originalId": "xray-bishop-m4-s5PrO",
+        "originalPuzzleId": "s5PrO",
+        "originalTheme": "xray-bishop",
+        "originalLevel": "m4",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 5,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "xRayAttack",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|4r1k1/pp4p1/7p/2prqpbR/6P1/3B1Q2/PPP5/1K3R2 w - -|d3c4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@c4",
+              "pinned": "br@d5",
+              "target": "bk@g8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 2,
+        "sourceChunk": 5,
+        "sourceIndex": 11,
+        "sourceIdentity": "s5PrO",
+        "canonicalIdentity": "4r1k1/pp4p1/7p/2prqpbR/6P1/3B1Q2/PPP5/1K3R2 w - -|bishop-pin|d3c4|s5PrO",
+        "pedagogicalFamily": "bishop-pin|4r1k1/pp4p1/7p/2prqpbR/6P1/3B1Q2/PPP5/1K3R2 w - -|d3c4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-yJWin",
+      "puzzleId": "yJWin",
+      "fen": "r1b1r1k1/pp2qp1p/3p2p1/8/2P5/5B2/P2B1PPP/Q3R1K1 b - - 2 15",
+      "preMove": "c8e6",
+      "solutionLine": [
+        "d2h6"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 2216,
+      "sourceThemeKeys": [
+        "quiet-move",
+        "pin-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Bishop Pin",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "quietMove",
+        "sacrifice"
+      ],
+      "derivedFrom": {
+        "originalId": "sacrifice-bishop-m3-yJWin",
+        "originalPuzzleId": "yJWin",
+        "originalTheme": "sacrifice-bishop",
+        "originalLevel": "m3",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 8,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "quietMove",
+        "sacrifice",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|r3r1k1/pp2qp1p/3pb1p1/8/2P5/5B2/P2B1PPP/Q3R1K1 w - -|d2h6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@f3",
+              "pinned": "bp@b7",
+              "target": "br@a8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 3,
+        "sourceChunk": 8,
+        "sourceIndex": 7,
+        "sourceIdentity": "yJWin",
+        "canonicalIdentity": "r3r1k1/pp2qp1p/3pb1p1/8/2P5/5B2/P2B1PPP/Q3R1K1 w - -|bishop-pin|d2h6|yJWin",
+        "pedagogicalFamily": "bishop-pin|r3r1k1/pp2qp1p/3pb1p1/8/2P5/5B2/P2B1PPP/Q3R1K1 w - -|d2h6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-xvBUD",
+      "puzzleId": "xvBUD",
+      "fen": "8/2R1b3/4kp2/K5pp/1P6/7P/2P5/8 w - - 1 46",
+      "preMove": "b4b5",
+      "solutionLine": [
+        "e7d8"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1607,
+      "sourceThemeKeys": [
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "pin",
+        "veryLong"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m4-xvBUD",
+        "originalPuzzleId": "xvBUD",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m4",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 4,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "pin",
+        "veryLong",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|8/2R1b3/4kp2/KP4pp/8/7P/2P5/8 b - -|e7d8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bb@d8",
+              "pinned": "wr@c7",
+              "target": "wk@a5"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 4,
+        "sourceChunk": 4,
+        "sourceIndex": 17,
+        "sourceIdentity": "xvBUD",
+        "canonicalIdentity": "8/2R1b3/4kp2/KP4pp/8/7P/2P5/8 b - -|bishop-pin|e7d8|xvBUD",
+        "pedagogicalFamily": "bishop-pin|8/2R1b3/4kp2/KP4pp/8/7P/2P5/8 b - -|e7d8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-xyM3C",
+      "puzzleId": "xyM3C",
+      "fen": "rn2r1k1/pppq1ppp/5n2/3P1b2/1b2N2N/3P4/PPPBQPPP/R3KB1R w KQ - 1 10",
+      "preMove": "d2b4",
+      "solutionLine": [
+        "f5e4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 2065,
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Pin"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "long",
+        "opening",
+        "pin"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m3-xyM3C",
+        "originalPuzzleId": "xyM3C",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m3",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 7,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "long",
+        "opening",
+        "pin",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|rn2r1k1/pppq1ppp/5n2/3P1b2/1B2N2N/3P4/PPP1QPPP/R3KB1R b KQ -|f5e4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bb@e4",
+              "pinned": "wp@g2",
+              "target": "wr@h1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 25,
+        "sourceIdentity": "xyM3C",
+        "canonicalIdentity": "rn2r1k1/pppq1ppp/5n2/3P1b2/1B2N2N/3P4/PPP1QPPP/R3KB1R b KQ -|bishop-pin|f5e4|xyM3C",
+        "pedagogicalFamily": "bishop-pin|rn2r1k1/pppq1ppp/5n2/3P1b2/1B2N2N/3P4/PPP1QPPP/R3KB1R b KQ -|f5e4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-wlX0K",
+      "puzzleId": "wlX0K",
+      "fen": "r3kb1r/p2q1ppp/Q3b3/3n4/3p4/2P3B1/PP3PPP/R3KB1R b KQkq - 2 14",
+      "preMove": "d4c3",
+      "solutionLine": [
+        "f1b5"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 2257,
+      "sourceThemeKeys": [
+        "pin-bishop",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Bishop Pin",
+        "Clearance"
+      ],
+      "themes": [
+        "advantage",
+        "clearance",
+        "long",
+        "opening",
+        "pin"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m3-wlX0K",
+        "originalPuzzleId": "wlX0K",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m3",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 8,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "clearance",
+        "long",
+        "opening",
+        "pin",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|r3kb1r/p2q1ppp/Q3b3/3n4/8/2p3B1/PP3PPP/R3KB1R w KQkq -|f1b5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@b5",
+              "pinned": "bq@d7",
+              "target": "bk@e8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 6,
+        "sourceChunk": 8,
+        "sourceIndex": 2,
+        "sourceIdentity": "wlX0K",
+        "canonicalIdentity": "r3kb1r/p2q1ppp/Q3b3/3n4/8/2p3B1/PP3PPP/R3KB1R w KQkq -|bishop-pin|f1b5|wlX0K",
+        "pedagogicalFamily": "bishop-pin|r3kb1r/p2q1ppp/Q3b3/3n4/8/2p3B1/PP3PPP/R3KB1R w KQkq -|f1b5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-zr9a1",
+      "puzzleId": "zr9a1",
+      "fen": "2r1k2r/1bqnbpp1/p2p4/4p1B1/1p2n2P/1N3PN1/PPPQ4/2KR1B1R w k - 0 18",
+      "preMove": "g3e4",
+      "solutionLine": [
+        "b7e4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1857,
+      "sourceThemeKeys": [
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m4-zr9a1",
+        "originalPuzzleId": "zr9a1",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m4",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 5,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|2r1k2r/1bqnbpp1/p2p4/4p1B1/1p2N2P/1N3P2/PPPQ4/2KR1B1R b k -|b7e4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bb@e4",
+              "pinned": "wp@f3",
+              "target": "wr@h1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 0,
+        "sourceIdentity": "zr9a1",
+        "canonicalIdentity": "2r1k2r/1bqnbpp1/p2p4/4p1B1/1p2N2P/1N3P2/PPPQ4/2KR1B1R b k -|bishop-pin|b7e4|zr9a1",
+        "pedagogicalFamily": "bishop-pin|2r1k2r/1bqnbpp1/p2p4/4p1B1/1p2N2P/1N3P2/PPPQ4/2KR1B1R b k -|b7e4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-xxSef",
+      "puzzleId": "xxSef",
+      "fen": "4r3/1p4k1/5b2/p1p3p1/2P5/1P1p2P1/P1PBrRPP/3R2K1 w - - 0 30",
+      "preMove": "c2d3",
+      "solutionLine": [
+        "f6d4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1816,
+      "sourceThemeKeys": [
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m3-xxSef",
+        "originalPuzzleId": "xxSef",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m3",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 5,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|4r3/1p4k1/5b2/p1p3p1/2P5/1P1P2P1/P2BrRPP/3R2K1 b - -|f6d4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bb@d4",
+              "pinned": "wr@f2",
+              "target": "wk@g1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 8,
+        "sourceChunk": 5,
+        "sourceIndex": 13,
+        "sourceIdentity": "xxSef",
+        "canonicalIdentity": "4r3/1p4k1/5b2/p1p3p1/2P5/1P1P2P1/P2BrRPP/3R2K1 b - -|bishop-pin|f6d4|xxSef",
+        "pedagogicalFamily": "bishop-pin|4r3/1p4k1/5b2/p1p3p1/2P5/1P1P2P1/P2BrRPP/3R2K1 b - -|f6d4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-rwMpU",
+      "puzzleId": "rwMpU",
+      "fen": "r1b1k1nr/p2p1p1p/1p1N1qp1/2PP2n1/2P5/1P1Q4/P3BPPP/b1B1K2R b Kkq - 1 15",
+      "preMove": "e8d8",
+      "solutionLine": [
+        "c1g5"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1328,
+      "sourceThemeKeys": [
+        "remove-the-defender",
+        "fork-bishop",
+        "pin-bishop",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Remove the Defender",
+        "Bishop Fork / Double Attack",
+        "Bishop Pin",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "capturingDefender",
+        "crushing",
+        "fork",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m3-rwMpU",
+        "originalPuzzleId": "rwMpU",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m3",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 2,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "attraction",
+        "capturingDefender",
+        "crushing",
+        "fork",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|r1bk2nr/p2p1p1p/1p1N1qp1/2PP2n1/2P5/1P1Q4/P3BPPP/b1B1K2R w K -|c1g5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@g5",
+              "pinned": "bq@f6",
+              "target": "bk@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 9,
+        "sourceChunk": 2,
+        "sourceIndex": 29,
+        "sourceIdentity": "rwMpU",
+        "canonicalIdentity": "r1bk2nr/p2p1p1p/1p1N1qp1/2PP2n1/2P5/1P1Q4/P3BPPP/b1B1K2R w K -|bishop-pin|c1g5|rwMpU",
+        "pedagogicalFamily": "bishop-pin|r1bk2nr/p2p1p1p/1p1N1qp1/2PP2n1/2P5/1P1Q4/P3BPPP/b1B1K2R w K -|c1g5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-pgTPl",
+      "puzzleId": "pgTPl",
+      "fen": "6k1/pp2Rr2/5p1p/n7/4R1P1/r2B3P/2P2P2/6K1 b - - 0 25",
+      "preMove": "a5c6",
+      "solutionLine": [
+        "d3c4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 2033,
+      "sourceThemeKeys": [
+        "pin-bishop",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "pin",
+        "sacrifice",
+        "short"
+      ],
+      "derivedFrom": {
+        "originalId": "sacrifice-bishop-m2-pgTPl",
+        "originalPuzzleId": "pgTPl",
+        "originalTheme": "sacrifice-bishop",
+        "originalLevel": "m2",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 6,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "pin",
+        "sacrifice",
+        "short",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|6k1/pp2Rr2/2n2p1p/8/4R1P1/r2B3P/2P2P2/6K1 w - -|d3c4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@c4",
+              "pinned": "br@f7",
+              "target": "bk@g8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 10,
+        "sourceChunk": 6,
+        "sourceIndex": 5,
+        "sourceIdentity": "pgTPl",
+        "canonicalIdentity": "6k1/pp2Rr2/2n2p1p/8/4R1P1/r2B3P/2P2P2/6K1 w - -|bishop-pin|d3c4|pgTPl",
+        "pedagogicalFamily": "bishop-pin|6k1/pp2Rr2/2n2p1p/8/4R1P1/r2B3P/2P2P2/6K1 w - -|d3c4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-xvhRR",
+      "puzzleId": "xvhRR",
+      "fen": "r3k2r/pppq1ppp/3p1b2/3P4/3p4/P2P3P/1PP1BPP1/R2QK2R b KQkq - 0 12",
+      "preMove": "e8c8",
+      "solutionLine": [
+        "e2g4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 813,
+      "sourceThemeKeys": [
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin"
+      ],
+      "themes": [
+        "crushing",
+        "middlegame",
+        "pin",
+        "short"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m2-xvhRR",
+        "originalPuzzleId": "xvhRR",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m2",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 1,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "crushing",
+        "middlegame",
+        "pin",
+        "short",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|2kr3r/pppq1ppp/3p1b2/3P4/3p4/P2P3P/1PP1BPP1/R2QK2R w KQ -|e2g4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@g4",
+              "pinned": "bq@d7",
+              "target": "bk@c8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 11,
+        "sourceChunk": 1,
+        "sourceIndex": 15,
+        "sourceIdentity": "xvhRR",
+        "canonicalIdentity": "2kr3r/pppq1ppp/3p1b2/3P4/3p4/P2P3P/1PP1BPP1/R2QK2R w KQ -|bishop-pin|e2g4|xvhRR",
+        "pedagogicalFamily": "bishop-pin|2kr3r/pppq1ppp/3p1b2/3P4/3p4/P2P3P/1PP1BPP1/R2QK2R w KQ -|e2g4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-WSGI8",
+      "puzzleId": "WSGI8",
+      "fen": "2kr4/pp2nN2/4r3/3p3p/5P2/1P6/P5BP/3R1K2 b - - 1 28",
+      "preMove": "d8f8",
+      "solutionLine": [
+        "g2h3"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 2656,
+      "sourceThemeKeys": [
+        "attacking-f2-f7",
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Attacking f2/f7",
+        "Bishop Pin"
+      ],
+      "themes": [
+        "attackingF2F7",
+        "crushing",
+        "endgame",
+        "pin",
+        "veryLong"
+      ],
+      "derivedFrom": {
+        "originalId": "attacking-f2-f7-m4-WSGI8",
+        "originalPuzzleId": "WSGI8",
+        "originalTheme": "attacking-f2-f7",
+        "originalLevel": "m4",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 10,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "attackingF2F7",
+        "crushing",
+        "endgame",
+        "pin",
+        "veryLong",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|2k2r2/pp2nN2/4r3/3p3p/5P2/1P6/P5BP/3R1K2 w - -|g2h3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@h3",
+              "pinned": "br@e6",
+              "target": "bk@c8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 12,
+        "sourceChunk": 10,
+        "sourceIndex": 21,
+        "sourceIdentity": "WSGI8",
+        "canonicalIdentity": "2k2r2/pp2nN2/4r3/3p3p/5P2/1P6/P5BP/3R1K2 w - -|bishop-pin|g2h3|WSGI8",
+        "pedagogicalFamily": "bishop-pin|2k2r2/pp2nN2/4r3/3p3p/5P2/1P6/P5BP/3R1K2 w - -|g2h3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-yjLqg",
+      "puzzleId": "yjLqg",
+      "fen": "r5k1/ppp1r2p/3p2p1/3q1p2/7Q/3B1N2/PPK5/5R2 b - - 1 33",
+      "preMove": "a8e8",
+      "solutionLine": [
+        "d3c4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1743,
+      "sourceThemeKeys": [
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin"
+      ],
+      "themes": [
+        "crushing",
+        "middlegame",
+        "pin",
+        "short"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m2-yjLqg",
+        "originalPuzzleId": "yjLqg",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m2",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 4,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "crushing",
+        "middlegame",
+        "pin",
+        "short",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|4r1k1/ppp1r2p/3p2p1/3q1p2/7Q/3B1N2/PPK5/5R2 w - -|d3c4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@c4",
+              "pinned": "bq@d5",
+              "target": "bk@g8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 13,
+        "sourceChunk": 4,
+        "sourceIndex": 18,
+        "sourceIdentity": "yjLqg",
+        "canonicalIdentity": "4r1k1/ppp1r2p/3p2p1/3q1p2/7Q/3B1N2/PPK5/5R2 w - -|bishop-pin|d3c4|yjLqg",
+        "pedagogicalFamily": "bishop-pin|4r1k1/ppp1r2p/3p2p1/3q1p2/7Q/3B1N2/PPK5/5R2 w - -|d3c4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-htN6F",
+      "puzzleId": "htN6F",
+      "fen": "4r1k1/5rpp/p3bq2/2pB4/3p1P2/1P6/P1P3QP/4R1RK b - - 4 31",
+      "preMove": "e8e7",
+      "solutionLine": [
+        "d5e6"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 2507,
+      "sourceThemeKeys": [
+        "kingside-attack",
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Kingside Attack",
+        "Bishop Pin"
+      ],
+      "themes": [
+        "crushing",
+        "kingsideAttack",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m4-htN6F",
+        "originalPuzzleId": "htN6F",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m4",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 9,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "crushing",
+        "kingsideAttack",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|6k1/4rrpp/p3bq2/2pB4/3p1P2/1P6/P1P3QP/4R1RK w - -|d5e6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@e6",
+              "pinned": "br@f7",
+              "target": "bk@g8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 14,
+        "sourceChunk": 9,
+        "sourceIndex": 19,
+        "sourceIdentity": "htN6F",
+        "canonicalIdentity": "6k1/4rrpp/p3bq2/2pB4/3p1P2/1P6/P1P3QP/4R1RK w - -|bishop-pin|d5e6|htN6F",
+        "pedagogicalFamily": "bishop-pin|6k1/4rrpp/p3bq2/2pB4/3p1P2/1P6/P1P3QP/4R1RK w - -|d5e6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-ziowb",
+      "puzzleId": "ziowb",
+      "fen": "r2qkb1r/pp3ppp/n2p4/2pP4/Q2pbP2/5N2/PP4PP/R1B1KB1R b KQkq - 1 11",
+      "preMove": "d8d7",
+      "solutionLine": [
+        "f1b5"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1360,
+      "sourceThemeKeys": [
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin"
+      ],
+      "themes": [
+        "advantage",
+        "opening",
+        "pin",
+        "short"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m2-ziowb",
+        "originalPuzzleId": "ziowb",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m2",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 2,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "opening",
+        "pin",
+        "short",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|r3kb1r/pp1q1ppp/n2p4/2pP4/Q2pbP2/5N2/PP4PP/R1B1KB1R w KQkq -|f1b5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@b5",
+              "pinned": "bq@d7",
+              "target": "bk@e8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 15,
+        "sourceChunk": 2,
+        "sourceIndex": 4,
+        "sourceIdentity": "ziowb",
+        "canonicalIdentity": "r3kb1r/pp1q1ppp/n2p4/2pP4/Q2pbP2/5N2/PP4PP/R1B1KB1R w KQkq -|bishop-pin|f1b5|ziowb",
+        "pedagogicalFamily": "bishop-pin|r3kb1r/pp1q1ppp/n2p4/2pP4/Q2pbP2/5N2/PP4PP/R1B1KB1R w KQkq -|f1b5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-m1-DUWzr",
+      "puzzleId": "DUWzr",
+      "fen": "8/b4k2/3p1p1p/p1p1pP1q/2P1P1bB/1B1P2Q1/5KP1/8 b - - 0 39",
+      "preMove": "f7g7",
+      "solutionLine": [
+        "b3d1"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1518,
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "sourceThemeKeys": [
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "oneMove",
+        "pin"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "oneMove",
+        "pin",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|8/b5k1/3p1p1p/p1p1pP1q/2P1P1bB/1B1P2Q1/5KP1/8 w - -|b3d1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@d1",
+              "pinned": "bb@g4",
+              "target": "bq@h5"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 16,
+        "sourceChunk": 3,
+        "sourceIndex": 25,
+        "sourceIdentity": "DUWzr",
+        "canonicalIdentity": "8/b5k1/3p1p1p/p1p1pP1q/2P1P1bB/1B1P2Q1/5KP1/8 w - -|bishop-pin|b3d1|DUWzr",
+        "pedagogicalFamily": "bishop-pin|8/b5k1/3p1p1p/p1p1pP1q/2P1P1bB/1B1P2Q1/5KP1/8 w - -|b3d1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-e4yjQ",
+      "puzzleId": "e4yjQ",
+      "fen": "2k3r1/5p1r/p1b2q2/2Q5/5BPb/2NP2N1/PPP2KP1/R4R2 w - - 2 31",
+      "preMove": "c5e5",
+      "solutionLine": [
+        "h4g3"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 2199,
+      "sourceThemeKeys": [
+        "pin-bishop",
+        "xray-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin",
+        "Bishop X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "xRayAttack"
+      ],
+      "derivedFrom": {
+        "originalId": "xray-bishop-m3-e4yjQ",
+        "originalPuzzleId": "e4yjQ",
+        "originalTheme": "xray-bishop",
+        "originalLevel": "m3",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 8,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "xRayAttack",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|2k3r1/5p1r/p1b2q2/4Q3/5BPb/2NP2N1/PPP2KP1/R4R2 b - -|h4g3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bb@g3",
+              "pinned": "wb@f4",
+              "target": "wq@e5"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 17,
+        "sourceChunk": 8,
+        "sourceIndex": 25,
+        "sourceIdentity": "e4yjQ",
+        "canonicalIdentity": "2k3r1/5p1r/p1b2q2/4Q3/5BPb/2NP2N1/PPP2KP1/R4R2 b - -|bishop-pin|h4g3|e4yjQ",
+        "pedagogicalFamily": "bishop-pin|2k3r1/5p1r/p1b2q2/4Q3/5BPb/2NP2N1/PPP2KP1/R4R2 b - -|h4g3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-w7HnJ",
+      "puzzleId": "w7HnJ",
+      "fen": "8/p6K/1k6/2N5/8/2P5/bP6/8 w - - 1 67",
+      "preMove": "c5d3",
+      "solutionLine": [
+        "a2b1"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1141,
+      "sourceThemeKeys": [
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "master",
+        "pin",
+        "short"
+      ],
+      "derivedFrom": {
+        "originalId": "pin-bishop-m2-w7HnJ",
+        "originalPuzzleId": "w7HnJ",
+        "originalTheme": "pin-bishop",
+        "originalLevel": "m2",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 1,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "master",
+        "pin",
+        "short",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|8/p6K/1k6/8/8/2PN4/bP6/8 b - -|a2b1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bb@b1",
+              "pinned": "wn@d3",
+              "target": "wk@h7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 18,
+        "sourceChunk": 1,
+        "sourceIndex": 28,
+        "sourceIdentity": "w7HnJ",
+        "canonicalIdentity": "8/p6K/1k6/8/8/2PN4/bP6/8 b - -|bishop-pin|a2b1|w7HnJ",
+        "pedagogicalFamily": "bishop-pin|8/p6K/1k6/8/8/2PN4/bP6/8 b - -|a2b1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-bishop-first-move-m1-z4HLb",
+      "puzzleId": "z4HLb",
+      "fen": "r3k2r/pppq2pp/2n2n2/1Bbp4/3Pp3/8/PPP3PP/RNBQ1R1K b kq d3 0 12",
+      "preMove": "c5d4",
+      "solutionLine": [
+        "b5c6"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "tacticDistance": 1,
+      "rating": 1296,
+      "sourceThemeKeys": [
+        "remove-the-defender",
+        "zwischenzug",
+        "pin-bishop"
+      ],
+      "sourceThemes": [
+        "Remove the Defender",
+        "Zwischenzug / Intermezzo",
+        "Bishop Pin"
+      ],
+      "themes": [
+        "advantage",
+        "capturingDefender",
+        "intermezzo",
+        "middlegame",
+        "pin",
+        "short"
+      ],
+      "derivedFrom": {
+        "originalId": "zwischenzug-m2-z4HLb",
+        "originalPuzzleId": "z4HLb",
+        "originalTheme": "zwischenzug",
+        "originalLevel": "m2",
+        "firstMoveOnly": true
+      },
+      "label": "Bishop Pin - Tactic in 1",
+      "theme": "pin-bishop",
+      "chunkNumber": 2,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "bishop-pin",
+      "canonicalThemeLabel": "Bishop Pin",
+      "rawTags": [
+        "advantage",
+        "capturingDefender",
+        "intermezzo",
+        "middlegame",
+        "pin",
+        "short",
+        "pin-bishop",
+        "undefined",
+        "Bishop Pin - Tactic in 1"
+      ],
+      "pedagogicalFamily": "bishop-pin|r3k2r/pppq2pp/2n2n2/1B1p4/3bp3/8/PPP3PP/RNBQ1R1K w kq -|b5c6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wb@c6",
+              "pinned": "bq@d7",
+              "target": "bk@e8"
+            },
+            {
+              "attacker": "wb@c6",
+              "pinned": "bp@b7",
+              "target": "br@a8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m1-semantic-v2",
+        "tacticDistance": 1,
+        "learnerChunk": 2,
+        "orderInChunk": 19,
+        "sourceChunk": 2,
+        "sourceIndex": 28,
+        "sourceIdentity": "z4HLb",
+        "canonicalIdentity": "r3k2r/pppq2pp/2n2n2/1B1p4/3bp3/8/PPP3PP/RNBQ1R1K w kq -|bishop-pin|b5c6|z4HLb",
+        "pedagogicalFamily": "bishop-pin|r3k2r/pppq2pp/2n2n2/1B1p4/3bp3/8/PPP3PP/RNBQ1R1K w kq -|b5c6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    }
+  ]
+}

@@ -1,0 +1,1717 @@
+{
+  "puzzles": [
+    {
+      "id": "fork-rook-m4-xBqQV",
+      "puzzleId": "xBqQV",
+      "fen": "1n4k1/p2p2q1/1p3n2/2rr2NQ/2p2P1R/P1P5/6PP/4R1K1 b - - 1 31",
+      "preMove": "d5g5",
+      "solutionLine": [
+        "e1e8",
+        "f6e8",
+        "h5e8",
+        "g7f8",
+        "h4h8",
+        "g8h8",
+        "e8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1889,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "pin-rook",
+        "decoy-deflection-combined",
+        "vulnerable-king",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Pin",
+        "Decoy + Deflection",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "deflection",
+        "exposedKing",
+        "fork",
+        "master",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "deflection",
+        "exposedKing",
+        "fork",
+        "master",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|1n4k1/p2p2q1/1p3n2/2r3rQ/2p2P1R/P1P5/6PP/4R1K1 w - -|e1e8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@e8",
+          "targets": [
+            "bk@g8",
+            "bn@b8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 0,
+        "sourceChunk": 5,
+        "sourceIndex": 20,
+        "sourceIdentity": "xBqQV",
+        "canonicalIdentity": "1n4k1/p2p2q1/1p3n2/2r3rQ/2p2P1R/P1P5/6PP/4R1K1 w - -|rook-fork|e1e8,f6e8,h5e8,g7f8,h4h8,g8h8,e8f8|xBqQV",
+        "pedagogicalFamily": "rook-fork|1n4k1/p2p2q1/1p3n2/2r3rQ/2p2P1R/P1P5/6PP/4R1K1 w - -|e1e8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-ufCsG",
+      "puzzleId": "ufCsG",
+      "fen": "5r1k/p2n1rp1/1pp5/7q/8/6Q1/PPP2BP1/4RRK1 w - - 0 36",
+      "preMove": "f2d4",
+      "solutionLine": [
+        "f7f1",
+        "e1f1",
+        "f8f1",
+        "g1f1",
+        "h5d1",
+        "g3e1",
+        "d1d4",
+        "e1e8",
+        "h8h7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1472,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|5r1k/p2n1rp1/1pp5/7q/3B4/6Q1/PPP3P1/4RRK1 b - -|f7f1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@f1",
+          "targets": [
+            "wk@g1",
+            "wr@e1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 1,
+        "sourceChunk": 2,
+        "sourceIndex": 4,
+        "sourceIdentity": "ufCsG",
+        "canonicalIdentity": "5r1k/p2n1rp1/1pp5/7q/3B4/6Q1/PPP3P1/4RRK1 b - -|rook-fork|f7f1,e1f1,f8f1,g1f1,h5d1,g3e1,d1d4,e1e8,h8h7|ufCsG",
+        "pedagogicalFamily": "rook-fork|5r1k/p2n1rp1/1pp5/7q/3B4/6Q1/PPP3P1/4RRK1 b - -|f7f1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-vuVma",
+      "puzzleId": "vuVma",
+      "fen": "rn2n1k1/p3prqp/2p1b1p1/1p4P1/2p1P2Q/2N4B/PP3P2/3RK1NR b K - 5 18",
+      "preMove": "e8c7",
+      "solutionLine": [
+        "d1d8",
+        "f7f8",
+        "d8f8",
+        "g8f8",
+        "h4f4",
+        "e6f7",
+        "f4c7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2106,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|rn4k1/p1n1prqp/2p1b1p1/1p4P1/2p1P2Q/2N4B/PP3P2/3RK1NR w K -|d1d8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@d8",
+          "targets": [
+            "bk@g8",
+            "bn@b8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 2,
+        "sourceChunk": 6,
+        "sourceIndex": 22,
+        "sourceIdentity": "vuVma",
+        "canonicalIdentity": "rn4k1/p1n1prqp/2p1b1p1/1p4P1/2p1P2Q/2N4B/PP3P2/3RK1NR w K -|rook-fork|d1d8,f7f8,d8f8,g8f8,h4f4,e6f7,f4c7|vuVma",
+        "pedagogicalFamily": "rook-fork|rn4k1/p1n1prqp/2p1b1p1/1p4P1/2p1P2Q/2N4B/PP3P2/3RK1NR w K -|d1d8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-xjfHN",
+      "puzzleId": "xjfHN",
+      "fen": "r1bq2k1/1pp3r1/2n4Q/p3p3/B1Pp4/B1n5/P5PP/3R1RK1 b - - 0 23",
+      "preMove": "c3a4",
+      "solutionLine": [
+        "f1f8",
+        "d8f8",
+        "a3f8",
+        "g8f8",
+        "h6h8",
+        "f8f7",
+        "d1f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1980,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|r1bq2k1/1pp3r1/2n4Q/p3p3/n1Pp4/B7/P5PP/3R1RK1 w - -|f1f8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@f8",
+          "targets": [
+            "bk@g8",
+            "bq@d8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 3,
+        "sourceChunk": 5,
+        "sourceIndex": 11,
+        "sourceIdentity": "xjfHN",
+        "canonicalIdentity": "r1bq2k1/1pp3r1/2n4Q/p3p3/n1Pp4/B7/P5PP/3R1RK1 w - -|rook-fork|f1f8,d8f8,a3f8,g8f8,h6h8,f8f7,d1f1|xjfHN",
+        "pedagogicalFamily": "rook-fork|r1bq2k1/1pp3r1/2n4Q/p3p3/n1Pp4/B7/P5PP/3R1RK1 w - -|f1f8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-zix6b",
+      "puzzleId": "zix6b",
+      "fen": "5b2/2R3k1/p3P1pp/1p6/1P4BP/6P1/r4PK1/4r3 b - - 4 46",
+      "preMove": "g7f6",
+      "solutionLine": [
+        "c7f7",
+        "f6e5",
+        "e6e7",
+        "f8e7",
+        "f7e7",
+        "e5f6",
+        "e7e1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2148,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-rook",
+        "skewer-rook",
+        "trapped-piece"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Rook Fork / Double Attack",
+        "Rook Skewer",
+        "Trapped Piece"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "fork",
+        "skewer",
+        "trappedPiece",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "fork",
+        "skewer",
+        "trappedPiece",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|5b2/2R5/p3Pkpp/1p6/1P4BP/6P1/r4PK1/4r3 w - -|c7f7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@f7",
+          "targets": [
+            "bb@f8",
+            "bk@f6"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 4,
+        "sourceChunk": 7,
+        "sourceIndex": 27,
+        "sourceIdentity": "zix6b",
+        "canonicalIdentity": "5b2/2R5/p3Pkpp/1p6/1P4BP/6P1/r4PK1/4r3 w - -|rook-fork|c7f7,f6e5,e6e7,f8e7,f7e7,e5f6,e7e1|zix6b",
+        "pedagogicalFamily": "rook-fork|5b2/2R5/p3Pkpp/1p6/1P4BP/6P1/r4PK1/4r3 w - -|c7f7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-z5kuf",
+      "puzzleId": "z5kuf",
+      "fen": "7k/p1p1b1p1/3q2r1/1p1B2rp/2P5/1P1Q3P/P2P1PP1/R1B2RK1 w - - 1 25",
+      "preMove": "g2g3",
+      "solutionLine": [
+        "g5g3",
+        "f2g3",
+        "g6g3",
+        "d3g3",
+        "d6g3",
+        "d5g2",
+        "e7c5",
+        "g1h1",
+        "c5d6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1950,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "defense",
+        "fork-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "defensiveMove",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "defensiveMove",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|7k/p1p1b1p1/3q2r1/1p1B2rp/2P5/1P1Q2PP/P2P1P2/R1B2RK1 b - -|g5g3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@g3",
+          "targets": [
+            "wq@d3",
+            "wk@g1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 5,
+        "sourceChunk": 5,
+        "sourceIndex": 8,
+        "sourceIdentity": "z5kuf",
+        "canonicalIdentity": "7k/p1p1b1p1/3q2r1/1p1B2rp/2P5/1P1Q2PP/P2P1P2/R1B2RK1 b - -|rook-fork|g5g3,f2g3,g6g3,d3g3,d6g3,d5g2,e7c5,g1h1,c5d6|z5kuf",
+        "pedagogicalFamily": "rook-fork|7k/p1p1b1p1/3q2r1/1p1B2rp/2P5/1P1Q2PP/P2P1P2/R1B2RK1 b - -|g5g3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-vGBnF",
+      "puzzleId": "vGBnF",
+      "fen": "3r1rk1/p3npp1/2Q4p/B1N2b2/8/6P1/Pq2PP1P/R2R2K1 w - - 3 25",
+      "preMove": "c6f3",
+      "solutionLine": [
+        "d8d1",
+        "a1d1",
+        "b2c2",
+        "e2e4",
+        "c2c5",
+        "e4f5",
+        "c5a5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1726,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|3r1rk1/p3npp1/7p/B1N2b2/8/5QP1/Pq2PP1P/R2R2K1 b - -|d8d1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@d1",
+          "targets": [
+            "wk@g1",
+            "wr@a1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 6,
+        "sourceChunk": 4,
+        "sourceIndex": 25,
+        "sourceIdentity": "vGBnF",
+        "canonicalIdentity": "3r1rk1/p3npp1/7p/B1N2b2/8/5QP1/Pq2PP1P/R2R2K1 b - -|rook-fork|d8d1,a1d1,b2c2,e2e4,c2c5,e4f5,c5a5|vGBnF",
+        "pedagogicalFamily": "rook-fork|3r1rk1/p3npp1/7p/B1N2b2/8/5QP1/Pq2PP1P/R2R2K1 b - -|d8d1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-torvi",
+      "puzzleId": "torvi",
+      "fen": "1r4k1/p3qppp/2p1b3/2p1Q3/8/Pr2PN2/1P1R1PPP/3R2K1 b - - 9 20",
+      "preMove": "f7f6",
+      "solutionLine": [
+        "d2d8",
+        "b8d8",
+        "d1d8",
+        "e7d8",
+        "e5e6",
+        "g8f8",
+        "e6b3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1843,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "master",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "master",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|1r4k1/p3q1pp/2p1bp2/2p1Q3/8/Pr2PN2/1P1R1PPP/3R2K1 w - -|d2d8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@d8",
+          "targets": [
+            "bk@g8",
+            "br@b8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 7,
+        "sourceChunk": 4,
+        "sourceIndex": 14,
+        "sourceIdentity": "torvi",
+        "canonicalIdentity": "1r4k1/p3q1pp/2p1bp2/2p1Q3/8/Pr2PN2/1P1R1PPP/3R2K1 w - -|rook-fork|d2d8,b8d8,d1d8,e7d8,e5e6,g8f8,e6b3|torvi",
+        "pedagogicalFamily": "rook-fork|1r4k1/p3q1pp/2p1bp2/2p1Q3/8/Pr2PN2/1P1R1PPP/3R2K1 w - -|d2d8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-tvvqM",
+      "puzzleId": "tvvqM",
+      "fen": "2r3k1/2r2pp1/pq2p1p1/1p1p2P1/3P1PP1/b1PQ4/2RN1KB1/1R6 w - - 4 32",
+      "preMove": "d3h3",
+      "solutionLine": [
+        "c7c3",
+        "c2c3",
+        "b6d4",
+        "h3e3",
+        "d4c3",
+        "e3c3",
+        "c8c3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1860,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "remove-the-defender",
+        "vulnerable-king",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Remove the Defender",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "capturingDefender",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "capturingDefender",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|2r3k1/2r2pp1/pq2p1p1/1p1p2P1/3P1PP1/b1P4Q/2RN1KB1/1R6 b - -|c7c3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@c3",
+          "targets": [
+            "wq@h3",
+            "wr@c2"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 8,
+        "sourceChunk": 4,
+        "sourceIndex": 7,
+        "sourceIdentity": "tvvqM",
+        "canonicalIdentity": "2r3k1/2r2pp1/pq2p1p1/1p1p2P1/3P1PP1/b1P4Q/2RN1KB1/1R6 b - -|rook-fork|c7c3,c2c3,b6d4,h3e3,d4c3,e3c3,c8c3|tvvqM",
+        "pedagogicalFamily": "rook-fork|2r3k1/2r2pp1/pq2p1p1/1p1p2P1/3P1PP1/b1P4Q/2RN1KB1/1R6 b - -|c7c3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-z8LQK",
+      "puzzleId": "z8LQK",
+      "fen": "R7/2p2p1k/1p4pp/1PbP4/3n1P2/2Q3KP/4r1P1/8 w - - 0 42",
+      "preMove": "h3h4",
+      "solutionLine": [
+        "e2e3",
+        "c3e3",
+        "d4f5",
+        "g3f3",
+        "f5e3",
+        "d5d6",
+        "c7d6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2072,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|R7/2p2p1k/1p4pp/1PbP4/3n1P1P/2Q3K1/4r1P1/8 b - -|e2e3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@e3",
+          "targets": [
+            "wk@g3",
+            "wq@c3"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 9,
+        "sourceChunk": 6,
+        "sourceIndex": 10,
+        "sourceIdentity": "z8LQK",
+        "canonicalIdentity": "R7/2p2p1k/1p4pp/1PbP4/3n1P1P/2Q3K1/4r1P1/8 b - -|rook-fork|e2e3,c3e3,d4f5,g3f3,f5e3,d5d6,c7d6|z8LQK",
+        "pedagogicalFamily": "rook-fork|R7/2p2p1k/1p4pp/1PbP4/3n1P1P/2Q3K1/4r1P1/8 b - -|e2e3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-yaKlC",
+      "puzzleId": "yaKlC",
+      "fen": "6k1/1b3rp1/4Q2p/1p1pP2P/2qB1r2/p1P5/N1Pn4/K5RR b - - 2 33",
+      "preMove": "f4d4",
+      "solutionLine": [
+        "g1g7",
+        "g8g7",
+        "h1g1",
+        "d4g4",
+        "g1g4",
+        "c4g4",
+        "e6g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1722,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "pin-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Pin",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|6k1/1b3rp1/4Q2p/1p1pP2P/2qr4/p1P5/N1Pn4/K5RR w - -|g1g7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@g7",
+          "targets": [
+            "br@f7",
+            "bk@g8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 10,
+        "sourceChunk": 4,
+        "sourceIndex": 19,
+        "sourceIdentity": "yaKlC",
+        "canonicalIdentity": "6k1/1b3rp1/4Q2p/1p1pP2P/2qr4/p1P5/N1Pn4/K5RR w - -|rook-fork|g1g7,g8g7,h1g1,d4g4,g1g4,c4g4,e6g4|yaKlC",
+        "pedagogicalFamily": "rook-fork|6k1/1b3rp1/4Q2p/1p1pP2P/2qr4/p1P5/N1Pn4/K5RR w - -|g1g7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-xKnRk",
+      "puzzleId": "xKnRk",
+      "fen": "r5k1/qR3pp1/4p2p/3p4/2p2P2/6P1/r4bBP/1Q3R1K b - - 1 27",
+      "preMove": "a7d4",
+      "solutionLine": [
+        "b7b8",
+        "a8b8",
+        "b1b8",
+        "g8h7",
+        "b8b1",
+        "f7f5",
+        "b1a2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1419,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|r5k1/1R3pp1/4p2p/3p4/2pq1P2/6P1/r4bBP/1Q3R1K w - -|b7b8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@b8",
+          "targets": [
+            "bk@g8",
+            "br@a8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 11,
+        "sourceChunk": 2,
+        "sourceIndex": 18,
+        "sourceIdentity": "xKnRk",
+        "canonicalIdentity": "r5k1/1R3pp1/4p2p/3p4/2pq1P2/6P1/r4bBP/1Q3R1K w - -|rook-fork|b7b8,a8b8,b1b8,g8h7,b8b1,f7f5,b1a2|xKnRk",
+        "pedagogicalFamily": "rook-fork|r5k1/1R3pp1/4p2p/3p4/2pq1P2/6P1/r4bBP/1Q3R1K w - -|b7b8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-zUGTp",
+      "puzzleId": "zUGTp",
+      "fen": "rn1R4/1q1b3p/1p1k3p/pQ1p4/P7/2Pp4/5PPP/4R1K1 b - - 3 26",
+      "preMove": "b8a6",
+      "solutionLine": [
+        "d8d7",
+        "b7d7",
+        "b5b6",
+        "d7c6",
+        "e1e6",
+        "d6e6",
+        "b6c6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1707,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "pin-rook",
+        "decoy-deflection-combined"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Pin",
+        "Decoy + Deflection"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|r2R4/1q1b3p/np1k3p/pQ1p4/P7/2Pp4/5PPP/4R1K1 w - -|d8d7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@d7",
+          "targets": [
+            "bq@b7",
+            "bk@d6"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 12,
+        "sourceChunk": 3,
+        "sourceIndex": 24,
+        "sourceIdentity": "zUGTp",
+        "canonicalIdentity": "r2R4/1q1b3p/np1k3p/pQ1p4/P7/2Pp4/5PPP/4R1K1 w - -|rook-fork|d8d7,b7d7,b5b6,d7c6,e1e6,d6e6,b6c6|zUGTp",
+        "pedagogicalFamily": "rook-fork|r2R4/1q1b3p/np1k3p/pQ1p4/P7/2Pp4/5PPP/4R1K1 w - -|d8d7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-vQvxI",
+      "puzzleId": "vQvxI",
+      "fen": "r1b3k1/p5pp/1ppp1n2/5pQ1/5P1N/2N1r3/P5PP/R5K1 w - - 1 26",
+      "preMove": "c3d1",
+      "solutionLine": [
+        "e3e1",
+        "g1f2",
+        "e1d1",
+        "a1d1",
+        "f6e4",
+        "f2e3",
+        "e4g5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2255,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|r1b3k1/p5pp/1ppp1n2/5pQ1/5P1N/4r3/P5PP/R2N2K1 b - -|e3e1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@e1",
+          "targets": [
+            "wk@g1",
+            "wn@d1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 13,
+        "sourceChunk": 8,
+        "sourceIndex": 4,
+        "sourceIdentity": "vQvxI",
+        "canonicalIdentity": "r1b3k1/p5pp/1ppp1n2/5pQ1/5P1N/4r3/P5PP/R2N2K1 b - -|rook-fork|e3e1,g1f2,e1d1,a1d1,f6e4,f2e3,e4g5|vQvxI",
+        "pedagogicalFamily": "rook-fork|r1b3k1/p5pp/1ppp1n2/5pQ1/5P1N/4r3/P5PP/R2N2K1 b - -|e3e1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-xxCr1",
+      "puzzleId": "xxCr1",
+      "fen": "3k4/1p6/2p1RK2/P2q4/5B2/8/8/8 b - - 5 78",
+      "preMove": "d5d3",
+      "solutionLine": [
+        "e6d6",
+        "d3d6",
+        "f4d6",
+        "c6c5",
+        "f6e5",
+        "c5c4",
+        "e5d4",
+        "c4c3",
+        "d4c3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2207,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|3k4/1p6/2p1RK2/P7/5B2/3q4/8/8 w - -|e6d6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@d6",
+          "targets": [
+            "bk@d8",
+            "bq@d3"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 14,
+        "sourceChunk": 7,
+        "sourceIndex": 22,
+        "sourceIdentity": "xxCr1",
+        "canonicalIdentity": "3k4/1p6/2p1RK2/P7/5B2/3q4/8/8 w - -|rook-fork|e6d6,d3d6,f4d6,c6c5,f6e5,c5c4,e5d4,c4c3,d4c3|xxCr1",
+        "pedagogicalFamily": "rook-fork|3k4/1p6/2p1RK2/P7/5B2/3q4/8/8 w - -|e6d6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-z8fNM",
+      "puzzleId": "z8fNM",
+      "fen": "3r2k1/1p3p1p/p4q2/3PNr2/P2PQ3/Pn4P1/7P/3RR1K1 w - - 1 27",
+      "preMove": "e1f1",
+      "solutionLine": [
+        "f5f1",
+        "d1f1",
+        "f6f1",
+        "g1f1",
+        "b3d2",
+        "f1e2",
+        "d2e4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1505,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|3r2k1/1p3p1p/p4q2/3PNr2/P2PQ3/Pn4P1/7P/3R1RK1 b - -|f5f1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@f1",
+          "targets": [
+            "wk@g1",
+            "wr@d1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 15,
+        "sourceChunk": 2,
+        "sourceIndex": 11,
+        "sourceIdentity": "z8fNM",
+        "canonicalIdentity": "3r2k1/1p3p1p/p4q2/3PNr2/P2PQ3/Pn4P1/7P/3R1RK1 b - -|rook-fork|f5f1,d1f1,f6f1,g1f1,b3d2,f1e2,d2e4|z8fNM",
+        "pedagogicalFamily": "rook-fork|3r2k1/1p3p1p/p4q2/3PNr2/P2PQ3/Pn4P1/7P/3R1RK1 b - -|f5f1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-wyMHU",
+      "puzzleId": "wyMHU",
+      "fen": "6rk/R4pr1/4pq1p/3nN3/3P4/3Q1p1P/5PPK/6R1 w - - 0 28",
+      "preMove": "e5f3",
+      "solutionLine": [
+        "g7g2",
+        "g1g2",
+        "g8g2",
+        "h2g2",
+        "d5f4",
+        "g2h1",
+        "f4d3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1887,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|6rk/R4pr1/4pq1p/3n4/3P4/3Q1N1P/5PPK/6R1 b - -|g7g2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@g2",
+          "targets": [
+            "wk@h2",
+            "wr@g1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 16,
+        "sourceChunk": 5,
+        "sourceIndex": 1,
+        "sourceIdentity": "wyMHU",
+        "canonicalIdentity": "6rk/R4pr1/4pq1p/3n4/3P4/3Q1N1P/5PPK/6R1 b - -|rook-fork|g7g2,g1g2,g8g2,h2g2,d5f4,g2h1,f4d3|wyMHU",
+        "pedagogicalFamily": "rook-fork|6rk/R4pr1/4pq1p/3n4/3P4/3Q1N1P/5PPK/6R1 b - -|g7g2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-zu6Oo",
+      "puzzleId": "zu6Oo",
+      "fen": "2r2rk1/1p2bppp/8/4pR2/2PpP1Q1/1P1P1R2/Pq4P1/6K1 b - - 5 23",
+      "preMove": "b2a2",
+      "solutionLine": [
+        "f5f7",
+        "f8f7",
+        "g4c8",
+        "f7f8",
+        "c8e6",
+        "g8h8",
+        "e6e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2060,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "fork-rook",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Rook Fork / Double Attack",
+        "Deflection"
+      ],
+      "themes": [
+        "advantage",
+        "deflection",
+        "discoveredAttack",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advantage",
+        "deflection",
+        "discoveredAttack",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|2r2rk1/1p2bppp/8/4pR2/2PpP1Q1/1P1P1R2/q5P1/6K1 w - -|f5f7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@f7",
+          "targets": [
+            "bb@e7",
+            "br@f8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 17,
+        "sourceChunk": 6,
+        "sourceIndex": 7,
+        "sourceIdentity": "zu6Oo",
+        "canonicalIdentity": "2r2rk1/1p2bppp/8/4pR2/2PpP1Q1/1P1P1R2/q5P1/6K1 w - -|rook-fork|f5f7,f8f7,g4c8,f7f8,c8e6,g8h8,e6e7|zu6Oo",
+        "pedagogicalFamily": "rook-fork|2r2rk1/1p2bppp/8/4pR2/2PpP1Q1/1P1P1R2/q5P1/6K1 w - -|f5f7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-zDhZ5",
+      "puzzleId": "zDhZ5",
+      "fen": "7b/3bk3/1p4PP/8/p7/8/8/3R3K b - - 0 43",
+      "preMove": "e7f6",
+      "solutionLine": [
+        "d1d6",
+        "d7e6",
+        "g6g7",
+        "h8g7",
+        "h6g7",
+        "f6g7",
+        "d6e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2231,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-rook",
+        "trapped-piece"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Rook Fork / Double Attack",
+        "Trapped Piece"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "fork",
+        "trappedPiece",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "fork",
+        "trappedPiece",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|7b/3b4/1p3kPP/8/p7/8/8/3R3K w - -|d1d6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wr@d6",
+          "targets": [
+            "bk@f6",
+            "bb@d7"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 18,
+        "sourceChunk": 7,
+        "sourceIndex": 8,
+        "sourceIdentity": "zDhZ5",
+        "canonicalIdentity": "7b/3b4/1p3kPP/8/p7/8/8/3R3K w - -|rook-fork|d1d6,d7e6,g6g7,h8g7,h6g7,f6g7,d6e6|zDhZ5",
+        "pedagogicalFamily": "rook-fork|7b/3b4/1p3kPP/8/p7/8/8/3R3K w - -|d1d6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-rook-m4-zzdGN",
+      "puzzleId": "zzdGN",
+      "fen": "2k3r1/1pp5/p7/5p1p/1P3Rr1/P2P3q/2P1RQP1/6K1 w - - 3 33",
+      "preMove": "f4f5",
+      "solutionLine": [
+        "g4g2",
+        "f2g2",
+        "g8g2",
+        "e2g2",
+        "h3f5",
+        "g2g8",
+        "c8d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1353,
+      "label": "Rook Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-rook",
+        "undefined",
+        "Rook Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "rook-fork|2k3r1/1pp5/p7/5R1p/1P4r1/P2P3q/2P1RQP1/6K1 b - -|g4g2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "br@g2",
+          "targets": [
+            "wq@f2",
+            "wk@g1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 19,
+        "sourceChunk": 2,
+        "sourceIndex": 24,
+        "sourceIdentity": "zzdGN",
+        "canonicalIdentity": "2k3r1/1pp5/p7/5R1p/1P4r1/P2P3q/2P1RQP1/6K1 b - -|rook-fork|g4g2,f2g2,g8g2,e2g2,h3f5,g2g8,c8d7|zzdGN",
+        "pedagogicalFamily": "rook-fork|2k3r1/1pp5/p7/5R1p/1P4r1/P2P3q/2P1RQP1/6K1 b - -|g4g2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    }
+  ]
+}

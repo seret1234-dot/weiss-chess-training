@@ -1,0 +1,1642 @@
+{
+  "puzzles": [
+    {
+      "id": "pin-rook-m3-zQWZ2",
+      "puzzleId": "zQWZ2",
+      "fen": "1k1r4/pppQ3p/1q6/n6P/8/P1N2PP1/1PP3b1/1K2R3 b - - 0 28",
+      "preMove": "c7c6",
+      "solutionLine": [
+        "e1e8",
+        "b6g1",
+        "b1a2",
+        "d8e8",
+        "d7e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1132,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "defense",
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Rook Pin"
+      ],
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "defensiveMove",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|1k1r4/pp1Q3p/1qp5/n6P/8/P1N2PP1/1PP3b1/1K2R3 w - -|e1e8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@e8",
+              "pinned": "br@d8",
+              "target": "bk@b8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 0,
+        "sourceChunk": 1,
+        "sourceIndex": 5,
+        "sourceIdentity": "zQWZ2",
+        "canonicalIdentity": "1k1r4/pp1Q3p/1qp5/n6P/8/P1N2PP1/1PP3b1/1K2R3 w - -|rook-pin|e1e8,b6g1,b1a2,d8e8,d7e8|zQWZ2",
+        "pedagogicalFamily": "rook-pin|1k1r4/pp1Q3p/1qp5/n6P/8/P1N2PP1/1PP3b1/1K2R3 w - -|e1e8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-ytFAv",
+      "puzzleId": "ytFAv",
+      "fen": "1b2r1k1/5ppp/p7/1ppNP3/5P2/8/PPP3PP/2K1R3 w - - 1 22",
+      "preMove": "c1d2",
+      "solutionLine": [
+        "e8d8",
+        "c2c4",
+        "b5c4",
+        "d2c3",
+        "d8d5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1353,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "remove-the-defender"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Remove the Defender"
+      ],
+      "themes": [
+        "advantage",
+        "capturingDefender",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "capturingDefender",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|1b2r1k1/5ppp/p7/1ppNP3/5P2/8/PPPK2PP/4R3 b - -|e8d8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@d8",
+              "pinned": "wn@d5",
+              "target": "wk@d2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 1,
+        "sourceChunk": 2,
+        "sourceIndex": 14,
+        "sourceIdentity": "ytFAv",
+        "canonicalIdentity": "1b2r1k1/5ppp/p7/1ppNP3/5P2/8/PPPK2PP/4R3 b - -|rook-pin|e8d8,c2c4,b5c4,d2c3,d8d5|ytFAv",
+        "pedagogicalFamily": "rook-pin|1b2r1k1/5ppp/p7/1ppNP3/5P2/8/PPPK2PP/4R3 b - -|e8d8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-yoBEd",
+      "puzzleId": "yoBEd",
+      "fen": "1r1q2k1/1r3p2/B3p1pp/3p4/4n3/7P/Q1R2PP1/2R3K1 b - - 3 32",
+      "preMove": "b7b6",
+      "solutionLine": [
+        "c2c8",
+        "b8c8",
+        "c1c8",
+        "d8c8",
+        "a6c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 983,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|1r1q2k1/5p2/Br2p1pp/3p4/4n3/7P/Q1R2PP1/2R3K1 w - -|c2c8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@c8",
+              "pinned": "bq@d8",
+              "target": "bk@g8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 0,
+        "sourceIdentity": "yoBEd",
+        "canonicalIdentity": "1r1q2k1/5p2/Br2p1pp/3p4/4n3/7P/Q1R2PP1/2R3K1 w - -|rook-pin|c2c8,b8c8,c1c8,d8c8,a6c8|yoBEd",
+        "pedagogicalFamily": "rook-pin|1r1q2k1/5p2/Br2p1pp/3p4/4n3/7P/Q1R2PP1/2R3K1 w - -|c2c8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-zhI14",
+      "puzzleId": "zhI14",
+      "fen": "r1b2rk1/3pbppp/2p2n2/7q/4P3/1BQ1BP2/1PP2P1P/1K1R2R1 b - - 0 22",
+      "preMove": "h5f3",
+      "solutionLine": [
+        "g1g7",
+        "g8g7",
+        "e3h6",
+        "g7h6",
+        "c3f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1902,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "pin-rook",
+        "decoy-attraction",
+        "kingside-attack",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Rook Pin",
+        "Decoy / Attraction",
+        "Kingside Attack",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "discoveredAttack",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "discoveredAttack",
+        "kingsideAttack",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|r1b2rk1/3pbppp/2p2n2/8/4P3/1BQ1Bq2/1PP2P1P/1K1R2R1 w - -|g1g7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@g7",
+              "pinned": "bp@f7",
+              "target": "bb@e7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 3,
+        "sourceChunk": 6,
+        "sourceIndex": 10,
+        "sourceIdentity": "zhI14",
+        "canonicalIdentity": "r1b2rk1/3pbppp/2p2n2/8/4P3/1BQ1Bq2/1PP2P1P/1K1R2R1 w - -|rook-pin|g1g7,g8g7,e3h6,g7h6,c3f3|zhI14",
+        "pedagogicalFamily": "rook-pin|r1b2rk1/3pbppp/2p2n2/8/4P3/1BQ1Bq2/1PP2P1P/1K1R2R1 w - -|g1g7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-zup7g",
+      "puzzleId": "zup7g",
+      "fen": "4bk2/5ppp/4p3/3pPn2/1r1P4/1N3KP1/1Q3P1P/8 w - - 7 42",
+      "preMove": "b2c3",
+      "solutionLine": [
+        "b4b3",
+        "c3b3",
+        "f5d4",
+        "f3e3",
+        "d4b3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1350,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "pin-rook",
+        "decoy-deflection-combined",
+        "remove-the-defender"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Pin",
+        "Decoy + Deflection",
+        "Remove the Defender"
+      ],
+      "themes": [
+        "attraction",
+        "capturingDefender",
+        "crushing",
+        "deflection",
+        "endgame",
+        "fork",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "attraction",
+        "capturingDefender",
+        "crushing",
+        "deflection",
+        "endgame",
+        "fork",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|4bk2/5ppp/4p3/3pPn2/1r1P4/1NQ2KP1/5P1P/8 b - -|b4b3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@b3",
+              "pinned": "wq@c3",
+              "target": "wk@f3"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 4,
+        "sourceChunk": 2,
+        "sourceIndex": 23,
+        "sourceIdentity": "zup7g",
+        "canonicalIdentity": "4bk2/5ppp/4p3/3pPn2/1r1P4/1NQ2KP1/5P1P/8 b - -|rook-pin|b4b3,c3b3,f5d4,f3e3,d4b3|zup7g",
+        "pedagogicalFamily": "rook-pin|4bk2/5ppp/4p3/3pPn2/1r1P4/1NQ2KP1/5P1P/8 b - -|b4b3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-wVqpj",
+      "puzzleId": "wVqpj",
+      "fen": "1bkr2r1/1p3p1n/p1p5/4p2P/2B1P2q/P1P1BP1b/1P2Q1P1/R2R1NK1 w - - 3 24",
+      "preMove": "g2g3",
+      "solutionLine": [
+        "g8g3",
+        "f1g3",
+        "d8g8",
+        "d1d8",
+        "c8d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2769,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "sacrifice-rook",
+        "clearance-sacrifice"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Rook Sacrifice",
+        "Clearance Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "clearance",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "clearance",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|1bkr2r1/1p3p1n/p1p5/4p2P/2B1P2q/P1P1BPPb/1P2Q3/R2R1NK1 b - -|g8g3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@g3",
+              "pinned": "wp@f3",
+              "target": "wb@e3"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 5,
+        "sourceChunk": 10,
+        "sourceIndex": 22,
+        "sourceIdentity": "wVqpj",
+        "canonicalIdentity": "1bkr2r1/1p3p1n/p1p5/4p2P/2B1P2q/P1P1BPPb/1P2Q3/R2R1NK1 b - -|rook-pin|g8g3,f1g3,d8g8,d1d8,c8d8|wVqpj",
+        "pedagogicalFamily": "rook-pin|1bkr2r1/1p3p1n/p1p5/4p2P/2B1P2q/P1P1BPPb/1P2Q3/R2R1NK1 b - -|g8g3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-uCK5Z",
+      "puzzleId": "uCK5Z",
+      "fen": "6k1/pp3p1p/6p1/4r3/8/2P1pQ2/P3R1PP/3qNK2 w - - 3 27",
+      "preMove": "e2e3",
+      "solutionLine": [
+        "e5f5",
+        "e3e8",
+        "g8g7",
+        "f3f5",
+        "g6f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1757,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|6k1/pp3p1p/6p1/4r3/8/2P1RQ2/P5PP/3qNK2 b - -|e5f5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@f5",
+              "pinned": "wq@f3",
+              "target": "wk@f1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 6,
+        "sourceChunk": 5,
+        "sourceIndex": 0,
+        "sourceIdentity": "uCK5Z",
+        "canonicalIdentity": "6k1/pp3p1p/6p1/4r3/8/2P1RQ2/P5PP/3qNK2 b - -|rook-pin|e5f5,e3e8,g8g7,f3f5,g6f5|uCK5Z",
+        "pedagogicalFamily": "rook-pin|6k1/pp3p1p/6p1/4r3/8/2P1RQ2/P5PP/3qNK2 b - -|e5f5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-wy5es",
+      "puzzleId": "wy5es",
+      "fen": "7r/pp3kb1/2p1b3/4p1n1/5pP1/1PP2P1r/P1K3Q1/2BR1R2 w - - 3 33",
+      "preMove": "g2d2",
+      "solutionLine": [
+        "h3h2",
+        "f1f2",
+        "g5f3",
+        "f2f3",
+        "h2d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1694,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|7r/pp3kb1/2p1b3/4p1n1/5pP1/1PP2P1r/P1KQ4/2BR1R2 b - -|h3h2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@h2",
+              "pinned": "wq@d2",
+              "target": "wk@c2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 9,
+        "sourceIdentity": "wy5es",
+        "canonicalIdentity": "7r/pp3kb1/2p1b3/4p1n1/5pP1/1PP2P1r/P1KQ4/2BR1R2 b - -|rook-pin|h3h2,f1f2,g5f3,f2f3,h2d2|wy5es",
+        "pedagogicalFamily": "rook-pin|7r/pp3kb1/2p1b3/4p1n1/5pP1/1PP2P1r/P1KQ4/2BR1R2 b - -|h3h2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-zpd8R",
+      "puzzleId": "zpd8R",
+      "fen": "r1k5/2pq4/8/4p3/4p1PP/pR1P3K/Q7/8 w - - 0 47",
+      "preMove": "b3a3",
+      "solutionLine": [
+        "a8a3",
+        "a2a3",
+        "d7d3",
+        "a3d3",
+        "e4d3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1664,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|r1k5/2pq4/8/4p3/4p1PP/R2P3K/Q7/8 b - -|a8a3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@a3",
+              "pinned": "wp@d3",
+              "target": "wk@h3"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 8,
+        "sourceChunk": 4,
+        "sourceIndex": 13,
+        "sourceIdentity": "zpd8R",
+        "canonicalIdentity": "r1k5/2pq4/8/4p3/4p1PP/R2P3K/Q7/8 b - -|rook-pin|a8a3,a2a3,d7d3,a3d3,e4d3|zpd8R",
+        "pedagogicalFamily": "rook-pin|r1k5/2pq4/8/4p3/4p1PP/R2P3K/Q7/8 b - -|a8a3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-yqK0t",
+      "puzzleId": "yqK0t",
+      "fen": "8/6pk/1r5p/8/R7/2p2P1P/p1R2KP1/r7 w - - 2 44",
+      "preMove": "a4a2",
+      "solutionLine": [
+        "a1a2",
+        "c2a2",
+        "b6b2",
+        "a2b2",
+        "c3b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1302,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Rook Pin"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "rookEndgame"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "rookEndgame",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|8/6pk/1r5p/8/8/2p2P1P/R1R2KP1/r7 b - -|a1a2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@a2",
+              "pinned": "wr@c2",
+              "target": "wk@f2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 9,
+        "sourceChunk": 2,
+        "sourceIndex": 27,
+        "sourceIdentity": "yqK0t",
+        "canonicalIdentity": "8/6pk/1r5p/8/8/2p2P1P/R1R2KP1/r7 b - -|rook-pin|a1a2,c2a2,b6b2,a2b2,c3b2|yqK0t",
+        "pedagogicalFamily": "rook-pin|8/6pk/1r5p/8/8/2p2P1P/R1R2KP1/r7 b - -|a1a2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-zvdRf",
+      "puzzleId": "zvdRf",
+      "fen": "7k/7p/1p6/5R2/3P4/1Bp4P/1r4P1/7K w - - 4 42",
+      "preMove": "b3d1",
+      "solutionLine": [
+        "b2b1",
+        "f5f1",
+        "c3c2",
+        "d1c2",
+        "b1f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1368,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Rook Pin"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|7k/7p/1p6/5R2/3P4/2p4P/1r4P1/3B3K b - -|b2b1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@b1",
+              "pinned": "wb@d1",
+              "target": "wk@h1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 10,
+        "sourceChunk": 2,
+        "sourceIndex": 24,
+        "sourceIdentity": "zvdRf",
+        "canonicalIdentity": "7k/7p/1p6/5R2/3P4/2p4P/1r4P1/3B3K b - -|rook-pin|b2b1,f5f1,c3c2,d1c2,b1f1|zvdRf",
+        "pedagogicalFamily": "rook-pin|7k/7p/1p6/5R2/3P4/2p4P/1r4P1/3B3K b - -|b2b1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-zOcFy",
+      "puzzleId": "zOcFy",
+      "fen": "r7/pp1Rr2k/2p3pp/8/8/7Q/qPP2PPP/3R2K1 b - - 1 24",
+      "preMove": "a2f7",
+      "solutionLine": [
+        "d7e7",
+        "f7e7",
+        "d1d7",
+        "e7d7",
+        "h3d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1193,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Clearance"
+      ],
+      "themes": [
+        "clearance",
+        "crushing",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "clearance",
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|r7/pp1Rrq1k/2p3pp/8/8/7Q/1PP2PPP/3R2K1 w - -|d7e7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@e7",
+              "pinned": "bq@f7",
+              "target": "bk@h7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 11,
+        "sourceChunk": 1,
+        "sourceIndex": 8,
+        "sourceIdentity": "zOcFy",
+        "canonicalIdentity": "r7/pp1Rrq1k/2p3pp/8/8/7Q/1PP2PPP/3R2K1 w - -|rook-pin|d7e7,f7e7,d1d7,e7d7,h3d7|zOcFy",
+        "pedagogicalFamily": "rook-pin|r7/pp1Rrq1k/2p3pp/8/8/7Q/1PP2PPP/3R2K1 w - -|d7e7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-xoQjg",
+      "puzzleId": "xoQjg",
+      "fen": "1r1r3k/Rp6/2pP3p/1pP1p1pP/1P2Pp2/5P2/4K3/R7 b - - 0 43",
+      "preMove": "h8h7",
+      "solutionLine": [
+        "a1a6",
+        "h7g8",
+        "a6b6",
+        "d8d7",
+        "b6c6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1877,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "rookEndgame"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "rookEndgame",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|1r1r4/Rp5k/2pP3p/1pP1p1pP/1P2Pp2/5P2/4K3/R7 w - -|a1a6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@a7",
+              "pinned": "bp@b7",
+              "target": "bk@h7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 12,
+        "sourceChunk": 6,
+        "sourceIndex": 21,
+        "sourceIdentity": "xoQjg",
+        "canonicalIdentity": "1r1r4/Rp5k/2pP3p/1pP1p1pP/1P2Pp2/5P2/4K3/R7 w - -|rook-pin|a1a6,h7g8,a6b6,d8d7,b6c6|xoQjg",
+        "pedagogicalFamily": "rook-pin|1r1r4/Rp5k/2pP3p/1pP1p1pP/1P2Pp2/5P2/4K3/R7 w - -|a1a6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-y17Sh",
+      "puzzleId": "y17Sh",
+      "fen": "r6r/1ppk3p/5p2/p7/1nPpRq2/1K1B1P1P/PP3P2/R2Q4 b - - 1 19",
+      "preMove": "f4d6",
+      "solutionLine": [
+        "e4d4",
+        "a5a4",
+        "b3c3",
+        "d6d4",
+        "c3d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1591,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|r6r/1ppk3p/3q1p2/p7/1nPpR3/1K1B1P1P/PP3P2/R2Q4 w - -|e4d4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@d4",
+              "pinned": "bq@d6",
+              "target": "bk@d7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 13,
+        "sourceChunk": 4,
+        "sourceIndex": 18,
+        "sourceIdentity": "y17Sh",
+        "canonicalIdentity": "r6r/1ppk3p/3q1p2/p7/1nPpR3/1K1B1P1P/PP3P2/R2Q4 w - -|rook-pin|e4d4,a5a4,b3c3,d6d4,c3d4|y17Sh",
+        "pedagogicalFamily": "rook-pin|r6r/1ppk3p/3q1p2/p7/1nPpR3/1K1B1P1P/PP3P2/R2Q4 w - -|e4d4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-z7uhw",
+      "puzzleId": "z7uhw",
+      "fen": "6k1/2r4p/B2b2p1/1p1n1p2/1P2p3/P5PP/4Q1K1/8 w - - 1 34",
+      "preMove": "a6b5",
+      "solutionLine": [
+        "c7c2",
+        "e2c2",
+        "d5e3",
+        "g2f2",
+        "e3c2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1633,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "pin-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Pin",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "long",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "fork",
+        "long",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|6k1/2r4p/3b2p1/1B1n1p2/1P2p3/P5PP/4Q1K1/8 b - -|c7c2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@c2",
+              "pinned": "wq@e2",
+              "target": "wk@g2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 14,
+        "sourceChunk": 4,
+        "sourceIndex": 2,
+        "sourceIdentity": "z7uhw",
+        "canonicalIdentity": "6k1/2r4p/3b2p1/1B1n1p2/1P2p3/P5PP/4Q1K1/8 b - -|rook-pin|c7c2,e2c2,d5e3,g2f2,e3c2|z7uhw",
+        "pedagogicalFamily": "rook-pin|6k1/2r4p/3b2p1/1B1n1p2/1P2p3/P5PP/4Q1K1/8 b - -|c7c2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-xaKz5",
+      "puzzleId": "xaKz5",
+      "fen": "r1b2r1k/5p1B/p1p4p/q2pP3/5P2/7P/PbQ2B2/1K1R2R1 w - - 0 24",
+      "preMove": "c2b2",
+      "solutionLine": [
+        "a8b8",
+        "b2b8",
+        "c8f5",
+        "h7f5",
+        "f8b8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2214,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "pin-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Rook Pin",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "long",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|r1b2r1k/5p1B/p1p4p/q2pP3/5P2/7P/PQ3B2/1K1R2R1 b - -|a8b8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@b8",
+              "pinned": "wq@b2",
+              "target": "wk@b1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 15,
+        "sourceChunk": 9,
+        "sourceIndex": 6,
+        "sourceIdentity": "xaKz5",
+        "canonicalIdentity": "r1b2r1k/5p1B/p1p4p/q2pP3/5P2/7P/PQ3B2/1K1R2R1 b - -|rook-pin|a8b8,b2b8,c8f5,h7f5,f8b8|xaKz5",
+        "pedagogicalFamily": "rook-pin|r1b2r1k/5p1B/p1p4p/q2pP3/5P2/7P/PQ3B2/1K1R2R1 b - -|a8b8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-zacSo",
+      "puzzleId": "zacSo",
+      "fen": "R7/4q1kp/3bppp1/Q2p4/3r4/p5P1/P6P/1R4K1 b - - 1 41",
+      "preMove": "d4c4",
+      "solutionLine": [
+        "a8a7",
+        "d6c7",
+        "b1b7",
+        "c7a5",
+        "b7e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1726,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|R7/4q1kp/3bppp1/Q2p4/2r5/p5P1/P6P/1R4K1 w - -|a8a7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@a7",
+              "pinned": "bq@e7",
+              "target": "bk@g7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 16,
+        "sourceChunk": 5,
+        "sourceIndex": 15,
+        "sourceIdentity": "zacSo",
+        "canonicalIdentity": "R7/4q1kp/3bppp1/Q2p4/2r5/p5P1/P6P/1R4K1 w - -|rook-pin|a8a7,d6c7,b1b7,c7a5,b7e7|zacSo",
+        "pedagogicalFamily": "rook-pin|R7/4q1kp/3bppp1/Q2p4/2r5/p5P1/P6P/1R4K1 w - -|a8a7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-zogzG",
+      "puzzleId": "zogzG",
+      "fen": "1k3b2/1p1Q1R1K/p6p/P2Pp3/4q3/4B3/1Pr2P2/8 w - - 6 34",
+      "preMove": "f7f5",
+      "solutionLine": [
+        "c2c7",
+        "e3a7",
+        "b8a7",
+        "d7c7",
+        "e4f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1230,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|1k3b2/1p1Q3K/p6p/P2PpR2/4q3/4B3/1Pr2P2/8 b - -|c2c7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "br@c7",
+              "pinned": "wq@d7",
+              "target": "wk@h7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 17,
+        "sourceChunk": 1,
+        "sourceIndex": 12,
+        "sourceIdentity": "zogzG",
+        "canonicalIdentity": "1k3b2/1p1Q3K/p6p/P2PpR2/4q3/4B3/1Pr2P2/8 b - -|rook-pin|c2c7,e3a7,b8a7,d7c7,e4f5|zogzG",
+        "pedagogicalFamily": "rook-pin|1k3b2/1p1Q3K/p6p/P2PpR2/4q3/4B3/1Pr2P2/8 b - -|c2c7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-zyIbv",
+      "puzzleId": "zyIbv",
+      "fen": "r5k1/p4r2/1p6/3P1N2/4P1qR/8/PP3PP1/4R1K1 b - - 0 28",
+      "preMove": "g4g6",
+      "solutionLine": [
+        "h4g4",
+        "g6g4",
+        "f5h6",
+        "g8f8",
+        "h6g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1944,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "fork-rook",
+        "pin-rook",
+        "decoy-attraction",
+        "vulnerable-king",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack",
+        "Rook Pin",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "long",
+        "pin",
+        "sacrifice"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "exposedKing",
+        "fork",
+        "long",
+        "pin",
+        "sacrifice",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|r5k1/p4r2/1p4q1/3P1N2/4P2R/8/PP3PP1/4R1K1 w - -|h4g4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@g4",
+              "pinned": "bq@g6",
+              "target": "bk@g8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 18,
+        "sourceChunk": 7,
+        "sourceIndex": 21,
+        "sourceIdentity": "zyIbv",
+        "canonicalIdentity": "r5k1/p4r2/1p4q1/3P1N2/4P2R/8/PP3PP1/4R1K1 w - -|rook-pin|h4g4,g6g4,f5h6,g8f8,h6g4|zyIbv",
+        "pedagogicalFamily": "rook-pin|r5k1/p4r2/1p4q1/3P1N2/4P2R/8/PP3PP1/4R1K1 w - -|h4g4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-rook-m3-walsr",
+      "puzzleId": "walsr",
+      "fen": "5qk1/5p1p/2Q3pP/1p6/8/3r4/6P1/4R2K b - - 0 38",
+      "preMove": "b5b4",
+      "solutionLine": [
+        "e1e8",
+        "d3d1",
+        "h1h2",
+        "d1d8",
+        "e8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1156,
+      "label": "Rook Pin - Tactic in 3",
+      "theme": "pin-rook",
+      "sourceThemeKeys": [
+        "pin-rook"
+      ],
+      "sourceThemes": [
+        "Rook Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "rook-pin",
+      "canonicalThemeLabel": "Rook Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "pin",
+        "pin-rook",
+        "undefined",
+        "Rook Pin - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-pin|5qk1/5p1p/2Q3pP/8/1p6/3r4/6P1/4R2K w - -|e1e8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wr@e8",
+              "pinned": "bq@f8",
+              "target": "bk@g8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 4,
+        "orderInChunk": 19,
+        "sourceChunk": 1,
+        "sourceIndex": 29,
+        "sourceIdentity": "walsr",
+        "canonicalIdentity": "5qk1/5p1p/2Q3pP/8/1p6/3r4/6P1/4R2K w - -|rook-pin|e1e8,d3d1,h1h2,d1d8,e8f8|walsr",
+        "pedagogicalFamily": "rook-pin|5qk1/5p1p/2Q3pP/8/1p6/3r4/6P1/4R2K w - -|e1e8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    }
+  ]
+}

@@ -60,6 +60,7 @@ import {
  getPatternTacticLearnerCurriculum,
  getPatternTacticLearnerCurriculaForDistance,
  getPatternTacticLegacyCompletionCredit,
+ getPatternTacticPriorLearnerProgressTrainerKey,
  getPatternTacticLearnerProgressTrainerKey,
  resolvePatternTacticLearnerFacingChunkIndex,
 } from "./m1toM4LearnerCurriculum"
@@ -78,6 +79,14 @@ type ManifestFile = {
  canonicalThemeLabel?: string
  rawTags?: string[]
  pedagogicalFamily?: string
+ semanticAudit?: {
+  status?: string
+  tier?: string
+  confidence?: number
+  reason?: string
+  detectedTheme?: string | null
+  evidence?: Record<string, unknown>
+ }
  learnerCurriculum?: {
   canonicalIdentity?: string
   pedagogicalFamily?: string
@@ -141,6 +150,7 @@ export type PatternTacticPuzzle = {
  sourceIdentity?: string
  canonicalIdentity?: string
  pedagogicalFamily?: string
+ semanticAudit?: LichessChunkPuzzle['semanticAudit']
 }
 
 type PuzzleMastery = {
@@ -376,7 +386,33 @@ function normalizePuzzle(
   rawTags: raw.rawTags,
   sourceIdentity: String(raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
   pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
+  semanticAudit: raw.semanticAudit,
   }
+}
+
+function semanticExplanation(puzzle?: PatternTacticPuzzle | null) {
+ const audit = puzzle?.semanticAudit
+ if (!audit?.evidence) return null
+ const evidence = audit.evidence as Record<string, unknown>
+ const format = (value: unknown) => Array.isArray(value) ? value.join(', ') : typeof value === 'string' ? value : ''
+ if (Array.isArray(evidence.targets)) return `Verified fork: ${format(evidence.mover)} attacks ${format(evidence.targets)}.`
+ if (Array.isArray(evidence.pins)) {
+  const pin = evidence.pins[0] as Record<string, string> | undefined
+  return pin ? `Verified ${audit.detectedTheme ?? 'pin'}: ${pin.attacker} pins ${pin.pinned} to ${pin.target}.` : audit.reason ?? null
+ }
+ if (Array.isArray(evidence.skewers)) {
+  const skewer = evidence.skewers[0] as Record<string, string> | undefined
+  return skewer ? `Verified skewer: ${skewer.attacker} attacks ${skewer.front}, with ${skewer.back} behind.` : audit.reason ?? null
+ }
+ if (Array.isArray(evidence.revealed)) return `Verified ${audit.detectedTheme ?? 'discovered tactic'}: moved piece reveals ${format(evidence.revealed)}.`
+ if (evidence.promotion) return `Verified promotion: ${String(evidence.promotion)} promotion on the recorded promotion square.`
+ if (evidence.move) return `Verified en-passant capture: ${String(evidence.move)}.`
+ return audit.reason ?? null
+}
+
+function semanticEvidenceSquares(puzzle?: PatternTacticPuzzle | null) {
+ const encoded = JSON.stringify(puzzle?.semanticAudit?.evidence ?? {})
+ return [...new Set((encoded.match(/@[a-h][1-8]/g) ?? []).map((match) => match.slice(1)))]
 }
 
 function getMoveHighlightStyles(moveUci: string | null) {
@@ -531,7 +567,7 @@ export default function PatternTacticTrainer({
   ? getPatternTacticLearnerProgressTrainerKey(tacticLearnerCurriculum)
   : config.trainerKey
  const activeDataBasePath = isMixedPatternTactic
-  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-v1`
+  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-semantic-v2`
   : tacticLearnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
  const urlChunkParam = searchParams.get('chunk')
  const requestedChunkIndex =
@@ -1149,6 +1185,17 @@ export default function PatternTacticTrainer({
  setLoading(true)
  setLoadError('')
 
+ if (tacticLearnerCurriculum?.unavailableReason) {
+  setChunkFiles([])
+  setPuzzles([])
+  setBoardLocked(true)
+  setPhase('finished')
+  setMessage(tacticLearnerCurriculum.unavailableReason)
+  setLoadError(tacticLearnerCurriculum.unavailableReason)
+  setLoading(false)
+  return
+ }
+
  const manifestRes = await fetch(manifestFetchPath)
  if (!manifestRes.ok) {
  throw new Error(`HTTP ${manifestRes.status}`)
@@ -1185,15 +1232,25 @@ export default function PatternTacticTrainer({
  let compatibilityCredit = 0
 
  if (currentUserId && tacticLearnerCurriculum) {
+  const priorLearnerKey = getPatternTacticPriorLearnerProgressTrainerKey(tacticLearnerCurriculum)
   const { data: legacyRows, error: legacyError } = await supabase
    .from("user_chunk_progress")
-   .select("chunk_index, is_mastered, mastered_puzzles_count")
+   .select("trainer_key, chunk_index, is_mastered, mastered_puzzles_count")
    .eq("user_id", currentUserId)
-   .eq("trainer_key", config.trainerKey)
+   .in("trainer_key", [config.trainerKey, priorLearnerKey])
   if (legacyError) {
    console.error("Could not read legacy tactic completion credit", legacyError)
   } else {
-   compatibilityCredit = getPatternTacticLegacyCompletionCredit(legacyRows ?? [], tacticLearnerCurriculum).completedActiveChunks
+   const legacyCredit = getPatternTacticLegacyCompletionCredit((legacyRows ?? []).filter((row) => row.trainer_key === config.trainerKey), tacticLearnerCurriculum).completedActiveChunks
+   const priorLearnerCompleted = tacticLearnerCurriculum.version.includes("semantic-v2")
+    ? new Set((legacyRows ?? []).filter((row) => row.trainer_key === priorLearnerKey && row.is_mastered === true)
+      .map((row) => Number(row.chunk_index))
+      .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= (tacticDistance === 1 ? 5 : 8))).size
+    : 0
+   const priorLearnerCredit = tacticLearnerCurriculum.version.includes("semantic-v2")
+    ? Math.min(tacticLearnerCurriculum.activeChunkCount, Math.floor((priorLearnerCompleted * tacticLearnerCurriculum.activeChunkCount) / (tacticDistance === 1 ? 5 : 8)))
+    : 0
+   compatibilityCredit = Math.max(legacyCredit, priorLearnerCredit)
    if (compatibilityCredit > 0) {
     const now = new Date().toISOString()
     await Promise.all(Array.from({ length: compatibilityCredit }, (_, index) => supabase
@@ -2005,6 +2062,9 @@ function onSquareClick(square: string) {
  }
 
  const currentPuzzleFastSolves = chunkProgress[currentIndex]?.fastSolves ?? 0
+ const currentSemanticExplanation = semanticExplanation(currentPuzzle)
+ const showSemanticExplanation = Boolean(currentSemanticExplanation) && (solved || phase === 'wrong' || Boolean(hintMoveUci) || (isMixedPatternTactic && blindThemeRevealed))
+ const semanticSquares = showSemanticExplanation ? semanticEvidenceSquares(currentPuzzle) : []
  const currentMixedSourceTheme = currentPuzzle
   ? currentPuzzle.canonicalThemeLabel ?? formatMixedThemeName(normaliseMixedThemeKey(currentPuzzle.canonicalThemeKey ?? currentPuzzle.sourceTheme ?? currentPuzzle.theme, "tactics"))
   : ""
@@ -2032,6 +2092,13 @@ function onSquareClick(square: string) {
 
  const customSquareStyles = {
  ...getMoveHighlightStyles(lastMoveHighlight),
+ ...(semanticSquares.reduce<Record<string, CSSProperties>>((acc, square) => {
+  acc[square] = {
+   background: 'radial-gradient(circle, rgba(202,162,39,0.28) 34%, rgba(202,162,39,0.55) 35%, transparent 61%)',
+   boxShadow: 'inset 0 0 8px rgba(242,193,78,0.72)',
+  }
+  return acc
+ }, {})),
  ...(replySquare
  ? {
  [replySquare]: {
@@ -2430,6 +2497,12 @@ function onSquareClick(square: string) {
  {isMixedPatternTactic && (
  <div role="status" aria-live="polite" style={{ marginBottom: 10, fontWeight: 800, color: showMixedTheme ? '#f2c14e' : '#c5c5c5' }}>
  {showMixedTheme ? `Theme: ${currentMixedSourceTheme}` : 'Blind mixed — theme revealed after your answer'}
+ </div>
+ )}
+
+ {showSemanticExplanation && (
+ <div role="status" style={{ marginBottom: 10, padding: 10, borderRadius: 8, background: '#263b2a', color: '#d8f5d0', fontSize: 13, lineHeight: 1.45 }}>
+ {currentSemanticExplanation}
  </div>
  )}
 

@@ -1,0 +1,1762 @@
+{
+  "puzzles": [
+    {
+      "id": "pin-queen-m4-yu6px",
+      "puzzleId": "yu6px",
+      "fen": "5rk1/2pq1pp1/2n1p3/3pP2Q/3P4/2P1P1P1/rP1N2P1/2K4R b - - 3 21",
+      "preMove": "f7f6",
+      "solutionLine": [
+        "h5h7",
+        "g8f7",
+        "e5f6",
+        "a2a1",
+        "d2b1",
+        "f8g8",
+        "h1f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2296,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "defense",
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Queen Pin"
+      ],
+      "themes": [
+        "advantage",
+        "defensiveMove",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "defensiveMove",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|5rk1/2pq2p1/2n1pp2/3pP2Q/3P4/2P1P1P1/rP1N2P1/2K4R w - -|h5h7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@h7",
+              "pinned": "bp@g7",
+              "target": "bq@d7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 0,
+        "sourceChunk": 6,
+        "sourceIndex": 26,
+        "sourceIdentity": "yu6px",
+        "canonicalIdentity": "5rk1/2pq2p1/2n1pp2/3pP2Q/3P4/2P1P1P1/rP1N2P1/2K4R w - -|queen-pin|h5h7,g8f7,e5f6,a2a1,d2b1,f8g8,h1f1|yu6px",
+        "pedagogicalFamily": "queen-pin|5rk1/2pq2p1/2n1pp2/3pP2Q/3P4/2P1P1P1/rP1N2P1/2K4R w - -|h5h7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-zgRIY",
+      "puzzleId": "zgRIY",
+      "fen": "r1k2br1/ppp1n3/2p1Q3/8/8/3b1K2/PPqP1PPP/RNB1R3 b - - 7 16",
+      "preMove": "c8b8",
+      "solutionLine": [
+        "e6g8",
+        "d3e2",
+        "e1e2",
+        "c2f5",
+        "f3g3",
+        "e7g8",
+        "e2e8",
+        "f5c8",
+        "e8c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1568,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Queen Pin"
+      ],
+      "themes": [
+        "advantage",
+        "opening",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "opening",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|rk3br1/ppp1n3/2p1Q3/8/8/3b1K2/PPqP1PPP/RNB1R3 w - -|e6g8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@g8",
+              "pinned": "bb@f8",
+              "target": "bk@b8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 1,
+        "sourceChunk": 1,
+        "sourceIndex": 21,
+        "sourceIdentity": "zgRIY",
+        "canonicalIdentity": "rk3br1/ppp1n3/2p1Q3/8/8/3b1K2/PPqP1PPP/RNB1R3 w - -|queen-pin|e6g8,d3e2,e1e2,c2f5,f3g3,e7g8,e2e8,f5c8,e8c8|zgRIY",
+        "pedagogicalFamily": "queen-pin|rk3br1/ppp1n3/2p1Q3/8/8/3b1K2/PPqP1PPP/RNB1R3 w - -|e6g8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-sq1Sf",
+      "puzzleId": "sq1Sf",
+      "fen": "3rkr2/p1q3pp/1pb5/n1p4Q/4P3/2P2N2/P4PPP/3R1RK1 b - - 5 24",
+      "preMove": "c7f7",
+      "solutionLine": [
+        "h5e5",
+        "f7e7",
+        "d1d8",
+        "e8d8",
+        "e5b8",
+        "d8d7",
+        "f1d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2235,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "pin-queen",
+        "decoy-attraction",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Pin",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "exposedKing",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "exposedKing",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|3rkr2/p4qpp/1pb5/n1p4Q/4P3/2P2N2/P4PPP/3R1RK1 w - -|h5e5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@e5",
+              "pinned": "bp@c5",
+              "target": "bn@a5"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 2,
+        "sourceChunk": 6,
+        "sourceIndex": 2,
+        "sourceIdentity": "sq1Sf",
+        "canonicalIdentity": "3rkr2/p4qpp/1pb5/n1p4Q/4P3/2P2N2/P4PPP/3R1RK1 w - -|queen-pin|h5e5,f7e7,d1d8,e8d8,e5b8,d8d7,f1d1|sq1Sf",
+        "pedagogicalFamily": "queen-pin|3rkr2/p4qpp/1pb5/n1p4Q/4P3/2P2N2/P4PPP/3R1RK1 w - -|h5e5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-wQapM",
+      "puzzleId": "wQapM",
+      "fen": "r4k1r/pp3Pp1/8/2ppP1q1/2P1n1p1/B1P1P3/P6P/R2Q1RK1 w - - 0 19",
+      "preMove": "d1d5",
+      "solutionLine": [
+        "g5e3",
+        "g1h1",
+        "g4g3",
+        "a3c5",
+        "e3c5",
+        "d5c5",
+        "e4c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2653,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Queen Pin"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|r4k1r/pp3Pp1/8/2pQP1q1/2P1n1p1/B1P1P3/P6P/R4RK1 b - -|g5e3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bq@e3",
+              "pinned": "wp@c3",
+              "target": "wb@a3"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 3,
+        "sourceChunk": 9,
+        "sourceIndex": 9,
+        "sourceIdentity": "wQapM",
+        "canonicalIdentity": "r4k1r/pp3Pp1/8/2pQP1q1/2P1n1p1/B1P1P3/P6P/R4RK1 b - -|queen-pin|g5e3,g1h1,g4g3,a3c5,e3c5,d5c5,e4c5|wQapM",
+        "pedagogicalFamily": "queen-pin|r4k1r/pp3Pp1/8/2pQP1q1/2P1n1p1/B1P1P3/P6P/R4RK1 b - -|g5e3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-wzIhE",
+      "puzzleId": "wzIhE",
+      "fen": "r5kr/ppp1q1p1/2nbbN1p/4p2Q/2B2P2/3P4/PPP3PP/R1B2RK1 b - - 0 13",
+      "preMove": "g7f6",
+      "solutionLine": [
+        "h5g6",
+        "g8f8",
+        "f4e5",
+        "d6e5",
+        "c1h6",
+        "h8h6",
+        "g6h6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2195,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "pin-queen",
+        "vulnerable-king",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Queen Pin",
+        "Vulnerable / Exposed King",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "exposedKing",
+        "kingsideAttack",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "exposedKing",
+        "kingsideAttack",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|r5kr/ppp1q3/2nbbp1p/4p2Q/2B2P2/3P4/PPP3PP/R1B2RK1 w - -|h5g6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@g6",
+              "pinned": "bp@f6",
+              "target": "bb@e6"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 4,
+        "sourceChunk": 5,
+        "sourceIndex": 14,
+        "sourceIdentity": "wzIhE",
+        "canonicalIdentity": "r5kr/ppp1q3/2nbbp1p/4p2Q/2B2P2/3P4/PPP3PP/R1B2RK1 w - -|queen-pin|h5g6,g8f8,f4e5,d6e5,c1h6,h8h6,g6h6|wzIhE",
+        "pedagogicalFamily": "queen-pin|r5kr/ppp1q3/2nbbp1p/4p2Q/2B2P2/3P4/PPP3PP/R1B2RK1 w - -|h5g6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-Zba05",
+      "puzzleId": "Zba05",
+      "fen": "2r2r2/1p3knQ/pP6/3qnR2/7R/1P6/2P3PP/6K1 b - - 0 28",
+      "preMove": "f7e6",
+      "solutionLine": [
+        "h7h6",
+        "e6d7",
+        "h6g7",
+        "f8f7",
+        "f5f7",
+        "e5f7",
+        "h4d4",
+        "d5d4",
+        "g7d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2764,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "pin-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Pin",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "crushing",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|2r2r2/1p4nQ/pP2k3/3qnR2/7R/1P6/2P3PP/6K1 w - -|h7h6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@h6",
+              "pinned": "bn@g7",
+              "target": "br@f8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 5,
+        "sourceChunk": 10,
+        "sourceIndex": 14,
+        "sourceIdentity": "Zba05",
+        "canonicalIdentity": "2r2r2/1p4nQ/pP2k3/3qnR2/7R/1P6/2P3PP/6K1 w - -|queen-pin|h7h6,e6d7,h6g7,f8f7,f5f7,e5f7,h4d4,d5d4,g7d4|Zba05",
+        "pedagogicalFamily": "queen-pin|2r2r2/1p4nQ/pP2k3/3qnR2/7R/1P6/2P3PP/6K1 w - -|h7h6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-ykwIr",
+      "puzzleId": "ykwIr",
+      "fen": "6k1/r4pp1/2b2r1p/N1Rp1q2/3Pp3/4P2P/2R2PPQ/6K1 w - - 0 35",
+      "preMove": "a5c6",
+      "solutionLine": [
+        "f5f2",
+        "g1h1",
+        "f2e1",
+        "h2g1",
+        "f6f1",
+        "g1f1",
+        "e1f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2517,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "pin-queen",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Queen Pin",
+        "Clearance"
+      ],
+      "themes": [
+        "advantage",
+        "clearance",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "clearance",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|6k1/r4pp1/2N2r1p/2Rp1q2/3Pp3/4P2P/2R2PPQ/6K1 b - -|f5f2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bq@f2",
+              "pinned": "wp@g2",
+              "target": "wq@h2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 6,
+        "sourceChunk": 8,
+        "sourceIndex": 23,
+        "sourceIdentity": "ykwIr",
+        "canonicalIdentity": "6k1/r4pp1/2N2r1p/2Rp1q2/3Pp3/4P2P/2R2PPQ/6K1 b - -|queen-pin|f5f2,g1h1,f2e1,h2g1,f6f1,g1f1,e1f1|ykwIr",
+        "pedagogicalFamily": "queen-pin|6k1/r4pp1/2N2r1p/2Rp1q2/3Pp3/4P2P/2R2PPQ/6K1 b - -|f5f2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-zAmcl",
+      "puzzleId": "zAmcl",
+      "fen": "6k1/pp4p1/6p1/3P4/7r/P1P3q1/1P2Q1P1/4R1K1 w - - 1 32",
+      "preMove": "d5d6",
+      "solutionLine": [
+        "g3h2",
+        "g1f2",
+        "h4f4",
+        "f2e3",
+        "h2g3",
+        "e3d2",
+        "f4f2",
+        "e2f2",
+        "g3f2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1242,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Queen Pin"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|6k1/pp4p1/3P2p1/8/7r/P1P3q1/1P2Q1P1/4R1K1 b - -|g3h2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bq@h2",
+              "pinned": "wp@g2",
+              "target": "wq@e2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 7,
+        "sourceChunk": 1,
+        "sourceIndex": 25,
+        "sourceIdentity": "zAmcl",
+        "canonicalIdentity": "6k1/pp4p1/3P2p1/8/7r/P1P3q1/1P2Q1P1/4R1K1 b - -|queen-pin|g3h2,g1f2,h4f4,f2e3,h2g3,e3d2,f4f2,e2f2,g3f2|zAmcl",
+        "pedagogicalFamily": "queen-pin|6k1/pp4p1/3P2p1/8/7r/P1P3q1/1P2Q1P1/4R1K1 b - -|g3h2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-w4Slj",
+      "puzzleId": "w4Slj",
+      "fen": "6r1/5Rbk/p4Qpp/2qpN3/4P3/3p3P/P5P1/7K b - - 3 30",
+      "preMove": "d3d2",
+      "solutionLine": [
+        "f6g6",
+        "h7h8",
+        "f7f1",
+        "g8f8",
+        "e5f7",
+        "f8f7",
+        "g6f7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2398,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Queen Pin"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "pin",
+        "quietMove",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "pin",
+        "quietMove",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|6r1/5Rbk/p4Qpp/2qpN3/4P3/7P/P2p2P1/7K w - -|f6g6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@g6",
+              "pinned": "bb@g7",
+              "target": "br@g8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 8,
+        "sourceChunk": 7,
+        "sourceIndex": 14,
+        "sourceIdentity": "w4Slj",
+        "canonicalIdentity": "6r1/5Rbk/p4Qpp/2qpN3/4P3/7P/P2p2P1/7K w - -|queen-pin|f6g6,h7h8,f7f1,g8f8,e5f7,f8f7,g6f7|w4Slj",
+        "pedagogicalFamily": "queen-pin|6r1/5Rbk/p4Qpp/2qpN3/4P3/7P/P2p2P1/7K w - -|f6g6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-xNTsa",
+      "puzzleId": "xNTsa",
+      "fen": "1qr2rk1/p4p2/4p1Bb/1p1p4/2n2P2/2P5/PP5P/R3Q1RK b - - 0 24",
+      "preMove": "f7g6",
+      "solutionLine": [
+        "e1e6",
+        "f8f7",
+        "g1g6",
+        "h6g7",
+        "a1g1",
+        "g8f8",
+        "g6g7",
+        "f7g7",
+        "e6h6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2679,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "fork-queen",
+        "pin-queen",
+        "vulnerable-king",
+        "zwischenzug"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Queen Fork / Double Attack",
+        "Queen Pin",
+        "Vulnerable / Exposed King",
+        "Zwischenzug / Intermezzo"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "intermezzo",
+        "middlegame",
+        "pin",
+        "quietMove",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "intermezzo",
+        "middlegame",
+        "pin",
+        "quietMove",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|1qr2rk1/p7/4p1pb/1p1p4/2n2P2/2P5/PP5P/R3Q1RK w - -|e1e6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@e6",
+              "pinned": "bp@g6",
+              "target": "bb@h6"
+            },
+            {
+              "attacker": "wq@e6",
+              "pinned": "bp@d5",
+              "target": "bn@c4"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 9,
+        "sourceChunk": 9,
+        "sourceIndex": 25,
+        "sourceIdentity": "xNTsa",
+        "canonicalIdentity": "1qr2rk1/p7/4p1pb/1p1p4/2n2P2/2P5/PP5P/R3Q1RK w - -|queen-pin|e1e6,f8f7,g1g6,h6g7,a1g1,g8f8,g6g7,f7g7,e6h6|xNTsa",
+        "pedagogicalFamily": "queen-pin|1qr2rk1/p7/4p1pb/1p1p4/2n2P2/2P5/PP5P/R3Q1RK w - -|e1e6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-yPehk",
+      "puzzleId": "yPehk",
+      "fen": "2kr3r/p1p2ppp/1p1bq3/1B1p4/Q7/2N1P3/PP2K1PP/R7 b - - 1 18",
+      "preMove": "d6c5",
+      "solutionLine": [
+        "a4a7",
+        "e6e3",
+        "e2d1",
+        "e3g1",
+        "d1c2",
+        "g1g2",
+        "c2b3",
+        "d5d4",
+        "a1g1",
+        "g2b7",
+        "b5a6",
+        "b7a6",
+        "a7a6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "tacticDistance": 7,
+      "rating": 2440,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Queen Pin"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|2kr3r/p1p2ppp/1p2q3/1Bbp4/Q7/2N1P3/PP2K1PP/R7 w - -|a4a7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@a7",
+              "pinned": "bp@b6",
+              "target": "bb@c5"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 10,
+        "sourceChunk": 8,
+        "sourceIndex": 1,
+        "sourceIdentity": "yPehk",
+        "canonicalIdentity": "2kr3r/p1p2ppp/1p2q3/1Bbp4/Q7/2N1P3/PP2K1PP/R7 w - -|queen-pin|a4a7,e6e3,e2d1,e3g1,d1c2,g1g2,c2b3,d5d4,a1g1,g2b7,b5a6,b7a6,a7a6|yPehk",
+        "pedagogicalFamily": "queen-pin|2kr3r/p1p2ppp/1p2q3/1Bbp4/Q7/2N1P3/PP2K1PP/R7 w - -|a4a7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-zXnnl",
+      "puzzleId": "zXnnl",
+      "fen": "3q1r2/r3k2p/p2p1n2/1p3pB1/1P1b4/P7/2Q3PP/4RR1K b - - 1 24",
+      "preMove": "d4e5",
+      "solutionLine": [
+        "c2f5",
+        "e7e8",
+        "g5f6",
+        "f8f6",
+        "f5f6",
+        "d8f6",
+        "f1f6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2304,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Queen Pin"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|3q1r2/r3k2p/p2p1n2/1p2bpB1/1P6/P7/2Q3PP/4RR1K w - -|c2f5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@f5",
+              "pinned": "bn@f6",
+              "target": "br@f8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 11,
+        "sourceChunk": 7,
+        "sourceIndex": 15,
+        "sourceIdentity": "zXnnl",
+        "canonicalIdentity": "3q1r2/r3k2p/p2p1n2/1p2bpB1/1P6/P7/2Q3PP/4RR1K w - -|queen-pin|c2f5,e7e8,g5f6,f8f6,f5f6,d8f6,f1f6|zXnnl",
+        "pedagogicalFamily": "queen-pin|3q1r2/r3k2p/p2p1n2/1p2bpB1/1P6/P7/2Q3PP/4RR1K w - -|c2f5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-tp5Ap",
+      "puzzleId": "tp5Ap",
+      "fen": "5rk1/1p4p1/1n1p2q1/pPp1p2p/P1PpP1N1/1Q1P2PP/6P1/R1B3K1 w - - 0 26",
+      "preMove": "g4e5",
+      "solutionLine": [
+        "g6g3",
+        "b3d1",
+        "f8f2",
+        "d1f3",
+        "f2f3",
+        "e5f3",
+        "b6d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2277,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "defense",
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Queen Pin"
+      ],
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "crushing",
+        "defensiveMove",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|5rk1/1p4p1/1n1p2q1/pPp1N2p/P1PpP3/1Q1P2PP/6P1/R1B3K1 b - -|g6g3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bq@g3",
+              "pinned": "wp@d3",
+              "target": "wq@b3"
+            },
+            {
+              "attacker": "bq@g3",
+              "pinned": "wp@g2",
+              "target": "wk@g1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 12,
+        "sourceChunk": 6,
+        "sourceIndex": 27,
+        "sourceIdentity": "tp5Ap",
+        "canonicalIdentity": "5rk1/1p4p1/1n1p2q1/pPp1N2p/P1PpP3/1Q1P2PP/6P1/R1B3K1 b - -|queen-pin|g6g3,b3d1,f8f2,d1f3,f2f3,e5f3,b6d7|tp5Ap",
+        "pedagogicalFamily": "queen-pin|5rk1/1p4p1/1n1p2q1/pPp1N2p/P1PpP3/1Q1P2PP/6P1/R1B3K1 b - -|g6g3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-utrK5",
+      "puzzleId": "utrK5",
+      "fen": "1q6/6pk/8/8/p1Q5/P1P5/1KP5/8 w - - 1 36",
+      "preMove": "b2a2",
+      "solutionLine": [
+        "b8g8",
+        "c4g8",
+        "h7g8",
+        "a2b2",
+        "g7g5",
+        "b2c1",
+        "g8f7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2456,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "defense",
+        "quiet-move",
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Quiet Move",
+        "Queen Pin"
+      ],
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "pin",
+        "queenEndgame",
+        "quietMove",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "pin",
+        "queenEndgame",
+        "quietMove",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|1q6/6pk/8/8/p1Q5/P1P5/K1P5/8 b - -|b8g8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bq@g8",
+              "pinned": "wq@c4",
+              "target": "wk@a2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 13,
+        "sourceChunk": 8,
+        "sourceIndex": 29,
+        "sourceIdentity": "utrK5",
+        "canonicalIdentity": "1q6/6pk/8/8/p1Q5/P1P5/K1P5/8 b - -|queen-pin|b8g8,c4g8,h7g8,a2b2,g7g5,b2c1,g8f7|utrK5",
+        "pedagogicalFamily": "queen-pin|1q6/6pk/8/8/p1Q5/P1P5/K1P5/8 b - -|b8g8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-zrhAf",
+      "puzzleId": "zrhAf",
+      "fen": "rn2kbnr/1b1p1pp1/3q3p/pp1Np3/4P3/2QPBN2/PPP2PPP/R3K2R b KQkq - 5 10",
+      "preMove": "b7d5",
+      "solutionLine": [
+        "c3c8",
+        "e8e7",
+        "e3c5",
+        "b8a6",
+        "c5d6",
+        "e7d6",
+        "c8c3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1973,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "pin-queen",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Queen Pin",
+        "Clearance"
+      ],
+      "themes": [
+        "clearance",
+        "crushing",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "clearance",
+        "crushing",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|rn2kbnr/3p1pp1/3q3p/pp1bp3/4P3/2QPBN2/PPP2PPP/R3K2R w KQkq -|c3c8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@c8",
+              "pinned": "bn@b8",
+              "target": "br@a8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 14,
+        "sourceChunk": 3,
+        "sourceIndex": 25,
+        "sourceIdentity": "zrhAf",
+        "canonicalIdentity": "rn2kbnr/3p1pp1/3q3p/pp1bp3/4P3/2QPBN2/PPP2PPP/R3K2R w KQkq -|queen-pin|c3c8,e8e7,e3c5,b8a6,c5d6,e7d6,c8c3|zrhAf",
+        "pedagogicalFamily": "queen-pin|rn2kbnr/3p1pp1/3q3p/pp1bp3/4P3/2QPBN2/PPP2PPP/R3K2R w KQkq -|c3c8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-zqy82",
+      "puzzleId": "zqy82",
+      "fen": "3r4/1pk1n1pp/2br2q1/Q4p2/5B2/6N1/PPP2PPP/3R2K1 b - - 1 22",
+      "preMove": "c7c8",
+      "solutionLine": [
+        "a5a8",
+        "c8c7",
+        "a8d8",
+        "c7d8",
+        "d1d6",
+        "d8e8",
+        "d6g6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2267,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "pin-queen",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Pin",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|2kr4/1p2n1pp/2br2q1/Q4p2/5B2/6N1/PPP2PPP/3R2K1 w - -|a5a8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@a8",
+              "pinned": "bp@b7",
+              "target": "bb@c6"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 15,
+        "sourceChunk": 6,
+        "sourceIndex": 14,
+        "sourceIdentity": "zqy82",
+        "canonicalIdentity": "2kr4/1p2n1pp/2br2q1/Q4p2/5B2/6N1/PPP2PPP/3R2K1 w - -|queen-pin|a5a8,c8c7,a8d8,c7d8,d1d6,d8e8,d6g6|zqy82",
+        "pedagogicalFamily": "queen-pin|2kr4/1p2n1pp/2br2q1/Q4p2/5B2/6N1/PPP2PPP/3R2K1 w - -|a5a8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-zlEGn",
+      "puzzleId": "zlEGn",
+      "fen": "6k1/1q4pp/3p4/p1rn1pPP/P3b3/1P2P3/1BP4R/1K1Q2R1 w - - 0 31",
+      "preMove": "h5h6",
+      "solutionLine": [
+        "b7b3",
+        "d1d4",
+        "d5c3",
+        "b1c1",
+        "c3e2",
+        "h2e2",
+        "c5c2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2461,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "pin-queen",
+        "queenside-attack"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Queen Pin",
+        "Queenside Attack"
+      ],
+      "themes": [
+        "advantage",
+        "discoveredAttack",
+        "middlegame",
+        "pin",
+        "queensideAttack",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "discoveredAttack",
+        "middlegame",
+        "pin",
+        "queensideAttack",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|6k1/1q4pp/3p3P/p1rn1pP1/P3b3/1P2P3/1BP4R/1K1Q2R1 b - -|b7b3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bq@b3",
+              "pinned": "wb@b2",
+              "target": "wk@b1"
+            },
+            {
+              "attacker": "bq@b3",
+              "pinned": "wp@c2",
+              "target": "wq@d1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 16,
+        "sourceChunk": 8,
+        "sourceIndex": 2,
+        "sourceIdentity": "zlEGn",
+        "canonicalIdentity": "6k1/1q4pp/3p3P/p1rn1pP1/P3b3/1P2P3/1BP4R/1K1Q2R1 b - -|queen-pin|b7b3,d1d4,d5c3,b1c1,c3e2,h2e2,c5c2|zlEGn",
+        "pedagogicalFamily": "queen-pin|6k1/1q4pp/3p3P/p1rn1pP1/P3b3/1P2P3/1BP4R/1K1Q2R1 b - -|b7b3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-vpfX7",
+      "puzzleId": "vpfX7",
+      "fen": "2r2r2/pp2k1pp/4p3/3p2q1/8/2PK3Q/PP4P1/4R3 b - - 1 28",
+      "preMove": "c8c4",
+      "solutionLine": [
+        "h3e6",
+        "e7d8",
+        "e6d6",
+        "d8c8",
+        "d6f8",
+        "g5d8",
+        "e1e8",
+        "d8e8",
+        "f8e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1560,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|5r2/pp2k1pp/4p3/3p2q1/2r5/2PK3Q/PP4P1/4R3 w - -|h3e6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates a relative pin to a more valuable target",
+        "detectedTheme": "relative-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@e6",
+              "pinned": "bp@d5",
+              "target": "br@c4"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 17,
+        "sourceChunk": 1,
+        "sourceIndex": 12,
+        "sourceIdentity": "vpfX7",
+        "canonicalIdentity": "5r2/pp2k1pp/4p3/3p2q1/2r5/2PK3Q/PP4P1/4R3 w - -|queen-pin|h3e6,e7d8,e6d6,d8c8,d6f8,g5d8,e1e8,d8e8,f8e8|vpfX7",
+        "pedagogicalFamily": "queen-pin|5r2/pp2k1pp/4p3/3p2q1/2r5/2PK3Q/PP4P1/4R3 w - -|h3e6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-wmhRi",
+      "puzzleId": "wmhRi",
+      "fen": "2r3k1/p4p1p/2q1p1p1/3r4/3n4/1P4R1/PB1P1PPP/1R1Q2K1 w - - 3 24",
+      "preMove": "b1c1",
+      "solutionLine": [
+        "c6c1",
+        "b2c1",
+        "c8c1",
+        "d1c1",
+        "d4e2",
+        "g1f1",
+        "e2c1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1615,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "pin-queen",
+        "decoy-attraction",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Pin",
+        "Decoy / Attraction",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|2r3k1/p4p1p/2q1p1p1/3r4/3n4/1P4R1/PB1P1PPP/2RQ2K1 b - -|c6c1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "bq@c1",
+              "pinned": "wq@d1",
+              "target": "wk@g1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 18,
+        "sourceChunk": 1,
+        "sourceIndex": 22,
+        "sourceIdentity": "wmhRi",
+        "canonicalIdentity": "2r3k1/p4p1p/2q1p1p1/3r4/3n4/1P4R1/PB1P1PPP/2RQ2K1 b - -|queen-pin|c6c1,b2c1,c8c1,d1c1,d4e2,g1f1,e2c1|wmhRi",
+        "pedagogicalFamily": "queen-pin|2r3k1/p4p1p/2q1p1p1/3r4/3n4/1P4R1/PB1P1PPP/2RQ2K1 b - -|c6c1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "pin-queen-m4-xmsEd",
+      "puzzleId": "xmsEd",
+      "fen": "2kr1r2/2q3p1/p2N4/1p1pP2p/2pP3P/2P2Q2/P5P1/5RK1 b - - 2 27",
+      "preMove": "c8b8",
+      "solutionLine": [
+        "f3f8",
+        "d8f8",
+        "f1f8",
+        "b8a7",
+        "f8f7",
+        "c7f7",
+        "d6f7",
+        "b5b4",
+        "g1f2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2403,
+      "label": "Queen Pin - Tactic in 4+",
+      "theme": "pin-queen",
+      "sourceThemeKeys": [
+        "defense",
+        "pin-queen",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Queen Pin",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "defensiveMove",
+        "endgame",
+        "exposedKing",
+        "master",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "queen-pin",
+      "canonicalThemeLabel": "Queen Pin",
+      "rawTags": [
+        "advantage",
+        "defensiveMove",
+        "endgame",
+        "exposedKing",
+        "master",
+        "pin",
+        "veryLong",
+        "pin-queen",
+        "undefined",
+        "Queen Pin - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-pin|1k1r1r2/2q3p1/p2N4/1p1pP2p/2pP3P/2P2Q2/P5P1/5RK1 w - -|f3f8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece creates an absolute pin to the king",
+        "detectedTheme": "absolute-pin",
+        "evidence": {
+          "pins": [
+            {
+              "attacker": "wq@f8",
+              "pinned": "br@d8",
+              "target": "bk@b8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 19,
+        "sourceChunk": 8,
+        "sourceIndex": 19,
+        "sourceIdentity": "xmsEd",
+        "canonicalIdentity": "1k1r1r2/2q3p1/p2N4/1p1pP2p/2pP3P/2P2Q2/P5P1/5RK1 w - -|queen-pin|f3f8,d8f8,f1f8,b8a7,f8f7,c7f7,d6f7,b5b4,g1f2|xmsEd",
+        "pedagogicalFamily": "queen-pin|1k1r1r2/2q3p1/p2N4/1p1pP2p/2pP3P/2P2Q2/P5P1/5RK1 w - -|f3f8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    }
+  ]
+}

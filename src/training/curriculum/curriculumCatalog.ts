@@ -1,4 +1,5 @@
 import { AUTO_TRAINERS } from "../trainerCatalog"
+import { isPatternTacticLearnerCourseAvailable } from "../../trainers/patternTactic/m1toM4LearnerCurriculum"
 import type { CurriculumArea, CurriculumItem } from "./curriculumTypes"
 
 export const CURRICULUM_AREAS: CurriculumArea[] = [
@@ -107,7 +108,7 @@ function tacticItems(): CurriculumItem[] {
       const [, level, theme] = parseRoute(trainer.route)
       const variantLevel = Number(level.slice(1))
       const stageOrder = theme === "mixed" ? variantLevel : TACTIC_THEME_STAGE[theme]
-      if (!stageOrder) return []
+      if (!stageOrder || !isPatternTacticLearnerCourseAvailable(trainer.trainerKey)) return []
       return [{
         id: `tactics:${trainer.trainerKey}`,
         area: "tactics" as const,

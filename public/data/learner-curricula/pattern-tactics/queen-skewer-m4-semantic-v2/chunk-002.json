@@ -1,0 +1,1794 @@
+{
+  "puzzles": [
+    {
+      "id": "skewer-queen-m4-r4BBv",
+      "puzzleId": "r4BBv",
+      "fen": "6r1/2RQR1bk/p5pp/8/5P2/3p1KPP/8/3q4 w - - 13 42",
+      "preMove": "f3e4",
+      "solutionLine": [
+        "d1e2",
+        "e4d5",
+        "e2e7",
+        "d7e7",
+        "d3d2",
+        "e7e2",
+        "d2d1q",
+        "e2d1",
+        "g8d8",
+        "d5e4",
+        "d8d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "tacticDistance": 6,
+      "rating": 2557,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "skewer-queen",
+        "sacrifice-queen",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Queen Skewer",
+        "Queen Sacrifice",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "promotion",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "promotion",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|6r1/2RQR1bk/p5pp/8/4KP2/3p2PP/8/3q4 b - -|d1e2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@e2",
+              "front": "wk@e4",
+              "back": "wr@e7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 0,
+        "sourceChunk": 9,
+        "sourceIndex": 28,
+        "sourceIdentity": "r4BBv",
+        "canonicalIdentity": "6r1/2RQR1bk/p5pp/8/4KP2/3p2PP/8/3q4 b - -|queen-skewer|d1e2,e4d5,e2e7,d7e7,d3d2,e7e2,d2d1q,e2d1,g8d8,d5e4,d8d1|r4BBv",
+        "pedagogicalFamily": "queen-skewer|6r1/2RQR1bk/p5pp/8/4KP2/3p2PP/8/3q4 b - -|d1e2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-mkjmY",
+      "puzzleId": "mkjmY",
+      "fen": "8/8/kp5p/r7/Q7/P3n3/q1PR3P/2K1R3 w - - 5 42",
+      "preMove": "a4b3",
+      "solutionLine": [
+        "a2a1",
+        "b3b1",
+        "a1a3",
+        "b1b2",
+        "a3a1",
+        "b2a1",
+        "a5a1",
+        "c1b2",
+        "a1e1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2331,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection"
+      ],
+      "themes": [
+        "advantage",
+        "deflection",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "deflection",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|8/8/kp5p/r7/8/PQ2n3/q1PR3P/2K1R3 b - -|a2a1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@a1",
+              "front": "wk@c1",
+              "back": "wr@e1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 1,
+        "sourceChunk": 8,
+        "sourceIndex": 2,
+        "sourceIdentity": "mkjmY",
+        "canonicalIdentity": "8/8/kp5p/r7/8/PQ2n3/q1PR3P/2K1R3 b - -|queen-skewer|a2a1,b3b1,a1a3,b1b2,a3a1,b2a1,a5a1,c1b2,a1e1|mkjmY",
+        "pedagogicalFamily": "queen-skewer|8/8/kp5p/r7/8/PQ2n3/q1PR3P/2K1R3 b - -|a2a1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-oLHGy",
+      "puzzleId": "oLHGy",
+      "fen": "r4k2/pp2ppr1/3p2pQ/q2P2Np/4PP1P/1p1P4/P5P1/R4K2 b - - 1 19",
+      "preMove": "a5d2",
+      "solutionLine": [
+        "h6h8",
+        "g7g8",
+        "g5h7",
+        "f8e8",
+        "h8g8",
+        "e8d7",
+        "g8a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1237,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|r4k2/pp2ppr1/3p2pQ/3P2Np/4PP1P/1p1P4/P2q2P1/R4K2 w - -|h6h8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@h8",
+              "front": "bk@f8",
+              "back": "br@a8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 1,
+        "sourceIdentity": "oLHGy",
+        "canonicalIdentity": "r4k2/pp2ppr1/3p2pQ/3P2Np/4PP1P/1p1P4/P2q2P1/R4K2 w - -|queen-skewer|h6h8,g7g8,g5h7,f8e8,h8g8,e8d7,g8a8|oLHGy",
+        "pedagogicalFamily": "queen-skewer|r4k2/pp2ppr1/3p2pQ/3P2Np/4PP1P/1p1P4/P2q2P1/R4K2 w - -|h6h8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-jF5iC",
+      "puzzleId": "jF5iC",
+      "fen": "3k3r/1p1n2p1/2r5/3QP3/p2P2P1/1N2R1K1/1P1R4/1q6 w - - 3 33",
+      "preMove": "b3c5",
+      "solutionLine": [
+        "b1g1",
+        "g3f4",
+        "h8f8",
+        "f4e4",
+        "g1h1",
+        "e4d3",
+        "h1d5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2062,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "skewer-queen",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Skewer",
+        "Deflection"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|3k3r/1p1n2p1/2r5/2NQP3/p2P2P1/4R1K1/1P1R4/1q6 b - -|b1g1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@g1",
+              "front": "wk@g3",
+              "back": "wp@g4"
+            },
+            {
+              "attacker": "bq@g1",
+              "front": "wr@e3",
+              "back": "wp@d4"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 3,
+        "sourceChunk": 6,
+        "sourceIndex": 23,
+        "sourceIdentity": "jF5iC",
+        "canonicalIdentity": "3k3r/1p1n2p1/2r5/2NQP3/p2P2P1/4R1K1/1P1R4/1q6 b - -|queen-skewer|b1g1,g3f4,h8f8,f4e4,g1h1,e4d3,h1d5|jF5iC",
+        "pedagogicalFamily": "queen-skewer|3k3r/1p1n2p1/2r5/2NQP3/p2P2P1/4R1K1/1P1R4/1q6 b - -|b1g1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-W1Lwl",
+      "puzzleId": "W1Lwl",
+      "fen": "2b1r1k1/4r1qp/1p1p4/p2P2p1/2PRP3/1P4pP/P2Q1KBN/4R3 w - - 0 28",
+      "preMove": "f2g3",
+      "solutionLine": [
+        "g7e5",
+        "g3f2",
+        "e5h2",
+        "d2g5",
+        "e7g7",
+        "e1h1",
+        "e8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2006,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection"
+      ],
+      "themes": [
+        "advantage",
+        "deflection",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "deflection",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|2b1r1k1/4r1qp/1p1p4/p2P2p1/2PRP3/1P4KP/P2Q2BN/4R3 b - -|g7e5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@e5",
+              "front": "wk@g3",
+              "back": "wn@h2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 4,
+        "sourceChunk": 6,
+        "sourceIndex": 6,
+        "sourceIdentity": "W1Lwl",
+        "canonicalIdentity": "2b1r1k1/4r1qp/1p1p4/p2P2p1/2PRP3/1P4KP/P2Q2BN/4R3 b - -|queen-skewer|g7e5,g3f2,e5h2,d2g5,e7g7,e1h1,e8f8|W1Lwl",
+        "pedagogicalFamily": "queen-skewer|2b1r1k1/4r1qp/1p1p4/p2P2p1/2PRP3/1P4KP/P2Q2BN/4R3 b - -|g7e5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-wcqWD",
+      "puzzleId": "wcqWD",
+      "fen": "b7/p3Q3/1p6/2k1p3/P2p4/1P1K4/2P5/1q6 b - - 9 46",
+      "preMove": "c5d5",
+      "solutionLine": [
+        "e7d7",
+        "d5c5",
+        "b3b4",
+        "b1b4",
+        "d7e7",
+        "c5d5",
+        "e7b4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2121,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|b7/p3Q3/1p6/3kp3/P2p4/1P1K4/2P5/1q6 w - -|e7d7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@d7",
+              "front": "bk@d5",
+              "back": "bp@d4"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 19,
+        "sourceIdentity": "wcqWD",
+        "canonicalIdentity": "b7/p3Q3/1p6/3kp3/P2p4/1P1K4/2P5/1q6 w - -|queen-skewer|e7d7,d5c5,b3b4,b1b4,d7e7,c5d5,e7b4|wcqWD",
+        "pedagogicalFamily": "queen-skewer|b7/p3Q3/1p6/3kp3/P2p4/1P1K4/2P5/1q6 w - -|e7d7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-w4Q68",
+      "puzzleId": "w4Q68",
+      "fen": "8/8/3Q4/5p2/5k2/7q/P1P1p3/6K1 b - - 2 42",
+      "preMove": "f4e3",
+      "solutionLine": [
+        "d6d3",
+        "e3f4",
+        "d3h3",
+        "e2e1q",
+        "h3f1",
+        "e1f1",
+        "g1f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1404,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "queenEndgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "queenEndgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|8/8/3Q4/5p2/8/4k2q/P1P1p3/6K1 w - -|d6d3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@d3",
+              "front": "bk@e3",
+              "back": "bq@h3"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 6,
+        "sourceChunk": 2,
+        "sourceIndex": 15,
+        "sourceIdentity": "w4Q68",
+        "canonicalIdentity": "8/8/3Q4/5p2/8/4k2q/P1P1p3/6K1 w - -|queen-skewer|d6d3,e3f4,d3h3,e2e1q,h3f1,e1f1,g1f1|w4Q68",
+        "pedagogicalFamily": "queen-skewer|8/8/3Q4/5p2/8/4k2q/P1P1p3/6K1 w - -|d6d3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-xkkYX",
+      "puzzleId": "xkkYX",
+      "fen": "7r/pk3p2/n1q1p3/8/Q1pr4/2N3P1/1PK2P1P/R6R b - - 1 22",
+      "preMove": "a6c5",
+      "solutionLine": [
+        "a4a7",
+        "b7c8",
+        "a7a8",
+        "c6a8",
+        "a1a8",
+        "c8d7",
+        "a8h8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1583,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|7r/pk3p2/2q1p3/2n5/Q1pr4/2N3P1/1PK2P1P/R6R w - -|a4a7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@a7",
+              "front": "bk@b7",
+              "back": "bp@f7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 26,
+        "sourceIdentity": "xkkYX",
+        "canonicalIdentity": "7r/pk3p2/2q1p3/2n5/Q1pr4/2N3P1/1PK2P1P/R6R w - -|queen-skewer|a4a7,b7c8,a7a8,c6a8,a1a8,c8d7,a8h8|xkkYX",
+        "pedagogicalFamily": "queen-skewer|7r/pk3p2/2q1p3/2n5/Q1pr4/2N3P1/1PK2P1P/R6R w - -|a4a7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-mnK3h",
+      "puzzleId": "mnK3h",
+      "fen": "8/8/4rr1p/5kp1/8/3Q3P/6PK/8 b - - 17 56",
+      "preMove": "e6e4",
+      "solutionLine": [
+        "d3d5",
+        "f5f4",
+        "g2g3",
+        "f4e3",
+        "d5b3",
+        "e3d4",
+        "b3b2",
+        "d4d5",
+        "b2f6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2302,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "queenRookEndgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "queenRookEndgame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|8/8/5r1p/5kp1/4r3/3Q3P/6PK/8 w - -|d3d5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@d5",
+              "front": "bk@f5",
+              "back": "bp@g5"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 8,
+        "sourceChunk": 8,
+        "sourceIndex": 1,
+        "sourceIdentity": "mnK3h",
+        "canonicalIdentity": "8/8/5r1p/5kp1/4r3/3Q3P/6PK/8 w - -|queen-skewer|d3d5,f5f4,g2g3,f4e3,d5b3,e3d4,b3b2,d4d5,b2f6|mnK3h",
+        "pedagogicalFamily": "queen-skewer|8/8/5r1p/5kp1/4r3/3Q3P/6PK/8 w - -|d3d5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-SQndh",
+      "puzzleId": "SQndh",
+      "fen": "r3r1k1/pppn1pbp/3p2p1/3Pqb2/2P5/1PN1B2P/P2QB1P1/2R1K1NR w K - 0 16",
+      "preMove": "e1f2",
+      "solutionLine": [
+        "e5e3",
+        "d2e3",
+        "e8e3",
+        "f2e3",
+        "g7h6",
+        "e3f2",
+        "h6c1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1702,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "decoy-attraction",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Decoy / Attraction",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|r3r1k1/pppn1pbp/3p2p1/3Pqb2/2P5/1PN1B2P/P2QBKP1/2R3NR b - -|e5e3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@e3",
+              "front": "wn@c3",
+              "back": "wp@b3"
+            },
+            {
+              "attacker": "bq@e3",
+              "front": "wk@f2",
+              "back": "wn@g1"
+            },
+            {
+              "attacker": "bq@e3",
+              "front": "wq@d2",
+              "back": "wr@c1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 9,
+        "sourceChunk": 3,
+        "sourceIndex": 2,
+        "sourceIdentity": "SQndh",
+        "canonicalIdentity": "r3r1k1/pppn1pbp/3p2p1/3Pqb2/2P5/1PN1B2P/P2QBKP1/2R3NR b - -|queen-skewer|e5e3,d2e3,e8e3,f2e3,g7h6,e3f2,h6c1|SQndh",
+        "pedagogicalFamily": "queen-skewer|r3r1k1/pppn1pbp/3p2p1/3Pqb2/2P5/1PN1B2P/P2QBKP1/2R3NR b - -|e5e3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-tsDDL",
+      "puzzleId": "tsDDL",
+      "fen": "r5k1/pp1q1p1p/6p1/P2pn2r/1P1N1P2/2PB3P/2Q4K/R4R2 w - - 1 26",
+      "preMove": "f4e5",
+      "solutionLine": [
+        "d7h3",
+        "h2g1",
+        "h5g5",
+        "g1f2",
+        "g5g2",
+        "f2e1",
+        "g2c2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2085,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|r5k1/pp1q1p1p/6p1/P2pP2r/1P1N4/2PB3P/2Q4K/R4R2 b - -|d7h3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@h3",
+              "front": "wb@d3",
+              "back": "wp@c3"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 10,
+        "sourceChunk": 6,
+        "sourceIndex": 26,
+        "sourceIdentity": "tsDDL",
+        "canonicalIdentity": "r5k1/pp1q1p1p/6p1/P2pP2r/1P1N4/2PB3P/2Q4K/R4R2 b - -|queen-skewer|d7h3,h2g1,h5g5,g1f2,g5g2,f2e1,g2c2|tsDDL",
+        "pedagogicalFamily": "queen-skewer|r5k1/pp1q1p1p/6p1/P2pP2r/1P1N4/2PB3P/2Q4K/R4R2 b - -|d7h3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-nl1W7",
+      "puzzleId": "nl1W7",
+      "fen": "2rk3r/pb2q1p1/1p1p1bBp/1P3Q2/2nP4/P7/1B3PPP/2R1R1K1 b - - 1 22",
+      "preMove": "e7d7",
+      "solutionLine": [
+        "f5d7",
+        "d8d7",
+        "g6f5",
+        "d7d8",
+        "f5c8",
+        "d8c8",
+        "c1c4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1562,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "decoy-attraction",
+        "remove-the-defender",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Decoy / Attraction",
+        "Remove the Defender",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "capturingDefender",
+        "exposedKing",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "capturingDefender",
+        "exposedKing",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|2rk3r/pb1q2p1/1p1p1bBp/1P3Q2/2nP4/P7/1B3PPP/2R1R1K1 w - -|f5d7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@d7",
+              "front": "bb@b7",
+              "back": "bp@a7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 11,
+        "sourceChunk": 3,
+        "sourceIndex": 11,
+        "sourceIdentity": "nl1W7",
+        "canonicalIdentity": "2rk3r/pb1q2p1/1p1p1bBp/1P3Q2/2nP4/P7/1B3PPP/2R1R1K1 w - -|queen-skewer|f5d7,d8d7,g6f5,d7d8,f5c8,d8c8,c1c4|nl1W7",
+        "pedagogicalFamily": "queen-skewer|2rk3r/pb1q2p1/1p1p1bBp/1P3Q2/2nP4/P7/1B3PPP/2R1R1K1 w - -|f5d7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-xRIlp",
+      "puzzleId": "xRIlp",
+      "fen": "r3k2r/p2bb1pp/5q2/3Q1p1P/7n/6N1/PP3PP1/R1B2RK1 b kq - 0 20",
+      "preMove": "f6e6",
+      "solutionLine": [
+        "d5a8",
+        "e8f7",
+        "a8h8",
+        "e6c6",
+        "f2f3",
+        "c6c2",
+        "f1f2",
+        "e7c5",
+        "g3h1",
+        "c2d1",
+        "g1h2",
+        "d1d6",
+        "h2h3",
+        "c5f2",
+        "h1f2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "tacticDistance": 8,
+      "rating": 2694,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "skewer-queen",
+        "hanging-piece",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Queen Skewer",
+        "Hanging Piece",
+        "Clearance"
+      ],
+      "themes": [
+        "clearance",
+        "crushing",
+        "hangingPiece",
+        "middlegame",
+        "quietMove",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "clearance",
+        "crushing",
+        "hangingPiece",
+        "middlegame",
+        "quietMove",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|r3k2r/p2bb1pp/4q3/3Q1p1P/7n/6N1/PP3PP1/R1B2RK1 w kq -|d5a8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@a8",
+              "front": "bk@e8",
+              "back": "br@h8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 12,
+        "sourceChunk": 10,
+        "sourceIndex": 5,
+        "sourceIdentity": "xRIlp",
+        "canonicalIdentity": "r3k2r/p2bb1pp/4q3/3Q1p1P/7n/6N1/PP3PP1/R1B2RK1 w kq -|queen-skewer|d5a8,e8f7,a8h8,e6c6,f2f3,c6c2,f1f2,e7c5,g3h1,c2d1,g1h2,d1d6,h2h3,c5f2,h1f2|xRIlp",
+        "pedagogicalFamily": "queen-skewer|r3k2r/p2bb1pp/4q3/3Q1p1P/7n/6N1/PP3PP1/R1B2RK1 w kq -|d5a8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-wQbzg",
+      "puzzleId": "wQbzg",
+      "fen": "2r2qk1/1b4rp/p5BQ/3p2P1/8/1N6/PK5R/8 b - - 0 31",
+      "preMove": "h7g6",
+      "solutionLine": [
+        "h6h8",
+        "g8f7",
+        "h2f2",
+        "f7e7",
+        "f2f8",
+        "c8f8",
+        "h8g7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1392,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "remove-the-defender",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Remove the Defender",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "capturingDefender",
+        "crushing",
+        "exposedKing",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "capturingDefender",
+        "crushing",
+        "exposedKing",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|2r2qk1/1b4r1/p5pQ/3p2P1/8/1N6/PK5R/8 w - -|h6h8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@h8",
+              "front": "bk@g8",
+              "back": "bq@f8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 13,
+        "sourceChunk": 2,
+        "sourceIndex": 7,
+        "sourceIdentity": "wQbzg",
+        "canonicalIdentity": "2r2qk1/1b4r1/p5pQ/3p2P1/8/1N6/PK5R/8 w - -|queen-skewer|h6h8,g8f7,h2f2,f7e7,f2f8,c8f8,h8g7|wQbzg",
+        "pedagogicalFamily": "queen-skewer|2r2qk1/1b4r1/p5pQ/3p2P1/8/1N6/PK5R/8 w - -|h6h8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-wmi8h",
+      "puzzleId": "wmi8h",
+      "fen": "5r2/1q3kp1/2np1pQ1/2p2Pp1/2P5/3P3R/6PP/5K2 b - - 7 33",
+      "preMove": "f7e7",
+      "solutionLine": [
+        "g6g7",
+        "f8f7",
+        "g7f7",
+        "e7f7",
+        "h3h7",
+        "f7e8",
+        "h7b7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2150,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "decoy-attraction",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Decoy / Attraction",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|5r2/1q2k1p1/2np1pQ1/2p2Pp1/2P5/3P3R/6PP/5K2 w - -|g6g7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@g7",
+              "front": "bk@e7",
+              "back": "bq@b7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 14,
+        "sourceChunk": 7,
+        "sourceIndex": 8,
+        "sourceIdentity": "wmi8h",
+        "canonicalIdentity": "5r2/1q2k1p1/2np1pQ1/2p2Pp1/2P5/3P3R/6PP/5K2 w - -|queen-skewer|g6g7,f8f7,g7f7,e7f7,h3h7,f7e8,h7b7|wmi8h",
+        "pedagogicalFamily": "queen-skewer|5r2/1q2k1p1/2np1pQ1/2p2Pp1/2P5/3P3R/6PP/5K2 w - -|g6g7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-kLkhC",
+      "puzzleId": "kLkhC",
+      "fen": "8/8/2P2p2/1p3r2/4p2k/2Q1Pq2/5P2/2R2K2 w - - 5 53",
+      "preMove": "c3b2",
+      "solutionLine": [
+        "f3h1",
+        "f1e2",
+        "f5f2",
+        "e2f2",
+        "h1h2",
+        "f2e1",
+        "h2b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2040,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "discovered-attack",
+        "skewer-queen",
+        "decoy-attraction",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Discovered Attack",
+        "Queen Skewer",
+        "Decoy / Attraction",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "discoveredAttack",
+        "endgame",
+        "master",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "discoveredAttack",
+        "endgame",
+        "master",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|8/8/2P2p2/1p3r2/4p2k/4Pq2/1Q3P2/2R2K2 b - -|f3h1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@h1",
+              "front": "wk@f1",
+              "back": "wr@c1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 15,
+        "sourceChunk": 6,
+        "sourceIndex": 12,
+        "sourceIdentity": "kLkhC",
+        "canonicalIdentity": "8/8/2P2p2/1p3r2/4p2k/4Pq2/1Q3P2/2R2K2 b - -|queen-skewer|f3h1,f1e2,f5f2,e2f2,h1h2,f2e1,h2b2|kLkhC",
+        "pedagogicalFamily": "queen-skewer|8/8/2P2p2/1p3r2/4p2k/4Pq2/1Q3P2/2R2K2 b - -|f3h1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-wW62w",
+      "puzzleId": "wW62w",
+      "fen": "2k3rr/pp3p2/2p1pp2/8/3P4/2PQ3p/PP2Bq2/R5RK w - - 0 24",
+      "preMove": "d3f3",
+      "solutionLine": [
+        "f2g2",
+        "g1g2",
+        "h3g2",
+        "h1g1",
+        "h8h1",
+        "g1f2",
+        "h1a1",
+        "f3g2",
+        "g8g2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2130,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "discovered-check",
+        "double-check",
+        "skewer-queen",
+        "vulnerable-king",
+        "kingside-attack",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Discovered Check",
+        "Double Check",
+        "Queen Skewer",
+        "Vulnerable / Exposed King",
+        "Kingside Attack",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "discoveredCheck",
+        "doubleCheck",
+        "exposedKing",
+        "kingsideAttack",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advancedPawn",
+        "crushing",
+        "discoveredCheck",
+        "doubleCheck",
+        "exposedKing",
+        "kingsideAttack",
+        "middlegame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|2k3rr/pp3p2/2p1pp2/8/3P4/2P2Q1p/PP2Bq2/R5RK b - -|f2g2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@g2",
+              "front": "wb@e2",
+              "back": "wp@b2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 16,
+        "sourceChunk": 7,
+        "sourceIndex": 7,
+        "sourceIdentity": "wW62w",
+        "canonicalIdentity": "2k3rr/pp3p2/2p1pp2/8/3P4/2P2Q1p/PP2Bq2/R5RK b - -|queen-skewer|f2g2,g1g2,h3g2,h1g1,h8h1,g1f2,h1a1,f3g2,g8g2|wW62w",
+        "pedagogicalFamily": "queen-skewer|2k3rr/pp3p2/2p1pp2/8/3P4/2P2Q1p/PP2Bq2/R5RK b - -|f2g2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-i2YCe",
+      "puzzleId": "i2YCe",
+      "fen": "5r1N/p1kn3p/b1p1p3/3p3Q/3P3B/4PK2/P4PP1/q4B1R w - - 5 26",
+      "preMove": "h8f7",
+      "solutionLine": [
+        "a1d1",
+        "f3g3",
+        "d1h5",
+        "h4d8",
+        "f8d8",
+        "h1h5",
+        "d8g8",
+        "h5g5",
+        "g8g5",
+        "f7g5",
+        "a6f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "tacticDistance": 6,
+      "rating": 2316,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "advantage",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|5r2/p1kn1N1p/b1p1p3/3p3Q/3P3B/4PK2/P4PP1/q4B1R b - -|a1d1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@d1",
+              "front": "wk@f3",
+              "back": "wq@h5"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 17,
+        "sourceChunk": 8,
+        "sourceIndex": 5,
+        "sourceIdentity": "i2YCe",
+        "canonicalIdentity": "5r2/p1kn1N1p/b1p1p3/3p3Q/3P3B/4PK2/P4PP1/q4B1R b - -|queen-skewer|a1d1,f3g3,d1h5,h4d8,f8d8,h1h5,d8g8,h5g5,g8g5,f7g5,a6f1|i2YCe",
+        "pedagogicalFamily": "queen-skewer|5r2/p1kn1N1p/b1p1p3/3p3Q/3P3B/4PK2/P4PP1/q4B1R b - -|a1d1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-shckB",
+      "puzzleId": "shckB",
+      "fen": "6k1/5p2/2p3p1/2N1Q2p/1P5P/P4bP1/5P1K/3q4 w - - 5 41",
+      "preMove": "g3g4",
+      "solutionLine": [
+        "d1h1",
+        "h2g3",
+        "h1g2",
+        "g3f4",
+        "g2h2",
+        "f4f3",
+        "h2e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1867,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "deflection",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Deflection",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|6k1/5p2/2p3p1/2N1Q2p/1P4PP/P4b2/5P1K/3q4 b - -|d1h1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bq@h1",
+              "front": "wk@h2",
+              "back": "wp@h4"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 18,
+        "sourceChunk": 4,
+        "sourceIndex": 14,
+        "sourceIdentity": "shckB",
+        "canonicalIdentity": "6k1/5p2/2p3p1/2N1Q2p/1P4PP/P4b2/5P1K/3q4 b - -|queen-skewer|d1h1,h2g3,h1g2,g3f4,g2h2,f4f3,h2e5|shckB",
+        "pedagogicalFamily": "queen-skewer|6k1/5p2/2p3p1/2N1Q2p/1P4PP/P4b2/5P1K/3q4 b - -|d1h1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-queen-m4-p9LiQ",
+      "puzzleId": "p9LiQ",
+      "fen": "2k4r/Qpp2ppp/8/n4q2/4p3/P3B3/P2R1PPP/1b4K1 b - - 0 19",
+      "preMove": "a5c6",
+      "solutionLine": [
+        "a7a8",
+        "c6b8",
+        "e3a7",
+        "b1d3",
+        "a8b8",
+        "c8d7",
+        "b8h8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1509,
+      "label": "Queen Skewer - Tactic in 4+",
+      "theme": "skewer-queen",
+      "sourceThemeKeys": [
+        "skewer-queen",
+        "queenside-attack",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Queen Skewer",
+        "Queenside Attack",
+        "Clearance"
+      ],
+      "themes": [
+        "clearance",
+        "crushing",
+        "middlegame",
+        "queensideAttack",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "queen-skewer",
+      "canonicalThemeLabel": "Queen Skewer",
+      "rawTags": [
+        "clearance",
+        "crushing",
+        "middlegame",
+        "queensideAttack",
+        "skewer",
+        "veryLong",
+        "skewer-queen",
+        "undefined",
+        "Queen Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-skewer|2k4r/Qpp2ppp/2n5/5q2/4p3/P3B3/P2R1PPP/1b4K1 w - -|a7a8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wq@a8",
+              "front": "bk@c8",
+              "back": "br@h8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 19,
+        "sourceChunk": 2,
+        "sourceIndex": 3,
+        "sourceIdentity": "p9LiQ",
+        "canonicalIdentity": "2k4r/Qpp2ppp/2n5/5q2/4p3/P3B3/P2R1PPP/1b4K1 w - -|queen-skewer|a7a8,c6b8,e3a7,b1d3,a8b8,c8d7,b8h8|p9LiQ",
+        "pedagogicalFamily": "queen-skewer|2k4r/Qpp2ppp/2n5/5q2/4p3/P3B3/P2R1PPP/1b4K1 w - -|a7a8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    }
+  ]
+}

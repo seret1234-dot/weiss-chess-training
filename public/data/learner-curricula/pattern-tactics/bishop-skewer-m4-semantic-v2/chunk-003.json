@@ -1,0 +1,1724 @@
+{
+  "puzzles": [
+    {
+      "id": "skewer-bishop-m4-kOZk0",
+      "puzzleId": "kOZk0",
+      "fen": "8/6b1/p5P1/8/3k4/3p4/1K1B4/8 b - - 4 60",
+      "preMove": "g7f6",
+      "solutionLine": [
+        "d2c3",
+        "d4e4",
+        "c3f6",
+        "e4f5",
+        "g6g7",
+        "d3d2",
+        "b2c2",
+        "d2d1q",
+        "c2d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1707,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|8/8/p4bP1/8/3k4/3p4/1K1B4/8 w - -|d2c3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@c3",
+              "front": "bk@d4",
+              "back": "bb@f6"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 0,
+        "sourceChunk": 3,
+        "sourceIndex": 26,
+        "sourceIdentity": "kOZk0",
+        "canonicalIdentity": "8/8/p4bP1/8/3k4/3p4/1K1B4/8 w - -|bishop-skewer|d2c3,d4e4,c3f6,e4f5,g6g7,d3d2,b2c2,d2d1q,c2d1|kOZk0",
+        "pedagogicalFamily": "bishop-skewer|8/8/p4bP1/8/3k4/3p4/1K1B4/8 w - -|d2c3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-662Xw",
+      "puzzleId": "662Xw",
+      "fen": "2r3k1/p5b1/2pB1q2/2Pp1PpB/P3p3/1r1bP2P/3Q1P2/2RR2K1 b - - 0 26",
+      "preMove": "f6f5",
+      "solutionLine": [
+        "h5g4",
+        "f5f7",
+        "g4c8",
+        "b3b2",
+        "d2e1",
+        "b2e2",
+        "e1f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1893,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "middlegame",
+        "quietMove",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "middlegame",
+        "quietMove",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|2r3k1/p5b1/2pB4/2Pp1qpB/P3p3/1r1bP2P/3Q1P2/2RR2K1 w - -|h5g4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@g4",
+              "front": "bq@f5",
+              "back": "br@c8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 1,
+        "sourceChunk": 5,
+        "sourceIndex": 5,
+        "sourceIdentity": "662Xw",
+        "canonicalIdentity": "2r3k1/p5b1/2pB4/2Pp1qpB/P3p3/1r1bP2P/3Q1P2/2RR2K1 w - -|bishop-skewer|h5g4,f5f7,g4c8,b3b2,d2e1,b2e2,e1f1|662Xw",
+        "pedagogicalFamily": "bishop-skewer|2r3k1/p5b1/2pB4/2Pp1qpB/P3p3/1r1bP2P/3Q1P2/2RR2K1 w - -|h5g4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-x0enW",
+      "puzzleId": "x0enW",
+      "fen": "r4rk1/2p2pb1/pp1p3p/3PP3/5pPq/2NB1Qn1/PPPN2P1/R4RK1 w - - 3 22",
+      "preMove": "f3f4",
+      "solutionLine": [
+        "g7e5",
+        "d2f3",
+        "h4h1",
+        "g1f2",
+        "h1f1",
+        "a1f1",
+        "e5f4",
+        "c3e2",
+        "g3e2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2157,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "kingside-attack"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Kingside Attack"
+      ],
+      "themes": [
+        "advantage",
+        "kingsideAttack",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "kingsideAttack",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|r4rk1/2p2pb1/pp1p3p/3PP3/5QPq/2NB2n1/PPPN2P1/R4RK1 b - -|g7e5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bb@e5",
+              "front": "wn@c3",
+              "back": "wp@b2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 2,
+        "sourceChunk": 7,
+        "sourceIndex": 0,
+        "sourceIdentity": "x0enW",
+        "canonicalIdentity": "r4rk1/2p2pb1/pp1p3p/3PP3/5QPq/2NB2n1/PPPN2P1/R4RK1 b - -|bishop-skewer|g7e5,d2f3,h4h1,g1f2,h1f1,a1f1,e5f4,c3e2,g3e2|x0enW",
+        "pedagogicalFamily": "bishop-skewer|r4rk1/2p2pb1/pp1p3p/3PP3/5QPq/2NB2n1/PPPN2P1/R4RK1 b - -|g7e5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-cLhBl",
+      "puzzleId": "cLhBl",
+      "fen": "8/8/1P1B4/5p2/8/4k2p/2K3p1/8 b - - 0 64",
+      "preMove": "g2g1q",
+      "solutionLine": [
+        "d6c5",
+        "e3f3",
+        "c5g1",
+        "f3g2",
+        "b6b7",
+        "g2g1",
+        "b7b8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1406,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "skewer-bishop",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Bishop Skewer",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "master",
+        "promotion",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "master",
+        "promotion",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|8/8/1P1B4/5p2/8/4k2p/2K5/6q1 w - -|d6c5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@c5",
+              "front": "bk@e3",
+              "back": "bq@g1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 3,
+        "sourceChunk": 2,
+        "sourceIndex": 13,
+        "sourceIdentity": "cLhBl",
+        "canonicalIdentity": "8/8/1P1B4/5p2/8/4k2p/2K5/6q1 w - -|bishop-skewer|d6c5,e3f3,c5g1,f3g2,b6b7,g2g1,b7b8q|cLhBl",
+        "pedagogicalFamily": "bishop-skewer|8/8/1P1B4/5p2/8/4k2p/2K5/6q1 w - -|d6c5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-lUy3v",
+      "puzzleId": "lUy3v",
+      "fen": "8/ppQ5/6k1/3Pn3/3K2pb/2Nq4/PP2N3/R7 w - - 12 43",
+      "preMove": "d4e5",
+      "solutionLine": [
+        "h4g3",
+        "e2f4",
+        "g3f4",
+        "e5f4",
+        "d3f3",
+        "f4e5",
+        "f3g3",
+        "e5e4",
+        "g3c7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1782,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|8/ppQ5/6k1/3PK3/6pb/2Nq4/PP2N3/R7 b - -|h4g3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bb@g3",
+              "front": "wk@e5",
+              "back": "wq@c7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 4,
+        "sourceChunk": 4,
+        "sourceIndex": 29,
+        "sourceIdentity": "lUy3v",
+        "canonicalIdentity": "8/ppQ5/6k1/3PK3/6pb/2Nq4/PP2N3/R7 b - -|bishop-skewer|h4g3,e2f4,g3f4,e5f4,d3f3,f4e5,f3g3,e5e4,g3c7|lUy3v",
+        "pedagogicalFamily": "bishop-skewer|8/ppQ5/6k1/3PK3/6pb/2Nq4/PP2N3/R7 b - -|h4g3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-dikvs",
+      "puzzleId": "dikvs",
+      "fen": "r1bq1r2/pp4p1/n1pk4/4p3/8/PBPQ4/1PP3PP/R1B1b2K b - - 1 17",
+      "preMove": "d6e7",
+      "solutionLine": [
+        "c1g5",
+        "f8f6",
+        "g5f6",
+        "g7f6",
+        "d3h7",
+        "e7d6",
+        "a1d1",
+        "d6c5",
+        "d1d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2276,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop",
+        "skewer-bishop",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack",
+        "Bishop Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|r1bq1r2/pp2k1p1/n1p5/4p3/8/PBPQ4/1PP3PP/R1B1b2K w - -|c1g5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@g5",
+              "front": "bk@e7",
+              "back": "bq@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 5,
+        "sourceChunk": 8,
+        "sourceIndex": 4,
+        "sourceIdentity": "dikvs",
+        "canonicalIdentity": "r1bq1r2/pp2k1p1/n1p5/4p3/8/PBPQ4/1PP3PP/R1B1b2K w - -|bishop-skewer|c1g5,f8f6,g5f6,g7f6,d3h7,e7d6,a1d1,d6c5,d1d8|dikvs",
+        "pedagogicalFamily": "bishop-skewer|r1bq1r2/pp2k1p1/n1p5/4p3/8/PBPQ4/1PP3PP/R1B1b2K w - -|c1g5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-UWJVI",
+      "puzzleId": "UWJVI",
+      "fen": "3r2k1/1bp2ppp/pp1bp3/8/4pB1Q/1Pq1P3/P3BPPP/5RK1 b - - 5 23",
+      "preMove": "c3f6",
+      "solutionLine": [
+        "f4g5",
+        "f6b2",
+        "g5d8",
+        "b2e2",
+        "d8c7",
+        "d6c7",
+        "h4e7",
+        "c7h2",
+        "g1h2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2134,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "master",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "master",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|3r2k1/1bp2ppp/pp1bpq2/8/4pB1Q/1P2P3/P3BPPP/5RK1 w - -|f4g5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@g5",
+              "front": "bq@f6",
+              "back": "br@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 6,
+        "sourceChunk": 7,
+        "sourceIndex": 20,
+        "sourceIdentity": "UWJVI",
+        "canonicalIdentity": "3r2k1/1bp2ppp/pp1bpq2/8/4pB1Q/1P2P3/P3BPPP/5RK1 w - -|bishop-skewer|f4g5,f6b2,g5d8,b2e2,d8c7,d6c7,h4e7,c7h2,g1h2|UWJVI",
+        "pedagogicalFamily": "bishop-skewer|3r2k1/1bp2ppp/pp1bpq2/8/4pB1Q/1P2P3/P3BPPP/5RK1 w - -|f4g5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-OCvkc",
+      "puzzleId": "OCvkc",
+      "fen": "8/p3b3/4P1k1/1p6/1P3K1P/2B5/8/8 w - - 3 50",
+      "preMove": "f4e5",
+      "solutionLine": [
+        "e7f6",
+        "e5d5",
+        "f6c3",
+        "e6e7",
+        "g6f7",
+        "e7e8r",
+        "f7e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1294,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|8/p3b3/4P1k1/1p2K3/1P5P/2B5/8/8 b - -|e7f6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bb@f6",
+              "front": "wk@e5",
+              "back": "wb@c3"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 7,
+        "sourceChunk": 1,
+        "sourceIndex": 18,
+        "sourceIdentity": "OCvkc",
+        "canonicalIdentity": "8/p3b3/4P1k1/1p2K3/1P5P/2B5/8/8 b - -|bishop-skewer|e7f6,e5d5,f6c3,e6e7,g6f7,e7e8r,f7e8|OCvkc",
+        "pedagogicalFamily": "bishop-skewer|8/p3b3/4P1k1/1p2K3/1P5P/2B5/8/8 b - -|e7f6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-OVVwZ",
+      "puzzleId": "OVVwZ",
+      "fen": "3r1b1r/Ppkb2pp/3p1pn1/P2p4/2B1P3/4BP2/2P2P1P/R3K2R b KQ - 2 17",
+      "preMove": "d5c4",
+      "solutionLine": [
+        "e3b6",
+        "c7c6",
+        "b6d8",
+        "f8e7",
+        "a7a8q",
+        "h8d8",
+        "a8a7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1736,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "skewer-bishop",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Bishop Skewer",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "middlegame",
+        "promotion",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advancedPawn",
+        "advantage",
+        "middlegame",
+        "promotion",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|3r1b1r/Ppkb2pp/3p1pn1/P7/2p1P3/4BP2/2P2P1P/R3K2R w KQ -|e3b6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@b6",
+              "front": "bk@c7",
+              "back": "br@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 8,
+        "sourceChunk": 4,
+        "sourceIndex": 27,
+        "sourceIdentity": "OVVwZ",
+        "canonicalIdentity": "3r1b1r/Ppkb2pp/3p1pn1/P7/2p1P3/4BP2/2P2P1P/R3K2R w KQ -|bishop-skewer|e3b6,c7c6,b6d8,f8e7,a7a8q,h8d8,a8a7|OVVwZ",
+        "pedagogicalFamily": "bishop-skewer|3r1b1r/Ppkb2pp/3p1pn1/P7/2p1P3/4BP2/2P2P1P/R3K2R w KQ -|e3b6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-zq880",
+      "puzzleId": "zq880",
+      "fen": "r3k2r/pppq1pp1/2p1b2p/2b1p3/4P3/P2P1Q2/1PP1NPPP/R1B1K2R w KQkq - 1 11",
+      "preMove": "e1g1",
+      "solutionLine": [
+        "e6g4",
+        "f3g3",
+        "g4e2",
+        "f1e1",
+        "e2g4",
+        "g3e5",
+        "c5e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2321,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "middlegame",
+        "quietMove",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "middlegame",
+        "quietMove",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|r3k2r/pppq1pp1/2p1b2p/2b1p3/4P3/P2P1Q2/1PP1NPPP/R1B2RK1 b kq -|e6g4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bb@g4",
+              "front": "wq@f3",
+              "back": "wn@e2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 9,
+        "sourceChunk": 8,
+        "sourceIndex": 8,
+        "sourceIdentity": "zq880",
+        "canonicalIdentity": "r3k2r/pppq1pp1/2p1b2p/2b1p3/4P3/P2P1Q2/1PP1NPPP/R1B2RK1 b kq -|bishop-skewer|e6g4,f3g3,g4e2,f1e1,e2g4,g3e5,c5e7|zq880",
+        "pedagogicalFamily": "bishop-skewer|r3k2r/pppq1pp1/2p1b2p/2b1p3/4P3/P2P1Q2/1PP1NPPP/R1B2RK1 b kq -|e6g4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-qmB09",
+      "puzzleId": "qmB09",
+      "fen": "5r2/r5k1/4q2p/4P1pP/2p3P1/1pP2B2/1P2R1QK/8 b - - 2 44",
+      "preMove": "a7f7",
+      "solutionLine": [
+        "f3d5",
+        "e6e7",
+        "d5f7",
+        "e7f7",
+        "e5e6",
+        "f7f4",
+        "g2g3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2005,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|5r2/5rk1/4q2p/4P1pP/2p3P1/1pP2B2/1P2R1QK/8 w - -|f3d5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@d5",
+              "front": "bq@e6",
+              "back": "br@f7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 10,
+        "sourceChunk": 6,
+        "sourceIndex": 14,
+        "sourceIdentity": "qmB09",
+        "canonicalIdentity": "5r2/5rk1/4q2p/4P1pP/2p3P1/1pP2B2/1P2R1QK/8 w - -|bishop-skewer|f3d5,e6e7,d5f7,e7f7,e5e6,f7f4,g2g3|qmB09",
+        "pedagogicalFamily": "bishop-skewer|5r2/5rk1/4q2p/4P1pP/2p3P1/1pP2B2/1P2R1QK/8 w - -|f3d5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-ZNN5u",
+      "puzzleId": "ZNN5u",
+      "fen": "7r/4k3/R7/p1p2p2/4bB1p/2P4K/8/8 b - - 0 49",
+      "preMove": "h8d8",
+      "solutionLine": [
+        "f4g5",
+        "e7e8",
+        "g5d8",
+        "e8d8",
+        "a6a5",
+        "f5f4",
+        "h3h4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2097,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|3r4/4k3/R7/p1p2p2/4bB1p/2P4K/8/8 w - -|f4g5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@g5",
+              "front": "bk@e7",
+              "back": "br@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 11,
+        "sourceChunk": 6,
+        "sourceIndex": 3,
+        "sourceIdentity": "ZNN5u",
+        "canonicalIdentity": "3r4/4k3/R7/p1p2p2/4bB1p/2P4K/8/8 w - -|bishop-skewer|f4g5,e7e8,g5d8,e8d8,a6a5,f5f4,h3h4|ZNN5u",
+        "pedagogicalFamily": "bishop-skewer|3r4/4k3/R7/p1p2p2/4bB1p/2P4K/8/8 w - -|f4g5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-MIXzE",
+      "puzzleId": "MIXzE",
+      "fen": "1n6/5p2/3k1Pp1/p4PBp/p1P4P/2PK4/8/8 b - - 0 40",
+      "preMove": "g6f5",
+      "solutionLine": [
+        "g5f4",
+        "d6c6",
+        "f4b8",
+        "a4a3",
+        "d3c2",
+        "a3a2",
+        "c2b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1211,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|1n6/5p2/3k1P2/p4pBp/p1P4P/2PK4/8/8 w - -|g5f4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@f4",
+              "front": "bk@d6",
+              "back": "bn@b8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 12,
+        "sourceChunk": 1,
+        "sourceIndex": 15,
+        "sourceIdentity": "MIXzE",
+        "canonicalIdentity": "1n6/5p2/3k1P2/p4pBp/p1P4P/2PK4/8/8 w - -|bishop-skewer|g5f4,d6c6,f4b8,a4a3,d3c2,a3a2,c2b2|MIXzE",
+        "pedagogicalFamily": "bishop-skewer|1n6/5p2/3k1P2/p4pBp/p1P4P/2PK4/8/8 w - -|g5f4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-gWWAt",
+      "puzzleId": "gWWAt",
+      "fen": "1r6/2k2ppp/2n1p3/2Rp4/1p1P4/4PP1P/6PK/4B3 b - - 8 36",
+      "preMove": "b4b3",
+      "solutionLine": [
+        "e1g3",
+        "c7b6",
+        "g3b8",
+        "b3b2",
+        "b8c7",
+        "b6c7",
+        "c5b5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2241,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|1r6/2k2ppp/2n1p3/2Rp4/3P4/1p2PP1P/6PK/4B3 w - -|e1g3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@g3",
+              "front": "bk@c7",
+              "back": "br@b8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 13,
+        "sourceChunk": 7,
+        "sourceIndex": 8,
+        "sourceIdentity": "gWWAt",
+        "canonicalIdentity": "1r6/2k2ppp/2n1p3/2Rp4/3P4/1p2PP1P/6PK/4B3 w - -|bishop-skewer|e1g3,c7b6,g3b8,b3b2,b8c7,b6c7,c5b5|gWWAt",
+        "pedagogicalFamily": "bishop-skewer|1r6/2k2ppp/2n1p3/2Rp4/3P4/1p2PP1P/6PK/4B3 w - -|e1g3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-nEgfF",
+      "puzzleId": "nEgfF",
+      "fen": "8/1p1b4/p2P1k2/8/1P2K3/7p/P7/7R w - - 1 43",
+      "preMove": "e4d5",
+      "solutionLine": [
+        "d7c6",
+        "d5d4",
+        "c6h1",
+        "d6d7",
+        "f6e7",
+        "d7d8q",
+        "e7d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1088,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|8/1p1b4/p2P1k2/3K4/1P6/7p/P7/7R b - -|d7c6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bb@c6",
+              "front": "wk@d5",
+              "back": "wr@h1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 14,
+        "sourceChunk": 1,
+        "sourceIndex": 23,
+        "sourceIdentity": "nEgfF",
+        "canonicalIdentity": "8/1p1b4/p2P1k2/3K4/1P6/7p/P7/7R b - -|bishop-skewer|d7c6,d5d4,c6h1,d6d7,f6e7,d7d8q,e7d8|nEgfF",
+        "pedagogicalFamily": "bishop-skewer|8/1p1b4/p2P1k2/3K4/1P6/7p/P7/7R b - -|d7c6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-Tqa28",
+      "puzzleId": "Tqa28",
+      "fen": "2b5/5p2/1k5p/1p2P2P/p1pK2P1/P1P2B2/1P6/8 w - - 3 35",
+      "preMove": "d4d5",
+      "solutionLine": [
+        "c8b7",
+        "d5d4",
+        "b7f3",
+        "g4g5",
+        "f3h5",
+        "g5h6",
+        "h5g6",
+        "d4d5",
+        "b6c7",
+        "d5c5",
+        "c7d7",
+        "c5b5",
+        "d7e6",
+        "b5a4",
+        "e6e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "tacticDistance": 8,
+      "rating": 2260,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "quietMove",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "quietMove",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|2b5/5p2/1k5p/1p1KP2P/p1p3P1/P1P2B2/1P6/8 b - -|c8b7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bb@b7",
+              "front": "wk@d5",
+              "back": "wb@f3"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 15,
+        "sourceChunk": 8,
+        "sourceIndex": 29,
+        "sourceIdentity": "Tqa28",
+        "canonicalIdentity": "2b5/5p2/1k5p/1p1KP2P/p1p3P1/P1P2B2/1P6/8 b - -|bishop-skewer|c8b7,d5d4,b7f3,g4g5,f3h5,g5h6,h5g6,d4d5,b6c7,d5c5,c7d7,c5b5,d7e6,b5a4,e6e5|Tqa28",
+        "pedagogicalFamily": "bishop-skewer|2b5/5p2/1k5p/1p1KP2P/p1p3P1/P1P2B2/1P6/8 b - -|c8b7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-OcE7S",
+      "puzzleId": "OcE7S",
+      "fen": "2k5/5p2/2P1p3/1PK1P3/5bpp/2B5/6P1/8 w - - 0 41",
+      "preMove": "b5b6",
+      "solutionLine": [
+        "f4e3",
+        "c5d6",
+        "e3b6",
+        "c3e1",
+        "b6a5",
+        "e1a5",
+        "h4h3",
+        "g2h3",
+        "g4h3",
+        "a5d2",
+        "h3h2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "tacticDistance": 6,
+      "rating": 2882,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "skewer-bishop",
+        "deflection",
+        "sacrifice-bishop"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Bishop Skewer",
+        "Deflection",
+        "Bishop Sacrifice"
+      ],
+      "themes": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "deflection",
+        "endgame",
+        "sacrifice",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "deflection",
+        "endgame",
+        "sacrifice",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|2k5/5p2/1PP1p3/2K1P3/5bpp/2B5/6P1/8 b - -|f4e3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bb@e3",
+              "front": "wk@c5",
+              "back": "wp@b6"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 16,
+        "sourceChunk": 10,
+        "sourceIndex": 25,
+        "sourceIdentity": "OcE7S",
+        "canonicalIdentity": "2k5/5p2/1PP1p3/2K1P3/5bpp/2B5/6P1/8 b - -|bishop-skewer|f4e3,c5d6,e3b6,c3e1,b6a5,e1a5,h4h3,g2h3,g4h3,a5d2,h3h2|OcE7S",
+        "pedagogicalFamily": "bishop-skewer|2k5/5p2/1PP1p3/2K1P3/5bpp/2B5/6P1/8 b - -|f4e3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-Rn0d3",
+      "puzzleId": "Rn0d3",
+      "fen": "1r6/p1k2ppp/4p3/2BpP3/1N3P2/8/6PP/6K1 b - - 2 26",
+      "preMove": "a7a5",
+      "solutionLine": [
+        "c5d6",
+        "c7b7",
+        "d6b8",
+        "a5b4",
+        "b8d6",
+        "b4b3",
+        "d6a3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1978,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "defense",
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "defensiveMove",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "advantage",
+        "defensiveMove",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|1r6/2k2ppp/4p3/p1BpP3/1N3P2/8/6PP/6K1 w - -|c5d6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@d6",
+              "front": "bk@c7",
+              "back": "br@b8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 17,
+        "sourceChunk": 5,
+        "sourceIndex": 11,
+        "sourceIdentity": "Rn0d3",
+        "canonicalIdentity": "1r6/2k2ppp/4p3/p1BpP3/1N3P2/8/6PP/6K1 w - -|bishop-skewer|c5d6,c7b7,d6b8,a5b4,b8d6,b4b3,d6a3|Rn0d3",
+        "pedagogicalFamily": "bishop-skewer|1r6/2k2ppp/4p3/p1BpP3/1N3P2/8/6PP/6K1 w - -|c5d6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-Y796s",
+      "puzzleId": "Y796s",
+      "fen": "4Q1nr/1pq1n1k1/3rp1p1/p5Bp/P4P1P/3B4/2P2R2/5K2 b - - 1 26",
+      "preMove": "g8f6",
+      "solutionLine": [
+        "g5f6",
+        "g7f6",
+        "e8h8",
+        "f6f7",
+        "d3g6",
+        "e7g6",
+        "h8h7",
+        "f7f6",
+        "h7c7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2139,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "middlegame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "middlegame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|4Q2r/1pq1n1k1/3rpnp1/p5Bp/P4P1P/3B4/2P2R2/5K2 w - -|g5f6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wb@f6",
+              "front": "bk@g7",
+              "back": "br@h8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 18,
+        "sourceChunk": 7,
+        "sourceIndex": 12,
+        "sourceIdentity": "Y796s",
+        "canonicalIdentity": "4Q2r/1pq1n1k1/3rpnp1/p5Bp/P4P1P/3B4/2P2R2/5K2 w - -|bishop-skewer|g5f6,g7f6,e8h8,f6f7,d3g6,e7g6,h8h7,f7f6,h7c7|Y796s",
+        "pedagogicalFamily": "bishop-skewer|4Q2r/1pq1n1k1/3rpnp1/p5Bp/P4P1P/3B4/2P2R2/5K2 w - -|g5f6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-bishop-m4-mIFgQ",
+      "puzzleId": "mIFgQ",
+      "fen": "8/3b4/3P1kp1/4p2p/3pP2P/3P1KP1/5N2/8 w - - 3 55",
+      "preMove": "f2d1",
+      "solutionLine": [
+        "d7g4",
+        "f3f2",
+        "g4d1",
+        "d6d7",
+        "f6e7",
+        "d7d8r",
+        "e7d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 896,
+      "label": "Bishop Skewer - Tactic in 4+",
+      "theme": "skewer-bishop",
+      "sourceThemeKeys": [
+        "skewer-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "bishop-skewer",
+      "canonicalThemeLabel": "Bishop Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "skewer",
+        "veryLong",
+        "skewer-bishop",
+        "undefined",
+        "Bishop Skewer - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "bishop-skewer|8/3b4/3P1kp1/4p2p/3pP2P/3P1KP1/8/3N4 b - -|d7g4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "bb@g4",
+              "front": "wk@f3",
+              "back": "wn@d1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 3,
+        "orderInChunk": 19,
+        "sourceChunk": 1,
+        "sourceIndex": 0,
+        "sourceIdentity": "mIFgQ",
+        "canonicalIdentity": "8/3b4/3P1kp1/4p2p/3pP2P/3P1KP1/8/3N4 b - -|bishop-skewer|d7g4,f3f2,g4d1,d6d7,f6e7,d7d8r,e7d8|mIFgQ",
+        "pedagogicalFamily": "bishop-skewer|8/3b4/3P1kp1/4p2p/3pP2P/3P1KP1/8/3N4 b - -|d7g4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    }
+  ]
+}

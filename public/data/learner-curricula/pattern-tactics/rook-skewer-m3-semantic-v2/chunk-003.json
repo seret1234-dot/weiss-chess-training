@@ -1,0 +1,1622 @@
+{
+  "puzzles": [
+    {
+      "id": "skewer-rook-m3-znGs9",
+      "puzzleId": "znGs9",
+      "fen": "8/p2P4/6k1/2RKP1p1/6P1/4r3/5p2/8 w - - 0 47",
+      "preMove": "d7d8q",
+      "solutionLine": [
+        "e3d3",
+        "d5e4",
+        "d3d8",
+        "c5c6",
+        "g6g7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1914,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "defense",
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Rook Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "long",
+        "queenRookEndgame",
+        "skewer"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "long",
+        "queenRookEndgame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|3Q4/p7/6k1/2RKP1p1/6P1/4r3/5p2/8 b - -|e3d3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@d3",
+              "front": "wk@d5",
+              "back": "wq@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 0,
+        "sourceChunk": 9,
+        "sourceIndex": 7,
+        "sourceIdentity": "znGs9",
+        "canonicalIdentity": "3Q4/p7/6k1/2RKP1p1/6P1/4r3/5p2/8 b - -|rook-skewer|e3d3,d5e4,d3d8,c5c6,g6g7|znGs9",
+        "pedagogicalFamily": "rook-skewer|3Q4/p7/6k1/2RKP1p1/6P1/4r3/5p2/8 b - -|e3d3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-zvaJn",
+      "puzzleId": "zvaJn",
+      "fen": "4r1k1/5pp1/R1p1r2p/2Kp4/3P4/P7/1PR3PP/8 w - - 4 42",
+      "preMove": "a6c6",
+      "solutionLine": [
+        "e6c6",
+        "c5c6",
+        "e8c8",
+        "c6d5",
+        "c8c2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 815,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|4r1k1/5pp1/2R1r2p/2Kp4/3P4/P7/1PR3PP/8 b - -|e6c6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@c6",
+              "front": "wk@c5",
+              "back": "wr@c2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 1,
+        "sourceChunk": 1,
+        "sourceIndex": 13,
+        "sourceIdentity": "zvaJn",
+        "canonicalIdentity": "4r1k1/5pp1/2R1r2p/2Kp4/3P4/P7/1PR3PP/8 b - -|rook-skewer|e6c6,c5c6,e8c8,c6d5,c8c2|zvaJn",
+        "pedagogicalFamily": "rook-skewer|4r1k1/5pp1/2R1r2p/2Kp4/3P4/P7/1PR3PP/8 b - -|e6c6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-v7APf",
+      "puzzleId": "v7APf",
+      "fen": "2rqr2R/1p2kpp1/p1b1pb2/8/1Q6/2N5/PPP2PPP/R5K1 b - - 7 21",
+      "preMove": "e7d7",
+      "solutionLine": [
+        "a1d1",
+        "d7c7",
+        "d1d8",
+        "e8d8",
+        "h8d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1550,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "xray-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Rook X-Ray Attack"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "skewer",
+        "xRayAttack"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "skewer",
+        "xRayAttack",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|2rqr2R/1p1k1pp1/p1b1pb2/8/1Q6/2N5/PPP2PPP/R5K1 w - -|a1d1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@d1",
+              "front": "bk@d7",
+              "back": "bq@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 2,
+        "sourceChunk": 6,
+        "sourceIndex": 17,
+        "sourceIdentity": "v7APf",
+        "canonicalIdentity": "2rqr2R/1p1k1pp1/p1b1pb2/8/1Q6/2N5/PPP2PPP/R5K1 w - -|rook-skewer|a1d1,d7c7,d1d8,e8d8,h8d8|v7APf",
+        "pedagogicalFamily": "rook-skewer|2rqr2R/1p1k1pp1/p1b1pb2/8/1Q6/2N5/PPP2PPP/R5K1 w - -|a1d1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-xDBiV",
+      "puzzleId": "xDBiV",
+      "fen": "8/1k6/R3K2R/2r5/P1P1P2p/8/3r4/8 w - - 3 42",
+      "preMove": "a6d6",
+      "solutionLine": [
+        "d2d6",
+        "e6d6",
+        "c5c6",
+        "d6e5",
+        "c6h6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1431,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|8/1k6/3RK2R/2r5/P1P1P2p/8/3r4/8 b - -|d2d6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@d6",
+              "front": "wk@e6",
+              "back": "wr@h6"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 3,
+        "sourceChunk": 5,
+        "sourceIndex": 3,
+        "sourceIdentity": "xDBiV",
+        "canonicalIdentity": "8/1k6/3RK2R/2r5/P1P1P2p/8/3r4/8 b - -|rook-skewer|d2d6,e6d6,c5c6,d6e5,c6h6|xDBiV",
+        "pedagogicalFamily": "rook-skewer|8/1k6/3RK2R/2r5/P1P1P2p/8/3r4/8 b - -|d2d6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-yVewd",
+      "puzzleId": "yVewd",
+      "fen": "2k2qr1/1Rp5/p6p/P1b5/2P2pr1/3P1QP1/5P2/1R3K2 b - - 5 33",
+      "preMove": "f4g3",
+      "solutionLine": [
+        "b7b8",
+        "c8d7",
+        "b8f8",
+        "g8f8",
+        "f3g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2005,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "long",
+        "middlegame",
+        "skewer"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "crushing",
+        "long",
+        "middlegame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|2k2qr1/1Rp5/p6p/P1b5/2P3r1/3P1Qp1/5P2/1R3K2 w - -|b7b8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@b8",
+              "front": "bk@c8",
+              "back": "bq@f8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 4,
+        "sourceChunk": 9,
+        "sourceIndex": 2,
+        "sourceIdentity": "yVewd",
+        "canonicalIdentity": "2k2qr1/1Rp5/p6p/P1b5/2P3r1/3P1Qp1/5P2/1R3K2 w - -|rook-skewer|b7b8,c8d7,b8f8,g8f8,f3g4|yVewd",
+        "pedagogicalFamily": "rook-skewer|2k2qr1/1Rp5/p6p/P1b5/2P3r1/3P1Qp1/5P2/1R3K2 w - -|b7b8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-vnqVE",
+      "puzzleId": "vnqVE",
+      "fen": "3r2k1/1p4p1/p1q5/5p2/5Pn1/PQ4P1/1PP5/2K1R3 b - - 5 35",
+      "preMove": "c6d5",
+      "solutionLine": [
+        "e1d1",
+        "d5b3",
+        "d1d8",
+        "g8f7",
+        "c2b3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2072,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "sacrifice-rook",
+        "zwischenzug"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Rook Sacrifice",
+        "Zwischenzug / Intermezzo"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "intermezzo",
+        "long",
+        "sacrifice",
+        "skewer"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 16,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "intermezzo",
+        "long",
+        "sacrifice",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|3r2k1/1p4p1/p7/3q1p2/5Pn1/PQ4P1/1PP5/2K1R3 w - -|e1d1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@d1",
+              "front": "bq@d5",
+              "back": "br@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 5,
+        "sourceChunk": 10,
+        "sourceIndex": 16,
+        "sourceIdentity": "vnqVE",
+        "canonicalIdentity": "3r2k1/1p4p1/p7/3q1p2/5Pn1/PQ4P1/1PP5/2K1R3 w - -|rook-skewer|e1d1,d5b3,d1d8,g8f7,c2b3|vnqVE",
+        "pedagogicalFamily": "rook-skewer|3r2k1/1p4p1/p7/3q1p2/5Pn1/PQ4P1/1PP5/2K1R3 w - -|e1d1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-yltRA",
+      "puzzleId": "yltRA",
+      "fen": "1r4k1/p4pp1/p6p/3q4/3Np2P/r1P5/1P2QP2/1K1R2R1 w - - 0 28",
+      "preMove": "b1c1",
+      "solutionLine": [
+        "a3a1",
+        "c1d2",
+        "b8b2",
+        "d2e3",
+        "b2e2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1505,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "deflection",
+        "queenside-attack"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Deflection",
+        "Queenside Attack"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "long",
+        "middlegame",
+        "queensideAttack",
+        "skewer"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "long",
+        "middlegame",
+        "queensideAttack",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|1r4k1/p4pp1/p6p/3q4/3Np2P/r1P5/1P2QP2/2KR2R1 b - -|a3a1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@a1",
+              "front": "wk@c1",
+              "back": "wr@d1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 6,
+        "sourceChunk": 6,
+        "sourceIndex": 6,
+        "sourceIdentity": "yltRA",
+        "canonicalIdentity": "1r4k1/p4pp1/p6p/3q4/3Np2P/r1P5/1P2QP2/2KR2R1 b - -|rook-skewer|a3a1,c1d2,b8b2,d2e3,b2e2|yltRA",
+        "pedagogicalFamily": "rook-skewer|1r4k1/p4pp1/p6p/3q4/3Np2P/r1P5/1P2QP2/2KR2R1 b - -|a3a1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-ykJaW",
+      "puzzleId": "ykJaW",
+      "fen": "7r/pp3pk1/5pp1/7P/8/3P2P1/PP2QK2/8 w - - 1 33",
+      "preMove": "h5g6",
+      "solutionLine": [
+        "h8h2",
+        "f2f1",
+        "h2e2",
+        "f1e2",
+        "f7g6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1658,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "queenRookEndgame",
+        "skewer"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "queenRookEndgame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|7r/pp3pk1/5pP1/8/8/3P2P1/PP2QK2/8 b - -|h8h2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@h2",
+              "front": "wk@f2",
+              "back": "wq@e2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 7,
+        "sourceChunk": 7,
+        "sourceIndex": 26,
+        "sourceIdentity": "ykJaW",
+        "canonicalIdentity": "7r/pp3pk1/5pP1/8/8/3P2P1/PP2QK2/8 b - -|rook-skewer|h8h2,f2f1,h2e2,f1e2,f7g6|ykJaW",
+        "pedagogicalFamily": "rook-skewer|7r/pp3pk1/5pP1/8/8/3P2P1/PP2QK2/8 b - -|h8h2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-zONeb",
+      "puzzleId": "zONeb",
+      "fen": "rn2k2r/ppp2ppp/4b3/8/1q1R4/5N2/PPP2PPP/RN1Q2K1 b kq - 0 11",
+      "preMove": "b4b2",
+      "solutionLine": [
+        "d4d8",
+        "e8e7",
+        "d8h8",
+        "b8c6",
+        "h8a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1218,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "skewer"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|rn2k2r/ppp2ppp/4b3/8/3R4/5N2/PqP2PPP/RN1Q2K1 w kq -|d4d8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@d8",
+              "front": "bk@e8",
+              "back": "br@h8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 8,
+        "sourceChunk": 4,
+        "sourceIndex": 0,
+        "sourceIdentity": "zONeb",
+        "canonicalIdentity": "rn2k2r/ppp2ppp/4b3/8/3R4/5N2/PqP2PPP/RN1Q2K1 w kq -|rook-skewer|d4d8,e8e7,d8h8,b8c6,h8a8|zONeb",
+        "pedagogicalFamily": "rook-skewer|rn2k2r/ppp2ppp/4b3/8/3R4/5N2/PqP2PPP/RN1Q2K1 w kq -|d4d8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-ynZ3D",
+      "puzzleId": "ynZ3D",
+      "fen": "1r6/p6p/3Pbk2/5p2/3P4/r1NR4/5P1P/2K3R1 w - - 0 32",
+      "preMove": "d4d5",
+      "solutionLine": [
+        "a3a1",
+        "c1d2",
+        "a1g1",
+        "d5e6",
+        "f6e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1485,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "skewer"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|1r6/p6p/3Pbk2/3P1p2/8/r1NR4/5P1P/2K3R1 b - -|a3a1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@a1",
+              "front": "wk@c1",
+              "back": "wr@g1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 9,
+        "sourceChunk": 6,
+        "sourceIndex": 7,
+        "sourceIdentity": "ynZ3D",
+        "canonicalIdentity": "1r6/p6p/3Pbk2/3P1p2/8/r1NR4/5P1P/2K3R1 b - -|rook-skewer|a3a1,c1d2,a1g1,d5e6,f6e6|ynZ3D",
+        "pedagogicalFamily": "rook-skewer|1r6/p6p/3Pbk2/3P1p2/8/r1NR4/5P1P/2K3R1 b - -|a3a1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-vtPyA",
+      "puzzleId": "vtPyA",
+      "fen": "3r2k1/6bp/p4pp1/1p1q4/1P6/1QPp2BP/P4PP1/3R2K1 b - - 1 31",
+      "preMove": "f6f5",
+      "solutionLine": [
+        "d1d3",
+        "d5b3",
+        "d3d8",
+        "g8f7",
+        "a2b3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1620,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "pin-rook",
+        "skewer-rook",
+        "sacrifice-rook",
+        "zwischenzug"
+      ],
+      "sourceThemes": [
+        "Rook Pin",
+        "Rook Skewer",
+        "Rook Sacrifice",
+        "Zwischenzug / Intermezzo"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "intermezzo",
+        "long",
+        "pin",
+        "sacrifice",
+        "skewer"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "intermezzo",
+        "long",
+        "pin",
+        "sacrifice",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|3r2k1/6bp/p5p1/1p1q1p2/1P6/1QPp2BP/P4PP1/3R2K1 w - -|d1d3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@d3",
+              "front": "bq@d5",
+              "back": "br@d8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 10,
+        "sourceChunk": 7,
+        "sourceIndex": 23,
+        "sourceIdentity": "vtPyA",
+        "canonicalIdentity": "3r2k1/6bp/p5p1/1p1q1p2/1P6/1QPp2BP/P4PP1/3R2K1 w - -|rook-skewer|d1d3,d5b3,d3d8,g8f7,a2b3|vtPyA",
+        "pedagogicalFamily": "rook-skewer|3r2k1/6bp/p5p1/1p1q1p2/1P6/1QPp2BP/P4PP1/3R2K1 w - -|d1d3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-zdLtS",
+      "puzzleId": "zdLtS",
+      "fen": "4r3/p6p/8/2p2kp1/2P1r3/2P1R2P/P7/5RK1 b - - 1 27",
+      "preMove": "f5e5",
+      "solutionLine": [
+        "e3e4",
+        "e5e4",
+        "f1e1",
+        "e4d3",
+        "e1e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 986,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|4r3/p6p/8/2p1k1p1/2P1r3/2P1R2P/P7/5RK1 w - -|e3e4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@e4",
+              "front": "bk@e5",
+              "back": "br@e8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 11,
+        "sourceChunk": 1,
+        "sourceIndex": 22,
+        "sourceIdentity": "zdLtS",
+        "canonicalIdentity": "4r3/p6p/8/2p1k1p1/2P1r3/2P1R2P/P7/5RK1 w - -|rook-skewer|e3e4,e5e4,f1e1,e4d3,e1e8|zdLtS",
+        "pedagogicalFamily": "rook-skewer|4r3/p6p/8/2p1k1p1/2P1r3/2P1R2P/P7/5RK1 w - -|e3e4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-wTevR",
+      "puzzleId": "wTevR",
+      "fen": "8/2k5/7R/3K4/r6P/8/8/8 w - - 1 52",
+      "preMove": "d5e6",
+      "solutionLine": [
+        "a4a6",
+        "e6f5",
+        "a6h6",
+        "f5g5",
+        "h6h8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1423,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|8/2k5/4K2R/8/r6P/8/8/8 b - -|a4a6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@a6",
+              "front": "wk@e6",
+              "back": "wr@h6"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 12,
+        "sourceChunk": 5,
+        "sourceIndex": 1,
+        "sourceIdentity": "wTevR",
+        "canonicalIdentity": "8/2k5/4K2R/8/r6P/8/8/8 b - -|rook-skewer|a4a6,e6f5,a6h6,f5g5,h6h8|wTevR",
+        "pedagogicalFamily": "rook-skewer|8/2k5/4K2R/8/r6P/8/8/8 b - -|a4a6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-scmts",
+      "puzzleId": "scmts",
+      "fen": "2r2rk1/6p1/6p1/1pp3P1/1n6/1P1Pp3/1BP4R/2K4R b - - 1 28",
+      "preMove": "f8f2",
+      "solutionLine": [
+        "h2h8",
+        "g8f7",
+        "h8c8",
+        "f2c2",
+        "c1b1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1200,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "skewer"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|2r3k1/6p1/6p1/1pp3P1/1n6/1P1Pp3/1BP2r1R/2K4R w - -|h2h8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@h8",
+              "front": "bk@g8",
+              "back": "br@c8"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 13,
+        "sourceChunk": 3,
+        "sourceIndex": 22,
+        "sourceIdentity": "scmts",
+        "canonicalIdentity": "2r3k1/6p1/6p1/1pp3P1/1n6/1P1Pp3/1BP2r1R/2K4R w - -|rook-skewer|h2h8,g8f7,h8c8,f2c2,c1b1|scmts",
+        "pedagogicalFamily": "rook-skewer|2r3k1/6p1/6p1/1pp3P1/1n6/1P1Pp3/1BP2r1R/2K4R w - -|h2h8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-wCUWb",
+      "puzzleId": "wCUWb",
+      "fen": "r1q2r2/5pkp/b1nQ1np1/p7/1p2P2P/5P2/PPP1N1P1/1K1R1BNR w - - 1 16",
+      "preMove": "h4h5",
+      "solutionLine": [
+        "f8d8",
+        "h5h6",
+        "g7g8",
+        "d6f6",
+        "d8d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1716,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "skewer"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|r1q2r2/5pkp/b1nQ1np1/p6P/1p2P3/5P2/PPP1N1P1/1K1R1BNR b - -|f8d8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@d8",
+              "front": "wq@d6",
+              "back": "wr@d1"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 14,
+        "sourceChunk": 7,
+        "sourceIndex": 11,
+        "sourceIdentity": "wCUWb",
+        "canonicalIdentity": "r1q2r2/5pkp/b1nQ1np1/p6P/1p2P3/5P2/PPP1N1P1/1K1R1BNR b - -|rook-skewer|f8d8,h5h6,g7g8,d6f6,d8d1|wCUWb",
+        "pedagogicalFamily": "rook-skewer|r1q2r2/5pkp/b1nQ1np1/p6P/1p2P3/5P2/PPP1N1P1/1K1R1BNR b - -|f8d8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-ziydZ",
+      "puzzleId": "ziydZ",
+      "fen": "8/8/4r3/1p1r4/3P4/1PK1pk1R/8/6R1 b - - 1 49",
+      "preMove": "f3e4",
+      "solutionLine": [
+        "h3e3",
+        "e4e3",
+        "g1e1",
+        "e3f2",
+        "e1e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2110,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "decoy-attraction",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Decoy / Attraction",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "sacrifice",
+        "skewer"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "sacrifice",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|8/8/4r3/1p1r4/3Pk3/1PK1p2R/8/6R1 w - -|h3e3",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@e3",
+              "front": "bk@e4",
+              "back": "br@e6"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 15,
+        "sourceChunk": 10,
+        "sourceIndex": 23,
+        "sourceIdentity": "ziydZ",
+        "canonicalIdentity": "8/8/4r3/1p1r4/3Pk3/1PK1p2R/8/6R1 w - -|rook-skewer|h3e3,e4e3,g1e1,e3f2,e1e6|ziydZ",
+        "pedagogicalFamily": "rook-skewer|8/8/4r3/1p1r4/3Pk3/1PK1p2R/8/6R1 w - -|h3e3",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-zIS1w",
+      "puzzleId": "zIS1w",
+      "fen": "3r2k1/p3qpp1/1r2p3/3n4/2Q1N3/1P2P1P1/PR1P1P2/3R2K1 w - - 3 24",
+      "preMove": "b2c2",
+      "solutionLine": [
+        "b6b4",
+        "c4c5",
+        "b4e4",
+        "c5e7",
+        "d5e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1884,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "long",
+        "middlegame",
+        "skewer"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "long",
+        "middlegame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|3r2k1/p3qpp1/1r2p3/3n4/2Q1N3/1P2P1P1/P1RP1P2/3R2K1 b - -|b6b4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@b4",
+              "front": "wq@c4",
+              "back": "wn@e4"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 16,
+        "sourceChunk": 9,
+        "sourceIndex": 3,
+        "sourceIdentity": "zIS1w",
+        "canonicalIdentity": "3r2k1/p3qpp1/1r2p3/3n4/2Q1N3/1P2P1P1/P1RP1P2/3R2K1 b - -|rook-skewer|b6b4,c4c5,b4e4,c5e7,d5e7|zIS1w",
+        "pedagogicalFamily": "rook-skewer|3r2k1/p3qpp1/1r2p3/3n4/2Q1N3/1P2P1P1/P1RP1P2/3R2K1 b - -|b6b4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-xoQJH",
+      "puzzleId": "xoQJH",
+      "fen": "4k3/r4pK1/5P2/3p4/8/8/p7/4R3 b - - 3 56",
+      "preMove": "e8d7",
+      "solutionLine": [
+        "e1e7",
+        "d7d6",
+        "e7a7",
+        "a2a1q",
+        "a7a1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 865,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|8/r2k1pK1/5P2/3p4/8/8/p7/4R3 w - -|e1e7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@e7",
+              "front": "bk@d7",
+              "back": "br@a7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 17,
+        "sourceChunk": 1,
+        "sourceIndex": 12,
+        "sourceIdentity": "xoQJH",
+        "canonicalIdentity": "8/r2k1pK1/5P2/3p4/8/8/p7/4R3 w - -|rook-skewer|e1e7,d7d6,e7a7,a2a1q,a7a1|xoQJH",
+        "pedagogicalFamily": "rook-skewer|8/r2k1pK1/5P2/3p4/8/8/p7/4R3 w - -|e1e7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-xksoh",
+      "puzzleId": "xksoh",
+      "fen": "r7/4kp2/1R5R/p3p3/8/7P/5rPK/8 b - - 1 35",
+      "preMove": "a5a4",
+      "solutionLine": [
+        "b6b7",
+        "e7f8",
+        "h6h8",
+        "f8g7",
+        "h8a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1159,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "long",
+        "rookEndgame",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|r7/4kp2/1R5R/4p3/p7/7P/5rPK/8 w - -|b6b7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "wr@b7",
+              "front": "bk@e7",
+              "back": "bp@f7"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 18,
+        "sourceChunk": 3,
+        "sourceIndex": 5,
+        "sourceIdentity": "xksoh",
+        "canonicalIdentity": "r7/4kp2/1R5R/4p3/p7/7P/5rPK/8 w - -|rook-skewer|b6b7,e7f8,h6h8,f8g7,h8a8|xksoh",
+        "pedagogicalFamily": "rook-skewer|r7/4kp2/1R5R/4p3/p7/7P/5rPK/8 w - -|b6b7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "skewer-rook-m3-wWPhL",
+      "puzzleId": "wWPhL",
+      "fen": "2r4k/7p/8/p2p2P1/3NbP2/1Pr1P3/P2K3R/3R4 w - - 4 32",
+      "preMove": "f4f5",
+      "solutionLine": [
+        "c3c2",
+        "d4c2",
+        "c8c2",
+        "d2e1",
+        "c2h2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 1854,
+      "label": "Rook Skewer - Tactic in 3",
+      "theme": "skewer-rook",
+      "sourceThemeKeys": [
+        "skewer-rook",
+        "sacrifice-rook"
+      ],
+      "sourceThemes": [
+        "Rook Skewer",
+        "Rook Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "long",
+        "sacrifice",
+        "skewer"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 27,
+      "canonicalThemeKey": "rook-skewer",
+      "canonicalThemeLabel": "Rook Skewer",
+      "rawTags": [
+        "advantage",
+        "endgame",
+        "long",
+        "sacrifice",
+        "skewer",
+        "skewer-rook",
+        "undefined",
+        "Rook Skewer - Tactic in 3"
+      ],
+      "pedagogicalFamily": "rook-skewer|2r4k/7p/8/p2p1PP1/3Nb3/1Pr1P3/P2K3R/3R4 b - -|c3c2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.94,
+        "reason": "line piece attacks a more valuable front target with a lower-value target behind it",
+        "detectedTheme": "skewer",
+        "evidence": {
+          "skewers": [
+            {
+              "attacker": "br@c2",
+              "front": "wk@d2",
+              "back": "wr@h2"
+            }
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m3-semantic-v2",
+        "tacticDistance": 3,
+        "learnerChunk": 3,
+        "orderInChunk": 19,
+        "sourceChunk": 8,
+        "sourceIndex": 27,
+        "sourceIdentity": "wWPhL",
+        "canonicalIdentity": "2r4k/7p/8/p2p1PP1/3Nb3/1Pr1P3/P2K3R/3R4 b - -|rook-skewer|c3c2,d4c2,c8c2,d2e1,c2h2|wWPhL",
+        "pedagogicalFamily": "rook-skewer|2r4k/7p/8/p2p1PP1/3Nb3/1Pr1P3/P2K3R/3R4 b - -|c3c2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    }
+  ]
+}

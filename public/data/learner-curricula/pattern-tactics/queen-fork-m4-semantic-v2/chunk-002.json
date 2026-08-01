@@ -1,0 +1,1682 @@
+{
+  "puzzles": [
+    {
+      "id": "fork-queen-m4-xAFxn",
+      "puzzleId": "xAFxn",
+      "fen": "1k5r/4q3/2b5/1pp2R2/4p2p/pPPP3P/P3QP2/1K4R1 w - - 0 31",
+      "preMove": "d3e4",
+      "solutionLine": [
+        "e7e4",
+        "e2c2",
+        "e4c2",
+        "b1c2",
+        "c6e4",
+        "c2c1",
+        "e4f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1775,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|1k5r/4q3/2b5/1pp2R2/4P2p/pPP4P/P3QP2/1K4R1 b - -|e7e4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@e4",
+          "targets": [
+            "wq@e2",
+            "wr@f5",
+            "wk@b1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 0,
+        "sourceChunk": 3,
+        "sourceIndex": 0,
+        "sourceIdentity": "xAFxn",
+        "canonicalIdentity": "1k5r/4q3/2b5/1pp2R2/4P2p/pPP4P/P3QP2/1K4R1 b - -|queen-fork|e7e4,e2c2,e4c2,b1c2,c6e4,c2c1,e4f5|xAFxn",
+        "pedagogicalFamily": "queen-fork|1k5r/4q3/2b5/1pp2R2/4P2p/pPP4P/P3QP2/1K4R1 b - -|e7e4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zBYRc",
+      "puzzleId": "zBYRc",
+      "fen": "r1bk1b1r/1p1P1Qpp/p2q4/3N4/P2p4/3B4/1PP3PP/5RK1 b - - 0 18",
+      "preMove": "d6d7",
+      "solutionLine": [
+        "f7f8",
+        "h8f8",
+        "f1f8",
+        "d7e8",
+        "f8e8",
+        "d8e8",
+        "d5c7",
+        "e8e7",
+        "c7a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1342,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "decoy-attraction",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r1bk1b1r/1p1q1Qpp/p7/3N4/P2p4/3B4/1PP3PP/5RK1 w - -|f7f8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@f8",
+          "targets": [
+            "br@h8",
+            "bk@d8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 1,
+        "sourceChunk": 1,
+        "sourceIndex": 23,
+        "sourceIdentity": "zBYRc",
+        "canonicalIdentity": "r1bk1b1r/1p1q1Qpp/p7/3N4/P2p4/3B4/1PP3PP/5RK1 w - -|queen-fork|f7f8,h8f8,f1f8,d7e8,f8e8,d8e8,d5c7,e8e7,c7a8|zBYRc",
+        "pedagogicalFamily": "queen-fork|r1bk1b1r/1p1q1Qpp/p7/3N4/P2p4/3B4/1PP3PP/5RK1 w - -|f7f8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-wk4XH",
+      "puzzleId": "wk4XH",
+      "fen": "r2k4/ppqn2R1/2p2p2/5B2/2PPP3/1P6/P4K2/R1BQ2br w - - 0 25",
+      "preMove": "g7g1",
+      "solutionLine": [
+        "c7h2",
+        "g1g2",
+        "h2h4",
+        "f2e2",
+        "h1d1",
+        "e2d1",
+        "h4h1",
+        "d1c2",
+        "h1g2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2252,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "decoy-attraction",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Decoy / Attraction",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r2k4/ppqn4/2p2p2/5B2/2PPP3/1P6/P4K2/R1BQ2Rr b - -|c7h2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@h2",
+          "targets": [
+            "wk@f2",
+            "wr@g1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 2,
+        "sourceChunk": 7,
+        "sourceIndex": 24,
+        "sourceIdentity": "wk4XH",
+        "canonicalIdentity": "r2k4/ppqn4/2p2p2/5B2/2PPP3/1P6/P4K2/R1BQ2Rr b - -|queen-fork|c7h2,g1g2,h2h4,f2e2,h1d1,e2d1,h4h1,d1c2,h1g2|wk4XH",
+        "pedagogicalFamily": "queen-fork|r2k4/ppqn4/2p2p2/5B2/2PPP3/1P6/P4K2/R1BQ2Rr b - -|c7h2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zJQak",
+      "puzzleId": "zJQak",
+      "fen": "r1br4/pp2kppp/4p3/3q4/2N1n3/4P3/PPQ2PPP/R3KBNR w KQ - 1 15",
+      "preMove": "a1d1",
+      "solutionLine": [
+        "d5d1",
+        "c2d1",
+        "d8d1",
+        "e1d1",
+        "e4f2",
+        "d1e1",
+        "f2h1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1348,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 16,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r1br4/pp2kppp/4p3/3q4/2N1n3/4P3/PPQ2PPP/3RKBNR b K -|d5d1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@d1",
+          "targets": [
+            "wk@e1",
+            "wq@c2"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 3,
+        "sourceChunk": 1,
+        "sourceIndex": 16,
+        "sourceIdentity": "zJQak",
+        "canonicalIdentity": "r1br4/pp2kppp/4p3/3q4/2N1n3/4P3/PPQ2PPP/3RKBNR b K -|queen-fork|d5d1,c2d1,d8d1,e1d1,e4f2,d1e1,f2h1|zJQak",
+        "pedagogicalFamily": "queen-fork|r1br4/pp2kppp/4p3/3q4/2N1n3/4P3/PPQ2PPP/3RKBNR b K -|d5d1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zYfsL",
+      "puzzleId": "zYfsL",
+      "fen": "6k1/4p1bp/p2P2p1/1p2Pp2/4nP2/3Q3P/5qP1/B1R3K1 w - - 1 33",
+      "preMove": "g1h2",
+      "solutionLine": [
+        "f2f4",
+        "g2g3",
+        "f4f2",
+        "h2h1",
+        "e4g3",
+        "d3g3",
+        "f2g3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2069,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "deflection"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Deflection"
+      ],
+      "themes": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "crushing",
+        "deflection",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|6k1/4p1bp/p2P2p1/1p2Pp2/4nP2/3Q3P/5qPK/B1R5 b - -|f2f4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@f4",
+          "targets": [
+            "wk@h2",
+            "wr@c1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 4,
+        "sourceChunk": 5,
+        "sourceIndex": 28,
+        "sourceIdentity": "zYfsL",
+        "canonicalIdentity": "6k1/4p1bp/p2P2p1/1p2Pp2/4nP2/3Q3P/5qPK/B1R5 b - -|queen-fork|f2f4,g2g3,f4f2,h2h1,e4g3,d3g3,f2g3|zYfsL",
+        "pedagogicalFamily": "queen-fork|6k1/4p1bp/p2P2p1/1p2Pp2/4nP2/3Q3P/5qPK/B1R5 b - -|f2f4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zy9OW",
+      "puzzleId": "zy9OW",
+      "fen": "r4rk1/ppp2ppp/2np1n2/2b1p1B1/4P1q1/1QPP1N2/PP2NPPP/R3K2R w KQ - 2 11",
+      "preMove": "g5f6",
+      "solutionLine": [
+        "g4g2",
+        "h1g1",
+        "g2f2",
+        "e1d1",
+        "g7g6",
+        "f3d2",
+        "f2f6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2542,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "fork-queen",
+        "attacking-f2-f7"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Queen Fork / Double Attack",
+        "Attacking f2/f7"
+      ],
+      "themes": [
+        "advantage",
+        "attackingF2F7",
+        "fork",
+        "middlegame",
+        "quietMove",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "attackingF2F7",
+        "fork",
+        "middlegame",
+        "quietMove",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r4rk1/ppp2ppp/2np1B2/2b1p3/4P1q1/1QPP1N2/PP2NPPP/R3K2R b KQ -|g4g2",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@g2",
+          "targets": [
+            "wr@h1",
+            "wn@f3"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 5,
+        "sourceChunk": 9,
+        "sourceIndex": 29,
+        "sourceIdentity": "zy9OW",
+        "canonicalIdentity": "r4rk1/ppp2ppp/2np1B2/2b1p3/4P1q1/1QPP1N2/PP2NPPP/R3K2R b KQ -|queen-fork|g4g2,h1g1,g2f2,e1d1,g7g6,f3d2,f2f6|zy9OW",
+        "pedagogicalFamily": "queen-fork|r4rk1/ppp2ppp/2np1B2/2b1p3/4P1q1/1QPP1N2/PP2NPPP/R3K2R b KQ -|g4g2",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-yrd6Q",
+      "puzzleId": "yrd6Q",
+      "fen": "3b1k1r/p4ppp/2Qp4/4q3/1B2n3/P4P2/6PP/RN4K1 w - - 5 22",
+      "preMove": "f3e4",
+      "solutionLine": [
+        "e5d4",
+        "g1f1",
+        "d4d1",
+        "b4e1",
+        "d1d3",
+        "f1g1",
+        "d8b6",
+        "c6b6",
+        "a7b6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2501,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|3b1k1r/p4ppp/2Qp4/4q3/1B2P3/P7/6PP/RN4K1 b - -|e5d4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@d4",
+          "targets": [
+            "wb@b4",
+            "wk@g1",
+            "wr@a1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 6,
+        "sourceChunk": 9,
+        "sourceIndex": 6,
+        "sourceIdentity": "yrd6Q",
+        "canonicalIdentity": "3b1k1r/p4ppp/2Qp4/4q3/1B2P3/P7/6PP/RN4K1 b - -|queen-fork|e5d4,g1f1,d4d1,b4e1,d1d3,f1g1,d8b6,c6b6,a7b6|yrd6Q",
+        "pedagogicalFamily": "queen-fork|3b1k1r/p4ppp/2Qp4/4q3/1B2P3/P7/6PP/RN4K1 b - -|e5d4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zEBR5",
+      "puzzleId": "zEBR5",
+      "fen": "r1b1Q1k1/pp4q1/4p3/2R2r2/8/4P3/P4PPP/5RK1 b - - 7 22",
+      "preMove": "g7f8",
+      "solutionLine": [
+        "e8g6",
+        "f8g7",
+        "c5c8",
+        "a8c8",
+        "g6e6",
+        "f5f7",
+        "e6c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1829,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "decoy-deflection-combined",
+        "vulnerable-king"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Decoy + Deflection",
+        "Vulnerable / Exposed King"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "deflection",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "deflection",
+        "exposedKing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r1b1Qqk1/pp6/4p3/2R2r2/8/4P3/P4PPP/5RK1 w - -|e8g6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@g6",
+          "targets": [
+            "bk@g8",
+            "br@f5"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 7,
+        "sourceChunk": 3,
+        "sourceIndex": 14,
+        "sourceIdentity": "zEBR5",
+        "canonicalIdentity": "r1b1Qqk1/pp6/4p3/2R2r2/8/4P3/P4PPP/5RK1 w - -|queen-fork|e8g6,f8g7,c5c8,a8c8,g6e6,f5f7,e6c8|zEBR5",
+        "pedagogicalFamily": "queen-fork|r1b1Qqk1/pp6/4p3/2R2r2/8/4P3/P4PPP/5RK1 w - -|e8g6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-wK0LW",
+      "puzzleId": "wK0LW",
+      "fen": "6k1/pQ3p1p/6p1/3p1q2/8/2Pn1N1P/P2BrbP1/5R1K b - - 7 29",
+      "preMove": "f2b6",
+      "solutionLine": [
+        "b7b8",
+        "g8g7",
+        "d2h6",
+        "g7h6",
+        "b8f8",
+        "h6h5",
+        "g2g4",
+        "f5g4",
+        "h3g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1718,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "decoy-attraction",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Decoy / Attraction",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|6k1/pQ3p1p/1b4p1/3p1q2/8/2Pn1N1P/P2Br1P1/5R1K w - -|b7b8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@b8",
+          "targets": [
+            "bk@g8",
+            "bb@b6"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 8,
+        "sourceChunk": 3,
+        "sourceIndex": 8,
+        "sourceIdentity": "wK0LW",
+        "canonicalIdentity": "6k1/pQ3p1p/1b4p1/3p1q2/8/2Pn1N1P/P2Br1P1/5R1K w - -|queen-fork|b7b8,g8g7,d2h6,g7h6,b8f8,h6h5,g2g4,f5g4,h3g4|wK0LW",
+        "pedagogicalFamily": "queen-fork|6k1/pQ3p1p/1b4p1/3p1q2/8/2Pn1N1P/P2Br1P1/5R1K w - -|b7b8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zOYin",
+      "puzzleId": "zOYin",
+      "fen": "r3r2k/2q3Pp/7N/ppn1b3/3Q4/2B2P1P/PPP3P1/5RK1 b - - 0 24",
+      "preMove": "c7g7",
+      "solutionLine": [
+        "d4e5",
+        "e8e5",
+        "c3e5",
+        "g7e5",
+        "h6f7",
+        "h8g7",
+        "f7e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1815,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "pin-queen",
+        "decoy-attraction",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Pin",
+        "Decoy / Attraction",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "attraction",
+        "fork",
+        "middlegame",
+        "pin",
+        "sacrifice",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r3r2k/6qp/7N/ppn1b3/3Q4/2B2P1P/PPP3P1/5RK1 w - -|d4e5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@e5",
+          "targets": [
+            "bn@c5",
+            "br@e8",
+            "bq@g7"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 9,
+        "sourceChunk": 3,
+        "sourceIndex": 12,
+        "sourceIdentity": "zOYin",
+        "canonicalIdentity": "r3r2k/6qp/7N/ppn1b3/3Q4/2B2P1P/PPP3P1/5RK1 w - -|queen-fork|d4e5,e8e5,c3e5,g7e5,h6f7,h8g7,f7e5|zOYin",
+        "pedagogicalFamily": "queen-fork|r3r2k/6qp/7N/ppn1b3/3Q4/2B2P1P/PPP3P1/5RK1 w - -|d4e5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zyjaW",
+      "puzzleId": "zyjaW",
+      "fen": "r1b2rk1/pp2q1pp/2n5/4p3/4Bn2/1N3Q1P/PPP3PK/3R1R2 b - - 1 18",
+      "preMove": "f4h3",
+      "solutionLine": [
+        "f3f8",
+        "e7f8",
+        "e4d5",
+        "c8e6",
+        "d5e6",
+        "g8h8",
+        "f1f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2280,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "sacrifice-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Sacrifice"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "sacrifice",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r1b2rk1/pp2q1pp/2n5/4p3/4B3/1N3Q1n/PPP3PK/3R1R2 w - -|f3f8",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@f8",
+          "targets": [
+            "bk@g8",
+            "bb@c8",
+            "bq@e7"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 10,
+        "sourceChunk": 7,
+        "sourceIndex": 12,
+        "sourceIdentity": "zyjaW",
+        "canonicalIdentity": "r1b2rk1/pp2q1pp/2n5/4p3/4B3/1N3Q1n/PPP3PK/3R1R2 w - -|queen-fork|f3f8,e7f8,e4d5,c8e6,d5e6,g8h8,f1f8|zyjaW",
+        "pedagogicalFamily": "queen-fork|r1b2rk1/pp2q1pp/2n5/4p3/4B3/1N3Q1n/PPP3PK/3R1R2 w - -|f3f8",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zHRJr",
+      "puzzleId": "zHRJr",
+      "fen": "2r1r3/pp1b1pkp/1q4p1/3pP1N1/1PpP4/P4Q2/5PPP/R3R1K1 b - - 3 20",
+      "preMove": "e8e7",
+      "solutionLine": [
+        "f3f6",
+        "b6f6",
+        "e5f6",
+        "g7f6",
+        "g5h7",
+        "f6g7",
+        "e1e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1885,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "decoy-deflection-combined"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Decoy + Deflection"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "deflection",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|2r5/pp1brpkp/1q4p1/3pP1N1/1PpP4/P4Q2/5PPP/R3R1K1 w - -|f3f6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@f6",
+          "targets": [
+            "bq@b6",
+            "bk@g7",
+            "br@e7"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 11,
+        "sourceChunk": 4,
+        "sourceIndex": 11,
+        "sourceIdentity": "zHRJr",
+        "canonicalIdentity": "2r5/pp1brpkp/1q4p1/3pP1N1/1PpP4/P4Q2/5PPP/R3R1K1 w - -|queen-fork|f3f6,b6f6,e5f6,g7f6,g5h7,f6g7,e1e7|zHRJr",
+        "pedagogicalFamily": "queen-fork|2r5/pp1brpkp/1q4p1/3pP1N1/1PpP4/P4Q2/5PPP/R3R1K1 w - -|f3f6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zfTJu",
+      "puzzleId": "zfTJu",
+      "fen": "4rk2/pppb1pp1/2n5/6Nq/3P4/1P1B4/P2Q1PP1/R5K1 b - - 2 21",
+      "preMove": "c6d4",
+      "solutionLine": [
+        "d2b4",
+        "e8e7",
+        "g5h7",
+        "f8e8",
+        "b4d4",
+        "h5e5",
+        "d4e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2162,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|4rk2/pppb1pp1/8/6Nq/3n4/1P1B4/P2Q1PP1/R5K1 w - -|d2b4",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@b4",
+          "targets": [
+            "bn@d4",
+            "bk@f8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 12,
+        "sourceChunk": 6,
+        "sourceIndex": 4,
+        "sourceIdentity": "zfTJu",
+        "canonicalIdentity": "4rk2/pppb1pp1/8/6Nq/3n4/1P1B4/P2Q1PP1/R5K1 w - -|queen-fork|d2b4,e8e7,g5h7,f8e8,b4d4,h5e5,d4e5|zfTJu",
+        "pedagogicalFamily": "queen-fork|4rk2/pppb1pp1/8/6Nq/3n4/1P1B4/P2Q1PP1/R5K1 w - -|d2b4",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zrE8G",
+      "puzzleId": "zrE8G",
+      "fen": "r5k1/pp2n2p/2n1prpQ/1q1p2N1/3P4/7P/PP3PP1/1R4KR b - - 1 18",
+      "preMove": "b5e2",
+      "solutionLine": [
+        "h6h7",
+        "g8f8",
+        "h7h8",
+        "e7g8",
+        "g5h7",
+        "f8f7",
+        "h7f6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1760,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r5k1/pp2n2p/2n1prpQ/3p2N1/3P4/7P/PP2qPP1/1R4KR w - -|h6h7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@h7",
+          "targets": [
+            "bn@e7",
+            "bk@g8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 13,
+        "sourceChunk": 3,
+        "sourceIndex": 22,
+        "sourceIdentity": "zrE8G",
+        "canonicalIdentity": "r5k1/pp2n2p/2n1prpQ/3p2N1/3P4/7P/PP2qPP1/1R4KR w - -|queen-fork|h6h7,g8f8,h7h8,e7g8,g5h7,f8f7,h7f6|zrE8G",
+        "pedagogicalFamily": "queen-fork|r5k1/pp2n2p/2n1prpQ/3p2N1/3P4/7P/PP2qPP1/1R4KR w - -|h6h7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-wuknJ",
+      "puzzleId": "wuknJ",
+      "fen": "7k/pp3Bpp/6n1/8/1P6/2P1r1PK/P1N1Q2P/7q w - - 0 29",
+      "preMove": "e2e3",
+      "solutionLine": [
+        "h1f1",
+        "h3g4",
+        "h7h5",
+        "g4h5",
+        "f1f5",
+        "e3g5",
+        "f5h3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2350,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "decoy-attraction"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Decoy / Attraction"
+      ],
+      "themes": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "attraction",
+        "crushing",
+        "endgame",
+        "fork",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|7k/pp3Bpp/6n1/8/1P6/2P1Q1PK/P1N4P/7q b - -|h1f1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@f1",
+          "targets": [
+            "wb@f7",
+            "wk@h3"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 14,
+        "sourceChunk": 8,
+        "sourceIndex": 12,
+        "sourceIdentity": "wuknJ",
+        "canonicalIdentity": "7k/pp3Bpp/6n1/8/1P6/2P1Q1PK/P1N4P/7q b - -|queen-fork|h1f1,h3g4,h7h5,g4h5,f1f5,e3g5,f5h3|wuknJ",
+        "pedagogicalFamily": "queen-fork|7k/pp3Bpp/6n1/8/1P6/2P1Q1PK/P1N4P/7q b - -|h1f1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-rfykr",
+      "puzzleId": "rfykr",
+      "fen": "r4r2/1p3pkn/p2p2p1/3qp3/6NQ/3PR2P/6P1/5R1K b - - 1 25",
+      "preMove": "a8c8",
+      "solutionLine": [
+        "h4h6",
+        "g7g8",
+        "g4f6",
+        "h7f6",
+        "f1f6",
+        "c8c1",
+        "h1h2",
+        "c1f1",
+        "f6f1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2653,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|2r2r2/1p3pkn/p2p2p1/3qp3/6NQ/3PR2P/6P1/5R1K w - -|h4h6",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@h6",
+          "targets": [
+            "bn@h7",
+            "bk@g7"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 15,
+        "sourceChunk": 10,
+        "sourceIndex": 5,
+        "sourceIdentity": "rfykr",
+        "canonicalIdentity": "2r2r2/1p3pkn/p2p2p1/3qp3/6NQ/3PR2P/6P1/5R1K w - -|queen-fork|h4h6,g7g8,g4f6,h7f6,f1f6,c8c1,h1h2,c1f1,f6f1|rfykr",
+        "pedagogicalFamily": "queen-fork|2r2r2/1p3pkn/p2p2p1/3qp3/6NQ/3PR2P/6P1/5R1K w - -|h4h6",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-qVfd8",
+      "puzzleId": "qVfd8",
+      "fen": "r4k2/p2n1p2/2p5/8/Pp6/8/4QPP1/4RKNq b - - 7 26",
+      "preMove": "d7f6",
+      "solutionLine": [
+        "e2e7",
+        "f8g7",
+        "e1e3",
+        "h1h4",
+        "e3g3",
+        "h4g3",
+        "f2g3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2127,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "quiet-move",
+        "fork-queen",
+        "clearance"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Queen Fork / Double Attack",
+        "Clearance"
+      ],
+      "themes": [
+        "clearance",
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "quietMove",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "clearance",
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "quietMove",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r4k2/p4p2/2p2n2/8/Pp6/8/4QPP1/4RKNq w - -|e2e7",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@e7",
+          "targets": [
+            "bk@f8",
+            "bn@f6"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 16,
+        "sourceChunk": 6,
+        "sourceIndex": 8,
+        "sourceIdentity": "qVfd8",
+        "canonicalIdentity": "r4k2/p4p2/2p2n2/8/Pp6/8/4QPP1/4RKNq w - -|queen-fork|e2e7,f8g7,e1e3,h1h4,e3g3,h4g3,f2g3|qVfd8",
+        "pedagogicalFamily": "queen-fork|r4k2/p4p2/2p2n2/8/Pp6/8/4QPP1/4RKNq w - -|e2e7",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-y5W0o",
+      "puzzleId": "y5W0o",
+      "fen": "r1b1k2r/p1p2ppp/1q6/2N5/6n1/2P1BR2/PPP3PP/R2Q2K1 w kq - 1 16",
+      "preMove": "e3g5",
+      "solutionLine": [
+        "b6c5",
+        "f3e3",
+        "c8e6",
+        "d1g4",
+        "c5e3",
+        "g5e3",
+        "e6g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2353,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "hanging-piece"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Hanging Piece"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "hangingPiece",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "hangingPiece",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r1b1k2r/p1p2ppp/1q6/2N3B1/6n1/2P2R2/PPP3PP/R2Q2K1 b kq -|b6c5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@c5",
+          "targets": [
+            "wb@g5",
+            "wk@g1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 17,
+        "sourceChunk": 8,
+        "sourceIndex": 0,
+        "sourceIdentity": "y5W0o",
+        "canonicalIdentity": "r1b1k2r/p1p2ppp/1q6/2N3B1/6n1/2P2R2/PPP3PP/R2Q2K1 b kq -|queen-fork|b6c5,f3e3,c8e6,d1g4,c5e3,g5e3,e6g4|y5W0o",
+        "pedagogicalFamily": "queen-fork|r1b1k2r/p1p2ppp/1q6/2N3B1/6n1/2P2R2/PPP3PP/R2Q2K1 b kq -|b6c5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zunPz",
+      "puzzleId": "zunPz",
+      "fen": "r1b1r3/6R1/p1kp1Q2/1pp1pp1N/2P1P3/7q/PPP2P2/R3K3 w - - 3 29",
+      "preMove": "a1d1",
+      "solutionLine": [
+        "h3h1",
+        "e1d2",
+        "h1h5",
+        "d1h1",
+        "h5h1",
+        "f6f7",
+        "h1h6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1927,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|r1b1r3/6R1/p1kp1Q2/1pp1pp1N/2P1P3/7q/PPP2P2/3RK3 b - -|h3h1",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "bq@h1",
+          "targets": [
+            "wk@e1",
+            "wn@h5"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 18,
+        "sourceChunk": 4,
+        "sourceIndex": 18,
+        "sourceIdentity": "zunPz",
+        "canonicalIdentity": "r1b1r3/6R1/p1kp1Q2/1pp1pp1N/2P1P3/7q/PPP2P2/3RK3 b - -|queen-fork|h3h1,e1d2,h1h5,d1h1,h5h1,f6f7,h1h6|zunPz",
+        "pedagogicalFamily": "queen-fork|r1b1r3/6R1/p1kp1Q2/1pp1pp1N/2P1P3/7q/PPP2P2/3RK3 b - -|h3h1",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    },
+    {
+      "id": "fork-queen-m4-zXksp",
+      "puzzleId": "zXksp",
+      "fen": "2r5/pp3kpp/8/1b1p4/1B2B3/P3q1PP/1P1R4/3Q3K b - - 0 27",
+      "preMove": "d5e4",
+      "solutionLine": [
+        "d1h5",
+        "f7g8",
+        "h5d5",
+        "g8h8",
+        "d5d8",
+        "b5e8",
+        "d8c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2194,
+      "label": "Queen Fork / Double Attack - Tactic in 4+",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Pin"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "pin",
+        "veryLong"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "rawTags": [
+        "crushing",
+        "endgame",
+        "fork",
+        "pin",
+        "veryLong",
+        "fork-queen",
+        "undefined",
+        "Queen Fork / Double Attack - Tactic in 4+"
+      ],
+      "pedagogicalFamily": "queen-fork|2r5/pp3kpp/8/1b6/1B2p3/P3q1PP/1P1R4/3Q3K w - -|d1h5",
+      "semanticAudit": {
+        "version": "tier-a-semantic-v2",
+        "status": "VALID",
+        "tier": "A",
+        "confidence": 0.98,
+        "reason": "moving piece attacks at least two surviving meaningful enemy targets",
+        "detectedTheme": "fork",
+        "evidence": {
+          "mover": "wq@h5",
+          "targets": [
+            "bb@b5",
+            "bk@f7"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v2",
+        "tacticDistance": 4,
+        "learnerChunk": 2,
+        "orderInChunk": 19,
+        "sourceChunk": 7,
+        "sourceIndex": 11,
+        "sourceIdentity": "zXksp",
+        "canonicalIdentity": "2r5/pp3kpp/8/1b6/1B2p3/P3q1PP/1P1R4/3Q3K w - -|queen-fork|d1h5,f7g8,h5d5,g8h8,d5d8,b5e8,d8c8|zXksp",
+        "pedagogicalFamily": "queen-fork|2r5/pp3kpp/8/1b6/1B2p3/P3q1PP/1P1R4/3Q3K w - -|d1h5",
+        "retainedReason": "Strict semantic-v2: complete line replayed and classified VALID by the committed Tier A validator."
+      }
+    }
+  ]
+}
