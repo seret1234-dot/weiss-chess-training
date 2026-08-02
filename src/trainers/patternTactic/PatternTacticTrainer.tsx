@@ -396,6 +396,7 @@ function semanticExplanation(puzzle?: PatternTacticPuzzle | null) {
  if (!audit?.evidence) return null
  const evidence = audit.evidence as Record<string, unknown>
  const format = (value: unknown) => Array.isArray(value) ? value.join(', ') : typeof value === 'string' ? value : ''
+ if (typeof evidence.explanation === 'string') return evidence.explanation
  if (Array.isArray(evidence.targets)) return `Verified fork: ${format(evidence.mover)} attacks ${format(evidence.targets)}.`
  if (Array.isArray(evidence.pins)) {
   const pin = evidence.pins[0] as Record<string, string> | undefined
@@ -568,7 +569,7 @@ export default function PatternTacticTrainer({
   ? getPatternTacticLearnerProgressTrainerKey(tacticLearnerCurriculum)
   : config.trainerKey
  const activeDataBasePath = isMixedPatternTactic
-  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-semantic-v2`
+  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-semantic-v3`
   : tacticLearnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
  const urlChunkParam = searchParams.get('chunk')
  const requestedChunkIndex =

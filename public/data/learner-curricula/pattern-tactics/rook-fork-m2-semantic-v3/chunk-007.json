@@ -1,0 +1,2557 @@
+{
+  "puzzles": [
+    {
+      "id": "fork-rook-m2-ysSu4",
+      "puzzleId": "ysSu4",
+      "fen": "8/8/8/Pq4pk/1P6/1KR4P/2P5/8 b - - 2 52",
+      "preMove": "g5g4",
+      "solutionLine": [
+        "c3c5",
+        "h5h4",
+        "c5b5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1240,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "queenRookEndgame",
+        "short"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on c5",
+          "forkSquare": "c5",
+          "targets": [
+            "Black king on h5",
+            "Black queen on b5"
+          ],
+          "targetSquares": [
+            "h5",
+            "b5"
+          ],
+          "checking": true,
+          "capturable": true,
+          "legalReplyCount": 4,
+          "captureReplies": [
+            {
+              "san": "Qxc5",
+              "uci": "b5c5"
+            }
+          ],
+          "bestDefense": {
+            "uci": "h5h4",
+            "pv": [
+              "h5h4",
+              "c5b5",
+              "g4h3",
+              "b5d5",
+              "h3h2",
+              "d5d1",
+              "h4g4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -651,
+            "attackerScore": 651,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c5b5",
+              "san": "Rxb5",
+              "capturedValue": 9,
+              "pv": [
+                "g4g3",
+                "b5b8",
+                "h4h3",
+                "b8h8",
+                "h3g2",
+                "c2c4",
+                "g2f2",
+                "h8f8",
+                "f2e3",
+                "f8e8",
+                "e3d2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -600,
+              "attackerScore": 600
+            }
+          ],
+          "captureAnalysis": [
+            {
+              "uci": "b5c5",
+              "san": "Qxc5",
+              "pv": [
+                "h3g4",
+                "h5g4",
+                "b4c5",
+                "g4f5",
+                "a5a6",
+                "f5e6",
+                "a6a7",
+                "e6d7",
+                "c5c6",
+                "d7d6",
+                "a7a8q",
+                "d6c7"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 680,
+              "pvMaterialGain": 7,
+              "forcedMate": false
+            }
+          ],
+          "storedLine": [
+            "c3c5",
+            "h5h4",
+            "c5b5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on c5 attacks Black king on h5 and Black queen on b5. The forking piece is capturable, but every legal capture is refuted by the verified continuation. Best defense: h5h4 c5b5 g4h3 b5d5 h3h2 d5d1 h4g4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 0,
+        "sourceChunk": 7,
+        "sourceIndex": 4,
+        "sourceIdentity": "ysSu4",
+        "canonicalIdentity": "8/8/8/Pq5k/1P4p1/1KR4P/2P5/8 w - -|rook-fork|c3c5,h5h4,c5b5|ysSu4",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-zuqda",
+      "puzzleId": "zuqda",
+      "fen": "5r2/1p3N2/p2b1r1k/3pp2P/PP6/2PP4/2K5/6RR b - - 0 33",
+      "preMove": "f6f7",
+      "solutionLine": [
+        "g1g6",
+        "h6h7",
+        "g6d6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 993,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on g6",
+          "forkSquare": "g6",
+          "targets": [
+            "Black king on h6",
+            "Black bishop on d6"
+          ],
+          "targetSquares": [
+            "h6",
+            "d6"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 1,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "h6h7",
+            "pv": [
+              "h6h7",
+              "g6d6",
+              "d5d4",
+              "c3d4",
+              "f7c7",
+              "c2d2",
+              "e5d4",
+              "h1e1",
+              "f8f2",
+              "e1e2",
+              "f2f1",
+              "d6d4",
+              "f1c1",
+              "d2e3",
+              "c7e7",
+              "d4e4",
+              "e7d7"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -215,
+            "attackerScore": 215,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g6d6",
+              "san": "Rxd6",
+              "capturedValue": 3,
+              "pv": [
+                "d5d4",
+                "c3d4",
+                "f7c7",
+                "c2d2",
+                "e5d4",
+                "d6d4",
+                "f8f2",
+                "d2e3",
+                "f2a2",
+                "a4a5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -285,
+              "attackerScore": 285
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g1g6",
+            "h6h7",
+            "g6d6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on g6 attacks Black king on h6 and Black bishop on d6. The fork cannot be safely neutralized. Best defense: h6h7 g6d6 d5d4 c3d4 f7c7 c2d2 e5d4 h1e1 f8f2 e1e2 f2f1 d6d4 f1c1 d2e3 c7e7 d4e4 e7d7.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 1,
+        "sourceChunk": 4,
+        "sourceIndex": 24,
+        "sourceIdentity": "zuqda",
+        "canonicalIdentity": "5r2/1p3r2/p2b3k/3pp2P/PP6/2PP4/2K5/6RR w - -|rook-fork|g1g6,h6h7,g6d6|zuqda",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-xdeIe",
+      "puzzleId": "xdeIe",
+      "fen": "8/1R6/6p1/p3p2p/1k2Pn1P/4bPK1/3p4/3B4 b - - 1 61",
+      "preMove": "b4a3",
+      "solutionLine": [
+        "b7b3",
+        "a3a2",
+        "b3e3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 830,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on b3",
+          "forkSquare": "b3",
+          "targets": [
+            "Black bishop on e3",
+            "Black king on a3"
+          ],
+          "targetSquares": [
+            "e3",
+            "a3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "a3a2",
+            "pv": [
+              "a3a2",
+              "b3e3",
+              "a2a1",
+              "e3a3",
+              "a1b1",
+              "a3a4",
+              "g6g5",
+              "h4g5",
+              "b1b2",
+              "g3f2",
+              "h5h4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -276,
+            "attackerScore": 276,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "b3e3",
+              "san": "Rxe3",
+              "capturedValue": 3,
+              "pv": [
+                "g6g5",
+                "e3c3",
+                "g5h4",
+                "g3h4",
+                "a5a4",
+                "c3c2",
+                "a2b1",
+                "c2d2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -237,
+              "attackerScore": 237
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "b7b3",
+            "a3a2",
+            "b3e3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on b3 attacks Black bishop on e3 and Black king on a3. The fork cannot be safely neutralized. Best defense: a3a2 b3e3 a2a1 e3a3 a1b1 a3a4 g6g5 h4g5 b1b2 g3f2 h5h4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 2,
+        "sourceChunk": 2,
+        "sourceIndex": 3,
+        "sourceIdentity": "xdeIe",
+        "canonicalIdentity": "8/1R6/6p1/p3p2p/4Pn1P/k3bPK1/3p4/3B4 w - -|rook-fork|b7b3,a3a2,b3e3|xdeIe",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-yytLN",
+      "puzzleId": "yytLN",
+      "fen": "8/7b/3Rn3/p1P2k2/3p1p2/8/PP1K4/8 b - - 0 43",
+      "preMove": "e6c5",
+      "solutionLine": [
+        "d6d5",
+        "f5g4",
+        "d5c5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1005,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on d5",
+          "forkSquare": "d5",
+          "targets": [
+            "Black king on f5",
+            "Black knight on c5"
+          ],
+          "targetSquares": [
+            "f5",
+            "c5"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f5g4",
+            "pv": [
+              "f5g4",
+              "d5c5",
+              "f4f3",
+              "c5a5",
+              "h7e4",
+              "a2a4",
+              "g4g3",
+              "a5g5",
+              "g3f4",
+              "g5g7",
+              "e4c6",
+              "b2b3",
+              "c6d5",
+              "g7d7",
+              "d5b3",
+              "a4a5",
+              "f3f2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -168,
+            "attackerScore": 168,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d5c5",
+              "san": "Rxc5",
+              "capturedValue": 3,
+              "pv": [
+                "f4f3",
+                "c5a5",
+                "g4g3",
+                "a5g5",
+                "g3f4",
+                "g5g7",
+                "h7f5",
+                "g7f7",
+                "f4e4",
+                "d2e1",
+                "d4d3",
+                "f7f8",
+                "f5d7",
+                "f8d8",
+                "d7b5",
+                "e1f2",
+                "b5c4",
+                "d8e8",
+                "e4d4",
+                "f2f3",
+                "c4a2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -164,
+              "attackerScore": 164
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d6d5",
+            "f5g4",
+            "d5c5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on d5 attacks Black king on f5 and Black knight on c5. The fork cannot be safely neutralized. Best defense: f5g4 d5c5 f4f3 c5a5 h7e4 a2a4 g4g3 a5g5 g3f4 g5g7 e4c6 b2b3 c6d5 g7d7 d5b3 a4a5 f3f2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 3,
+        "sourceChunk": 4,
+        "sourceIndex": 8,
+        "sourceIdentity": "yytLN",
+        "canonicalIdentity": "8/7b/3R4/p1n2k2/3p1p2/8/PP1K4/8 w - -|rook-fork|d6d5,f5g4,d5c5|yytLN",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-xLJlb",
+      "puzzleId": "xLJlb",
+      "fen": "r5r1/4k3/pp1R1Rp1/4n1p1/2p5/P1P5/1P4PP/6K1 b - - 0 29",
+      "preMove": "g8d8",
+      "solutionLine": [
+        "d6e6",
+        "e7d7",
+        "e6e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1852,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on e6",
+          "forkSquare": "e6",
+          "targets": [
+            "Black king on e7",
+            "Black knight on e5"
+          ],
+          "targetSquares": [
+            "e7",
+            "e5"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 1,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e7d7",
+            "pv": [
+              "e7d7",
+              "e6e5",
+              "d8e8",
+              "e5e8",
+              "a8e8",
+              "f6g6",
+              "d7c7",
+              "g6g5",
+              "e8e1",
+              "g1f2",
+              "e1b1",
+              "h2h4",
+              "b1b2",
+              "f2e3",
+              "b2a2",
+              "e3d4",
+              "a2a3",
+              "h4h5",
+              "a3a1",
+              "d4c4",
+              "a1g1",
+              "h5h6",
+              "b6b5",
+              "c4b4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -285,
+            "attackerScore": 285,
+            "pvMaterialGain": -7
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e6e5",
+              "san": "Rxe5",
+              "capturedValue": 3,
+              "pv": [
+                "d8f8",
+                "f6b6",
+                "f8f5",
+                "e5e6",
+                "f5d5",
+                "h2h3",
+                "d5d1",
+                "g1h2",
+                "d1d2",
+                "b6a6",
+                "a8a6",
+                "e6a6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -270,
+              "attackerScore": 270
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d6e6",
+            "e7d7",
+            "e6e5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on e6 attacks Black king on e7 and Black knight on e5. The fork cannot be safely neutralized. Best defense: e7d7 e6e5 d8e8 e5e8 a8e8 f6g6 d7c7 g6g5 e8e1 g1f2 e1b1 h2h4 b1b2 f2e3 b2a2 e3d4 a2a3 h4h5 a3a1 d4c4 a1g1 h5h6 b6b5 c4b4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 4,
+        "sourceChunk": 10,
+        "sourceIndex": 26,
+        "sourceIdentity": "xLJlb",
+        "canonicalIdentity": "r2r4/4k3/pp1R1Rp1/4n1p1/2p5/P1P5/1P4PP/6K1 w - -|rook-fork|d6e6,e7d7,e6e5|xLJlb",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-wsNuv",
+      "puzzleId": "wsNuv",
+      "fen": "8/1r4pp/5p2/3Pk3/2R5/3n2K1/2B3PP/8 b - - 4 43",
+      "preMove": "d3e1",
+      "solutionLine": [
+        "c4e4",
+        "e5d5",
+        "e4e1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1162,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on e4",
+          "forkSquare": "e4",
+          "targets": [
+            "Black king on e5",
+            "Black knight on e1"
+          ],
+          "targetSquares": [
+            "e5",
+            "e1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e5d5",
+            "pv": [
+              "e5d5",
+              "e4e1",
+              "d5d6",
+              "c2h7",
+              "b7b3",
+              "g3f4",
+              "g7g6",
+              "h7g6",
+              "b3b2",
+              "g6e4",
+              "b2f2",
+              "e4f3"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -408,
+            "attackerScore": 408,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e4e1",
+              "san": "Rxe1",
+              "capturedValue": 3,
+              "pv": [
+                "b7c7",
+                "c2h7",
+                "f6f5",
+                "h7g8",
+                "d5d6",
+                "e1e6",
+                "d6d7",
+                "e6g6",
+                "c7c3",
+                "g3f2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -416,
+              "attackerScore": 416
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "c4e4",
+            "e5d5",
+            "e4e1"
+          ],
+          "storedMaterialGain": -1,
+          "explanation": "Checking fork: White rook on e4 attacks Black king on e5 and Black knight on e1. The fork cannot be safely neutralized. Best defense: e5d5 e4e1 d5d6 c2h7 b7b3 g3f4 g7g6 h7g6 b3b2 g6e4 b2f2 e4f3.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 5,
+        "sourceChunk": 6,
+        "sourceIndex": 18,
+        "sourceIdentity": "wsNuv",
+        "canonicalIdentity": "8/1r4pp/5p2/3Pk3/2R5/6K1/2B3PP/4n3 w - -|rook-fork|c4e4,e5d5,e4e1|wsNuv",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-zxnRQ",
+      "puzzleId": "zxnRQ",
+      "fen": "8/2k5/2p5/K1P5/1p4B1/1P6/P4r2/8 w - - 3 47",
+      "preMove": "a5b4",
+      "solutionLine": [
+        "f2f4",
+        "b4c3",
+        "f4g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 758,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black rook on f4",
+          "forkSquare": "f4",
+          "targets": [
+            "White bishop on g4",
+            "White king on b4"
+          ],
+          "targetSquares": [
+            "g4",
+            "b4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "b4c3",
+            "pv": [
+              "b4c3",
+              "f4g4",
+              "b3b4",
+              "c7c8",
+              "c3b3",
+              "g4h4",
+              "b3c3",
+              "h4h1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -374,
+            "attackerScore": 374,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f4g4",
+              "san": "Rxg4",
+              "capturedValue": 3,
+              "pv": [
+                "b3b4",
+                "c7d7",
+                "c3b3",
+                "d7e6",
+                "b3a4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -375,
+              "attackerScore": 375
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f2f4",
+            "b4c3",
+            "f4g4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black rook on f4 attacks White bishop on g4 and White king on b4. The fork cannot be safely neutralized. Best defense: b4c3 f4g4 b3b4 c7c8 c3b3 g4h4 b3c3 h4h1.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 6,
+        "sourceChunk": 1,
+        "sourceIndex": 8,
+        "sourceIdentity": "zxnRQ",
+        "canonicalIdentity": "8/2k5/2p5/2P5/1K4B1/1P6/P4r2/8 b - -|rook-fork|f2f4,b4c3,f4g4|zxnRQ",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-zPiQZ",
+      "puzzleId": "zPiQZ",
+      "fen": "8/n2R4/6k1/4P3/3P4/1P1K4/r7/8 b - - 0 54",
+      "preMove": "a7c6",
+      "solutionLine": [
+        "d7d6",
+        "g6g5",
+        "d6c6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1021,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on d6",
+          "forkSquare": "d6",
+          "targets": [
+            "Black king on g6",
+            "Black knight on c6"
+          ],
+          "targetSquares": [
+            "g6",
+            "c6"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g6h5",
+            "pv": [
+              "g6h5",
+              "d6c6",
+              "a2b2",
+              "c6f6",
+              "b2b3",
+              "d3e4",
+              "b3b5",
+              "f6f5",
+              "h5g6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -435,
+            "attackerScore": 435,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d6c6",
+              "san": "Rxc6",
+              "capturedValue": 3,
+              "pv": [
+                "a2b2",
+                "d3e4",
+                "b2b3",
+                "c6a6",
+                "b3b5",
+                "a6d6",
+                "b5b3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -465,
+              "attackerScore": 465
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d7d6",
+            "g6g5",
+            "d6c6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on d6 attacks Black king on g6 and Black knight on c6. The fork cannot be safely neutralized. Best defense: g6h5 d6c6 a2b2 c6f6 b2b3 d3e4 b3b5 f6f5 h5g6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 25,
+        "sourceIdentity": "zPiQZ",
+        "canonicalIdentity": "8/3R4/2n3k1/4P3/3P4/1P1K4/r7/8 w - -|rook-fork|d7d6,g6g5,d6c6|zPiQZ",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-v9l9f",
+      "puzzleId": "v9l9f",
+      "fen": "3r4/8/1p1r1k2/p5p1/P1PN2P1/1PK2N2/8/4R3 w - - 4 48",
+      "preMove": "d4f5",
+      "solutionLine": [
+        "d6d3",
+        "c3c2",
+        "d3f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 943,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black rook on d3",
+          "forkSquare": "d3",
+          "targets": [
+            "White knight on f3",
+            "White king on c3"
+          ],
+          "targetSquares": [
+            "f3",
+            "c3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c3c2",
+            "pv": [
+              "c3c2",
+              "d3f3",
+              "f5e7",
+              "d8d4",
+              "e7d5",
+              "f6f7",
+              "e1e7",
+              "f7f8",
+              "e7b7",
+              "d4g4",
+              "b7b8",
+              "f8f7",
+              "b8b7",
+              "f7e6",
+              "b7b6",
+              "e6e5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -251,
+            "attackerScore": 251,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d3f3",
+              "san": "Rxf3",
+              "capturedValue": 3,
+              "pv": [
+                "f5e7",
+                "d8d4",
+                "e7d5",
+                "f6f7",
+                "d5b6",
+                "d4g4",
+                "e1e2",
+                "g4g3",
+                "b6d5",
+                "f3b3",
+                "e2e7",
+                "f7f8",
+                "c4c5",
+                "b3a3",
+                "c5c6",
+                "g3g2",
+                "c2b1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -244,
+              "attackerScore": 244
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d6d3",
+            "c3c2",
+            "d3f3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black rook on d3 attacks White knight on f3 and White king on c3. The fork cannot be safely neutralized. Best defense: c3c2 d3f3 f5e7 d8d4 e7d5 f6f7 e1e7 f7f8 e7b7 d4g4 b7b8 f8f7 b8b7 f7e6 b7b6 e6e5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 8,
+        "sourceChunk": 3,
+        "sourceIndex": 24,
+        "sourceIdentity": "v9l9f",
+        "canonicalIdentity": "3r4/8/1p1r1k2/p4Np1/P1P3P1/1PK2N2/8/4R3 b - -|rook-fork|d6d3,c3c2,d3f3|v9l9f",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-zzJm4",
+      "puzzleId": "zzJm4",
+      "fen": "4rk2/6p1/5pp1/p4n2/7B/2PN2PP/P4RK1/8 w - - 1 29",
+      "preMove": "g2f3",
+      "solutionLine": [
+        "e8e3",
+        "f3f4",
+        "e3d3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1271,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black rook on e3",
+          "forkSquare": "e3",
+          "targets": [
+            "White king on f3",
+            "White knight on d3"
+          ],
+          "targetSquares": [
+            "f3",
+            "d3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f3g2",
+            "pv": [
+              "f3g2",
+              "e3d3",
+              "c3c4",
+              "d3c3",
+              "f2f3",
+              "c3c2",
+              "g2f1",
+              "c2c4",
+              "f3a3",
+              "f5h4",
+              "g3h4",
+              "c4h4",
+              "a3a5",
+              "h4h3",
+              "a5a8",
+              "f8e7"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -285,
+            "attackerScore": 285,
+            "pvMaterialGain": -4
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e3d3",
+              "san": "Rxd3",
+              "capturedValue": 3,
+              "pv": [
+                "a2a4",
+                "d3c3",
+                "f2f4",
+                "f8f7",
+                "g2f2",
+                "f7g8",
+                "f4e4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -322,
+              "attackerScore": 322
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e8e3",
+            "f3f4",
+            "e3d3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black rook on e3 attacks White king on f3 and White knight on d3. The fork cannot be safely neutralized. Best defense: f3g2 e3d3 c3c4 d3c3 f2f3 c3c2 g2f1 c2c4 f3a3 f5h4 g3h4 c4h4 a3a5 h4h3 a5a8 f8e7.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 9,
+        "sourceChunk": 8,
+        "sourceIndex": 25,
+        "sourceIdentity": "zzJm4",
+        "canonicalIdentity": "4rk2/6p1/5pp1/p4n2/7B/2PN1KPP/P4R2/8 b - -|rook-fork|e8e3,f3f4,e3d3|zzJm4",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-wlJ8E",
+      "puzzleId": "wlJ8E",
+      "fen": "2b2rk1/p2nR2n/1p5B/2pP1p2/2P3pP/2PB2P1/P7/6K1 b - - 0 34",
+      "preMove": "f8f7",
+      "solutionLine": [
+        "e7e8",
+        "h7f8",
+        "e8c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1367,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on e8",
+          "forkSquare": "e8",
+          "targets": [
+            "Black king on g8",
+            "Black bishop on c8"
+          ],
+          "targetSquares": [
+            "g8",
+            "c8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "h7f8",
+            "pv": [
+              "h7f8",
+              "e8c8",
+              "g8h7",
+              "h6f4",
+              "f8g6",
+              "c8c7",
+              "a7a6",
+              "d3f5",
+              "f7f5",
+              "c7d7",
+              "h7g8",
+              "f4h6",
+              "g6e5",
+              "d7g7",
+              "g8h8",
+              "g7e7",
+              "e5f3",
+              "g1f2",
+              "f3h2",
+              "f2e3"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -304,
+            "attackerScore": 304,
+            "pvMaterialGain": -3
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e8f8",
+              "san": "Rxf8+",
+              "capturedValue": 3,
+              "pv": [
+                "d7f8",
+                "h6f4",
+                "a7a5",
+                "h4h5",
+                "f8d7",
+                "g1g2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 369,
+              "attackerScore": -369
+            },
+            {
+              "uci": "e8c8",
+              "san": "Rxc8",
+              "capturedValue": 3,
+              "pv": [
+                "g8h7",
+                "h6g5",
+                "d7e5",
+                "d3e2",
+                "h7g7",
+                "h4h5",
+                "e5d7",
+                "g5f4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -275,
+              "attackerScore": 275
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e7e8",
+            "h7f8",
+            "e8c8"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on e8 attacks Black king on g8 and Black bishop on c8. The fork cannot be safely neutralized. Best defense: h7f8 e8c8 g8h7 h6f4 f8g6 c8c7 a7a6 d3f5 f7f5 c7d7 h7g8 f4h6 g6e5 d7g7 g8h8 g7e7 e5f3 g1f2 f3h2 f2e3.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 10,
+        "sourceChunk": 8,
+        "sourceIndex": 6,
+        "sourceIdentity": "wlJ8E",
+        "canonicalIdentity": "2b3k1/p2nRr1n/1p5B/2pP1p2/2P3pP/2PB2P1/P7/6K1 w - -|rook-fork|e7e8,h7f8,e8c8|wlJ8E",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-yoNa3",
+      "puzzleId": "yoNa3",
+      "fen": "8/p1k3pp/2p5/4Pp2/N1K2PBr/1P5P/2P3P1/8 w - f6 0 33",
+      "preMove": "g4f5",
+      "solutionLine": [
+        "h4f4",
+        "c4d3",
+        "f4f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 774,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black rook on f4",
+          "forkSquare": "f4",
+          "targets": [
+            "White king on c4",
+            "White bishop on f5"
+          ],
+          "targetSquares": [
+            "c4",
+            "f5"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c4d3",
+            "pv": [
+              "c4d3",
+              "f4f5",
+              "d3d4",
+              "f5f2",
+              "c2c4",
+              "f2d2",
+              "d4e4",
+              "d2g2",
+              "a4c5",
+              "c7d8",
+              "c5a6",
+              "g2b2",
+              "a6b8",
+              "b2b3",
+              "b8c6",
+              "d8d7",
+              "c6a7",
+              "b3h3",
+              "a7b5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -314,
+            "attackerScore": 314,
+            "pvMaterialGain": -2
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f4f5",
+              "san": "Rxf5",
+              "capturedValue": 3,
+              "pv": [
+                "d3e4",
+                "f5f2",
+                "a4c5",
+                "f2c2",
+                "b3b4",
+                "c7d8",
+                "c5e6",
+                "d8d7",
+                "e6g7",
+                "c2g2",
+                "e5e6",
+                "d7d6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -359,
+              "attackerScore": 359
+            },
+            {
+              "uci": "f4a4",
+              "san": "Rxa4",
+              "capturedValue": 3,
+              "pv": [
+                "b3a4",
+                "h7h5",
+                "d3e3",
+                "g7g5",
+                "c2c3",
+                "h5h4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 629,
+              "attackerScore": -629
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "h4f4",
+            "c4d3",
+            "f4f5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black rook on f4 attacks White king on c4 and White bishop on f5. The fork cannot be safely neutralized. Best defense: c4d3 f4f5 d3d4 f5f2 c2c4 f2d2 d4e4 d2g2 a4c5 c7d8 c5a6 g2b2 a6b8 b2b3 b8c6 d8d7 c6a7 b3h3 a7b5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 11,
+        "sourceChunk": 1,
+        "sourceIndex": 4,
+        "sourceIdentity": "yoNa3",
+        "canonicalIdentity": "8/p1k3pp/2p5/4PB2/N1K2P1r/1P5P/2P3P1/8 b - -|rook-fork|h4f4,c4d3,f4f5|yoNa3",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-yYsku",
+      "puzzleId": "yYsku",
+      "fen": "8/p7/1p1Rp2k/2p1P2P/Pr3b2/5B2/6K1/8 b - - 7 43",
+      "preMove": "f4e5",
+      "solutionLine": [
+        "d6e6",
+        "h6g7",
+        "e6e5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 782,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on e6",
+          "forkSquare": "e6",
+          "targets": [
+            "Black king on h6",
+            "Black bishop on e5"
+          ],
+          "targetSquares": [
+            "h6",
+            "e5"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "h6g7",
+            "pv": [
+              "h6g7",
+              "e6e5",
+              "g7f6",
+              "e5e4",
+              "b4e4",
+              "f3e4",
+              "f6g5",
+              "e4g6",
+              "a7a6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -283,
+            "attackerScore": 283,
+            "pvMaterialGain": -5
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e6e5",
+              "san": "Rxe5",
+              "capturedValue": 3,
+              "pv": [
+                "g7f6",
+                "e5e8",
+                "b4a4",
+                "g2g3",
+                "a4d4",
+                "e8g8",
+                "f6f7",
+                "g8c8",
+                "f7f6",
+                "c8c7",
+                "c5c4",
+                "c7a7",
+                "b6b5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -245,
+              "attackerScore": 245
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d6e6",
+            "h6g7",
+            "e6e5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on e6 attacks Black king on h6 and Black bishop on e5. The fork cannot be safely neutralized. Best defense: h6g7 e6e5 g7f6 e5e4 b4e4 f3e4 f6g5 e4g6 a7a6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 12,
+        "sourceChunk": 1,
+        "sourceIndex": 22,
+        "sourceIdentity": "yYsku",
+        "canonicalIdentity": "8/p7/1p1Rp2k/2p1b2P/Pr6/5B2/6K1/8 w - -|rook-fork|d6e6,h6g7,e6e5|yYsku",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-zresg",
+      "puzzleId": "zresg",
+      "fen": "5k2/R7/6B1/p3b1P1/8/r3p3/4K3/8 b - - 1 44",
+      "preMove": "e5f4",
+      "solutionLine": [
+        "a7f7",
+        "f8g8",
+        "f7f4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1380,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on f7",
+          "forkSquare": "f7",
+          "targets": [
+            "Black king on f8",
+            "Black bishop on f4"
+          ],
+          "targetSquares": [
+            "f8",
+            "f4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f8g8",
+            "pv": [
+              "f8g8",
+              "f7f4",
+              "a3a1",
+              "e2e3",
+              "a5a4",
+              "g6d3",
+              "a4a3",
+              "f4a4",
+              "a3a2",
+              "d3c4",
+              "g8g7",
+              "a4a2",
+              "a1h1",
+              "a2g2",
+              "h1h4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -293,
+            "attackerScore": 293,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f7f4",
+              "san": "Rxf4",
+              "capturedValue": 3,
+              "pv": [
+                "a5a4",
+                "g6c2",
+                "a3c3",
+                "c2a4",
+                "c3c5",
+                "g5g6",
+                "c5g5",
+                "a4e8",
+                "g5g2",
+                "e2e3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -258,
+              "attackerScore": 258
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "a7f7",
+            "f8g8",
+            "f7f4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on f7 attacks Black king on f8 and Black bishop on f4. The fork cannot be safely neutralized. Best defense: f8g8 f7f4 a3a1 e2e3 a5a4 g6d3 a4a3 f4a4 a3a2 d3c4 g8g7 a4a2 a1h1 a2g2 h1h4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 13,
+        "sourceChunk": 8,
+        "sourceIndex": 11,
+        "sourceIdentity": "zresg",
+        "canonicalIdentity": "5k2/R7/6B1/p5P1/5b2/r3p3/4K3/8 w - -|rook-fork|a7f7,f8g8,f7f4|zresg",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-zh8Zt",
+      "puzzleId": "zh8Zt",
+      "fen": "4r3/pp3p2/5k1p/5p2/5N2/4K3/PPP5/6R1 w - - 13 41",
+      "preMove": "e3d4",
+      "solutionLine": [
+        "e8e4",
+        "d4d3",
+        "e4f4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 836,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 21,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black rook on e4",
+          "forkSquare": "e4",
+          "targets": [
+            "White knight on f4",
+            "White king on d4"
+          ],
+          "targetSquares": [
+            "f4",
+            "d4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d4d3",
+            "pv": [
+              "d4d3",
+              "e4f4",
+              "g1h1",
+              "f6g5",
+              "d3e3",
+              "f4c4",
+              "h1g1",
+              "g5f6",
+              "c2c3",
+              "h6h5",
+              "g1d1",
+              "h5h4",
+              "e3f3"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -275,
+            "attackerScore": 275,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e4f4",
+              "san": "Rxf4",
+              "capturedValue": 3,
+              "pv": [
+                "d3e3",
+                "f4a4",
+                "a2a3",
+                "h6h5",
+                "g1d1",
+                "h5h4",
+                "e3f3",
+                "a4g4",
+                "d1d6",
+                "f6g5",
+                "d6d7",
+                "h4h3",
+                "d7f7",
+                "h3h2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -278,
+              "attackerScore": 278
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e8e4",
+            "d4d3",
+            "e4f4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black rook on e4 attacks White knight on f4 and White king on d4. The fork cannot be safely neutralized. Best defense: d4d3 e4f4 g1h1 f6g5 d3e3 f4c4 h1g1 g5f6 c2c3 h6h5 g1d1 h5h4 e3f3.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 14,
+        "sourceChunk": 2,
+        "sourceIndex": 21,
+        "sourceIdentity": "zh8Zt",
+        "canonicalIdentity": "4r3/pp3p2/5k1p/5p2/3K1N2/8/PPP5/6R1 b - -|rook-fork|e8e4,d4d3,e4f4|zh8Zt",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-zWuxC",
+      "puzzleId": "zWuxC",
+      "fen": "8/2R2pp1/p3pk1p/2n5/b7/P7/1P3PPP/6K1 b - - 2 28",
+      "preMove": "c5e4",
+      "solutionLine": [
+        "c7c4",
+        "a4b3",
+        "c4e4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1071,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "master",
+        "masterVsMaster",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on c4",
+          "forkSquare": "c4",
+          "targets": [
+            "Black knight on e4",
+            "Black bishop on a4"
+          ],
+          "targetSquares": [
+            "e4",
+            "a4"
+          ],
+          "checking": false,
+          "capturable": false,
+          "legalReplyCount": 24,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "a4b3",
+            "pv": [
+              "a4b3",
+              "c4e4",
+              "a6a5",
+              "f2f4",
+              "g7g6",
+              "e4e5",
+              "a5a4",
+              "e5a5",
+              "h6h5",
+              "a5g5",
+              "h5h4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -366,
+            "attackerScore": 366,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c4e4",
+              "san": "Rxe4",
+              "capturedValue": 3,
+              "pv": [
+                "a6a5",
+                "g1f1",
+                "e6e5",
+                "f1e1",
+                "f6f5",
+                "f2f3",
+                "a5a4",
+                "e4b4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -390,
+              "attackerScore": 390
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "c7c4",
+            "a4b3",
+            "c4e4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Fork: White rook on c4 attacks Black knight on e4 and Black bishop on a4. The fork cannot be safely neutralized. Best defense: a4b3 c4e4 a6a5 f2f4 g7g6 e4e5 a5a4 e5a5 h6h5 a5g5 h5h4.",
+          "soundnessClassification": "SOUND_NON_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 15,
+        "sourceChunk": 5,
+        "sourceIndex": 17,
+        "sourceIdentity": "zWuxC",
+        "canonicalIdentity": "8/2R2pp1/p3pk1p/8/b3n3/P7/1P3PPP/6K1 w - -|rook-fork|c7c4,a4b3,c4e4|zWuxC",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-zb9sy",
+      "puzzleId": "zb9sy",
+      "fen": "8/1p1R2k1/1b6/p7/4P3/P1r2PKP/6P1/8 b - - 1 43",
+      "preMove": "g7f6",
+      "solutionLine": [
+        "d7d6",
+        "f6e5",
+        "d6b6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 862,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White rook on d6",
+          "forkSquare": "d6",
+          "targets": [
+            "Black king on f6",
+            "Black bishop on b6"
+          ],
+          "targetSquares": [
+            "f6",
+            "b6"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f6e5",
+            "pv": [
+              "f6e5",
+              "d6b6",
+              "e5d4",
+              "b6b7",
+              "c3a3",
+              "h3h4",
+              "d4e3",
+              "b7a7",
+              "a3d3",
+              "a7a5",
+              "d3d8",
+              "a5a3",
+              "e3d2",
+              "a3a2",
+              "d2e3"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -431,
+            "attackerScore": 431,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d6b6",
+              "san": "Rxb6",
+              "capturedValue": 3,
+              "pv": [
+                "c3c7",
+                "b6b1",
+                "e5d4",
+                "g3h2",
+                "d4e3",
+                "a3a4",
+                "e3d2",
+                "e4e5",
+                "c7e7",
+                "h3h4",
+                "d2e3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -433,
+              "attackerScore": 433
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d7d6",
+            "f6e5",
+            "d6b6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White rook on d6 attacks Black king on f6 and Black bishop on b6. The fork cannot be safely neutralized. Best defense: f6e5 d6b6 e5d4 b6b7 c3a3 h3h4 d4e3 b7a7 a3d3 a7a5 d3d8 a5a3 e3d2 a3a2 d2e3.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 16,
+        "sourceChunk": 2,
+        "sourceIndex": 24,
+        "sourceIdentity": "zb9sy",
+        "canonicalIdentity": "8/1p1R4/1b3k2/p7/4P3/P1r2PKP/6P1/8 w - -|rook-fork|d7d6,f6e5,d6b6|zb9sy",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-ySU3W",
+      "puzzleId": "ySU3W",
+      "fen": "2kr4/8/Np1r4/4ppRp/1PP5/1PKP1b2/4B2P/8 w - - 0 32",
+      "preMove": "e2f3",
+      "solutionLine": [
+        "d6d3",
+        "c3b2",
+        "d3f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 819,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black rook on d3",
+          "forkSquare": "d3",
+          "targets": [
+            "White bishop on f3",
+            "White king on c3"
+          ],
+          "targetSquares": [
+            "f3",
+            "c3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c3b2",
+            "pv": [
+              "c3b2",
+              "d3f3",
+              "g5g6",
+              "e5e4",
+              "g6b6",
+              "d8d2",
+              "b2a3",
+              "e4e3",
+              "c4c5",
+              "f3f1",
+              "b4b5",
+              "e3e2",
+              "c5c6",
+              "f1c1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -200,
+            "attackerScore": 200,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d3f3",
+              "san": "Rxf3",
+              "capturedValue": 3,
+              "pv": [
+                "g5g7",
+                "d8d1",
+                "b4b5",
+                "e5e4",
+                "c4c5",
+                "b6c5",
+                "g7g8",
+                "d1d8",
+                "g8g7"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -220,
+              "attackerScore": 220
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d6d3",
+            "c3b2",
+            "d3f3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black rook on d3 attacks White bishop on f3 and White king on c3. The fork cannot be safely neutralized. Best defense: c3b2 d3f3 g5g6 e5e4 g6b6 d8d2 b2a3 e4e3 c4c5 f3f1 b4b5 e3e2 c5c6 f1c1.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 17,
+        "sourceChunk": 1,
+        "sourceIndex": 26,
+        "sourceIdentity": "ySU3W",
+        "canonicalIdentity": "2kr4/8/Np1r4/4ppRp/1PP5/1PKP1B2/7P/8 b - -|rook-fork|d6d3,c3b2,d3f3|ySU3W",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-tOuOt",
+      "puzzleId": "tOuOt",
+      "fen": "r7/p2rkp2/2p1p1p1/2p2nP1/3PnP2/PRP5/2K1B3/1R4B1 w - - 0 31",
+      "preMove": "d4c5",
+      "solutionLine": [
+        "d7d2",
+        "c2c1",
+        "d2e2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1131,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "master",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black rook on d2",
+          "forkSquare": "d2",
+          "targets": [
+            "White bishop on e2",
+            "White king on c2"
+          ],
+          "targetSquares": [
+            "e2",
+            "c2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 1,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c2c1",
+            "pv": [
+              "c2c1",
+              "d2e2",
+              "b3b7",
+              "e7f8",
+              "g1d4",
+              "e2e1",
+              "c1c2",
+              "e1b1",
+              "b7b1",
+              "f5d4",
+              "c3d4",
+              "a8d8"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -386,
+            "attackerScore": 386,
+            "pvMaterialGain": -8
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d2e2",
+              "san": "Rxe2",
+              "capturedValue": 3,
+              "pv": [
+                "g1d4",
+                "e2e1",
+                "c1c2",
+                "e1b1",
+                "b3b1",
+                "a8d8"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -380,
+              "attackerScore": 380
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d7d2",
+            "c2c1",
+            "d2e2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black rook on d2 attacks White bishop on e2 and White king on c2. The fork cannot be safely neutralized. Best defense: c2c1 d2e2 b3b7 e7f8 g1d4 e2e1 c1c2 e1b1 b7b1 f5d4 c3d4 a8d8.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 18,
+        "sourceChunk": 6,
+        "sourceIndex": 0,
+        "sourceIdentity": "tOuOt",
+        "canonicalIdentity": "r7/p2rkp2/2p1p1p1/2P2nP1/4nP2/PRP5/2K1B3/1R4B1 b - -|rook-fork|d7d2,c2c1,d2e2|tOuOt",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-rook-m2-wqxGh",
+      "puzzleId": "wqxGh",
+      "fen": "6rk/8/4pp2/6q1/2P4N/1P4rP/2B2QP1/4R1K1 w - - 2 43",
+      "preMove": "h4f3",
+      "solutionLine": [
+        "g3g2",
+        "g1h1",
+        "g2f2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 977,
+      "label": "Rook Fork / Double Attack - Tactic in 2",
+      "theme": "fork-rook",
+      "sourceThemeKeys": [
+        "fork-rook"
+      ],
+      "sourceThemes": [
+        "Rook Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "rook-fork",
+      "canonicalThemeLabel": "Rook Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black rook on g2",
+          "forkSquare": "g2",
+          "targets": [
+            "White queen on f2",
+            "White king on g1"
+          ],
+          "targetSquares": [
+            "f2",
+            "g1"
+          ],
+          "checking": true,
+          "capturable": true,
+          "legalReplyCount": 3,
+          "captureReplies": [
+            {
+              "san": "Qxg2",
+              "uci": "f2g2"
+            }
+          ],
+          "bestDefense": {
+            "uci": "g1h1",
+            "pv": [
+              "g1h1",
+              "g2f2",
+              "f3g5",
+              "g8g5",
+              "c2d1",
+              "f2d2",
+              "b3b4",
+              "g5g3",
+              "d1g4",
+              "f6f5",
+              "e1e2",
+              "d2d4",
+              "h1h2",
+              "g3c3",
+              "g4h5",
+              "d4h4",
+              "h5f7",
+              "h4h3",
+              "h2g2",
+              "h3g3",
+              "g2f2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -282,
+            "attackerScore": 282,
+            "pvMaterialGain": -9
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g2f2",
+              "san": "Rxf2",
+              "capturedValue": 9,
+              "pv": [
+                "f3g5",
+                "g8g5",
+                "c2d1",
+                "g5a5",
+                "h1g1",
+                "f2b2",
+                "g1f1",
+                "a5f5",
+                "f1g1",
+                "b2b1",
+                "b3b4",
+                "f5f4",
+                "c4c5",
+                "f4b4",
+                "g1f2",
+                "b4f4",
+                "f2g2",
+                "f4c4",
+                "e1e6",
+                "b1d1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -313,
+              "attackerScore": 313
+            }
+          ],
+          "captureAnalysis": [
+            {
+              "uci": "f2g2",
+              "san": "Qxg2",
+              "pv": [
+                "g5g2"
+              ],
+              "depth": 12,
+              "scoreType": "mate",
+              "scoreValue": 1,
+              "pvMaterialGain": 0,
+              "forcedMate": true
+            }
+          ],
+          "storedLine": [
+            "g3g2",
+            "g1h1",
+            "g2f2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black rook on g2 attacks White queen on f2 and White king on g1. The forking piece is capturable, but every legal capture is refuted by the verified continuation. Best defense: g1h1 g2f2 f3g5 g8g5 c2d1 f2d2 b3b4 g5g3 d1g4 f6f5 e1e2 d2d4 h1h2 g3c3 g4h5 d4h4 h5f7 h4h3 h2g2 h3g3 g2f2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 19,
+        "sourceChunk": 4,
+        "sourceIndex": 18,
+        "sourceIdentity": "wqxGh",
+        "canonicalIdentity": "6rk/8/4pp2/6q1/2P5/1P3NrP/2B2QP1/4R1K1 b - -|rook-fork|g3g2,g1h1,g2f2|wqxGh",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    }
+  ]
+}

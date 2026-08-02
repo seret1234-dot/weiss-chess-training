@@ -1,0 +1,2441 @@
+{
+  "puzzles": [
+    {
+      "id": "fork-pawn-m2-xKLmf",
+      "puzzleId": "xKLmf",
+      "fen": "7r/1p2k3/p1p5/1PPrppp1/P2P4/2R1KPPp/1R5P/8 w - - 0 32",
+      "preMove": "b5c6",
+      "solutionLine": [
+        "e5d4",
+        "e3d2",
+        "d4c3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1608,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "discovered-check",
+        "double-check",
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Discovered Check",
+        "Double Check",
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "discoveredCheck",
+        "doubleCheck",
+        "endgame",
+        "fork",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on d4",
+          "forkSquare": "d4",
+          "targets": [
+            "White rook on c3",
+            "White king on e3"
+          ],
+          "targetSquares": [
+            "c3",
+            "e3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e3e2",
+            "pv": [
+              "e3e2",
+              "d5e5",
+              "e2d1",
+              "d4c3",
+              "b2b7",
+              "e7e6",
+              "c6c7",
+              "h8c8",
+              "b7b6",
+              "e6f7",
+              "b6c6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -428,
+            "attackerScore": 428,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d4c3",
+              "san": "dxc3",
+              "capturedValue": 5,
+              "pv": [
+                "b2c2",
+                "b7c6",
+                "c2c3",
+                "h8d8",
+                "c3e3",
+                "e7f7",
+                "f3f4",
+                "d5d2",
+                "e2e1",
+                "d2h2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -632,
+              "attackerScore": 632
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e5d4",
+            "e3d2",
+            "d4c3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black pawn on d4 attacks White rook on c3 and White king on e3. The fork cannot be safely neutralized. Best defense: e3e2 d5e5 e2d1 d4c3 b2b7 e7e6 c6c7 h8c8 b7b6 e6f7 b6c6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 0,
+        "sourceChunk": 8,
+        "sourceIndex": 18,
+        "sourceIdentity": "xKLmf",
+        "canonicalIdentity": "7r/1p2k3/p1P5/2Prppp1/P2P4/2R1KPPp/1R5P/8 b - -|pawn-fork|e5d4,e3d2,d4c3|xKLmf",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-vecuT",
+      "puzzleId": "vecuT",
+      "fen": "r7/2k5/5ppp/1PP5/5PPP/pK6/P7/8 b - - 1 45",
+      "preMove": "a8a7",
+      "solutionLine": [
+        "b5b6",
+        "c7b8",
+        "b6a7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 737,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "fork",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on b6",
+          "forkSquare": "b6",
+          "targets": [
+            "Black rook on a7",
+            "Black king on c7"
+          ],
+          "targetSquares": [
+            "a7",
+            "c7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c7b7",
+            "pv": [
+              "c7b7",
+              "b6a7",
+              "b7a7",
+              "b3a3",
+              "a7b7",
+              "g4g5",
+              "h6g5",
+              "h4g5",
+              "b7c6",
+              "a3b4",
+              "f6g5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -490,
+            "attackerScore": 490,
+            "pvMaterialGain": -3
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "b6a7",
+              "san": "bxa7",
+              "capturedValue": 5,
+              "pv": [
+                "b7a7",
+                "b3a3",
+                "a7b7",
+                "a3b4",
+                "b7c6",
+                "b4c4",
+                "h6h5",
+                "g4h5",
+                "g6h5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -450,
+              "attackerScore": 450
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "b5b6",
+            "c7b8",
+            "b6a7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on b6 attacks Black rook on a7 and Black king on c7. The fork cannot be safely neutralized. Best defense: c7b7 b6a7 b7a7 b3a3 a7b7 g4g5 h6g5 h4g5 b7c6 a3b4 f6g5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 1,
+        "sourceChunk": 1,
+        "sourceIndex": 28,
+        "sourceIdentity": "vecuT",
+        "canonicalIdentity": "8/r1k5/5ppp/1PP5/5PPP/pK6/P7/8 w - -|pawn-fork|b5b6,c7b8,b6a7|vecuT",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-sm1oC",
+      "puzzleId": "sm1oC",
+      "fen": "3b4/3r1kpp/R7/1p2Pp2/1P2pP2/2r1P2P/8/2B2RK1 b - - 3 30",
+      "preMove": "c3b3",
+      "solutionLine": [
+        "e5e6",
+        "f7e7",
+        "e6d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1110,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on e6",
+          "forkSquare": "e6",
+          "targets": [
+            "Black rook on d7",
+            "Black king on f7"
+          ],
+          "targetSquares": [
+            "d7",
+            "f7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f7e7",
+            "pv": [
+              "f7e7",
+              "e6d7",
+              "e7d7",
+              "a6a7",
+              "d7e6",
+              "a7g7",
+              "b3b4",
+              "g7h7",
+              "d8e7",
+              "h7h6",
+              "e6f7"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -432,
+            "attackerScore": 432,
+            "pvMaterialGain": -2
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e6d7",
+              "san": "exd7",
+              "capturedValue": 5,
+              "pv": [
+                "e7d7",
+                "a6a2",
+                "g7g5",
+                "f4g5",
+                "d8g5",
+                "a2d2",
+                "b3d3",
+                "d2d3",
+                "e4d3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -449,
+              "attackerScore": 449
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e5e6",
+            "f7e7",
+            "e6d7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on e6 attacks Black rook on d7 and Black king on f7. The fork cannot be safely neutralized. Best defense: f7e7 e6d7 e7d7 a6a7 d7e6 a7g7 b3b4 g7h7 d8e7 h7h6 e6f7.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 2,
+        "sourceChunk": 3,
+        "sourceIndex": 20,
+        "sourceIdentity": "sm1oC",
+        "canonicalIdentity": "3b4/3r1kpp/R7/1p2Pp2/1P2pP2/1r2P2P/8/2B2RK1 w - -|pawn-fork|e5e6,f7e7,e6d7|sm1oC",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-yITYF",
+      "puzzleId": "yITYF",
+      "fen": "8/ppp1k3/4p3/4pp2/4P2r/2PR1K1P/PP3PP1/8 w - - 1 28",
+      "preMove": "e4f5",
+      "solutionLine": [
+        "e5e4",
+        "f3e3",
+        "e4d3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1542,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on e4",
+          "forkSquare": "e4",
+          "targets": [
+            "White rook on d3",
+            "White king on f3"
+          ],
+          "targetSquares": [
+            "d3",
+            "f3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f3e3",
+            "pv": [
+              "f3e3",
+              "e4d3",
+              "f5e6",
+              "d3d2",
+              "e3d2",
+              "h4e4",
+              "d2d3",
+              "e4e6",
+              "f2f4",
+              "e6b6",
+              "g2g3"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -393,
+            "attackerScore": 393,
+            "pvMaterialGain": -2
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e4d3",
+              "san": "exd3",
+              "capturedValue": 5,
+              "pv": [
+                "f5e6",
+                "h4a4",
+                "e3d3",
+                "a4a2",
+                "f2f4",
+                "e7e6",
+                "d3c2",
+                "a2a5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -393,
+              "attackerScore": 393
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e5e4",
+            "f3e3",
+            "e4d3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black pawn on e4 attacks White rook on d3 and White king on f3. The fork cannot be safely neutralized. Best defense: f3e3 e4d3 f5e6 d3d2 e3d2 h4e4 d2d3 e4e6 f2f4 e6b6 g2g3.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 3,
+        "sourceChunk": 8,
+        "sourceIndex": 23,
+        "sourceIdentity": "yITYF",
+        "canonicalIdentity": "8/ppp1k3/4p3/4pP2/7r/2PR1K1P/PP3PP1/8 b - -|pawn-fork|e5e4,f3e3,e4d3|yITYF",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-yx3rF",
+      "puzzleId": "yx3rF",
+      "fen": "8/5pp1/1p5p/1rk5/8/RPK4P/5PP1/8 b - - 10 39",
+      "preMove": "b5a5",
+      "solutionLine": [
+        "b3b4",
+        "c5b5",
+        "b4a5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1162,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on b4",
+          "forkSquare": "b4",
+          "targets": [
+            "Black rook on a5",
+            "Black king on c5"
+          ],
+          "targetSquares": [
+            "a5",
+            "c5"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c5b5",
+            "pv": [
+              "c5b5",
+              "b4a5",
+              "b6a5",
+              "c3c2",
+              "b5c5",
+              "a3a5",
+              "c5d4",
+              "f2f3",
+              "d4e3",
+              "a5a3",
+              "e3e2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -618,
+            "attackerScore": 618,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "b4a5",
+              "san": "bxa5",
+              "capturedValue": 5,
+              "pv": [
+                "b6a5",
+                "c3c2",
+                "b5b4",
+                "a3b3",
+                "b4c5",
+                "b3f3",
+                "c5b6",
+                "f3f7"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -620,
+              "attackerScore": 620
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "b3b4",
+            "c5b5",
+            "b4a5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on b4 attacks Black rook on a5 and Black king on c5. The fork cannot be safely neutralized. Best defense: c5b5 b4a5 b6a5 c3c2 b5c5 a3a5 c5d4 f2f3 d4e3 a5a3 e3e2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 4,
+        "sourceChunk": 4,
+        "sourceIndex": 17,
+        "sourceIdentity": "yx3rF",
+        "canonicalIdentity": "8/5pp1/1p5p/r1k5/8/RPK4P/5PP1/8 w - -|pawn-fork|b3b4,c5b5,b4a5|yx3rF",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-y0PrL",
+      "puzzleId": "y0PrL",
+      "fen": "8/5p2/6kp/2q5/P4QK1/6P1/8/8 w - - 1 60",
+      "preMove": "f4e4",
+      "solutionLine": [
+        "f7f5",
+        "g4f3",
+        "f5e4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1454,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "queenEndgame",
+        "short"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on f5",
+          "forkSquare": "f5",
+          "targets": [
+            "White queen on e4",
+            "White king on g4"
+          ],
+          "targetSquares": [
+            "e4",
+            "g4"
+          ],
+          "checking": true,
+          "capturable": true,
+          "legalReplyCount": 5,
+          "captureReplies": [
+            {
+              "san": "Qxf5+",
+              "uci": "e4f5"
+            }
+          ],
+          "bestDefense": {
+            "uci": "g4h3",
+            "pv": [
+              "g4h3",
+              "f5e4",
+              "a4a5",
+              "g6f5",
+              "a5a6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -685,
+            "attackerScore": 685,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f5e4",
+              "san": "fxe4",
+              "capturedValue": 9,
+              "pv": [
+                "g3g4",
+                "c5a3",
+                "h3h2",
+                "a3a1",
+                "h2g3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -693,
+              "attackerScore": 693
+            }
+          ],
+          "captureAnalysis": [
+            {
+              "uci": "e4f5",
+              "san": "Qxf5+",
+              "pv": [
+                "c5f5",
+                "g4h4",
+                "f5h5"
+              ],
+              "depth": 12,
+              "scoreType": "mate",
+              "scoreValue": 2,
+              "pvMaterialGain": 0,
+              "forcedMate": true
+            }
+          ],
+          "storedLine": [
+            "f7f5",
+            "g4f3",
+            "f5e4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black pawn on f5 attacks White queen on e4 and White king on g4. The forking piece is capturable, but every legal capture is refuted by the verified continuation. Best defense: g4h3 f5e4 a4a5 g6f5 a5a6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 17,
+        "sourceIdentity": "y0PrL",
+        "canonicalIdentity": "8/5p2/6kp/2q5/P3Q1K1/6P1/8/8 b - -|pawn-fork|f7f5,g4f3,f5e4|y0PrL",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-yBogo",
+      "puzzleId": "yBogo",
+      "fen": "8/1bpNrpkp/1b1p4/pBp1rP2/P3P3/2P5/1P4PP/R3R1K1 b - - 3 24",
+      "preMove": "e5e4",
+      "solutionLine": [
+        "f5f6",
+        "g7h6",
+        "f6e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1242,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "fixed-depth best-defense PV proves a net 3-pawn-equivalent gain",
+        "evidence": {
+          "forkingPiece": "White pawn on f6",
+          "forkSquare": "f6",
+          "targets": [
+            "Black rook on e7",
+            "Black king on g7"
+          ],
+          "targetSquares": [
+            "e7",
+            "g7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g7h8",
+            "pv": [
+              "g7h8",
+              "f6e7",
+              "e4g4",
+              "e7e8r",
+              "h8g7",
+              "e8e2",
+              "b6a7",
+              "g1h1",
+              "c5c4",
+              "b2b4",
+              "a5b4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -629,
+            "attackerScore": 629,
+            "pvMaterialGain": 3
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f6e7",
+              "san": "fxe7",
+              "capturedValue": 5,
+              "pv": [
+                "h8g7",
+                "e1e4",
+                "b7e4",
+                "d7b6",
+                "c7b6",
+                "a1d1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -746,
+              "attackerScore": 746
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f5f6",
+            "g7h6",
+            "f6e7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on f6 attacks Black rook on e7 and Black king on g7. The fork cannot be safely neutralized. Best defense: g7h8 f6e7 e4g4 e7e8r h8g7 e8e2 b6a7 g1h1 c5c4 b2b4 a5b4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 6,
+        "sourceChunk": 5,
+        "sourceIndex": 4,
+        "sourceIdentity": "yBogo",
+        "canonicalIdentity": "8/1bpNrpkp/1b1p4/pBp2P2/P3r3/2P5/1P4PP/R3R1K1 w - -|pawn-fork|f5f6,g7h6,f6e7|yBogo",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-zVhlg",
+      "puzzleId": "zVhlg",
+      "fen": "8/p1k4p/2p3r1/4pp2/1PP5/4KPp1/P6P/6R1 w - - 0 26",
+      "preMove": "g1g3",
+      "solutionLine": [
+        "f5f4",
+        "e3f2",
+        "f4g3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 970,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on f4",
+          "forkSquare": "f4",
+          "targets": [
+            "White king on e3",
+            "White rook on g3"
+          ],
+          "targetSquares": [
+            "e3",
+            "g3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e3f2",
+            "pv": [
+              "e3f2",
+              "f4g3",
+              "h2g3",
+              "h7h5",
+              "g3g4",
+              "h5g4",
+              "f3g4",
+              "g6g4",
+              "f2f3",
+              "g4c4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -559,
+            "attackerScore": 559,
+            "pvMaterialGain": -2
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f4g3",
+              "san": "fxg3+",
+              "capturedValue": 5,
+              "pv": [
+                "h2g3",
+                "c6c5",
+                "b4c5",
+                "c7c6",
+                "f2e3",
+                "g6g3",
+                "a2a3",
+                "g3g8"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -568,
+              "attackerScore": 568
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f5f4",
+            "e3f2",
+            "f4g3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black pawn on f4 attacks White king on e3 and White rook on g3. The fork cannot be safely neutralized. Best defense: e3f2 f4g3 h2g3 h7h5 g3g4 h5g4 f3g4 g6g4 f2f3 g4c4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 7,
+        "sourceChunk": 2,
+        "sourceIndex": 14,
+        "sourceIdentity": "zVhlg",
+        "canonicalIdentity": "8/p1k4p/2p3r1/4pp2/1PP5/4KPR1/P6P/8 b - -|pawn-fork|f5f4,e3f2,f4g3|zVhlg",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-zbaoN",
+      "puzzleId": "zbaoN",
+      "fen": "8/8/8/p2r3p/R3k1p1/4P1P1/4K3/8 b - - 7 58",
+      "preMove": "e4f5",
+      "solutionLine": [
+        "e3e4",
+        "f5e5",
+        "e4d5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1442,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 28,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on e4",
+          "forkSquare": "e4",
+          "targets": [
+            "Black rook on d5",
+            "Black king on f5"
+          ],
+          "targetSquares": [
+            "d5",
+            "f5"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f5e5",
+            "pv": [
+              "f5e5",
+              "e4d5",
+              "e5d5",
+              "a4a5",
+              "d5e6",
+              "a5h5",
+              "e6f6",
+              "h5h7",
+              "f6g6",
+              "h7b7",
+              "g6g5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -530,
+            "attackerScore": 530,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e4d5",
+              "san": "exd5",
+              "capturedValue": 5,
+              "pv": [
+                "e5d5",
+                "a4a5",
+                "d5e6",
+                "a5b5",
+                "e6f6",
+                "b5h5",
+                "f6g6",
+                "h5e5",
+                "g6f6",
+                "e5b5",
+                "f6g6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -501,
+              "attackerScore": 501
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e3e4",
+            "f5e5",
+            "e4d5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on e4 attacks Black rook on d5 and Black king on f5. The fork cannot be safely neutralized. Best defense: f5e5 e4d5 e5d5 a4a5 d5e6 a5h5 e6f6 h5h7 f6g6 h7b7 g6g5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 8,
+        "sourceChunk": 7,
+        "sourceIndex": 28,
+        "sourceIdentity": "zbaoN",
+        "canonicalIdentity": "8/8/8/p2r1k1p/R5p1/4P1P1/4K3/8 w - -|pawn-fork|e3e4,f5e5,e4d5|zbaoN",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-wDWvV",
+      "puzzleId": "wDWvV",
+      "fen": "8/1r6/3pk1pp/p7/1PR2PP1/P4K2/8/8 w - - 0 44",
+      "preMove": "f3e4",
+      "solutionLine": [
+        "d6d5",
+        "e4d4",
+        "d5c4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1228,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on d5",
+          "forkSquare": "d5",
+          "targets": [
+            "White rook on c4",
+            "White king on e4"
+          ],
+          "targetSquares": [
+            "c4",
+            "e4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e4d4",
+            "pv": [
+              "e4d4",
+              "d5c4",
+              "d4c4",
+              "a5b4",
+              "a3b4",
+              "b7f7",
+              "f4f5",
+              "g6f5",
+              "g4f5",
+              "e6f5",
+              "b4b5",
+              "h6h5",
+              "b5b6",
+              "h5h4",
+              "b6b7",
+              "f7b7",
+              "c4d3"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -524,
+            "attackerScore": 524,
+            "pvMaterialGain": -3
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d5c4",
+              "san": "dxc4",
+              "capturedValue": 5,
+              "pv": [
+                "b4a5",
+                "b7a7",
+                "f4f5",
+                "g6f5",
+                "g4f5",
+                "e6d7",
+                "d4c4",
+                "a7a5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -529,
+              "attackerScore": 529
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d6d5",
+            "e4d4",
+            "d5c4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black pawn on d5 attacks White rook on c4 and White king on e4. The fork cannot be safely neutralized. Best defense: e4d4 d5c4 d4c4 a5b4 a3b4 b7f7 f4f5 g6f5 g4f5 e6f5 b4b5 h6h5 b5b6 h5h4 b6b7 f7b7 c4d3.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 9,
+        "sourceChunk": 5,
+        "sourceIndex": 10,
+        "sourceIdentity": "wDWvV",
+        "canonicalIdentity": "8/1r6/3pk1pp/p7/1PR1KPP1/P7/8/8 b - -|pawn-fork|d6d5,e4d4,d5c4|wDWvV",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-vJlPT",
+      "puzzleId": "vJlPT",
+      "fen": "8/5p2/p3k3/1p1n4/1P3PN1/2P2K2/P7/8 w - - 7 57",
+      "preMove": "f3e4",
+      "solutionLine": [
+        "f7f5",
+        "e4d4",
+        "f5g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 2269,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "knightEndgame",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on f5",
+          "forkSquare": "f5",
+          "targets": [
+            "White king on e4",
+            "White knight on g4"
+          ],
+          "targetSquares": [
+            "e4",
+            "g4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e4f3",
+            "pv": [
+              "e4f3",
+              "f5g4",
+              "f3g4",
+              "d5c3",
+              "g4g5",
+              "c3a2",
+              "f4f5",
+              "e6f7",
+              "f5f6",
+              "a2b4",
+              "g5f5",
+              "b4d5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -411,
+            "attackerScore": 411,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f5g4",
+              "san": "fxg4+",
+              "capturedValue": 3,
+              "pv": [
+                "f3g4",
+                "d5c3",
+                "a2a3",
+                "c3d5",
+                "g4g5",
+                "d5f6",
+                "g5g6",
+                "f6e8",
+                "g6g5",
+                "e8d6",
+                "g5g4",
+                "d6e4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -412,
+              "attackerScore": 412
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f7f5",
+            "e4d4",
+            "f5g4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black pawn on f5 attacks White king on e4 and White knight on g4. The fork cannot be safely neutralized. Best defense: e4f3 f5g4 f3g4 d5c3 g4g5 c3a2 f4f5 e6f7 f5f6 a2b4 g5f5 b4d5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 10,
+        "sourceChunk": 10,
+        "sourceIndex": 20,
+        "sourceIdentity": "vJlPT",
+        "canonicalIdentity": "8/5p2/p3k3/1p1n4/1P2KPN1/2P5/P7/8 b - -|pawn-fork|f7f5,e4d4,f5g4|vJlPT",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-rdDta",
+      "puzzleId": "rdDta",
+      "fen": "3r1rk1/pp4pp/8/3p1p2/4p2R/7P/PPP1N1P1/3R2K1 w - - 0 23",
+      "preMove": "e2f4",
+      "solutionLine": [
+        "g7g5",
+        "h4h5",
+        "g5f4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1268,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on g5",
+          "forkSquare": "g5",
+          "targets": [
+            "White knight on f4",
+            "White rook on h4"
+          ],
+          "targetSquares": [
+            "f4",
+            "h4"
+          ],
+          "checking": false,
+          "capturable": false,
+          "legalReplyCount": 31,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "h4h6",
+            "pv": [
+              "h4h6",
+              "g5f4",
+              "c2c3",
+              "g8g7",
+              "h6h4",
+              "g7f6",
+              "h4f4",
+              "f6e5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -198,
+            "attackerScore": 198,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g5f4",
+              "san": "gxf4",
+              "capturedValue": 3,
+              "pv": [
+                "h6h4",
+                "g8g7",
+                "h4f4",
+                "g7f6",
+                "f4h4",
+                "f8f7",
+                "c2c3",
+                "f6e5",
+                "d1d4",
+                "d8g8",
+                "h4h5",
+                "e5d6",
+                "g1f2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -176,
+              "attackerScore": 176
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g7g5",
+            "h4h5",
+            "g5f4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Fork: Black pawn on g5 attacks White knight on f4 and White rook on h4. The fork cannot be safely neutralized. Best defense: h4h6 g5f4 c2c3 g8g7 h6h4 g7f6 h4f4 f6e5.",
+          "soundnessClassification": "SOUND_NON_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 11,
+        "sourceChunk": 5,
+        "sourceIndex": 26,
+        "sourceIdentity": "rdDta",
+        "canonicalIdentity": "3r1rk1/pp4pp/8/3p1p2/4pN1R/7P/PPP3P1/3R2K1 b - -|pawn-fork|g7g5,h4h5,g5f4|rdDta",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-vbbyE",
+      "puzzleId": "vbbyE",
+      "fen": "1r6/p7/5ppb/N2k4/8/2PN2P1/PP2KP2/8 b - - 2 31",
+      "preMove": "b8b5",
+      "solutionLine": [
+        "c3c4",
+        "d5d6",
+        "c4b5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1186,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on c4",
+          "forkSquare": "c4",
+          "targets": [
+            "Black rook on b5",
+            "Black king on d5"
+          ],
+          "targetSquares": [
+            "b5",
+            "d5"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d5d6",
+            "pv": [
+              "d5d6",
+              "c4b5",
+              "d6c7",
+              "a2a4",
+              "h6f8",
+              "a5c6",
+              "c7b6",
+              "c6d4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -571,
+            "attackerScore": 571,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c4b5",
+              "san": "cxb5",
+              "capturedValue": 5,
+              "pv": [
+                "d6c7",
+                "a5c6",
+                "c7b6",
+                "a2a4",
+                "b6b7",
+                "b2b4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -570,
+              "attackerScore": 570
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "c3c4",
+            "d5d6",
+            "c4b5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on c4 attacks Black rook on b5 and Black king on d5. The fork cannot be safely neutralized. Best defense: d5d6 c4b5 d6c7 a2a4 h6f8 a5c6 c7b6 c6d4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 12,
+        "sourceChunk": 4,
+        "sourceIndex": 22,
+        "sourceIdentity": "vbbyE",
+        "canonicalIdentity": "8/p7/5ppb/Nr1k4/8/2PN2P1/PP2KP2/8 w - -|pawn-fork|c3c4,d5d6,c4b5|vbbyE",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-zFEIb",
+      "puzzleId": "zFEIb",
+      "fen": "8/4bp2/p2r2k1/1p6/1Pp1PP1p/2P3p1/1P2K1P1/R7 b - - 4 44",
+      "preMove": "d6e6",
+      "solutionLine": [
+        "f4f5",
+        "g6h5",
+        "f5e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 801,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on f5",
+          "forkSquare": "f5",
+          "targets": [
+            "Black rook on e6",
+            "Black king on g6"
+          ],
+          "targetSquares": [
+            "e6",
+            "g6"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g6g7",
+            "pv": [
+              "g6g7",
+              "f5e6",
+              "f7e6",
+              "a1a6",
+              "e7g5",
+              "a6a5",
+              "g5c1",
+              "a5b5",
+              "c1b2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -323,
+            "attackerScore": 323,
+            "pvMaterialGain": -2
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f5e6",
+              "san": "fxe6",
+              "capturedValue": 5,
+              "pv": [
+                "f7e6",
+                "a1a6",
+                "e7g5",
+                "a6a5",
+                "g5c1",
+                "a5b5",
+                "c1b2",
+                "b5c5",
+                "b2c3",
+                "c5c4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -351,
+              "attackerScore": 351
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f4f5",
+            "g6h5",
+            "f5e6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on f5 attacks Black rook on e6 and Black king on g6. The fork cannot be safely neutralized. Best defense: g6g7 f5e6 f7e6 a1a6 e7g5 a6a5 g5c1 a5b5 c1b2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 13,
+        "sourceChunk": 1,
+        "sourceIndex": 17,
+        "sourceIdentity": "zFEIb",
+        "canonicalIdentity": "8/4bp2/p3r1k1/1p6/1Pp1PP1p/2P3p1/1P2K1P1/R7 w - -|pawn-fork|f4f5,g6h5,f5e6|zFEIb",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-uMRRP",
+      "puzzleId": "uMRRP",
+      "fen": "2kr1r2/1pp3p1/p1nb3p/4p3/7P/1PP1BN2/P3KPP1/3R3R w - - 1 21",
+      "preMove": "d1d3",
+      "solutionLine": [
+        "e5e4",
+        "d3d1",
+        "e4f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1168,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on e4",
+          "forkSquare": "e4",
+          "targets": [
+            "White rook on d3",
+            "White knight on f3"
+          ],
+          "targetSquares": [
+            "d3",
+            "f3"
+          ],
+          "checking": false,
+          "capturable": false,
+          "legalReplyCount": 41,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d3d2",
+            "pv": [
+              "d3d2",
+              "e4f3",
+              "g2f3",
+              "d8e8",
+              "d2d5",
+              "c8d8"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -469,
+            "attackerScore": 469,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e4f3",
+              "san": "exf3+",
+              "capturedValue": 3,
+              "pv": [
+                "g2f3",
+                "f8f6",
+                "h4h5",
+                "d6f8",
+                "d2d8",
+                "c6d8",
+                "f3f4",
+                "d8e6",
+                "h1g1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -492,
+              "attackerScore": 492
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e5e4",
+            "d3d1",
+            "e4f3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Fork: Black pawn on e4 attacks White rook on d3 and White knight on f3. The fork cannot be safely neutralized. Best defense: d3d2 e4f3 g2f3 d8e8 d2d5 c8d8.",
+          "soundnessClassification": "SOUND_NON_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 14,
+        "sourceChunk": 4,
+        "sourceIndex": 23,
+        "sourceIdentity": "uMRRP",
+        "canonicalIdentity": "2kr1r2/1pp3p1/p1nb3p/4p3/7P/1PPRBN2/P3KPP1/7R b - -|pawn-fork|e5e4,d3d1,e4f3|uMRRP",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-ymuOQ",
+      "puzzleId": "ymuOQ",
+      "fen": "8/pp6/8/6k1/5p2/P1Pr4/1P2R1KP/8 w - - 0 39",
+      "preMove": "c3c4",
+      "solutionLine": [
+        "f4f3",
+        "g2f2",
+        "f3e2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1176,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on f3",
+          "forkSquare": "f3",
+          "targets": [
+            "White rook on e2",
+            "White king on g2"
+          ],
+          "targetSquares": [
+            "e2",
+            "g2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g2f2",
+            "pv": [
+              "g2f2",
+              "f3e2",
+              "f2e2",
+              "d3b3",
+              "h2h4",
+              "g5f5",
+              "h4h5",
+              "a7a5",
+              "h5h6",
+              "b3b2",
+              "e2d3",
+              "b2h2",
+              "d3d4",
+              "h2h6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -564,
+            "attackerScore": 564,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f3e2",
+              "san": "fxe2",
+              "capturedValue": 5,
+              "pv": [
+                "f2e2",
+                "d3b3",
+                "h2h4",
+                "g5f4",
+                "e2d2",
+                "b3b2",
+                "d2c3",
+                "b2h2",
+                "h4h5",
+                "h2h5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -508,
+              "attackerScore": 508
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f4f3",
+            "g2f2",
+            "f3e2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black pawn on f3 attacks White rook on e2 and White king on g2. The fork cannot be safely neutralized. Best defense: g2f2 f3e2 f2e2 d3b3 h2h4 g5f5 h4h5 a7a5 h5h6 b3b2 e2d3 b2h2 d3d4 h2h6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 15,
+        "sourceChunk": 4,
+        "sourceIndex": 8,
+        "sourceIdentity": "ymuOQ",
+        "canonicalIdentity": "8/pp6/8/6k1/2P2p2/P2r4/1P2R1KP/8 b - -|pawn-fork|f4f3,g2f2,f3e2|ymuOQ",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-z7yqi",
+      "puzzleId": "z7yqi",
+      "fen": "8/2k2p2/2n2Pp1/pP4Pp/p1N1K2P/8/8/8 b - - 0 43",
+      "preMove": "c6a7",
+      "solutionLine": [
+        "b5b6",
+        "c7b8",
+        "b6a7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1103,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "fork",
+        "knightEndgame",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on b6",
+          "forkSquare": "b6",
+          "targets": [
+            "Black knight on a7",
+            "Black king on c7"
+          ],
+          "targetSquares": [
+            "a7",
+            "c7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c7b8",
+            "pv": [
+              "c7b8",
+              "b6a7",
+              "b8a7",
+              "e4d4",
+              "a7b8",
+              "d4c3",
+              "b8c7",
+              "c4e5",
+              "a4a3",
+              "e5f7",
+              "c7d7"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -514,
+            "attackerScore": 514,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "b6a7",
+              "san": "bxa7+",
+              "capturedValue": 3,
+              "pv": [
+                "b8a7",
+                "e4d5",
+                "a7b7",
+                "d5d6",
+                "b7a6",
+                "c4a3",
+                "a6b6",
+                "d6e7",
+                "b6c5",
+                "e7f7",
+                "c5b4",
+                "f7g6",
+                "b4a3",
+                "f6f7",
+                "a3b2",
+                "f7f8r",
+                "a4a3",
+                "f8f2",
+                "b2a1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -533,
+              "attackerScore": 533
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "b5b6",
+            "c7b8",
+            "b6a7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on b6 attacks Black knight on a7 and Black king on c7. The fork cannot be safely neutralized. Best defense: c7b8 b6a7 b8a7 e4d4 a7b8 d4c3 b8c7 c4e5 a4a3 e5f7 c7d7.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 16,
+        "sourceChunk": 3,
+        "sourceIndex": 29,
+        "sourceIdentity": "z7yqi",
+        "canonicalIdentity": "8/n1k2p2/5Pp1/pP4Pp/p1N1K2P/8/8/8 w - -|pawn-fork|b5b6,c7b8,b6a7|z7yqi",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-yhgNn",
+      "puzzleId": "yhgNn",
+      "fen": "8/2p2k1p/8/p1n1PP2/p1P3P1/P3K3/8/8 b - - 0 33",
+      "preMove": "c5d7",
+      "solutionLine": [
+        "e5e6",
+        "f7e8",
+        "e6d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 819,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "fork",
+        "knightEndgame",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 8,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on e6",
+          "forkSquare": "e6",
+          "targets": [
+            "Black knight on d7",
+            "Black king on f7"
+          ],
+          "targetSquares": [
+            "d7",
+            "f7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f7e7",
+            "pv": [
+              "f7e7",
+              "e6d7",
+              "e7d7",
+              "e3d4",
+              "d7d6",
+              "g4g5",
+              "c7c5",
+              "d4e4",
+              "d6e7",
+              "e4e5",
+              "e7f7",
+              "f5f6",
+              "f7f8",
+              "e5e6",
+              "f8e8",
+              "f6f7",
+              "e8f8",
+              "e6f6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -522,
+            "attackerScore": 522,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e6d7",
+              "san": "exd7",
+              "capturedValue": 3,
+              "pv": [
+                "e7d7",
+                "e3d4",
+                "d7e7",
+                "d4e5",
+                "c7c5",
+                "g4g5",
+                "e7f7",
+                "f5f6",
+                "f7g6",
+                "e5e6",
+                "g6g5",
+                "f6f7",
+                "g5f4",
+                "f7f8q",
+                "f4e4",
+                "f8c5",
+                "e4d3",
+                "e6e7"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -706,
+              "attackerScore": 706
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e5e6",
+            "f7e8",
+            "e6d7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on e6 attacks Black knight on d7 and Black king on f7. The fork cannot be safely neutralized. Best defense: f7e7 e6d7 e7d7 e3d4 d7d6 g4g5 c7c5 d4e4 d6e7 e4e5 e7f7 f5f6 f7f8 e5e6 f8e8 f6f7 e8f8 e6f6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 17,
+        "sourceChunk": 1,
+        "sourceIndex": 8,
+        "sourceIdentity": "yhgNn",
+        "canonicalIdentity": "8/2pn1k1p/8/p3PP2/p1P3P1/P3K3/8/8 w - -|pawn-fork|e5e6,f7e8,e6d7|yhgNn",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-XfGLT",
+      "puzzleId": "XfGLT",
+      "fen": "8/7p/5k2/4pp2/7P/4KN2/8/8 w - - 6 54",
+      "preMove": "e3d3",
+      "solutionLine": [
+        "e5e4",
+        "d3c2",
+        "e4f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 407,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "knightEndgame",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black pawn on e4",
+          "forkSquare": "e4",
+          "targets": [
+            "White king on d3",
+            "White knight on f3"
+          ],
+          "targetSquares": [
+            "d3",
+            "f3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 7,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d3e3",
+            "pv": [
+              "d3e3",
+              "e4f3",
+              "e3f3",
+              "f6e5",
+              "f3e3",
+              "h7h5",
+              "e3f3",
+              "f5f4",
+              "f3f2",
+              "e5e6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -281,
+            "attackerScore": 281,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e4f3",
+              "san": "exf3",
+              "capturedValue": 3,
+              "pv": [
+                "e3f3",
+                "f6e5",
+                "f3e3",
+                "h7h5",
+                "e3e2",
+                "e5f4",
+                "e2d3",
+                "f4g3",
+                "d3d4",
+                "g3h4",
+                "d4d5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -703,
+              "attackerScore": 703
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e5e4",
+            "d3c2",
+            "e4f3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black pawn on e4 attacks White king on d3 and White knight on f3. The fork cannot be safely neutralized. Best defense: d3e3 e4f3 e3f3 f6e5 f3e3 h7h5 e3f3 f5f4 f3f2 e5e6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 18,
+        "sourceChunk": 1,
+        "sourceIndex": 14,
+        "sourceIdentity": "XfGLT",
+        "canonicalIdentity": "8/7p/5k2/4pp2/7P/3K1N2/8/8 b - -|pawn-fork|e5e4,d3c2,e4f3|XfGLT",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-pawn-m2-zMFOW",
+      "puzzleId": "zMFOW",
+      "fen": "8/8/5pk1/p4rp1/P1R5/4KP2/6P1/8 b - - 3 41",
+      "preMove": "g6h5",
+      "solutionLine": [
+        "g2g4",
+        "h5g6",
+        "g4f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 949,
+      "label": "Pawn Fork / Double Attack - Tactic in 2",
+      "theme": "fork-pawn",
+      "sourceThemeKeys": [
+        "fork-pawn"
+      ],
+      "sourceThemes": [
+        "Pawn Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "rookEndgame",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 5,
+      "canonicalThemeKey": "pawn-fork",
+      "canonicalThemeLabel": "Pawn Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White pawn on g4",
+          "forkSquare": "g4",
+          "targets": [
+            "Black rook on f5",
+            "Black king on h5"
+          ],
+          "targetSquares": [
+            "f5",
+            "h5"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "h5g6",
+            "pv": [
+              "h5g6",
+              "g4f5",
+              "g6f5",
+              "c4c6",
+              "f5e5",
+              "c6c5",
+              "e5d6",
+              "c5a5",
+              "d6e6",
+              "e3e4",
+              "f6f5",
+              "e4d4",
+              "e6e7"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -604,
+            "attackerScore": 604,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g4f5",
+              "san": "gxf5+",
+              "capturedValue": 5,
+              "pv": [
+                "g6f5",
+                "c4c5",
+                "f5e6",
+                "c5a5",
+                "f6f5",
+                "e3d4",
+                "e6d6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -598,
+              "attackerScore": 598
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g2g4",
+            "h5g6",
+            "g4f5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White pawn on g4 attacks Black rook on f5 and Black king on h5. The fork cannot be safely neutralized. Best defense: h5g6 g4f5 g6f5 c4c6 f5e5 c6c5 e5d6 c5a5 d6e6 e3e4 f6f5 e4d4 e6e7.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 2,
+        "orderInChunk": 19,
+        "sourceChunk": 2,
+        "sourceIndex": 5,
+        "sourceIdentity": "zMFOW",
+        "canonicalIdentity": "8/8/5p2/p4rpk/P1R5/4KP2/6P1/8 w - -|pawn-fork|g2g4,h5g6,g4f5|zMFOW",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    }
+  ]
+}

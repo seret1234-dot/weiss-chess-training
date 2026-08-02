@@ -1,0 +1,8 @@
+import assert from "node:assert/strict"
+import fs from "node:fs"
+import path from "node:path"
+const root=process.cwd(), base=path.join(root,"public","data","learner-curricula","pattern-tactics"), forks=["pawn-fork","bishop-fork","knight-fork","rook-fork","queen-fork","king-fork"]
+const read=(f)=>JSON.parse(fs.readFileSync(f,"utf8")); const sound=new Set(["SOUND_CHECKING_FORK","SOUND_NON_CHECKING_FORK","SOUND_SACRIFICIAL_OR_TACTICALLY_JUSTIFIED_FORK"])
+for(const stage of [1,2,3,4]){const mixed=read(path.join(base,`mixed-m${stage}-semantic-v3`,`manifest.json`));const v2=read(path.join(base,`mixed-m${stage}-semantic-v2`,`manifest.json`));for(const theme of v2.sourceThemes.filter(t=>!forks.includes(t)))assert.ok(mixed.sourceThemes.includes(theme),`M${stage} preserves ${theme}`);for(const p of read(path.join(base,`mixed-m${stage}-semantic-v3`,`chunk-001.json`)).puzzles){if(forks.includes(p.canonicalThemeKey))assert.ok(sound.has(p.semanticAudit?.evidence?.soundnessClassification),"mixed fork is sound")}}
+for(const theme of forks)for(const stage of [1,2,3,4]){const file=path.join(base,`${theme}-m${stage}-semantic-v3`,`manifest.json`);if(!fs.existsSync(file))continue;const m=read(file);assert.ok(m.totalChunks<=(stage===1?5:8),`${theme} M${stage} respects cap`);if(theme==="king-fork"&&stage>=3)assert.equal(m.unavailable,true,"King Fork M3/M4 unavailable");for(const f of m.files)for(const p of read(path.join(path.dirname(file),f)).puzzles)assert.ok(sound.has(p.semanticAudit?.evidence?.soundnessClassification),"focused fork is sound")}
+console.log("PASS: fork-sound-v3 caps, mixed preservation, sound-only membership, and King Fork availability")

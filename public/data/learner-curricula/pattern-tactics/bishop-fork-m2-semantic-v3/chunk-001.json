@@ -1,0 +1,2471 @@
+{
+  "puzzles": [
+    {
+      "id": "fork-bishop-m2-yjpEM",
+      "puzzleId": "yjpEM",
+      "fen": "8/6k1/p2B3p/1p1P2p1/n2Prp1P/8/P5P1/R6K b - - 0 37",
+      "preMove": "e4d4",
+      "solutionLine": [
+        "d6e5",
+        "g7f8",
+        "e5d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 781,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on e5",
+          "forkSquare": "e5",
+          "targets": [
+            "Black king on g7",
+            "Black rook on d4"
+          ],
+          "targetSquares": [
+            "g7",
+            "d4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g7f7",
+            "pv": [
+              "g7f7",
+              "e5d4",
+              "f7e7",
+              "d4g7",
+              "e7d6",
+              "h4h5",
+              "a4c5",
+              "g7h6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -555,
+            "attackerScore": 555,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e5d4",
+              "san": "Bxd4",
+              "capturedValue": 5,
+              "pv": [
+                "f7e7",
+                "a1e1",
+                "e7d6",
+                "h4h5",
+                "b5b4",
+                "d4g7",
+                "a4c3",
+                "g7h6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -562,
+              "attackerScore": 562
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d6e5",
+            "g7f8",
+            "e5d4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White bishop on e5 attacks Black king on g7 and Black rook on d4. The fork cannot be safely neutralized. Best defense: g7f7 e5d4 f7e7 d4g7 e7d6 h4h5 a4c5 g7h6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 0,
+        "sourceChunk": 1,
+        "sourceIndex": 10,
+        "sourceIdentity": "yjpEM",
+        "canonicalIdentity": "8/6k1/p2B3p/1p1P2p1/n2r1p1P/8/P5P1/R6K w - -|bishop-fork|d6e5,g7f8,e5d4|yjpEM",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-zkzVF",
+      "puzzleId": "zkzVF",
+      "fen": "8/6pp/b4p2/p2k4/P2P1P2/R5P1/1r5P/4B1K1 b - - 5 32",
+      "preMove": "d5d4",
+      "solutionLine": [
+        "e1c3",
+        "d4e4",
+        "c3b2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1158,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on c3",
+          "forkSquare": "c3",
+          "targets": [
+            "Black king on d4",
+            "Black rook on b2"
+          ],
+          "targetSquares": [
+            "d4",
+            "b2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d4c5",
+            "pv": [
+              "d4c5",
+              "c3b2",
+              "c5b4",
+              "g3g4",
+              "a6c4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -472,
+            "attackerScore": 472,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c3b2",
+              "san": "Bxb2",
+              "capturedValue": 5,
+              "pv": [
+                "c5b4",
+                "g3g4",
+                "a6c4",
+                "a3a1",
+                "b4b3",
+                "b2d4",
+                "c4e2",
+                "f4f5",
+                "e2g4",
+                "a1b1",
+                "b3a4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -518,
+              "attackerScore": 518
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e1c3",
+            "d4e4",
+            "c3b2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White bishop on c3 attacks Black king on d4 and Black rook on b2. The fork cannot be safely neutralized. Best defense: d4c5 c3b2 c5b4 g3g4 a6c4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 1,
+        "sourceChunk": 6,
+        "sourceIndex": 29,
+        "sourceIdentity": "zkzVF",
+        "canonicalIdentity": "8/6pp/b4p2/p7/P2k1P2/R5P1/1r5P/4B1K1 w - -|bishop-fork|e1c3,d4e4,c3b2|zkzVF",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-z49Sg",
+      "puzzleId": "z49Sg",
+      "fen": "2r5/1p5p/3b1R2/p2k4/3B4/1PP5/1P4PP/2K5 w - - 3 32",
+      "preMove": "f6h6",
+      "solutionLine": [
+        "d6f4",
+        "c1c2",
+        "f4h6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 838,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 0,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on f4",
+          "forkSquare": "f4",
+          "targets": [
+            "White rook on h6",
+            "White king on c1"
+          ],
+          "targetSquares": [
+            "h6",
+            "c1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c1c2",
+            "pv": [
+              "c1c2",
+              "f4h6",
+              "c2d3",
+              "b7b5",
+              "d3c2",
+              "d5e4",
+              "h2h4",
+              "e4f5",
+              "h4h5",
+              "a5a4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -441,
+            "attackerScore": 441,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f4h6",
+              "san": "Bxh6",
+              "capturedValue": 5,
+              "pv": [
+                "c2d3",
+                "d5c6",
+                "d4f2",
+                "b7b5",
+                "f2g3",
+                "c8d8",
+                "d3e2",
+                "d8d2",
+                "e2e1",
+                "d2b2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -465,
+              "attackerScore": 465
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d6f4",
+            "c1c2",
+            "f4h6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on f4 attacks White rook on h6 and White king on c1. The fork cannot be safely neutralized. Best defense: c1c2 f4h6 c2d3 b7b5 d3c2 d5e4 h2h4 e4f5 h4h5 a5a4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 2,
+        "sourceChunk": 2,
+        "sourceIndex": 0,
+        "sourceIdentity": "z49Sg",
+        "canonicalIdentity": "2r5/1p5p/3b3R/p2k4/3B4/1PP5/1P4PP/2K5 b - -|bishop-fork|d6f4,c1c2,f4h6|z49Sg",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-zPIDV",
+      "puzzleId": "zPIDV",
+      "fen": "6k1/8/6P1/6K1/pp1bN3/8/P7/8 w - - 4 58",
+      "preMove": "e4d2",
+      "solutionLine": [
+        "d4e3",
+        "g5f5",
+        "e3d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1060,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "fixed-depth best-defense PV proves a net 4-pawn-equivalent gain",
+        "evidence": {
+          "forkingPiece": "Black bishop on e3",
+          "forkSquare": "e3",
+          "targets": [
+            "White king on g5",
+            "White knight on d2"
+          ],
+          "targetSquares": [
+            "g5",
+            "d2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g5f5",
+            "pv": [
+              "g5f5",
+              "e3d2",
+              "f5e4",
+              "a4a3",
+              "e4d3",
+              "b4b3",
+              "a2b3",
+              "a3a2",
+              "d3d2",
+              "a2a1q",
+              "d2c2",
+              "a1a2",
+              "c2d1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -474,
+            "attackerScore": 474,
+            "pvMaterialGain": 4
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e3d2",
+              "san": "Bxd2",
+              "capturedValue": 3,
+              "pv": [
+                "f5e4",
+                "b4b3",
+                "a2b3",
+                "a4a3",
+                "e4d3",
+                "a3a2",
+                "d3d2",
+                "a2a1q",
+                "d2d3",
+                "a1a6",
+                "d3c2",
+                "a6g6",
+                "c2b2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -489,
+              "attackerScore": 489
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d4e3",
+            "g5f5",
+            "e3d2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on e3 attacks White king on g5 and White knight on d2. The fork cannot be safely neutralized. Best defense: g5f5 e3d2 f5e4 a4a3 e4d3 b4b3 a2b3 a3a2 d3d2 a2a1q d2c2 a1a2 c2d1.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 3,
+        "sourceChunk": 5,
+        "sourceIndex": 12,
+        "sourceIdentity": "zPIDV",
+        "canonicalIdentity": "6k1/8/6P1/6K1/pp1b4/8/P2N4/8 b - -|bishop-fork|d4e3,g5f5,e3d2|zPIDV",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-x9Iyv",
+      "puzzleId": "x9Iyv",
+      "fen": "8/8/p6r/3bN3/1P1Pk2p/P1R1P2K/8/8 w - - 4 42",
+      "preMove": "e5d7",
+      "solutionLine": [
+        "d5e6",
+        "h3h2",
+        "e6d7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 957,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on e6",
+          "forkSquare": "e6",
+          "targets": [
+            "White king on h3",
+            "White knight on d7"
+          ],
+          "targetSquares": [
+            "h3",
+            "d7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "h3h2",
+            "pv": [
+              "h3h2",
+              "e6d7",
+              "c3c7",
+              "h6d6",
+              "a3a4",
+              "d7a4",
+              "c7e7",
+              "e4d3",
+              "h2h3",
+              "d3c4",
+              "e7c7",
+              "c4b4",
+              "h3h4",
+              "a4b5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -350,
+            "attackerScore": 350,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e6d7",
+              "san": "Bxd7",
+              "capturedValue": 3,
+              "pv": [
+                "c3c7",
+                "h6d6",
+                "a3a4",
+                "d7a4",
+                "h2h3",
+                "e4d3",
+                "h3h4",
+                "d3e3",
+                "c7e7",
+                "e3d4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -371,
+              "attackerScore": 371
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d5e6",
+            "h3h2",
+            "e6d7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on e6 attacks White king on h3 and White knight on d7. The fork cannot be safely neutralized. Best defense: h3h2 e6d7 c3c7 h6d6 a3a4 d7a4 c7e7 e4d3 h2h3 d3c4 e7c7 c4b4 h3h4 a4b5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 4,
+        "sourceChunk": 3,
+        "sourceIndex": 26,
+        "sourceIdentity": "x9Iyv",
+        "canonicalIdentity": "8/3N4/p6r/3b4/1P1Pk2p/P1R1P2K/8/8 b - -|bishop-fork|d5e6,h3h2,e6d7|x9Iyv",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-vuzUZ",
+      "puzzleId": "vuzUZ",
+      "fen": "8/p2n2pR/b1k5/2p5/Pp6/4B3/1P4r1/2RK4 w - - 2 29",
+      "preMove": "h7h5",
+      "solutionLine": [
+        "a6e2",
+        "d1e1",
+        "e2h5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1187,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on e2",
+          "forkSquare": "e2",
+          "targets": [
+            "White rook on h5",
+            "White king on d1"
+          ],
+          "targetSquares": [
+            "h5",
+            "d1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d1e1",
+            "pv": [
+              "d1e1",
+              "e2h5",
+              "e1f1",
+              "g2b2",
+              "e3d4",
+              "b2h2",
+              "d4f2",
+              "h5f3",
+              "c1e1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -619,
+            "attackerScore": 619,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e2h5",
+              "san": "Bxh5",
+              "capturedValue": 5,
+              "pv": [
+                "e3d4",
+                "g2e2",
+                "e1f1",
+                "e2e7",
+                "d4f2",
+                "e7e4",
+                "f1g2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -632,
+              "attackerScore": 632
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "a6e2",
+            "d1e1",
+            "e2h5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on e2 attacks White rook on h5 and White king on d1. The fork cannot be safely neutralized. Best defense: d1e1 e2h5 e1f1 g2b2 e3d4 b2h2 d4f2 h5f3 c1e1.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 5,
+        "sourceChunk": 7,
+        "sourceIndex": 11,
+        "sourceIdentity": "vuzUZ",
+        "canonicalIdentity": "8/p2n2p1/b1k5/2p4R/Pp6/4B3/1P4r1/2RK4 b - -|bishop-fork|a6e2,d1e1,e2h5|vuzUZ",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-zf2j3",
+      "puzzleId": "zf2j3",
+      "fen": "2kr3r/ppp2Bpp/1bn5/4p3/6n1/1PN5/PB3PPP/R4RK1 b - - 0 15",
+      "preMove": "h8f8",
+      "solutionLine": [
+        "f7e6",
+        "c8b8",
+        "e6g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1010,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on e6",
+          "forkSquare": "e6",
+          "targets": [
+            "Black knight on g4",
+            "Black king on c8"
+          ],
+          "targetSquares": [
+            "g4",
+            "c8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c8b8",
+            "pv": [
+              "c8b8",
+              "e6g4",
+              "d8d2",
+              "c3d1",
+              "b6d4",
+              "b2d4",
+              "e5d4",
+              "f2f4",
+              "a7a5",
+              "f1f2",
+              "d2f2",
+              "d1f2",
+              "c6b4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -300,
+            "attackerScore": 300,
+            "pvMaterialGain": -8
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e6g4",
+              "san": "Bxg4",
+              "capturedValue": 3,
+              "pv": [
+                "d8d2",
+                "c3d1",
+                "b6d4",
+                "a1b1",
+                "c6b4",
+                "b2d4",
+                "e5d4",
+                "b1b2",
+                "d2b2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -301,
+              "attackerScore": 301
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f7e6",
+            "c8b8",
+            "e6g4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White bishop on e6 attacks Black knight on g4 and Black king on c8. The fork cannot be safely neutralized. Best defense: c8b8 e6g4 d8d2 c3d1 b6d4 b2d4 e5d4 f2f4 a7a5 f1f2 d2f2 d1f2 c6b4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 6,
+        "sourceChunk": 4,
+        "sourceIndex": 26,
+        "sourceIdentity": "zf2j3",
+        "canonicalIdentity": "2kr1r2/ppp2Bpp/1bn5/4p3/6n1/1PN5/PB3PPP/R4RK1 w - -|bishop-fork|f7e6,c8b8,e6g4|zf2j3",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-xmMr0",
+      "puzzleId": "xmMr0",
+      "fen": "r7/2p2pp1/B3k2p/1PP5/8/P3K1P1/5P1P/8 b - - 4 39",
+      "preMove": "e6d5",
+      "solutionLine": [
+        "a6b7",
+        "d5c5",
+        "b7a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1064,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on b7",
+          "forkSquare": "b7",
+          "targets": [
+            "Black king on d5",
+            "Black rook on a8"
+          ],
+          "targetSquares": [
+            "d5",
+            "a8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d5c5",
+            "pv": [
+              "d5c5",
+              "b7a8",
+              "c5b5",
+              "a8d5",
+              "b5a4",
+              "d5f7",
+              "a4a3",
+              "e3d4",
+              "a3b2",
+              "d4d3",
+              "c7c5",
+              "f2f4",
+              "g7g5",
+              "f4f5",
+              "c5c4",
+              "f7c4",
+              "b2a1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -493,
+            "attackerScore": 493,
+            "pvMaterialGain": -3
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "b7a8",
+              "san": "Bxa8",
+              "capturedValue": 5,
+              "pv": [
+                "c5b5",
+                "a8d5",
+                "b5a4",
+                "d5f7",
+                "a4a3",
+                "e3d3",
+                "a3b2",
+                "f2f4",
+                "c7c5",
+                "f7c4",
+                "h6h5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -499,
+              "attackerScore": 499
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "a6b7",
+            "d5c5",
+            "b7a8"
+          ],
+          "storedMaterialGain": -1,
+          "explanation": "Checking fork: White bishop on b7 attacks Black king on d5 and Black rook on a8. The fork cannot be safely neutralized. Best defense: d5c5 b7a8 c5b5 a8d5 b5a4 d5f7 a4a3 e3d4 a3b2 d4d3 c7c5 f2f4 g7g5 f4f5 c5c4 f7c4 b2a1.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 7,
+        "sourceChunk": 5,
+        "sourceIndex": 25,
+        "sourceIdentity": "xmMr0",
+        "canonicalIdentity": "r7/2p2pp1/B6p/1PPk4/8/P3K1P1/5P1P/8 w - -|bishop-fork|a6b7,d5c5,b7a8|xmMr0",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-y7UV3",
+      "puzzleId": "y7UV3",
+      "fen": "8/5R1p/6k1/8/nP6/6PP/1b6/6K1 w - - 1 51",
+      "preMove": "f7a7",
+      "solutionLine": [
+        "b2d4",
+        "g1g2",
+        "d4a7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 797,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on d4",
+          "forkSquare": "d4",
+          "targets": [
+            "White king on g1",
+            "White rook on a7"
+          ],
+          "targetSquares": [
+            "g1",
+            "a7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g1g2",
+            "pv": [
+              "g1g2",
+              "d4a7",
+              "g3g4",
+              "g6g5",
+              "g2f3",
+              "a4b2",
+              "f3g3",
+              "b2d3",
+              "b4b5",
+              "a7c5",
+              "g3g2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -334,
+            "attackerScore": 334,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d4a7",
+              "san": "Bxa7",
+              "capturedValue": 5,
+              "pv": [
+                "g3g4",
+                "a4c3",
+                "g2f1",
+                "c3d5",
+                "h3h4",
+                "d5b4",
+                "f1e2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -326,
+              "attackerScore": 326
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "b2d4",
+            "g1g2",
+            "d4a7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on d4 attacks White king on g1 and White rook on a7. The fork cannot be safely neutralized. Best defense: g1g2 d4a7 g3g4 g6g5 g2f3 a4b2 f3g3 b2d3 b4b5 a7c5 g3g2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 8,
+        "sourceChunk": 1,
+        "sourceIndex": 24,
+        "sourceIdentity": "y7UV3",
+        "canonicalIdentity": "8/R6p/6k1/8/nP6/6PP/1b6/6K1 b - -|bishop-fork|b2d4,g1g2,d4a7|y7UV3",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-zAjVv",
+      "puzzleId": "zAjVv",
+      "fen": "1r4k1/1pR3p1/1p3pBp/2n5/1P3p2/8/P2r2PP/2R3K1 b - - 0 29",
+      "preMove": "c5e6",
+      "solutionLine": [
+        "g6f7",
+        "g8h7",
+        "f7e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1550,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on f7",
+          "forkSquare": "f7",
+          "targets": [
+            "Black king on g8",
+            "Black knight on e6"
+          ],
+          "targetSquares": [
+            "g8",
+            "e6"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g8h7",
+            "pv": [
+              "g8h7",
+              "f7e6",
+              "h6h5",
+              "c1c2",
+              "d2d1",
+              "g1f2",
+              "b8e8",
+              "e6c4",
+              "h7h6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -388,
+            "attackerScore": 388,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f7e6",
+              "san": "Bxe6",
+              "capturedValue": 3,
+              "pv": [
+                "h6h5",
+                "c7c2",
+                "b8d8",
+                "c2d2",
+                "d8d2",
+                "e6b3",
+                "g7g5",
+                "c1c2",
+                "d2d4",
+                "c2c4",
+                "d4c4",
+                "b3c4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -354,
+              "attackerScore": 354
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g6f7",
+            "g8h7",
+            "f7e6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White bishop on f7 attacks Black king on g8 and Black knight on e6. The fork cannot be safely neutralized. Best defense: g8h7 f7e6 h6h5 c1c2 d2d1 g1f2 b8e8 e6c4 h7h6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 9,
+        "sourceChunk": 9,
+        "sourceIndex": 7,
+        "sourceIdentity": "zAjVv",
+        "canonicalIdentity": "1r4k1/1pR3p1/1p2npBp/8/1P3p2/8/P2r2PP/2R3K1 w - -|bishop-fork|g6f7,g8h7,f7e6|zAjVv",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-ztEC2",
+      "puzzleId": "ztEC2",
+      "fen": "8/p4p2/Bp2k2p/2P1pp2/P7/1r1N1PP1/7P/6K1 b - - 0 34",
+      "preMove": "e5e4",
+      "solutionLine": [
+        "a6c4",
+        "e6e7",
+        "c4b3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1569,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on c4",
+          "forkSquare": "c4",
+          "targets": [
+            "Black king on e6",
+            "Black rook on b3"
+          ],
+          "targetSquares": [
+            "e6",
+            "b3"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e6e7",
+            "pv": [
+              "e6e7",
+              "c4b3",
+              "e4d3",
+              "c5b6",
+              "a7b6",
+              "g1f2",
+              "e7d6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -493,
+            "attackerScore": 493,
+            "pvMaterialGain": -4
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c4b3",
+              "san": "Bxb3",
+              "capturedValue": 5,
+              "pv": [
+                "e4d3",
+                "c5b6",
+                "a7b6",
+                "g1f2",
+                "f5f4",
+                "f2e1",
+                "e7d6",
+                "b3f7",
+                "d6e5",
+                "f7e8",
+                "e5d4",
+                "e1d2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -486,
+              "attackerScore": 486
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "a6c4",
+            "e6e7",
+            "c4b3"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White bishop on c4 attacks Black king on e6 and Black rook on b3. The fork cannot be safely neutralized. Best defense: e6e7 c4b3 e4d3 c5b6 a7b6 g1f2 e7d6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 10,
+        "sourceChunk": 9,
+        "sourceIndex": 24,
+        "sourceIdentity": "ztEC2",
+        "canonicalIdentity": "8/p4p2/Bp2k2p/2P2p2/P3p3/1r1N1PP1/7P/6K1 w - -|bishop-fork|a6c4,e6e7,c4b3|ztEC2",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-zcRG5",
+      "puzzleId": "zcRG5",
+      "fen": "7r/5R2/p6p/1p4b1/6k1/1P6/P5P1/5RK1 w - - 0 36",
+      "preMove": "f7a7",
+      "solutionLine": [
+        "g5e3",
+        "g1h2",
+        "e3a7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 827,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on e3",
+          "forkSquare": "e3",
+          "targets": [
+            "White king on g1",
+            "White rook on a7"
+          ],
+          "targetSquares": [
+            "g1",
+            "a7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g1h2",
+            "pv": [
+              "g1h2",
+              "e3a7",
+              "f1f6",
+              "h8c8",
+              "f6a6",
+              "a7b8",
+              "h2g1",
+              "c8c1",
+              "g1f2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -424,
+            "attackerScore": 424,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e3a7",
+              "san": "Bxa7",
+              "capturedValue": 5,
+              "pv": [
+                "f1f6",
+                "a7b8",
+                "h2g1",
+                "a6a5",
+                "f6g6",
+                "g4h4",
+                "g6a6",
+                "b8c7",
+                "a6a5",
+                "c7b6",
+                "g1h1",
+                "b6a5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -406,
+              "attackerScore": 406
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g5e3",
+            "g1h2",
+            "e3a7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on e3 attacks White king on g1 and White rook on a7. The fork cannot be safely neutralized. Best defense: g1h2 e3a7 f1f6 h8c8 f6a6 a7b8 h2g1 c8c1 g1f2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 11,
+        "sourceChunk": 2,
+        "sourceIndex": 20,
+        "sourceIdentity": "zcRG5",
+        "canonicalIdentity": "7r/R7/p6p/1p4b1/6k1/1P6/P5P1/5RK1 b - -|bishop-fork|g5e3,g1h2,e3a7|zcRG5",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-zrKAV",
+      "puzzleId": "zrKAV",
+      "fen": "r1b1kb1r/ppp2B2/3p1p1p/6B1/3nq3/1Q3N2/PP3PPP/R2K3R b kq - 0 12",
+      "preMove": "e8d8",
+      "solutionLine": [
+        "g5f6",
+        "f8e7",
+        "f6d4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 2207,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on f6",
+          "forkSquare": "f6",
+          "targets": [
+            "Black rook on h8",
+            "Black king on d8",
+            "Black knight on d4"
+          ],
+          "targetSquares": [
+            "h8",
+            "d8",
+            "d4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f8e7",
+            "pv": [
+              "f8e7",
+              "f6d4",
+              "h8f8",
+              "f7d5",
+              "e4g4",
+              "h2h3",
+              "g4g2",
+              "f3d2",
+              "g2g5",
+              "d5f3",
+              "c7c5",
+              "d4c3",
+              "g5f5",
+              "f3e4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -337,
+            "attackerScore": 337,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f6e7",
+              "san": "Bxe7+",
+              "capturedValue": 3,
+              "pv": [
+                "d8e7",
+                "b3c4",
+                "e4c2",
+                "c4c2",
+                "d4c2",
+                "d1c2",
+                "e7f7",
+                "f3d4",
+                "h8g8",
+                "g2g3",
+                "c8g4",
+                "f2f3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 3,
+              "attackerScore": -3
+            },
+            {
+              "uci": "f6h8",
+              "san": "Bxh8",
+              "capturedValue": 5,
+              "pv": [
+                "d4b3",
+                "f7b3",
+                "c8g4",
+                "h8c3",
+                "g4f3",
+                "g2f3",
+                "e4f3",
+                "d1c2",
+                "f3e2",
+                "c2c1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 457,
+              "attackerScore": -457
+            },
+            {
+              "uci": "f6d4",
+              "san": "Bxd4",
+              "capturedValue": 3,
+              "pv": [
+                "h8f8",
+                "h1e1",
+                "e4g4",
+                "e1g1",
+                "c7c5",
+                "d4c3",
+                "f8f7",
+                "b3f7",
+                "c8f5",
+                "c3f6",
+                "g4a4",
+                "b2b3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -338,
+              "attackerScore": 338
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g5f6",
+            "f8e7",
+            "f6d4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White bishop on f6 attacks Black rook on h8 and Black king on d8 and Black knight on d4. The fork cannot be safely neutralized. Best defense: f8e7 f6d4 h8f8 f7d5 e4g4 h2h3 g4g2 f3d2 g2g5 d5f3 c7c5 d4c3 g5f5 f3e4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 12,
+        "sourceChunk": 10,
+        "sourceIndex": 26,
+        "sourceIdentity": "zrKAV",
+        "canonicalIdentity": "r1bk1b1r/ppp2B2/3p1p1p/6B1/3nq3/1Q3N2/PP3PPP/R2K3R w - -|bishop-fork|g5f6,f8e7,f6d4|zrKAV",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-xdd1r",
+      "puzzleId": "xdd1r",
+      "fen": "2k5/4b3/nB1p3R/3Pp3/P1b1P2p/2PN1P2/3K4/8 w - - 0 46",
+      "preMove": "a4a5",
+      "solutionLine": [
+        "e7g5",
+        "b6e3",
+        "g5h6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1066,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on g5",
+          "forkSquare": "g5",
+          "targets": [
+            "White rook on h6",
+            "White king on d2"
+          ],
+          "targetSquares": [
+            "h6",
+            "d2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 7,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "b6e3",
+            "pv": [
+              "b6e3",
+              "g5h6",
+              "e3h6",
+              "c4d3",
+              "h6e3",
+              "d3b5",
+              "d2e1",
+              "a6c5",
+              "e3c5",
+              "d6c5",
+              "e1f2",
+              "c8b7",
+              "f2g2",
+              "b5d7",
+              "g2h2",
+              "b7a6",
+              "f3f4",
+              "e5f4",
+              "e4e5",
+              "a6a5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -247,
+            "attackerScore": 247,
+            "pvMaterialGain": -6
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g5h6",
+              "san": "Bxh6",
+              "capturedValue": 5,
+              "pv": [
+                "e3h6",
+                "c4d3",
+                "d2e3",
+                "h4h3",
+                "e3f2",
+                "d3e2",
+                "f3f4",
+                "e2d3",
+                "f4e5",
+                "d6e5",
+                "f2g3",
+                "d3e4",
+                "g3h3",
+                "e4d5",
+                "c3c4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -257,
+              "attackerScore": 257
+            },
+            {
+              "uci": "g5e3",
+              "san": "Bxe3+",
+              "capturedValue": 3,
+              "pv": [
+                "d2e3",
+                "c8d7",
+                "h6h4",
+                "d7e8",
+                "h4h1",
+                "e8e7",
+                "d3b4",
+                "a6b4",
+                "c3b4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 540,
+              "attackerScore": -540
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "e7g5",
+            "b6e3",
+            "g5h6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on g5 attacks White rook on h6 and White king on d2. The fork cannot be safely neutralized. Best defense: b6e3 g5h6 e3h6 c4d3 h6e3 d3b5 d2e1 a6c5 e3c5 d6c5 e1f2 c8b7 f2g2 b5d7 g2h2 b7a6 f3f4 e5f4 e4e5 a6a5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 13,
+        "sourceChunk": 5,
+        "sourceIndex": 29,
+        "sourceIdentity": "xdd1r",
+        "canonicalIdentity": "2k5/4b3/nB1p3R/P2Pp3/2b1P2p/2PN1P2/3K4/8 b - -|bishop-fork|e7g5,b6e3,g5h6|xdd1r",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-zgZY5",
+      "puzzleId": "zgZY5",
+      "fen": "6k1/8/2R5/5r1p/1p4b1/1N4P1/P4K2/8 w - - 4 48",
+      "preMove": "f2g2",
+      "solutionLine": [
+        "g4f3",
+        "g2h3",
+        "f3c6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1172,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on f3",
+          "forkSquare": "f3",
+          "targets": [
+            "White king on g2",
+            "White rook on c6"
+          ],
+          "targetSquares": [
+            "g2",
+            "c6"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g2h3",
+            "pv": [
+              "g2h3",
+              "f3c6",
+              "g3g4",
+              "f5e5",
+              "g4h5",
+              "e5h5",
+              "h3g3",
+              "h5h8",
+              "b3d4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -487,
+            "attackerScore": 487,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f3c6",
+              "san": "Bxc6",
+              "capturedValue": 5,
+              "pv": [
+                "g3g4",
+                "f5f3",
+                "h3h4",
+                "f3f4",
+                "h4g5",
+                "f4g4",
+                "g5h5",
+                "g4g3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -516,
+              "attackerScore": 516
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g4f3",
+            "g2h3",
+            "f3c6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on f3 attacks White king on g2 and White rook on c6. The fork cannot be safely neutralized. Best defense: g2h3 f3c6 g3g4 f5e5 g4h5 e5h5 h3g3 h5h8 b3d4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 14,
+        "sourceChunk": 6,
+        "sourceIndex": 10,
+        "sourceIdentity": "zgZY5",
+        "canonicalIdentity": "6k1/8/2R5/5r1p/1p4b1/1N4P1/P5K1/8 b - -|bishop-fork|g4f3,g2h3,f3c6|zgZY5",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-sh7K9",
+      "puzzleId": "sh7K9",
+      "fen": "6k1/7p/1RPPp3/4p1p1/b3P3/b4P2/6PP/5NK1 w - - 1 36",
+      "preMove": "d6d7",
+      "solutionLine": [
+        "a3c5",
+        "g1h1",
+        "c5b6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 948,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on c5",
+          "forkSquare": "c5",
+          "targets": [
+            "White king on g1",
+            "White rook on b6"
+          ],
+          "targetSquares": [
+            "g1",
+            "b6"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g1h1",
+            "pv": [
+              "g1h1",
+              "c5b6",
+              "f1e3",
+              "a4c6",
+              "e3g4",
+              "b6c7",
+              "g4e5",
+              "c6b5",
+              "g2g3",
+              "g8g7",
+              "f3f4",
+              "g5f4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -306,
+            "attackerScore": 306,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c5b6",
+              "san": "Bxb6",
+              "capturedValue": 5,
+              "pv": [
+                "f1e3",
+                "b6d8",
+                "e3g4",
+                "a4c6",
+                "g4e5",
+                "c6b5",
+                "g2g3",
+                "g8f8",
+                "h1g2",
+                "f8e7",
+                "f3f4",
+                "g5f4",
+                "g3f4",
+                "d8c7",
+                "g2g1",
+                "c7b6",
+                "g1g2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -288,
+              "attackerScore": 288
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "a3c5",
+            "g1h1",
+            "c5b6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on c5 attacks White king on g1 and White rook on b6. The fork cannot be safely neutralized. Best defense: g1h1 c5b6 f1e3 a4c6 e3g4 b6c7 g4e5 c6b5 g2g3 g8g7 f3f4 g5f4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 15,
+        "sourceChunk": 3,
+        "sourceIndex": 1,
+        "sourceIdentity": "sh7K9",
+        "canonicalIdentity": "6k1/3P3p/1RP1p3/4p1p1/b3P3/b4P2/6PP/5NK1 b - -|bishop-fork|a3c5,g1h1,c5b6|sh7K9",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-yoqba",
+      "puzzleId": "yoqba",
+      "fen": "1br2rk1/pp4p1/3qQ2p/4p3/3P4/PB2P1P1/1P1R4/3R2K1 b - - 0 25",
+      "preMove": "d6e6",
+      "solutionLine": [
+        "b3e6",
+        "g8h7",
+        "e6c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 955,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on e6",
+          "forkSquare": "e6",
+          "targets": [
+            "Black king on g8",
+            "Black rook on c8"
+          ],
+          "targetSquares": [
+            "g8",
+            "c8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g8h7",
+            "pv": [
+              "g8h7",
+              "e6c8",
+              "f8c8",
+              "g1g2",
+              "e5e4",
+              "d1f1",
+              "h7g6",
+              "d2f2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -312,
+            "attackerScore": 312,
+            "pvMaterialGain": -3
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e6c8",
+              "san": "Bxc8",
+              "capturedValue": 5,
+              "pv": [
+                "f8c8",
+                "d4e5",
+                "b8e5",
+                "g1g2",
+                "h7g6",
+                "d2f2",
+                "c8c5",
+                "d1d7",
+                "c5b5",
+                "b2b4",
+                "b5b6",
+                "f2f8"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -340,
+              "attackerScore": 340
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "b3e6",
+            "g8h7",
+            "e6c8"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White bishop on e6 attacks Black king on g8 and Black rook on c8. The fork cannot be safely neutralized. Best defense: g8h7 e6c8 f8c8 g1g2 e5e4 d1f1 h7g6 d2f2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 16,
+        "sourceChunk": 3,
+        "sourceIndex": 17,
+        "sourceIdentity": "yoqba",
+        "canonicalIdentity": "1br2rk1/pp4p1/4q2p/4p3/3P4/PB2P1P1/1P1R4/3R2K1 w - -|bishop-fork|b3e6,g8h7,e6c8|yoqba",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-xGCGI",
+      "puzzleId": "xGCGI",
+      "fen": "8/1p5k/8/8/2p1PN1p/8/1B3bPK/8 w - - 0 42",
+      "preMove": "e4e5",
+      "solutionLine": [
+        "f2g3",
+        "h2h3",
+        "g3f4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 756,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "master",
+        "short"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on g3",
+          "forkSquare": "g3",
+          "targets": [
+            "White king on h2",
+            "White knight on f4"
+          ],
+          "targetSquares": [
+            "h2",
+            "f4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "h2h3",
+            "pv": [
+              "h2h3",
+              "g3f4",
+              "b2c3",
+              "f4g3",
+              "c3d4",
+              "b7b5",
+              "d4c3",
+              "h7g6",
+              "h3g4",
+              "g3f2",
+              "g4f4",
+              "f2c5",
+              "c3e1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -225,
+            "attackerScore": 225,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g3f4",
+              "san": "Bxf4",
+              "capturedValue": 3,
+              "pv": [
+                "b2c3",
+                "h7g6",
+                "h3g4",
+                "f4g3",
+                "c3d4",
+                "g3e1",
+                "g4f4",
+                "g6f7",
+                "f4e4",
+                "f7e6",
+                "d4b6",
+                "c4c3"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -202,
+              "attackerScore": 202
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f2g3",
+            "h2h3",
+            "g3f4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on g3 attacks White king on h2 and White knight on f4. The fork cannot be safely neutralized. Best defense: h2h3 g3f4 b2c3 f4g3 c3d4 b7b5 d4c3 h7g6 h3g4 g3f2 g4f4 f2c5 c3e1.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 17,
+        "sourceChunk": 1,
+        "sourceIndex": 15,
+        "sourceIdentity": "xGCGI",
+        "canonicalIdentity": "8/1p5k/8/4P3/2p2N1p/8/1B3bPK/8 b - -|bishop-fork|f2g3,h2h3,g3f4|xGCGI",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-yqinB",
+      "puzzleId": "yqinB",
+      "fen": "5k2/5pp1/pN5p/8/r7/5P2/4rBPP/5RK1 b - - 1 44",
+      "preMove": "a4b4",
+      "solutionLine": [
+        "f2c5",
+        "f8e8",
+        "c5b4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1235,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White bishop on c5",
+          "forkSquare": "c5",
+          "targets": [
+            "Black king on f8",
+            "Black rook on b4"
+          ],
+          "targetSquares": [
+            "f8",
+            "b4"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f8g8",
+            "pv": [
+              "f8g8",
+              "c5b4",
+              "e2c2",
+              "g2g4",
+              "c2c6",
+              "b6d7",
+              "c6c4",
+              "b4c5",
+              "a6a5",
+              "c5e3",
+              "a5a4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -542,
+            "attackerScore": 542,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c5b4",
+              "san": "Bxb4",
+              "capturedValue": 5,
+              "pv": [
+                "a6a5",
+                "b4c5",
+                "a5a4",
+                "b6a4",
+                "e2a2",
+                "a4b6",
+                "a2c2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -519,
+              "attackerScore": 519
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f2c5",
+            "f8e8",
+            "c5b4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White bishop on c5 attacks Black king on f8 and Black rook on b4. The fork cannot be safely neutralized. Best defense: f8g8 c5b4 e2c2 g2g4 c2c6 b6d7 c6c4 b4c5 a6a5 c5e3 a5a4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 18,
+        "sourceChunk": 7,
+        "sourceIndex": 3,
+        "sourceIdentity": "yqinB",
+        "canonicalIdentity": "5k2/5pp1/pN5p/8/1r6/5P2/4rBPP/5RK1 w - -|bishop-fork|f2c5,f8e8,c5b4|yqinB",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-bishop-m2-y7oOP",
+      "puzzleId": "y7oOP",
+      "fen": "4r2k/5p1p/R3p3/7r/1p6/1Pb2PP1/2B4P/5RK1 w - - 0 31",
+      "preMove": "a6a7",
+      "solutionLine": [
+        "c3d4",
+        "g1g2",
+        "d4a7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 949,
+      "label": "Bishop Fork / Double Attack - Tactic in 2",
+      "theme": "fork-bishop",
+      "sourceThemeKeys": [
+        "fork-bishop"
+      ],
+      "sourceThemes": [
+        "Bishop Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "bishop-fork",
+      "canonicalThemeLabel": "Bishop Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black bishop on d4",
+          "forkSquare": "d4",
+          "targets": [
+            "White king on g1",
+            "White rook on a7"
+          ],
+          "targetSquares": [
+            "g1",
+            "a7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g1g2",
+            "pv": [
+              "g1g2",
+              "d4a7",
+              "f1a1",
+              "a7d4",
+              "a1a4",
+              "e8d8",
+              "a4b4",
+              "d4a1",
+              "b4a4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -473,
+            "attackerScore": 473,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d4a7",
+              "san": "Bxa7",
+              "capturedValue": 5,
+              "pv": [
+                "f1a1",
+                "a7d4",
+                "a1a4",
+                "e8d8",
+                "a4b4",
+                "h5c5",
+                "c2h7",
+                "d4e5",
+                "h7b1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -517,
+              "attackerScore": 517
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "c3d4",
+            "g1g2",
+            "d4a7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black bishop on d4 attacks White king on g1 and White rook on a7. The fork cannot be safely neutralized. Best defense: g1g2 d4a7 f1a1 a7d4 a1a4 e8d8 a4b4 d4a1 b4a4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 1,
+        "orderInChunk": 19,
+        "sourceChunk": 3,
+        "sourceIndex": 23,
+        "sourceIdentity": "y7oOP",
+        "canonicalIdentity": "4r2k/R4p1p/4p3/7r/1p6/1Pb2PP1/2B4P/5RK1 b - -|bishop-fork|c3d4,g1g2,d4a7|y7oOP",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    }
+  ]
+}

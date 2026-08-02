@@ -74,6 +74,9 @@ const TIER_A_SEMANTIC_CHUNKS: Record<string, number> = {
   "en-passant-m1": 5, "en-passant-m2": 8, "en-passant-m3": 8, "en-passant-m4": 8,
 }
 
+const FORK_SOUND_V3_THEMES = new Set(["pawn-fork", "bishop-fork", "knight-fork", "rook-fork", "queen-fork", "king-fork"])
+const FORK_SOUND_V3_CHUNKS: Record<string, number> = { "pawn-fork-m1": 2, "pawn-fork-m2": 5, "pawn-fork-m3": 1, "pawn-fork-m4": 1, "bishop-fork-m1": 3, "bishop-fork-m2": 10, "bishop-fork-m3": 1, "bishop-fork-m4": 1, "knight-fork-m1": 6, "knight-fork-m2": 14, "knight-fork-m3": 5, "knight-fork-m4": 4, "rook-fork-m1": 2, "rook-fork-m2": 9, "rook-fork-m3": 1, "rook-fork-m4": 1, "queen-fork-m1": 4, "queen-fork-m2": 14, "queen-fork-m3": 3, "queen-fork-m4": 3, "king-fork-m1": 2, "king-fork-m3": 0, "king-fork-m4": 0 }
+
 export const TIER_A_SEMANTIC_THEME_KEYS = new Set(Object.keys(TIER_A_SEMANTIC_CHUNKS).map((key) => key.replace(/-m[1-4]$/, "")))
 
 function labelFor(theme: string) {
@@ -93,10 +96,11 @@ function labelFor(theme: string) {
 function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticLearnerCurriculum {
   const sourceKey = `${theme}-m${tacticDistance}`
   const semanticTierA = TIER_A_SEMANTIC_CHUNKS[sourceKey] !== undefined
-  const activeChunkCount = semanticTierA
+  const forkSound = FORK_SOUND_V3_THEMES.has(theme)
+  const activeChunkCount = forkSound ? (FORK_SOUND_V3_CHUNKS[sourceKey] ?? 0) : semanticTierA
     ? TIER_A_SEMANTIC_CHUNKS[sourceKey]
     : ACTIVE_CHUNK_COUNT_OVERRIDES[sourceKey] ?? (tacticDistance === 1 ? 5 : 8)
-  const version = semanticTierA ? `m${tacticDistance}-semantic-v2` : `m${tacticDistance}-v1`
+  const version = forkSound ? `m${tacticDistance}-semantic-v3` : semanticTierA ? `m${tacticDistance}-semantic-v2` : `m${tacticDistance}-v1`
   return {
     trainerKey: `tactic-${sourceKey}`,
     theme,
@@ -105,7 +109,7 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
     tacticDistance,
     version,
     sourceDataBasePath: `/data/pattern-tactics/${theme}/m${tacticDistance}`,
-    learnerDataBasePath: `/data/learner-curricula/pattern-tactics/${theme}-m${tacticDistance}-${semanticTierA ? "semantic-v2" : "v1"}`,
+    learnerDataBasePath: `/data/learner-curricula/pattern-tactics/${theme}-m${tacticDistance}-${forkSound ? "semantic-v3" : semanticTierA ? "semantic-v2" : "v1"}`,
     legacyChunkCount: LEGACY_CHUNK_COUNTS[sourceKey] ?? 10,
     activeChunkCount,
     activeChunkSize: PATTERN_TACTIC_LEARNER_CHUNK_SIZE,
@@ -134,11 +138,12 @@ export function getPatternTacticLearnerProgressTrainerKey(definitionOrTrainerKey
 // semantic-v2 supersedes (but never overwrites) the original learner overlay.
 // Retain a stable key for deterministic, proportional completion credit.
 export function getPatternTacticPriorLearnerProgressTrainerKey(definition: PatternTacticLearnerCurriculum) {
-  return `${definition.trainerKey}:m${definition.tacticDistance}-v1`
+  return `${definition.trainerKey}:m${definition.tacticDistance}-${definition.version.includes("semantic-v3") ? "semantic-v2" : "v1"}`
 }
 
 function priorLearnerActiveChunkCount(definition: PatternTacticLearnerCurriculum) {
   const sourceKey = `${definition.theme}-m${definition.tacticDistance}`
+  if (definition.version.includes("semantic-v3")) return TIER_A_SEMANTIC_CHUNKS[sourceKey] ?? 0
   return ACTIVE_CHUNK_COUNT_OVERRIDES[sourceKey] ?? (definition.tacticDistance === 1 ? 5 : 8)
 }
 
@@ -189,13 +194,13 @@ export function getPatternTacticLearnerCompletionByTrainer(rows: Array<LegacyChu
       .filter((row) => row.trainer_key === learnerTrainerKey && row.is_mastered === true)
       .map((row) => Number(row.chunk_index))
       .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= definition.activeChunkCount)).size
-    const priorLearnerCompleted = definition.version.includes("semantic-v2")
+    const priorLearnerCompleted = definition.version.includes("semantic")
       ? new Set(rows
         .filter((row) => row.trainer_key === getPatternTacticPriorLearnerProgressTrainerKey(definition) && row.is_mastered === true)
         .map((row) => Number(row.chunk_index))
         .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= priorLearnerActiveChunkCount(definition))).size
       : 0
-    const priorLearnerCredit = definition.version.includes("semantic-v2")
+    const priorLearnerCredit = definition.version.includes("semantic")
       ? Math.min(definition.activeChunkCount, Math.floor((priorLearnerCompleted * definition.activeChunkCount) / priorLearnerActiveChunkCount(definition)))
       : 0
     const completedActiveChunks = Math.max(legacy.completedActiveChunks, activeCompletedChunks, priorLearnerCredit)

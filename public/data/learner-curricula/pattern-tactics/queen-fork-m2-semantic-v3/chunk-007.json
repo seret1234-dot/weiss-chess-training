@@ -1,0 +1,2688 @@
+{
+  "puzzles": [
+    {
+      "id": "fork-queen-m2-z3pGe",
+      "puzzleId": "z3pGe",
+      "fen": "r7/2p3p1/p2kpq2/1p1pn3/P6p/5P1P/1PBN1P1Q/R5K1 w - - 4 30",
+      "preMove": "a4b5",
+      "solutionLine": [
+        "f6g5",
+        "h2g2",
+        "g5d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1582,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 26,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on g5",
+          "forkSquare": "g5",
+          "targets": [
+            "White king on g1",
+            "White knight on d2"
+          ],
+          "targetSquares": [
+            "g1",
+            "d2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g1f1",
+            "pv": [
+              "g1f1",
+              "g5d2",
+              "a1e1",
+              "d2d4",
+              "b5a6",
+              "a8a6",
+              "c2b1",
+              "a6a1",
+              "f1g2",
+              "g7g5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -271,
+            "attackerScore": 271,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g5d2",
+              "san": "Qxd2",
+              "capturedValue": 3,
+              "pv": [
+                "a1e1",
+                "d2d4",
+                "h2g2",
+                "a6b5",
+                "g2g7",
+                "d4f4",
+                "c2d1",
+                "a8a1",
+                "f1g2",
+                "a1a2",
+                "e1e3",
+                "a2b2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -326,
+              "attackerScore": 326
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f6g5",
+            "h2g2",
+            "g5d2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on g5 attacks White king on g1 and White knight on d2. The fork cannot be safely neutralized. Best defense: g1f1 g5d2 a1e1 d2d4 b5a6 a8a6 c2b1 a6a1 f1g2 g7g5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 0,
+        "sourceChunk": 8,
+        "sourceIndex": 26,
+        "sourceIdentity": "z3pGe",
+        "canonicalIdentity": "r7/2p3p1/p2kpq2/1P1pn3/7p/5P1P/1PBN1P1Q/R5K1 b - -|queen-fork|f6g5,h2g2,g5d2|z3pGe",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zfs35",
+      "puzzleId": "zfs35",
+      "fen": "2kr3r/1pp1bp1p/p2q1p2/3Pp3/6b1/2NQ1PP1/PPP3BP/R3K2R b KQ - 0 14",
+      "preMove": "g4h5",
+      "solutionLine": [
+        "d3f5",
+        "c8b8",
+        "f5h5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1512,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "master",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White queen on f5",
+          "forkSquare": "f5",
+          "targets": [
+            "Black bishop on h5",
+            "Black king on c8"
+          ],
+          "targetSquares": [
+            "h5",
+            "c8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c8b8",
+            "pv": [
+              "c8b8",
+              "f5h5",
+              "d6b6",
+              "e1c1",
+              "e7a3",
+              "b2a3",
+              "b6e3",
+              "c1b1",
+              "d8d6",
+              "c3a4",
+              "d6b6",
+              "a4b6",
+              "e3b6",
+              "b1a1",
+              "b6c5",
+              "d1d3",
+              "c5c2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -290,
+            "attackerScore": 290,
+            "pvMaterialGain": -4
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f5h5",
+              "san": "Qxh5",
+              "capturedValue": 3,
+              "pv": [
+                "d6b6",
+                "e1c1",
+                "e7b4",
+                "h5h4",
+                "b6e3",
+                "c1b1",
+                "b4c3",
+                "b2c3",
+                "e3c3",
+                "h4e4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -320,
+              "attackerScore": 320
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d3f5",
+            "c8b8",
+            "f5h5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White queen on f5 attacks Black bishop on h5 and Black king on c8. The fork cannot be safely neutralized. Best defense: c8b8 f5h5 d6b6 e1c1 e7a3 b2a3 b6e3 c1b1 d8d6 c3a4 d6b6 a4b6 e3b6 b1a1 b6c5 d1d3 c5c2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 1,
+        "sourceChunk": 8,
+        "sourceIndex": 15,
+        "sourceIdentity": "zfs35",
+        "canonicalIdentity": "2kr3r/1pp1bp1p/p2q1p2/3Pp2b/8/2NQ1PP1/PPP3BP/R3K2R w KQ -|queen-fork|d3f5,c8b8,f5h5|zfs35",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zo8yl",
+      "puzzleId": "zo8yl",
+      "fen": "2r1b1k1/qp3pp1/4p1Pp/2b1P3/6Q1/6R1/PP3PP1/5RK1 b - - 0 26",
+      "preMove": "f7g6",
+      "solutionLine": [
+        "g4e6",
+        "g8h7",
+        "e6c8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1203,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 11,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White queen on e6",
+          "forkSquare": "e6",
+          "targets": [
+            "Black bishop on e8",
+            "Black king on g8",
+            "Black rook on c8"
+          ],
+          "targetSquares": [
+            "e8",
+            "g8",
+            "c8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g8h7",
+            "pv": [
+              "g8h7",
+              "e6c8",
+              "e8f7",
+              "b2b4",
+              "c5b4",
+              "f1c1",
+              "b4e7",
+              "c8g4",
+              "e7c5",
+              "g4e2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -400,
+            "attackerScore": 400,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e6c8",
+              "san": "Qxc8",
+              "capturedValue": 5,
+              "pv": [
+                "e8b5",
+                "c8e6",
+                "g6g5",
+                "g3f3",
+                "c5b6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -417,
+              "attackerScore": 417
+            },
+            {
+              "uci": "e6e8",
+              "san": "Qxe8",
+              "capturedValue": 3,
+              "pv": [
+                "c8e8",
+                "g3f3",
+                "e8e5",
+                "f1c1",
+                "e5f5",
+                "f3f5",
+                "g6f5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 567,
+              "attackerScore": -567
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g4e6",
+            "g8h7",
+            "e6c8"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White queen on e6 attacks Black bishop on e8 and Black king on g8 and Black rook on c8. The fork cannot be safely neutralized. Best defense: g8h7 e6c8 e8f7 b2b4 c5b4 f1c1 b4e7 c8g4 e7c5 g4e2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 2,
+        "sourceChunk": 5,
+        "sourceIndex": 11,
+        "sourceIdentity": "zo8yl",
+        "canonicalIdentity": "2r1b1k1/qp4p1/4p1pp/2b1P3/6Q1/6R1/PP3PP1/5RK1 w - -|queen-fork|g4e6,g8h7,e6c8|zo8yl",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zA3xI",
+      "puzzleId": "zA3xI",
+      "fen": "rnb1kb1r/pppp1ppp/8/1B2p3/4P2q/8/PPPP2PP/RNBQK1NR w KQkq - 1 5",
+      "preMove": "g2g3",
+      "solutionLine": [
+        "h4e4",
+        "d1e2",
+        "e4h1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 952,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "pin-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Pin"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "opening",
+        "pin",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on e4",
+          "forkSquare": "e4",
+          "targets": [
+            "White king on e1",
+            "White rook on h1"
+          ],
+          "targetSquares": [
+            "e1",
+            "h1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 5,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d1e2",
+            "pv": [
+              "d1e2",
+              "e4h1",
+              "e2e5",
+              "e8d8",
+              "e1f1",
+              "h1h2",
+              "d2d4",
+              "f7f6",
+              "e5d5",
+              "c7c6",
+              "d5f7",
+              "h2g3"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -363,
+            "attackerScore": 363,
+            "pvMaterialGain": -1
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e4h1",
+              "san": "Qxh1",
+              "capturedValue": 5,
+              "pv": [
+                "e1f1",
+                "b8c6",
+                "d2d4",
+                "a7a6",
+                "b5c6",
+                "d7c6",
+                "e2e5",
+                "c8e6",
+                "c1f4",
+                "h1h2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -376,
+              "attackerScore": 376
+            },
+            {
+              "uci": "e4e2",
+              "san": "Qxe2+",
+              "capturedValue": 9,
+              "pv": [
+                "b5e2",
+                "b8c6",
+                "b1c3",
+                "c6d4",
+                "c3b5",
+                "d4e6",
+                "c2c3",
+                "c7c6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 142,
+              "attackerScore": -142
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "h4e4",
+            "d1e2",
+            "e4h1"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on e4 attacks White king on e1 and White rook on h1. The fork cannot be safely neutralized. Best defense: d1e2 e4h1 e2e5 e8d8 e1f1 h1h2 d2d4 f7f6 e5d5 c7c6 d5f7 h2g3.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 3,
+        "sourceChunk": 2,
+        "sourceIndex": 4,
+        "sourceIdentity": "zA3xI",
+        "canonicalIdentity": "rnb1kb1r/pppp1ppp/8/1B2p3/4P2q/6P1/PPPP3P/RNBQK1NR b KQkq -|queen-fork|h4e4,d1e2,e4h1|zA3xI",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zkdz9",
+      "puzzleId": "zkdz9",
+      "fen": "r2qkbr1/1p3p1p/1np1pp2/5N2/3P4/PpP5/1P1BQPPP/R3K2R w KQq - 1 16",
+      "preMove": "g2g3",
+      "solutionLine": [
+        "d8d5",
+        "e1g1",
+        "d5f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1608,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "master",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on d5",
+          "forkSquare": "d5",
+          "targets": [
+            "White knight on f5",
+            "White rook on h1"
+          ],
+          "targetSquares": [
+            "f5",
+            "h1"
+          ],
+          "checking": false,
+          "capturable": false,
+          "legalReplyCount": 41,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e1g1",
+            "pv": [
+              "e1g1",
+              "d5f5",
+              "c3c4",
+              "h7h5",
+              "a1c1",
+              "h5h4",
+              "c1c3",
+              "b6d7",
+              "f1d1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -348,
+            "attackerScore": 348,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "d5f5",
+              "san": "Qxf5",
+              "capturedValue": 3,
+              "pv": [
+                "a1c1",
+                "h7h5",
+                "c3c4",
+                "e8c8",
+                "c1c3",
+                "f5g4",
+                "e2g4",
+                "h5g4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -357,
+              "attackerScore": 357
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d8d5",
+            "e1g1",
+            "d5f5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Fork: Black queen on d5 attacks White knight on f5 and White rook on h1. The fork cannot be safely neutralized. Best defense: e1g1 d5f5 c3c4 h7h5 a1c1 h5h4 c1c3 b6d7 f1d1.",
+          "soundnessClassification": "SOUND_NON_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 4,
+        "sourceChunk": 8,
+        "sourceIndex": 6,
+        "sourceIdentity": "zkdz9",
+        "canonicalIdentity": "r2qkbr1/1p3p1p/1np1pp2/5N2/3P4/PpP3P1/1P1BQP1P/R3K2R b KQq -|queen-fork|d8d5,e1g1,d5f5|zkdz9",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zhcda",
+      "puzzleId": "zhcda",
+      "fen": "r2qk1nr/pp2ppbp/2n3p1/3pP3/3P2b1/3B1N2/PP1N1PPP/R1BQK2R b KQkq - 6 8",
+      "preMove": "c6d4",
+      "solutionLine": [
+        "d1a4",
+        "d4c6",
+        "a4g4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1596,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "opening",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 29,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White queen on a4",
+          "forkSquare": "a4",
+          "targets": [
+            "Black knight on d4",
+            "Black king on e8"
+          ],
+          "targetSquares": [
+            "d4",
+            "e8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d4c6",
+            "pv": [
+              "d4c6",
+              "a4g4",
+              "e7e6",
+              "e1g1",
+              "d8c7",
+              "g4h3",
+              "g8e7",
+              "d2b3",
+              "c6e5",
+              "f3e5",
+              "c7e5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -343,
+            "attackerScore": 343,
+            "pvMaterialGain": -4
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "a4c6",
+              "san": "Qxc6+",
+              "capturedValue": 3,
+              "pv": [
+                "b7c6",
+                "f3g5",
+                "g7e5",
+                "d3a6",
+                "d8b8"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 539,
+              "attackerScore": -539
+            },
+            {
+              "uci": "a4g4",
+              "san": "Qxg4",
+              "capturedValue": 3,
+              "pv": [
+                "g8h6",
+                "g4a4",
+                "e8g8",
+                "e1g1",
+                "g7e5",
+                "f3e5",
+                "c6e5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -351,
+              "attackerScore": 351
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d1a4",
+            "d4c6",
+            "a4g4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White queen on a4 attacks Black knight on d4 and Black king on e8. The fork cannot be safely neutralized. Best defense: d4c6 a4g4 e7e6 e1g1 d8c7 g4h3 g8e7 d2b3 c6e5 f3e5 c7e5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 5,
+        "sourceChunk": 8,
+        "sourceIndex": 29,
+        "sourceIdentity": "zhcda",
+        "canonicalIdentity": "r2qk1nr/pp2ppbp/6p1/3pP3/3n2b1/3B1N2/PP1N1PPP/R1BQK2R w KQkq -|queen-fork|d1a4,d4c6,a4g4|zhcda",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-yqt9o",
+      "puzzleId": "yqt9o",
+      "fen": "3r3k/pb3p2/1p4qp/5N2/1PP2P2/2b4Q/P5PP/5R1K b - - 0 33",
+      "preMove": "d8d2",
+      "solutionLine": [
+        "h3c3",
+        "h8h7",
+        "c3d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1765,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "hanging-piece"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Hanging Piece"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "hangingPiece",
+        "master",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White queen on c3",
+          "forkSquare": "c3",
+          "targets": [
+            "Black king on h8",
+            "Black rook on d2"
+          ],
+          "targetSquares": [
+            "h8",
+            "d2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 6,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "h8h7",
+            "pv": [
+              "h8h7",
+              "c3d2",
+              "g6f5",
+              "h1g1",
+              "f5g6",
+              "f4f5",
+              "g6g4",
+              "f1f4",
+              "g4g2",
+              "d2g2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -473,
+            "attackerScore": 473,
+            "pvMaterialGain": -4
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c3d2",
+              "san": "Qxd2",
+              "capturedValue": 5,
+              "pv": [
+                "g6f5",
+                "f1d1",
+                "b7e4",
+                "d1a1",
+                "a7a5",
+                "a1e1",
+                "e4b7",
+                "h1g1",
+                "b6b5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -473,
+              "attackerScore": 473
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "h3c3",
+            "h8h7",
+            "c3d2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White queen on c3 attacks Black king on h8 and Black rook on d2. The fork cannot be safely neutralized. Best defense: h8h7 c3d2 g6f5 h1g1 f5g6 f4f5 g6g4 f1f4 g4g2 d2g2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 6,
+        "sourceChunk": 9,
+        "sourceIndex": 23,
+        "sourceIdentity": "yqt9o",
+        "canonicalIdentity": "7k/pb3p2/1p4qp/5N2/1PP2P2/2b4Q/P2r2PP/5R1K w - -|queen-fork|h3c3,h8h7,c3d2|yqt9o",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zIjm8",
+      "puzzleId": "zIjm8",
+      "fen": "1r3k2/pp6/1bp5/8/6P1/3Q1P2/bP6/5K2 b - - 0 38",
+      "preMove": "b8d8",
+      "solutionLine": [
+        "d3a3",
+        "f8g7",
+        "a3a2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1328,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 7,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White queen on a3",
+          "forkSquare": "a3",
+          "targets": [
+            "Black bishop on a2",
+            "Black king on f8"
+          ],
+          "targetSquares": [
+            "a2",
+            "f8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 7,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f8g7",
+            "pv": [
+              "f8g7",
+              "a3a2",
+              "d8d3",
+              "f1g2",
+              "d3d2",
+              "g2h3",
+              "d2d3",
+              "h3g3",
+              "b6c7",
+              "g3g2",
+              "d3d2",
+              "g2f1",
+              "c7b6",
+              "a2b3",
+              "d2f2",
+              "f1e1",
+              "g7f6",
+              "b3g8",
+              "b6e3",
+              "g8d8",
+              "f6e5",
+              "d8c7",
+              "e5d4",
+              "c7b7"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -265,
+            "attackerScore": 265,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "a3a2",
+              "san": "Qxa2",
+              "capturedValue": 3,
+              "pv": [
+                "d8d3",
+                "f1g2",
+                "d3d2",
+                "g2g3",
+                "b6c7",
+                "g3h4",
+                "c7f4",
+                "g4g5",
+                "d2g2",
+                "a2c4",
+                "f4g5",
+                "h4h3",
+                "g2b2",
+                "c4g4",
+                "b2b5",
+                "f3f4",
+                "b5b3",
+                "h3g2",
+                "b3b2",
+                "g2h1",
+                "b2b1",
+                "h1h2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -191,
+              "attackerScore": 191
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d3a3",
+            "f8g7",
+            "a3a2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White queen on a3 attacks Black bishop on a2 and Black king on f8. The fork cannot be safely neutralized. Best defense: f8g7 a3a2 d8d3 f1g2 d3d2 g2h3 d2d3 h3g3 b6c7 g3g2 d3d2 g2f1 c7b6 a2b3 d2f2 f1e1 g7f6 b3g8 b6e3 g8d8 f6e5 d8c7 e5d4 c7b7.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 7,
+        "sourceChunk": 6,
+        "sourceIndex": 7,
+        "sourceIdentity": "zIjm8",
+        "canonicalIdentity": "3r1k2/pp6/1bp5/8/6P1/3Q1P2/bP6/5K2 w - -|queen-fork|d3a3,f8g7,a3a2|zIjm8",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zhJY1",
+      "puzzleId": "zhJY1",
+      "fen": "3r4/1q2ppkp/p5p1/3bP3/5Q2/1P3NK1/P4P1P/3R4 b - - 3 28",
+      "preMove": "e7e6",
+      "solutionLine": [
+        "f4f6",
+        "g7g8",
+        "f6d8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1020,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 20,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White queen on f6",
+          "forkSquare": "f6",
+          "targets": [
+            "Black king on g7",
+            "Black rook on d8"
+          ],
+          "targetSquares": [
+            "g7",
+            "d8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g7h6",
+            "pv": [
+              "g7h6",
+              "f6g5",
+              "h6g7",
+              "g5d8",
+              "h7h6",
+              "d1d5",
+              "b7d5",
+              "d8d5",
+              "e6d5",
+              "g3f4",
+              "g7h7",
+              "h2h3",
+              "d5d4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -491,
+            "attackerScore": 491,
+            "pvMaterialGain": -14
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f6d8",
+              "san": "Qxd8",
+              "capturedValue": 5,
+              "pv": [
+                "d5f3",
+                "d1d7",
+                "b7e4",
+                "d8h4",
+                "e4h4",
+                "g3h4",
+                "f3e4",
+                "d7a7",
+                "f7f5",
+                "h4g3",
+                "e4d5",
+                "a7a6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -458,
+              "attackerScore": 458
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f4f6",
+            "g7g8",
+            "f6d8"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White queen on f6 attacks Black king on g7 and Black rook on d8. The fork cannot be safely neutralized. Best defense: g7h6 f6g5 h6g7 g5d8 h7h6 d1d5 b7d5 d8d5 e6d5 g3f4 g7h7 h2h3 d5d4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 8,
+        "sourceChunk": 2,
+        "sourceIndex": 20,
+        "sourceIdentity": "zhJY1",
+        "canonicalIdentity": "3r4/1q3pkp/p3p1p1/3bP3/5Q2/1P3NK1/P4P1P/3R4 w - -|queen-fork|f4f6,g7g8,f6d8|zhJY1",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zyMnW",
+      "puzzleId": "zyMnW",
+      "fen": "8/3q2pk/pr1p3p/4p3/4Pr1P/1pQ1R3/PB3P2/3R2K1 w - - 0 31",
+      "preMove": "a2b3",
+      "solutionLine": [
+        "d7g4",
+        "g1f1",
+        "g4d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1378,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on g4",
+          "forkSquare": "g4",
+          "targets": [
+            "White king on g1",
+            "White rook on d1"
+          ],
+          "targetSquares": [
+            "g1",
+            "d1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e3g3",
+            "pv": [
+              "e3g3",
+              "g4d1",
+              "g1g2",
+              "b6b7",
+              "c3d3",
+              "d1d3",
+              "g3d3",
+              "b7f7",
+              "b2c1",
+              "f4f2",
+              "g2g1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -531,
+            "attackerScore": 531,
+            "pvMaterialGain": -9
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g4g3",
+              "san": "Qxg3+",
+              "capturedValue": 5,
+              "pv": [
+                "f2g3",
+                "f4f7",
+                "d1d2",
+                "f7f8",
+                "b3b4",
+                "b6b5",
+                "d2d6",
+                "h7h8",
+                "d6a6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 516,
+              "attackerScore": -516
+            },
+            {
+              "uci": "g4d1",
+              "san": "Qxd1+",
+              "capturedValue": 5,
+              "pv": [
+                "g1g2",
+                "b6b7",
+                "f2f3",
+                "d1e2",
+                "g2g1",
+                "e2b5",
+                "g1g2",
+                "f4h4",
+                "c3c8"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -449,
+              "attackerScore": 449
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d7g4",
+            "g1f1",
+            "g4d1"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on g4 attacks White king on g1 and White rook on d1. The fork cannot be safely neutralized. Best defense: e3g3 g4d1 g1g2 b6b7 c3d3 d1d3 g3d3 b7f7 b2c1 f4f2 g2g1.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 9,
+        "sourceChunk": 7,
+        "sourceIndex": 15,
+        "sourceIdentity": "zyMnW",
+        "canonicalIdentity": "8/3q2pk/pr1p3p/4p3/4Pr1P/1PQ1R3/1B3P2/3R2K1 b - -|queen-fork|d7g4,g1f1,g4d1|zyMnW",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zud02",
+      "puzzleId": "zud02",
+      "fen": "4r1k1/pp4p1/2p4p/8/3qnQ2/3N1R1P/PP4P1/7K b - - 7 27",
+      "preMove": "d4d6",
+      "solutionLine": [
+        "f4f7",
+        "g8h7",
+        "f7e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1097,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 1,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White queen on f7",
+          "forkSquare": "f7",
+          "targets": [
+            "Black king on g8",
+            "Black rook on e8"
+          ],
+          "targetSquares": [
+            "g8",
+            "e8"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "g8h7",
+            "pv": [
+              "g8h7",
+              "f7e8",
+              "e4g3",
+              "f3g3",
+              "d6g3",
+              "e8e2",
+              "g3g5",
+              "d3e1",
+              "g5c1",
+              "b2b3",
+              "b7b6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -410,
+            "attackerScore": 410,
+            "pvMaterialGain": -5
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f7e8",
+              "san": "Qxe8",
+              "capturedValue": 5,
+              "pv": [
+                "e4g3",
+                "f3g3",
+                "d6g3",
+                "e8e2",
+                "g3g5",
+                "b2b4",
+                "g5d5",
+                "d3f2",
+                "c6c5",
+                "b4c5",
+                "d5g2",
+                "h1g2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -412,
+              "attackerScore": 412
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f4f7",
+            "g8h7",
+            "f7e8"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White queen on f7 attacks Black king on g8 and Black rook on e8. The fork cannot be safely neutralized. Best defense: g8h7 f7e8 e4g3 f3g3 d6g3 e8e2 g3g5 d3e1 g5c1 b2b3 b7b6.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 10,
+        "sourceChunk": 3,
+        "sourceIndex": 1,
+        "sourceIdentity": "zud02",
+        "canonicalIdentity": "4r1k1/pp4p1/2pq3p/8/4nQ2/3N1R1P/PP4P1/7K w - -|queen-fork|f4f7,g8h7,f7e8|zud02",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zCcpd",
+      "puzzleId": "zCcpd",
+      "fen": "5bnk/8/7p/pp3p2/3P1P1q/2P1PQ2/PP1K4/6R1 w - - 0 32",
+      "preMove": "f3d5",
+      "solutionLine": [
+        "h4f2",
+        "d2d1",
+        "f2g1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1323,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on f2",
+          "forkSquare": "f2",
+          "targets": [
+            "White king on d2",
+            "White rook on g1"
+          ],
+          "targetSquares": [
+            "d2",
+            "g1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d2d3",
+            "pv": [
+              "d2d3",
+              "f2g1",
+              "d3e2",
+              "g1g4",
+              "e2d2",
+              "h8h7",
+              "d5b5",
+              "g8f6",
+              "b5a5",
+              "g4g2",
+              "d2e1",
+              "g2e4",
+              "a5e5"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -507,
+            "attackerScore": 507,
+            "pvMaterialGain": -2
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f2g1",
+              "san": "Qxg1",
+              "capturedValue": 5,
+              "pv": [
+                "d3e2",
+                "g1h2",
+                "e2f1",
+                "h2h3",
+                "f1e2",
+                "h3h5",
+                "e2e1",
+                "f8g7",
+                "d5b5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -496,
+              "attackerScore": 496
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "h4f2",
+            "d2d1",
+            "f2g1"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on f2 attacks White king on d2 and White rook on g1. The fork cannot be safely neutralized. Best defense: d2d3 f2g1 d3e2 g1g4 e2d2 h8h7 d5b5 g8f6 b5a5 g4g2 d2e1 g2e4 a5e5.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 11,
+        "sourceChunk": 6,
+        "sourceIndex": 10,
+        "sourceIdentity": "zCcpd",
+        "canonicalIdentity": "5bnk/8/7p/pp1Q1p2/3P1P1q/2P1P3/PP1K4/6R1 b - -|queen-fork|h4f2,d2d1,f2g1|zCcpd",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zWfgM",
+      "puzzleId": "zWfgM",
+      "fen": "8/6pk/3b3p/1QP4P/4R3/2PKP3/PPr3q1/3R4 w - - 1 40",
+      "preMove": "c5d6",
+      "solutionLine": [
+        "g2e2",
+        "d3d4",
+        "e2b5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1443,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen",
+        "skewer-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack",
+        "Queen Skewer"
+      ],
+      "themes": [
+        "advantage",
+        "endgame",
+        "fork",
+        "short",
+        "skewer"
+      ],
+      "chunkNumber": 7,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on e2",
+          "forkSquare": "e2",
+          "targets": [
+            "White king on d3",
+            "White rook on d1"
+          ],
+          "targetSquares": [
+            "d3",
+            "d1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 1,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d3d4",
+            "pv": [
+              "d3d4",
+              "e2b5",
+              "e4e5",
+              "b5a4",
+              "b2b4",
+              "a4c6",
+              "e5d5",
+              "c2c3",
+              "d5c5",
+              "c6d6",
+              "d4c3",
+              "d6d1",
+              "b4b5",
+              "d1e1",
+              "c3d4"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -296,
+            "attackerScore": 296,
+            "pvMaterialGain": -5
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e2b5",
+              "san": "Qxb5",
+              "capturedValue": 9,
+              "pv": [
+                "d1d3",
+                "c2b2",
+                "c3c4",
+                "b5b6",
+                "d4e5",
+                "b6b8",
+                "d3d4",
+                "b8e8",
+                "e5d5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -280,
+              "attackerScore": 280
+            },
+            {
+              "uci": "e2d1",
+              "san": "Qxd1+",
+              "capturedValue": 5,
+              "pv": [
+                "d4c5",
+                "d1f3",
+                "e4d4",
+                "f3f8",
+                "b5d3",
+                "h7h8",
+                "d3c2",
+                "f8c8",
+                "c5b4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 386,
+              "attackerScore": -386
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "g2e2",
+            "d3d4",
+            "e2b5"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on e2 attacks White king on d3 and White rook on d1. The fork cannot be safely neutralized. Best defense: d3d4 e2b5 e4e5 b5a4 b2b4 a4c6 e5d5 c2c3 d5c5 c6d6 d4c3 d6d1 b4b5 d1e1 c3d4.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 12,
+        "sourceChunk": 7,
+        "sourceIndex": 6,
+        "sourceIdentity": "zWfgM",
+        "canonicalIdentity": "8/6pk/3P3p/1Q5P/4R3/2PKP3/PPr3q1/3R4 b - -|queen-fork|g2e2,d3d4,e2b5|zWfgM",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zevzK",
+      "puzzleId": "zevzK",
+      "fen": "8/4k3/1pP1pp1P/3p4/7Q/8/5KPP/q4n2 b - - 2 30",
+      "preMove": "f1d2",
+      "solutionLine": [
+        "h4b4",
+        "e7e8",
+        "b4d2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1668,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 14,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "White queen on b4",
+          "forkSquare": "b4",
+          "targets": [
+            "Black king on e7",
+            "Black knight on d2"
+          ],
+          "targetSquares": [
+            "e7",
+            "d2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e7f7",
+            "pv": [
+              "e7f7",
+              "b4d2",
+              "b6b5",
+              "d2e3",
+              "b5b4",
+              "h6h7",
+              "f7g7",
+              "c6c7",
+              "a1b2",
+              "f2g3"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -148,
+            "attackerScore": 148,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "b4d2",
+              "san": "Qxd2",
+              "capturedValue": 3,
+              "pv": [
+                "b6b5",
+                "h2h3",
+                "a1a7",
+                "d2e3",
+                "d5d4",
+                "e3d3",
+                "f6f5",
+                "d3g3",
+                "d4d3",
+                "f2f3",
+                "a7a3",
+                "g3c7",
+                "f7f8",
+                "c7c8",
+                "f8e7"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -237,
+              "attackerScore": 237
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "h4b4",
+            "e7e8",
+            "b4d2"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: White queen on b4 attacks Black king on e7 and Black knight on d2. The fork cannot be safely neutralized. Best defense: e7f7 b4d2 b6b5 d2e3 b5b4 h6h7 f7g7 c6c7 a1b2 f2g3.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 13,
+        "sourceChunk": 9,
+        "sourceIndex": 14,
+        "sourceIdentity": "zevzK",
+        "canonicalIdentity": "8/4k3/1pP1pp1P/3p4/7Q/8/3n1KPP/q7 w - -|queen-fork|h4b4,e7e8,b4d2|zevzK",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zt4Wh",
+      "puzzleId": "zt4Wh",
+      "fen": "2r2r1k/2qnbp1P/4bn1B/p2pp3/Np2P3/1N3P2/PPPQ4/1K1R1B1R w - - 2 22",
+      "preMove": "d2g5",
+      "solutionLine": [
+        "c7c2",
+        "b1a1",
+        "c2d1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1144,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on c2",
+          "forkSquare": "c2",
+          "targets": [
+            "White rook on d1",
+            "White knight on b3",
+            "White king on b1"
+          ],
+          "targetSquares": [
+            "d1",
+            "b3",
+            "b1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 1,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "b1a1",
+            "pv": [
+              "b1a1",
+              "c2d1",
+              "b3c1",
+              "f6h5",
+              "g5d2",
+              "d1d2",
+              "h6d2",
+              "h5g3",
+              "h1g1",
+              "g3f1",
+              "d2h6",
+              "d5e4",
+              "c1e2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -562,
+            "attackerScore": 562,
+            "pvMaterialGain": -9
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c2b3",
+              "san": "Qxb3",
+              "capturedValue": 3,
+              "pv": [
+                "h6g7"
+              ],
+              "depth": 12,
+              "scoreType": "mate",
+              "scoreValue": 1,
+              "attackerScore": -100000
+            },
+            {
+              "uci": "c2d1",
+              "san": "Qxd1+",
+              "capturedValue": 5,
+              "pv": [
+                "b3c1",
+                "f6h5",
+                "g5e3",
+                "c8c1",
+                "e3c1",
+                "d1c1",
+                "h6c1",
+                "h5f4",
+                "c1f4",
+                "e5f4",
+                "e4d5",
+                "e6d5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -506,
+              "attackerScore": 506
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "c7c2",
+            "b1a1",
+            "c2d1"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on c2 attacks White rook on d1 and White knight on b3 and White king on b1. The fork cannot be safely neutralized. Best defense: b1a1 c2d1 b3c1 f6h5 g5d2 d1d2 h6d2 h5g3 h1g1 g3f1 d2h6 d5e4 c1e2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 14,
+        "sourceChunk": 4,
+        "sourceIndex": 23,
+        "sourceIdentity": "zt4Wh",
+        "canonicalIdentity": "2r2r1k/2qnbp1P/4bn1B/p2pp1Q1/Np2P3/1N3P2/PPP5/1K1R1B1R b - -|queen-fork|c7c2,b1a1,c2d1|zt4Wh",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-xiHR5",
+      "puzzleId": "xiHR5",
+      "fen": "1k1r3r/ppp3p1/2np4/2q5/4P2p/P6B/1PP5/R1BQ1R1K w - - 5 23",
+      "preMove": "b2b4",
+      "solutionLine": [
+        "c5c3",
+        "d1d3",
+        "c3a1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1567,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on c3",
+          "forkSquare": "c3",
+          "targets": [
+            "White bishop on h3",
+            "White rook on a1"
+          ],
+          "targetSquares": [
+            "h3",
+            "a1"
+          ],
+          "checking": false,
+          "capturable": false,
+          "legalReplyCount": 39,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "c1e3",
+            "pv": [
+              "c1e3",
+              "c3e3",
+              "d1d3",
+              "e3g5",
+              "a3a4",
+              "c6e5",
+              "d3c3",
+              "d8e8"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -352,
+            "attackerScore": 352,
+            "pvMaterialGain": 0
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "c3e3",
+              "san": "Qxe3",
+              "capturedValue": 3,
+              "pv": [
+                "d1d3",
+                "e3b6",
+                "d3b3",
+                "g7g5",
+                "b4b5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -349,
+              "attackerScore": 349
+            },
+            {
+              "uci": "c3a1",
+              "san": "Qxa1",
+              "capturedValue": 5,
+              "pv": [
+                "d1a1",
+                "g7g5",
+                "a1d1",
+                "c6e5",
+                "e3g5",
+                "d8g8",
+                "f1g1",
+                "b7b5",
+                "h3f5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 515,
+              "attackerScore": -515
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "c5c3",
+            "d1d3",
+            "c3a1"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Fork: Black queen on c3 attacks White bishop on h3 and White rook on a1. The fork cannot be safely neutralized. Best defense: c1e3 c3e3 d1d3 e3g5 a3a4 c6e5 d3c3 d8e8.",
+          "soundnessClassification": "SOUND_NON_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 15,
+        "sourceChunk": 8,
+        "sourceIndex": 23,
+        "sourceIdentity": "xiHR5",
+        "canonicalIdentity": "1k1r3r/ppp3p1/2np4/2q5/1P2P2p/P6B/2P5/R1BQ1R1K b - -|queen-fork|c5c3,d1d3,c3a1|xiHR5",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-ynEZF",
+      "puzzleId": "ynEZF",
+      "fen": "8/4Rp1k/1pN3pp/p7/4Bq2/7P/1n3P2/5RK1 w - - 2 30",
+      "preMove": "c6d8",
+      "solutionLine": [
+        "f4g5",
+        "e4g2",
+        "g5e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1060,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "endgame",
+        "fork",
+        "short"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on g5",
+          "forkSquare": "g5",
+          "targets": [
+            "White king on g1",
+            "White rook on e7"
+          ],
+          "targetSquares": [
+            "g1",
+            "e7"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 3,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e4g2",
+            "pv": [
+              "e4g2",
+              "g5e7",
+              "f1b1",
+              "b2d3",
+              "d8f7",
+              "e7e2",
+              "f7d6",
+              "h7g7",
+              "g2c6",
+              "a5a4",
+              "b1b6",
+              "e2f2",
+              "g1h1"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -475,
+            "attackerScore": 475,
+            "pvMaterialGain": -2
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "g5e7",
+              "san": "Qxe7",
+              "capturedValue": 5,
+              "pv": [
+                "d8f7",
+                "h6h5",
+                "f7g5",
+                "e7g5",
+                "f1e1",
+                "h7g7",
+                "e1b1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -465,
+              "attackerScore": 465
+            },
+            {
+              "uci": "g5g2",
+              "san": "Qxg2+",
+              "capturedValue": 3,
+              "pv": [
+                "g1g2",
+                "g6g5",
+                "f1e1",
+                "b2d3",
+                "e7f7",
+                "h7g6",
+                "e1e6",
+                "g6h5",
+                "e6b6",
+                "d3f4",
+                "f7f4",
+                "g5f4"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 707,
+              "attackerScore": -707
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f4g5",
+            "e4g2",
+            "g5e7"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on g5 attacks White king on g1 and White rook on e7. The fork cannot be safely neutralized. Best defense: e4g2 g5e7 f1b1 b2d3 d8f7 e7e2 f7d6 h7g7 g2c6 a5a4 b1b6 e2f2 g1h1.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 16,
+        "sourceChunk": 3,
+        "sourceIndex": 25,
+        "sourceIdentity": "ynEZF",
+        "canonicalIdentity": "3N4/4Rp1k/1p4pp/p7/4Bq2/7P/1n3P2/5RK1 b - -|queen-fork|f4g5,e4g2,g5e7|ynEZF",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zreqM",
+      "puzzleId": "zreqM",
+      "fen": "rnb1k1nr/ppppb1pp/5q2/4N3/4pP2/2N5/PPPP2PP/R1BQKB1R w KQkq - 2 6",
+      "preMove": "c3e4",
+      "solutionLine": [
+        "f6f4",
+        "d1h5",
+        "g7g6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1624,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "opening",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 17,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on f4",
+          "forkSquare": "f4",
+          "targets": [
+            "White knight on e4",
+            "White bishop on f1",
+            "White knight on e5"
+          ],
+          "targetSquares": [
+            "e4",
+            "f1",
+            "e5"
+          ],
+          "checking": false,
+          "capturable": false,
+          "legalReplyCount": 39,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "d1f3",
+            "pv": [
+              "d1f3",
+              "f4e5",
+              "d2d4",
+              "e5e6",
+              "d4d5",
+              "e6d5",
+              "c1f4",
+              "e8d8",
+              "f1d3",
+              "d7d6",
+              "e1c1",
+              "d5f7",
+              "h1e1",
+              "g8f6",
+              "e4f6",
+              "e7f6"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -196,
+            "attackerScore": 196,
+            "pvMaterialGain": -3
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "f4e5",
+              "san": "Qxe5",
+              "capturedValue": 3,
+              "pv": [
+                "d2d4",
+                "e5d4",
+                "c2c3",
+                "d4e5",
+                "c1f4",
+                "e5e6",
+                "e1c1",
+                "d7d5",
+                "f1b5",
+                "b8c6",
+                "e4g5",
+                "e6g4",
+                "d1e1",
+                "g8f6",
+                "b5c6",
+                "b7c6"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -199,
+              "attackerScore": 199
+            },
+            {
+              "uci": "f4f3",
+              "san": "Qxf3",
+              "capturedValue": 9,
+              "pv": [
+                "e5f3",
+                "d7d5",
+                "e4c3",
+                "c7c6",
+                "b2b3",
+                "c8g4",
+                "c1b2",
+                "g4f3",
+                "g2f3",
+                "e7h4",
+                "e1d1",
+                "g8e7"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -1,
+              "attackerScore": 1
+            },
+            {
+              "uci": "f4e4",
+              "san": "Qxe4+",
+              "capturedValue": 3,
+              "pv": [
+                "f3e4",
+                "g8f6",
+                "e4a4",
+                "e8g8",
+                "e1d1"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 493,
+              "attackerScore": -493
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "f6f4",
+            "d1h5",
+            "g7g6"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Fork: Black queen on f4 attacks White knight on e4 and White bishop on f1 and White knight on e5. The fork cannot be safely neutralized. Best defense: d1f3 f4e5 d2d4 e5e6 d4d5 e6d5 c1f4 e8d8 f1d3 d7d6 e1c1 d5f7 h1e1 g8f6 e4f6 e7f6.",
+          "soundnessClassification": "SOUND_NON_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 17,
+        "sourceChunk": 8,
+        "sourceIndex": 17,
+        "sourceIdentity": "zreqM",
+        "canonicalIdentity": "rnb1k1nr/ppppb1pp/5q2/4N3/4NP2/8/PPPP2PP/R1BQKB1R b KQkq -|queen-fork|f6f4,d1h5,g7g6|zreqM",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zfF01",
+      "puzzleId": "zfF01",
+      "fen": "r4rk1/pp1b2p1/2p4q/P3pp2/1PP1P3/6QP/3N4/R3KBR1 w Q - 0 22",
+      "preMove": "g3e5",
+      "solutionLine": [
+        "h6e3",
+        "e1d1",
+        "e3g1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1590,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "advantage",
+        "fork",
+        "middlegame",
+        "short"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 22,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on e3",
+          "forkSquare": "e3",
+          "targets": [
+            "White king on e1",
+            "White rook on g1",
+            "White knight on d2"
+          ],
+          "targetSquares": [
+            "e1",
+            "g1",
+            "d2"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 2,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "e1d1",
+            "pv": [
+              "e1d1",
+              "e3g1",
+              "d1c2",
+              "a8e8",
+              "e5d6",
+              "d7e6",
+              "e4e5",
+              "e6f7",
+              "a5a6",
+              "b7b6",
+              "c4c5",
+              "b6b5",
+              "d6c6",
+              "e8e5",
+              "c6b5",
+              "f8d8"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -338,
+            "attackerScore": 338,
+            "pvMaterialGain": -2
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "e3g1",
+              "san": "Qxg1",
+              "capturedValue": 5,
+              "pv": [
+                "d1c2",
+                "a8e8",
+                "e5d6",
+                "d7e6",
+                "a5a6",
+                "b7a6",
+                "c4c5",
+                "f5e4",
+                "f1c4",
+                "g1a1",
+                "c4e6",
+                "g8h8"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -301,
+              "attackerScore": 301
+            },
+            {
+              "uci": "e3d2",
+              "san": "Qxd2+",
+              "capturedValue": 3,
+              "pv": [
+                "d1d2",
+                "f8f7",
+                "a1d1",
+                "f5e4",
+                "d2c1",
+                "a8e8",
+                "e5g3",
+                "e4e3",
+                "d1e1",
+                "e8d8",
+                "e1e3",
+                "d8e8",
+                "e3e8",
+                "d7e8",
+                "g3b8"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 615,
+              "attackerScore": -615
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "h6e3",
+            "e1d1",
+            "e3g1"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on e3 attacks White king on e1 and White rook on g1 and White knight on d2. The fork cannot be safely neutralized. Best defense: e1d1 e3g1 d1c2 a8e8 e5d6 d7e6 e4e5 e6f7 a5a6 b7b6 c4c5 b6b5 d6c6 e8e5 c6b5 f8d8.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 18,
+        "sourceChunk": 8,
+        "sourceIndex": 22,
+        "sourceIdentity": "zfF01",
+        "canonicalIdentity": "r4rk1/pp1b2p1/2p4q/P3Qp2/1PP1P3/7P/3N4/R3KBR1 b Q -|queen-fork|h6e3,e1d1,e3g1|zfF01",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    },
+    {
+      "id": "fork-queen-m2-zsegR",
+      "puzzleId": "zsegR",
+      "fen": "r2qkbnr/pppb1ppp/4p3/3PP3/2B5/2N2P2/PPP4P/R1BQK2R w KQkq - 0 11",
+      "preMove": "c1f4",
+      "solutionLine": [
+        "d8h4",
+        "f4g3",
+        "h4c4"
+      ],
+      "userMoveIndexes": [
+        0,
+        2
+      ],
+      "tacticDistance": 2,
+      "rating": 1016,
+      "label": "Queen Fork / Double Attack - Tactic in 2",
+      "theme": "fork-queen",
+      "sourceThemeKeys": [
+        "fork-queen"
+      ],
+      "sourceThemes": [
+        "Queen Fork / Double Attack"
+      ],
+      "themes": [
+        "crushing",
+        "fork",
+        "master",
+        "opening",
+        "short"
+      ],
+      "chunkNumber": 2,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "queen-fork",
+      "canonicalThemeLabel": "Queen Fork",
+      "semanticAudit": {
+        "version": "fork-sound-v3",
+        "status": "VALID",
+        "reason": "after Stockfish's best defense, the forking piece has a verified safe capture of a meaningful target",
+        "evidence": {
+          "forkingPiece": "Black queen on h4",
+          "forkSquare": "h4",
+          "targets": [
+            "White bishop on f4",
+            "White king on e1"
+          ],
+          "targetSquares": [
+            "f4",
+            "e1"
+          ],
+          "checking": true,
+          "capturable": false,
+          "legalReplyCount": 4,
+          "captureReplies": [],
+          "bestDefense": {
+            "uci": "f4g3",
+            "pv": [
+              "f4g3",
+              "h4c4",
+              "d5d6",
+              "g8h6",
+              "d1d2",
+              "h6f5",
+              "e1c1",
+              "c7d6",
+              "c3e4",
+              "d6d5",
+              "e4d6",
+              "f8d6",
+              "e5d6",
+              "c4a2"
+            ],
+            "depth": 12,
+            "scoreType": "cp",
+            "scoreValue": -408,
+            "attackerScore": 408,
+            "pvMaterialGain": -3
+          },
+          "followUpAnalysis": [
+            {
+              "uci": "h4g3",
+              "san": "Qxg3+",
+              "capturedValue": 3,
+              "pv": [
+                "h2g3",
+                "e6d5",
+                "c4d5",
+                "e8c8",
+                "d5e4",
+                "f8b4",
+                "d1c1",
+                "b4a5",
+                "a2a4",
+                "a5c3",
+                "b2c3",
+                "d7h3",
+                "a4a5"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": 571,
+              "attackerScore": -571
+            },
+            {
+              "uci": "h4c4",
+              "san": "Qxc4",
+              "capturedValue": 3,
+              "pv": [
+                "d5d6",
+                "g8h6",
+                "d1d2",
+                "h6f5",
+                "e1c1",
+                "c7d6",
+                "c3e4",
+                "c4a2"
+              ],
+              "depth": 12,
+              "scoreType": "cp",
+              "scoreValue": -386,
+              "attackerScore": 386
+            }
+          ],
+          "captureAnalysis": [],
+          "storedLine": [
+            "d8h4",
+            "f4g3",
+            "h4c4"
+          ],
+          "storedMaterialGain": 0,
+          "explanation": "Checking fork: Black queen on h4 attacks White bishop on f4 and White king on e1. The fork cannot be safely neutralized. Best defense: f4g3 h4c4 d5d6 g8h6 d1d2 h6f5 e1c1 c7d6 c3e4 d6d5 e4d6 f8d6 e5d6 c4a2.",
+          "soundnessClassification": "SOUND_CHECKING_FORK"
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m2-semantic-v3",
+        "learnerChunk": 7,
+        "orderInChunk": 19,
+        "sourceChunk": 2,
+        "sourceIndex": 12,
+        "sourceIdentity": "zsegR",
+        "canonicalIdentity": "r2qkbnr/pppb1ppp/4p3/3PP3/2B2B2/2N2P2/PPP4P/R2QK2R b KQkq -|queen-fork|d8h4,f4g3,h4c4|zsegR",
+        "retainedReason": "Geometric fork plus fixed-depth Stockfish soundness proof."
+      }
+    }
+  ]
+}
