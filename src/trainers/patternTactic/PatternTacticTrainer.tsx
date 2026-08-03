@@ -64,7 +64,18 @@ import {
  getPatternTacticLearnerProgressTrainerKey,
  resolvePatternTacticLearnerFacingChunkIndex,
 } from "./m1toM4LearnerCurriculum"
-import { getSemanticDisclosurePresentation, nextSemanticDisclosureState, type SemanticDisclosureEvent } from "./semanticDisclosure"
+import {
+ createSemanticDisclosureCountdown,
+ getSemanticDisclosureCountdownRemainingMs,
+ getSemanticDisclosureCountdownSeconds,
+ getSemanticDisclosurePresentation,
+ nextSemanticDisclosureState,
+ pauseSemanticDisclosureCountdown,
+ resumeSemanticDisclosureCountdown,
+ type SemanticDisclosureCountdown,
+ type SemanticDisclosureEvent,
+ type SemanticDisclosureOutcome,
+} from "./semanticDisclosure"
 
 type ManifestFile = {
  category?: string
@@ -536,6 +547,16 @@ export default function PatternTacticTrainer({
 
  const containerRef = useRef<HTMLDivElement | null>(null)
  const autoNextTimerRef = useRef<number | null>(null)
+ const semanticAutoAdvanceTimerRef = useRef<number | null>(null)
+ const semanticCountdownIntervalRef = useRef<number | null>(null)
+ const semanticCountdownRef = useRef<SemanticDisclosureCountdown | null>(null)
+ const semanticInteractionRef = useRef({
+  hovered: false,
+  focused: false,
+  hidden: typeof document !== 'undefined' && document.hidden,
+ })
+ const semanticExplanationPanelRef = useRef<HTMLDivElement | null>(null)
+ const semanticNextButtonRef = useRef<HTMLDivElement | null>(null)
  const wrongMoveTimerRef = useRef<number | null>(null)
  const preMoveTimerRef = useRef<number | null>(null)
  const solveStartedAtRef = useRef<number | null>(null)
@@ -621,6 +642,7 @@ export default function PatternTacticTrainer({
  const [solved, setSolved] = useState(false)
  const [hintMoveUci, setHintMoveUci] = useState<string | null>(null)
  const [semanticDisclosureRevealed, setSemanticDisclosureRevealed] = useState(false)
+ const [semanticCountdownSeconds, setSemanticCountdownSeconds] = useState<number | null>(null)
 
  function revealSemanticDisclosure() {
   setSemanticDisclosureRevealed((current) => nextSemanticDisclosureState(current, 'reveal'))
@@ -628,6 +650,108 @@ export default function PatternTacticTrainer({
 
  function clearSemanticDisclosure(event: 'next-puzzle' | 'restart') {
   setSemanticDisclosureRevealed((current) => nextSemanticDisclosureState(current, event))
+ }
+
+ function isSemanticAutoAdvancePaused() {
+  return semanticInteractionRef.current.hovered || semanticInteractionRef.current.focused || semanticInteractionRef.current.hidden
+ }
+
+ function clearSemanticAutoAdvance() {
+  if (semanticAutoAdvanceTimerRef.current !== null) {
+   window.clearTimeout(semanticAutoAdvanceTimerRef.current)
+   semanticAutoAdvanceTimerRef.current = null
+  }
+  if (semanticCountdownIntervalRef.current !== null) {
+   window.clearInterval(semanticCountdownIntervalRef.current)
+   semanticCountdownIntervalRef.current = null
+  }
+  semanticCountdownRef.current = null
+  setSemanticCountdownSeconds(null)
+ }
+
+ function updateSemanticCountdownDisplay() {
+  const countdown = semanticCountdownRef.current
+  if (!countdown) return
+  setSemanticCountdownSeconds(getSemanticDisclosureCountdownSeconds(countdown, performance.now()))
+ }
+
+ function runSemanticAutoAdvance() {
+  const countdown = semanticCountdownRef.current
+  if (!countdown || isSemanticAutoAdvancePaused()) return
+
+  const resumed = resumeSemanticDisclosureCountdown(countdown, performance.now())
+  semanticCountdownRef.current = resumed
+  const remainingMs = getSemanticDisclosureCountdownRemainingMs(resumed, performance.now())
+  updateSemanticCountdownDisplay()
+
+  if (remainingMs <= 0) {
+   clearSemanticAutoAdvance()
+   goToNextPuzzle()
+   return
+  }
+
+  semanticAutoAdvanceTimerRef.current = window.setTimeout(() => {
+   const activeCountdown = semanticCountdownRef.current
+   if (!activeCountdown || isSemanticAutoAdvancePaused()) return
+   if (getSemanticDisclosureCountdownRemainingMs(activeCountdown, performance.now()) > 0) {
+    runSemanticAutoAdvance()
+    return
+   }
+   clearSemanticAutoAdvance()
+   goToNextPuzzle()
+  }, remainingMs)
+
+  semanticCountdownIntervalRef.current = window.setInterval(updateSemanticCountdownDisplay, 250)
+ }
+
+ function pauseSemanticAutoAdvance() {
+  const countdown = semanticCountdownRef.current
+  if (!countdown) return
+  if (semanticAutoAdvanceTimerRef.current !== null) {
+   window.clearTimeout(semanticAutoAdvanceTimerRef.current)
+   semanticAutoAdvanceTimerRef.current = null
+  }
+  if (semanticCountdownIntervalRef.current !== null) {
+   window.clearInterval(semanticCountdownIntervalRef.current)
+   semanticCountdownIntervalRef.current = null
+  }
+  semanticCountdownRef.current = pauseSemanticDisclosureCountdown(countdown, performance.now())
+  updateSemanticCountdownDisplay()
+ }
+
+ function resumeSemanticAutoAdvance() {
+  if (!semanticCountdownRef.current || isSemanticAutoAdvancePaused()) return
+  runSemanticAutoAdvance()
+ }
+
+ function scheduleSemanticAutoAdvance(outcome: SemanticDisclosureOutcome) {
+  clearSemanticAutoAdvance()
+  semanticCountdownRef.current = createSemanticDisclosureCountdown(outcome, performance.now())
+  updateSemanticCountdownDisplay()
+  runSemanticAutoAdvance()
+ }
+
+ function setSemanticHover(hovered: boolean) {
+  semanticInteractionRef.current.hovered = hovered
+  if (hovered) pauseSemanticAutoAdvance()
+  else resumeSemanticAutoAdvance()
+ }
+
+ function setSemanticFocus(focused: boolean) {
+  semanticInteractionRef.current.focused = focused
+  if (focused) pauseSemanticAutoAdvance()
+  else resumeSemanticAutoAdvance()
+ }
+
+ function deferSemanticFocusCheck() {
+  window.setTimeout(() => {
+   const activeElement = document.activeElement
+   const remainsFocused = Boolean(
+    semanticExplanationPanelRef.current?.contains(activeElement) ||
+    semanticNextButtonRef.current?.contains(activeElement),
+   )
+   setSemanticFocus(remainsFocused)
+  }, 0)
  }
 
  function advanceUserMoveIndex(nextIndex: number) {
@@ -682,7 +806,7 @@ export default function PatternTacticTrainer({
  }
 
  useEffect(() => {
- supabase.auth.getSession().then(({ data }) => {
+  supabase.auth.getSession().then(({ data }) => {
  setCurrentUserId(data.session?.user?.id ?? null)
  })
 
@@ -696,6 +820,17 @@ export default function PatternTacticTrainer({
  listener.subscription.unsubscribe()
  }
  }, [])
+
+ useEffect(() => {
+  const onVisibilityChange = () => {
+   semanticInteractionRef.current.hidden = document.hidden
+   if (document.hidden) pauseSemanticAutoAdvance()
+   else resumeSemanticAutoAdvance()
+  }
+
+  document.addEventListener('visibilitychange', onVisibilityChange)
+  return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+ })
 
  useEffect(() => {
   if (!isMixedPatternTactic || !currentUserId) {
@@ -1442,10 +1577,11 @@ export default function PatternTacticTrainer({
  preMoveTimerRef.current = null
  }
  clearReplyTimer()
- if (autoNextTimerRef.current) {
- window.clearTimeout(autoNextTimerRef.current)
- autoNextTimerRef.current = null
- }
+  if (autoNextTimerRef.current) {
+   window.clearTimeout(autoNextTimerRef.current)
+   autoNextTimerRef.current = null
+  }
+  clearSemanticAutoAdvance()
  }
 
  function incrementFastSolve(puzzleIndex: number) {
@@ -1611,6 +1747,7 @@ export default function PatternTacticTrainer({
  }
 
  function goToNextPuzzle() {
+ clearSemanticAutoAdvance()
  const nextChunkProgress = chunkProgress
 
  const chunkIsMastered =
@@ -1734,9 +1871,11 @@ export default function PatternTacticTrainer({
  theme: config.studyTheme,
  })
 
- // A verified Tier A explanation must remain readable until the learner
- // explicitly moves on. Existing non-semantic courses retain auto-next.
- if (!semanticExplanation(currentPuzzle)) {
+ // Semantic Tier A puzzles keep verified evidence visible briefly before
+ // advancing. Other tactic courses retain their existing auto-next behavior.
+ if (semanticExplanation(currentPuzzle)) {
+  scheduleSemanticAutoAdvance('correct')
+ } else {
   autoNextTimerRef.current = window.setTimeout(() => {
    goToNextPuzzle()
   }, AUTO_NEXT_DELAY_MS)
@@ -1930,6 +2069,12 @@ export default function PatternTacticTrainer({
  wasCorrect: false,
  timeMs,
  })
+ }
+
+ if (semanticExplanation(currentPuzzle)) {
+  setBoardLocked(true)
+  scheduleSemanticAutoAdvance('assisted')
+  return false
  }
 
  if (options?.allowWrongMoveToShow) {
@@ -2523,8 +2668,21 @@ function onSquareClick(square: string) {
  )}
 
  {showSemanticExplanation && (
- <div role="status" aria-live="polite" style={{ marginBottom: 10, padding: '14px 16px', borderRadius: 8, background: '#263b2a', color: '#d8f5d0', fontSize: 15, lineHeight: 1.6, overflowWrap: 'anywhere' }}>
- {currentSemanticExplanation}
+ <div
+ ref={semanticExplanationPanelRef}
+ tabIndex={0}
+ onPointerEnter={() => setSemanticHover(true)}
+ onPointerLeave={() => setSemanticHover(false)}
+ onFocus={() => setSemanticFocus(true)}
+ onBlur={deferSemanticFocusCheck}
+ style={{ marginBottom: 10, padding: '16px 18px', borderRadius: 8, background: '#263b2a', color: '#d8f5d0', fontSize: 16, lineHeight: 1.65, overflowWrap: 'anywhere' }}
+ >
+ <div role="status" aria-live="polite" aria-atomic="true">{currentSemanticExplanation}</div>
+ {semanticCountdownSeconds !== null && (
+  <div aria-live="off" style={{ marginTop: 8, color: '#f2c14e', fontSize: 14, fontWeight: 800 }}>
+   Next puzzle in {semanticCountdownSeconds}…
+  </div>
+ )}
  </div>
  )}
 
@@ -2688,6 +2846,10 @@ function onSquareClick(square: string) {
  ? 'The piece to move is highlighted.'
  : 'The destination square is highlighted.',
  )
+ if (semanticExplanation(currentPuzzle)) {
+  setBoardLocked(true)
+  scheduleSemanticAutoAdvance('assisted')
+ }
  }}
  onHintReset={() => setHintMoveUci(null)}
  hintResetKey={`${currentPuzzle?.id ?? ''}:${boardFen}:${currentUserMoveIndexRef.current}`}
@@ -2697,8 +2859,12 @@ function onSquareClick(square: string) {
  </HintButton>
  )}
 
+ <div ref={semanticNextButtonRef} style={{ display: 'contents' }}>
  <PrimaryButton
+ onFocus={() => setSemanticFocus(true)}
+ onBlur={deferSemanticFocusCheck}
  onClick={() => {
+ clearSemanticAutoAdvance()
  if (allPuzzlesMastered()) {
  void completeChunk()
  } else {
@@ -2708,6 +2874,7 @@ function onSquareClick(square: string) {
  >
  {allPuzzlesMastered() ? 'Continue Auto' : 'Next Puzzle'}
  </PrimaryButton>
+ </div>
 
  <SecondaryButton onClick={() => void restartWholeProgression()}>
  Restart progression
