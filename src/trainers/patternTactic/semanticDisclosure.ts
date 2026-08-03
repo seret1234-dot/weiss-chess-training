@@ -1,5 +1,6 @@
 export type SemanticDisclosureEvent = 'reveal' | 'timer' | 'next-puzzle' | 'restart'
 export type SemanticDisclosureOutcome = 'correct' | 'assisted'
+export type SemanticDisclosureTrigger = 'correct' | 'wrong' | 'solution' | 'hint-preview'
 
 export const SEMANTIC_DISCLOSURE_AUTO_ADVANCE_MS: Record<SemanticDisclosureOutcome, number> = {
   correct: 5_000,
@@ -24,6 +25,14 @@ export function getSemanticDisclosurePresentation(
 ) {
   const visible = Boolean(explanation) && revealed
   return { explanation, visible, squares: visible ? squares : [] }
+}
+
+export function getSemanticDisclosureTriggerState(trigger: SemanticDisclosureTrigger) {
+  if (trigger === 'correct') return { terminal: true, autoAdvanceOutcome: 'correct' as const }
+  if (trigger === 'wrong' || trigger === 'solution') {
+    return { terminal: true, autoAdvanceOutcome: 'assisted' as const }
+  }
+  return { terminal: false, autoAdvanceOutcome: null }
 }
 
 export function createSemanticDisclosureCountdown(

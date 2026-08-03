@@ -69,6 +69,7 @@ import {
  getSemanticDisclosureCountdownRemainingMs,
  getSemanticDisclosureCountdownSeconds,
  getSemanticDisclosurePresentation,
+ getSemanticDisclosureTriggerState,
  nextSemanticDisclosureState,
  pauseSemanticDisclosureCountdown,
  resumeSemanticDisclosureCountdown,
@@ -168,6 +169,8 @@ export type PatternTacticPuzzle = {
 type PuzzleMastery = {
  fastSolves: number
 }
+
+type TacticHintLevel = 'none' | 'piece' | 'square' | 'solution'
 
 type Phase = 'loading' | 'solving' | 'correct' | 'wrong' | 'finished'
 
@@ -641,6 +644,7 @@ export default function PatternTacticTrainer({
  const [phase, setPhase] = useState<Phase>('loading')
  const [solved, setSolved] = useState(false)
  const [hintMoveUci, setHintMoveUci] = useState<string | null>(null)
+ const [hintLevel, setHintLevel] = useState<TacticHintLevel>('none')
  const [semanticDisclosureRevealed, setSemanticDisclosureRevealed] = useState(false)
  const [semanticCountdownSeconds, setSemanticCountdownSeconds] = useState<number | null>(null)
 
@@ -757,6 +761,7 @@ export default function PatternTacticTrainer({
  function advanceUserMoveIndex(nextIndex: number) {
  currentUserMoveIndexRef.current = nextIndex
  setHintMoveUci(null)
+ setHintLevel('none')
  }
  const [boardLocked, setBoardLocked] = useState(true)
  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
@@ -1631,6 +1636,7 @@ export default function PatternTacticTrainer({
  setLegalTargets([])
  setSolved(false)
  setHintMoveUci(null)
+ setHintLevel('none')
  setPhase('solving')
 
  setCurrentIndex(index)
@@ -1783,6 +1789,40 @@ export default function PatternTacticTrainer({
  setMessage('Chunk complete')
  }
 
+ function revealStoredSolution() {
+  if (!currentPuzzle || !semanticExplanation(currentPuzzle)) return
+
+  const nextLineIndex = currentPuzzle.userMoveIndexes[currentUserMoveIndexRef.current]
+  const remainingLine = currentPuzzle.solutionLine.slice(nextLineIndex ?? currentPuzzle.solutionLine.length)
+  const solutionGame = new Chess(game.fen())
+  const sanMoves: string[] = []
+
+  try {
+   for (const uci of remainingLine) {
+    const move = solutionGame.move(parseUci(uci))
+    if (!move) throw new Error(`Illegal stored solution move: ${uci}`)
+    sanMoves.push(move.san)
+   }
+  } catch {
+   setMessage('The stored solution could not be shown. Please continue with Next Puzzle.')
+   return
+  }
+
+  const terminalDisclosure = getSemanticDisclosureTriggerState('solution')
+  setGameAndBoardFen(solutionGame)
+  setDisplayTurn(solutionGame.turn())
+  setHintMoveUci(null)
+  setHintLevel('solution')
+  setBoardLocked(true)
+  setSelectedSquare(null)
+  setLegalTargets([])
+  setMessage(`Solution: ${sanMoves.join(' ') || 'Line complete.'}`)
+  revealSemanticDisclosure()
+  if (terminalDisclosure.autoAdvanceOutcome) {
+   scheduleSemanticAutoAdvance(terminalDisclosure.autoAdvanceOutcome)
+  }
+ }
+
  function finishSolvedPuzzle(
  solvedGame: Chess,
  playedUci: string,
@@ -1873,8 +1913,9 @@ export default function PatternTacticTrainer({
 
  // Semantic Tier A puzzles keep verified evidence visible briefly before
  // advancing. Other tactic courses retain their existing auto-next behavior.
- if (semanticExplanation(currentPuzzle)) {
-  scheduleSemanticAutoAdvance('correct')
+ const terminalDisclosure = getSemanticDisclosureTriggerState('correct')
+ if (semanticExplanation(currentPuzzle) && terminalDisclosure.autoAdvanceOutcome) {
+  scheduleSemanticAutoAdvance(terminalDisclosure.autoAdvanceOutcome)
  } else {
   autoNextTimerRef.current = window.setTimeout(() => {
    goToNextPuzzle()
@@ -2071,9 +2112,10 @@ export default function PatternTacticTrainer({
  })
  }
 
- if (semanticExplanation(currentPuzzle)) {
+ const terminalDisclosure = getSemanticDisclosureTriggerState('wrong')
+ if (semanticExplanation(currentPuzzle) && terminalDisclosure.autoAdvanceOutcome) {
   setBoardLocked(true)
-  scheduleSemanticAutoAdvance('assisted')
+  scheduleSemanticAutoAdvance(terminalDisclosure.autoAdvanceOutcome)
   return false
  }
 
@@ -2839,24 +2881,35 @@ function onSquareClick(square: string) {
   mixedPuzzleNeededHelpRef.current = true
   setBlindThemeRevealed(true)
  }
- revealSemanticDisclosure()
+ setHintLevel(stage)
  setHintMoveUci(stage === 'square' ? `${move.from}${move.to}` : null)
  setMessage(
  stage === 'piece'
  ? 'The piece to move is highlighted.'
  : 'The destination square is highlighted.',
  )
- if (semanticExplanation(currentPuzzle)) {
-  setBoardLocked(true)
-  scheduleSemanticAutoAdvance('assisted')
- }
+ // Piece and destination hints are previews only. They must never lock the
+ // board, disclose the stored solution, or schedule terminal auto-advance.
  }}
- onHintReset={() => setHintMoveUci(null)}
+ onHintReset={() => {
+  setHintMoveUci(null)
+  setHintLevel('none')
+ }}
  hintResetKey={`${currentPuzzle?.id ?? ''}:${boardFen}:${currentUserMoveIndexRef.current}`}
  disabled={boardLocked}
  >
  Hint
  </HintButton>
+ )}
+
+ {!solved &&
+  phase !== 'finished' &&
+  hintLevel === 'square' &&
+  Boolean(semanticExplanation(currentPuzzle)) &&
+  !semanticDisclosureRevealed && (
+  <SecondaryButton onClick={revealStoredSolution} disabled={boardLocked}>
+   Show Solution
+  </SecondaryButton>
  )}
 
  <div ref={semanticNextButtonRef} style={{ display: 'contents' }}>
