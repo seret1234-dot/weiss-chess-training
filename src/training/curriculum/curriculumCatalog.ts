@@ -242,5 +242,11 @@ export function getCurriculumItems(area?: CurriculumArea) {
 
 export function getStageThemes(area: "mates" | "tactics", stageOrder: number) {
   if (area === "mates") return [...MATE_THEMES]
-  return TACTIC_STAGE_THEMES[stageOrder] ?? []
+  // The semantic catalog is fail-closed. Mastery and mixed-unlock evidence
+  // must therefore be based only on courses that can actually be scheduled;
+  // a raw, unavailable source theme may never block a learner's progress or
+  // force a fallback into the next stage.
+  return CURRICULUM_CATALOG
+    .filter((item) => item.area === "tactics" && item.stageOrder === stageOrder && !item.isMixed && item.available && item.theme)
+    .map((item) => item.theme as string)
 }

@@ -35,7 +35,7 @@ try {
   const disclosureRuntime = await vite.ssrLoadModule("/src/trainers/patternTactic/semanticDisclosure.ts")
   const kingForkM3 = curriculum.getPatternTacticLearnerCurriculum("tactic-king-fork-m3")
   assert.equal(kingForkM3.activeChunkCount, 0, "King Fork M3 has no learner-facing chunks")
-  assert.match(kingForkM3.unavailableReason, /Not enough semantically verified material/, "King Fork M3 presents an explicit unavailable state")
+  assert.equal(kingForkM3.unavailableReason, "Not enough reviewed material is available for this course yet.", "King Fork M3 presents the catalog-wide explicit unavailable state")
   assert.equal(curriculum.resolvePatternTacticLearnerFacingChunkIndex(49, kingForkM3), 0, "unavailable legacy routes resolve safely without v1 fallback")
   const bishopFork = curriculum.getPatternTacticLearnerCurriculum("tactic-bishop-fork-m1")
   assert.equal(bishopFork.activeChunkCount, 3, "sound Bishop Fork M1 chunk count is active")
@@ -86,7 +86,7 @@ try {
   await vite.close()
 }
 const trainer = fs.readFileSync(path.join(root, "src", "trainers", "patternTactic", "PatternTacticTrainer.tsx"), "utf8")
-assert.match(trainer, /semantic-v2/, "trainer loads semantic-v2 mixed overlay")
+assert.match(trainer, /semantic-v4/, "trainer loads the fail-closed semantic-v4 mixed overlay")
 assert.match(trainer, /semanticExplanation/, "trainer exposes post-answer semantic explanations")
 assert.match(trainer, /semanticEvidenceSquares/, "trainer highlights only validator-proven tactical relationships after disclosure")
 assert.match(trainer, /semanticDisclosureRevealed/, "trainer keeps semantic disclosure independently of transient feedback state")

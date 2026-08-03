@@ -593,7 +593,7 @@ export default function PatternTacticTrainer({
   ? getPatternTacticLearnerProgressTrainerKey(tacticLearnerCurriculum)
   : config.trainerKey
  const activeDataBasePath = isMixedPatternTactic
-  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-semantic-v3`
+  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-semantic-v4`
   : tacticLearnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
  const urlChunkParam = searchParams.get('chunk')
  const requestedChunkIndex =
@@ -1394,12 +1394,12 @@ export default function PatternTacticTrainer({
    console.error("Could not read legacy tactic completion credit", legacyError)
   } else {
    const legacyCredit = getPatternTacticLegacyCompletionCredit((legacyRows ?? []).filter((row) => row.trainer_key === config.trainerKey), tacticLearnerCurriculum).completedActiveChunks
-   const priorLearnerCompleted = tacticLearnerCurriculum.version.includes("semantic-v2")
+   const priorLearnerCompleted = tacticLearnerCurriculum.version.includes("semantic-v")
     ? new Set((legacyRows ?? []).filter((row) => row.trainer_key === priorLearnerKey && row.is_mastered === true)
       .map((row) => Number(row.chunk_index))
       .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= (tacticDistance === 1 ? 5 : 8))).size
     : 0
-   const priorLearnerCredit = tacticLearnerCurriculum.version.includes("semantic-v2")
+   const priorLearnerCredit = tacticLearnerCurriculum.version.includes("semantic-v")
     ? Math.min(tacticLearnerCurriculum.activeChunkCount, Math.floor((priorLearnerCompleted * tacticLearnerCurriculum.activeChunkCount) / (tacticDistance === 1 ? 5 : 8)))
     : 0
    compatibilityCredit = Math.max(legacyCredit, priorLearnerCredit)

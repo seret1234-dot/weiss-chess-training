@@ -75,9 +75,57 @@ const TIER_A_SEMANTIC_CHUNKS: Record<string, number> = {
 }
 
 const FORK_SOUND_V3_THEMES = new Set(["pawn-fork", "bishop-fork", "knight-fork", "rook-fork", "queen-fork", "king-fork"])
-const FORK_SOUND_V3_CHUNKS: Record<string, number> = { "pawn-fork-m1": 2, "pawn-fork-m2": 5, "pawn-fork-m3": 1, "pawn-fork-m4": 1, "bishop-fork-m1": 3, "bishop-fork-m2": 10, "bishop-fork-m3": 1, "bishop-fork-m4": 1, "knight-fork-m1": 6, "knight-fork-m2": 14, "knight-fork-m3": 5, "knight-fork-m4": 4, "rook-fork-m1": 2, "rook-fork-m2": 9, "rook-fork-m3": 1, "rook-fork-m4": 1, "queen-fork-m1": 4, "queen-fork-m2": 14, "queen-fork-m3": 3, "queen-fork-m4": 3, "king-fork-m1": 2, "king-fork-m3": 0, "king-fork-m4": 0 }
+const FORK_SOUND_V3_CHUNKS: Record<string, number> = { "pawn-fork-m1": 2, "pawn-fork-m2": 5, "pawn-fork-m3": 1, "pawn-fork-m4": 1, "bishop-fork-m1": 3, "bishop-fork-m2": 8, "bishop-fork-m3": 1, "bishop-fork-m4": 1, "knight-fork-m1": 5, "knight-fork-m2": 8, "knight-fork-m3": 5, "knight-fork-m4": 4, "rook-fork-m1": 2, "rook-fork-m2": 8, "rook-fork-m3": 1, "rook-fork-m4": 1, "queen-fork-m1": 4, "queen-fork-m2": 8, "queen-fork-m3": 3, "queen-fork-m4": 3, "king-fork-m1": 2, "king-fork-m3": 0, "king-fork-m4": 0 }
+const FORK_SOUND_V3_RECORD_COUNTS: Record<string, number> = {
+  "pawn-fork-m1": 32, "pawn-fork-m2": 89, "pawn-fork-m3": 15, "pawn-fork-m4": 8,
+  "bishop-fork-m1": 42, "bishop-fork-m2": 160, "bishop-fork-m3": 20, "bishop-fork-m4": 13,
+  "knight-fork-m1": 100, "knight-fork-m2": 160, "knight-fork-m3": 93, "knight-fork-m4": 67,
+  "rook-fork-m1": 37, "rook-fork-m2": 160, "rook-fork-m3": 12, "rook-fork-m4": 11,
+  "queen-fork-m1": 77, "queen-fork-m2": 160, "queen-fork-m3": 54, "queen-fork-m4": 46,
+  "king-fork-m1": 34, "king-fork-m3": 0, "king-fork-m4": 0,
+}
 
 export const TIER_A_SEMANTIC_THEME_KEYS = new Set(Object.keys(TIER_A_SEMANTIC_CHUNKS).map((key) => key.replace(/-m[1-4]$/, "")))
+
+export type PatternTacticSemanticStatus = {
+  version: "semantic-v2" | "semantic-v3" | "semantic-v4"
+  active: boolean
+  validator: string
+}
+
+export function getPatternTacticSemanticStatus(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticSemanticStatus {
+  const sourceKey = `${theme}-m${tacticDistance}`
+  if (FORK_SOUND_V3_THEMES.has(theme)) {
+    const approvedRecords = FORK_SOUND_V3_RECORD_COUNTS[sourceKey] ?? 0
+    // The catalog-wide semantic policy is intentionally stricter than the
+    // original fork-only rollout: fewer than 20 independently reviewed
+    // exercises is not enough to make a learner-facing course available.
+    if (approvedRecords < 20) {
+      return {
+        version: "semantic-v4",
+        active: false,
+        validator: "fork-sound-v3",
+      }
+    }
+    return {
+      version: "semantic-v3",
+      active: true,
+      validator: "fork-sound-v3",
+    }
+  }
+  if (TIER_A_SEMANTIC_CHUNKS[sourceKey] !== undefined) {
+    return {
+      version: "semantic-v2",
+      active: TIER_A_SEMANTIC_CHUNKS[sourceKey] > 0,
+      validator: "tier-a-semantic-v2",
+    }
+  }
+  return {
+    version: "semantic-v4",
+    active: false,
+    validator: "dedicated-theme-validator-required",
+  }
+}
 
 function labelFor(theme: string) {
   const special: Record<string, string> = {
@@ -95,12 +143,13 @@ function labelFor(theme: string) {
 
 function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticLearnerCurriculum {
   const sourceKey = `${theme}-m${tacticDistance}`
-  const semanticTierA = TIER_A_SEMANTIC_CHUNKS[sourceKey] !== undefined
-  const forkSound = FORK_SOUND_V3_THEMES.has(theme)
-  const activeChunkCount = forkSound ? (FORK_SOUND_V3_CHUNKS[sourceKey] ?? 0) : semanticTierA
-    ? TIER_A_SEMANTIC_CHUNKS[sourceKey]
-    : ACTIVE_CHUNK_COUNT_OVERRIDES[sourceKey] ?? (tacticDistance === 1 ? 5 : 8)
-  const version = forkSound ? `m${tacticDistance}-semantic-v3` : semanticTierA ? `m${tacticDistance}-semantic-v2` : `m${tacticDistance}-v1`
+  const semantic = getPatternTacticSemanticStatus(theme, tacticDistance)
+  const activeChunkCount = semantic.active
+    ? semantic.version === "semantic-v3"
+      ? FORK_SOUND_V3_CHUNKS[sourceKey] ?? 0
+      : TIER_A_SEMANTIC_CHUNKS[sourceKey] ?? 0
+    : 0
+  const version = `m${tacticDistance}-${semantic.version}`
   return {
     trainerKey: `tactic-${sourceKey}`,
     theme,
@@ -109,11 +158,11 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
     tacticDistance,
     version,
     sourceDataBasePath: `/data/pattern-tactics/${theme}/m${tacticDistance}`,
-    learnerDataBasePath: `/data/learner-curricula/pattern-tactics/${theme}-m${tacticDistance}-${forkSound ? "semantic-v3" : semanticTierA ? "semantic-v2" : "v1"}`,
+    learnerDataBasePath: `/data/learner-curricula/pattern-tactics/${theme}-m${tacticDistance}-${semantic.version}`,
     legacyChunkCount: LEGACY_CHUNK_COUNTS[sourceKey] ?? 10,
     activeChunkCount,
     activeChunkSize: PATTERN_TACTIC_LEARNER_CHUNK_SIZE,
-    unavailableReason: activeChunkCount === 0 ? "Not enough semantically verified material is available for this course yet." : undefined,
+    unavailableReason: activeChunkCount === 0 ? "Not enough reviewed material is available for this course yet." : undefined,
   }
 }
 

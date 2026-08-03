@@ -4,65 +4,44 @@ import path from "node:path"
 import { Chess } from "chess.js"
 
 const root = process.cwd()
-const sourceRoot = path.join(root, "public", "data", "pattern-tactics")
 const learnerRoot = path.join(root, "public", "data", "learner-curricula", "pattern-tactics")
-const chunkSize = 20
-const expectedCourseCount = 198
+const coverage = JSON.parse(fs.readFileSync(path.join(root, "docs", "reviews", "pattern-tactic-semantic-v4-coverage.json"), "utf8"))
+const unavailableReason = "Not enough reviewed material is available for this course yet."
+const list = (value) => Array.isArray(value) ? value : Array.isArray(value?.puzzles) ? value.puzzles : []
 
-function move(uci) {
-  return { from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || undefined }
-}
-function list(value) { return Array.isArray(value) ? value : Array.isArray(value?.puzzles) ? value.puzzles : [] }
-
-const courses = fs.readdirSync(learnerRoot).filter((name) => /-m[1-4]-v1$/.test(name) && !name.startsWith("mixed-")).sort()
-assert.equal(courses.length, expectedCourseCount, "every active focused tactic source must have a learner overlay")
-for (const directory of courses) {
-  const manifest = JSON.parse(fs.readFileSync(path.join(learnerRoot, directory, "manifest.json"), "utf8"))
-  const sourceManifestPath = path.join(root, "public", manifest.sourceManifest.replace(/^\//, ""))
-  assert.equal(fs.existsSync(sourceManifestPath), true, `${directory} source manifest exists`)
-  assert.equal(manifest.files.length, manifest.totalChunks, `${directory} chunk count matches manifest`)
-  assert.equal(manifest.totalPuzzles, manifest.files.reduce((total, file) => total + list(JSON.parse(fs.readFileSync(path.join(learnerRoot, directory, file), "utf8"))).length, 0), `${directory} total matches chunks`)
-  assert.ok(manifest.totalChunks <= (manifest.tacticDistance === 1 ? 5 : 8), `${directory} never exceeds learner target`)
-  const canonical = new Set()
-  const recentFamilies = []
-  for (const file of manifest.files) for (const puzzle of list(JSON.parse(fs.readFileSync(path.join(learnerRoot, directory, file), "utf8")))) {
-    const learner = puzzle.learnerCurriculum
-    assert.equal(puzzle.canonicalThemeKey, manifest.theme, `${directory} canonical theme comes from collection`)
-    assert.ok(Array.isArray(puzzle.rawTags), `${directory} preserves diagnostic raw tags`)
-    assert.ok(learner?.canonicalIdentity && learner?.pedagogicalFamily, `${directory} retains review metadata`)
-    assert.equal(canonical.has(learner.canonicalIdentity), false, `${directory} has no duplicate canonical identity`)
-    canonical.add(learner.canonicalIdentity)
-    // Full line replay is performed by the deterministic generator. The
-    // committed overlay test keeps the complete 30k-record catalog quick by
-    // checking that every retained record still carries a parseable position
-    // and a non-empty, strict stored line.
+assert.equal(coverage.coverage.length, 198, "the v4 matrix covers every M1–M4 focused tactic course")
+for (const row of coverage.coverage) {
+  const directory = path.join(learnerRoot, `${row.canonicalThemeKey}-m${row.stage}-${row.validationVersion}`)
+  const manifest = JSON.parse(fs.readFileSync(path.join(directory, "manifest.json"), "utf8"))
+  assert.equal(Boolean(manifest.unavailable), row.unavailable, `${row.canonicalThemeKey} M${row.stage} has explicit availability`)
+  if (row.unavailable) {
+    assert.equal(manifest.unavailableReason, unavailableReason, `${row.canonicalThemeKey} M${row.stage} is fail-closed`)
+    assert.equal(manifest.totalPuzzles, 0, `${row.canonicalThemeKey} M${row.stage} cannot serve raw fallback puzzles`)
+    continue
+  }
+  assert.ok(/^semantic-v[23]$/.test(row.validationVersion), `${row.canonicalThemeKey} M${row.stage} has an approved semantic version`)
+  assert.ok(manifest.totalPuzzles >= 20, `${row.canonicalThemeKey} M${row.stage} meets the reviewed-material floor`)
+  assert.ok(manifest.totalChunks <= (row.stage === 1 ? 5 : 8), `${row.canonicalThemeKey} M${row.stage} respects learner caps`)
+  assert.equal(manifest.totalPuzzles, manifest.files.reduce((total, file) => total + list(JSON.parse(fs.readFileSync(path.join(directory, file), "utf8"))).length, 0), `${row.canonicalThemeKey} M${row.stage} manifest total matches chunks`)
+  for (const file of manifest.files) for (const puzzle of list(JSON.parse(fs.readFileSync(path.join(directory, file), "utf8")))) {
     new Chess(puzzle.fen)
-    assert.ok(Array.isArray(puzzle.solutionLine) && puzzle.solutionLine.length > 0, `${directory} retains its strict stored solution`)
-    if (!recentFamilies.includes(learner.pedagogicalFamily)) {
-      recentFamilies.push(learner.pedagogicalFamily)
-      if (recentFamilies.length > 3) recentFamilies.shift()
-    }
-  }
-  const source = JSON.parse(fs.readFileSync(sourceManifestPath, "utf8"))
-  const legacyChunks = Number(source.totalChunks)
-  for (let index = 0; index < legacyChunks; index += 1) {
-    const resolved = Math.min(manifest.totalChunks - 1, Math.floor((index * manifest.totalChunks) / legacyChunks))
-    assert.ok(resolved >= 0 && resolved < manifest.totalChunks, `${directory} maps legacy chunk ${index + 1}`)
+    assert.ok(Array.isArray(puzzle.solutionLine) && puzzle.solutionLine.length > 0, `${row.canonicalThemeKey} M${row.stage} keeps strict stored solutions`)
   }
 }
 
-for (const distance of [1, 2, 3, 4]) {
-  const manifest = JSON.parse(fs.readFileSync(path.join(learnerRoot, `mixed-m${distance}-v1`, "manifest.json"), "utf8"))
-  const puzzles = list(JSON.parse(fs.readFileSync(path.join(learnerRoot, `mixed-m${distance}-v1`, "chunk-001.json"), "utf8")))
-  const themes = new Set(puzzles.map((puzzle) => puzzle.canonicalThemeKey))
-  assert.deepEqual([...themes].sort(), [...manifest.sourceThemes].sort(), `mixed M${distance} contains every canonical focused learner pool`)
-  assert.equal(puzzles.some((puzzle) => ["endgame", "master", "mate", "hangingpiece", "discoveredcheck"].includes(String(puzzle.canonicalThemeKey).toLowerCase())), false, `mixed M${distance} excludes raw-tag labels`)
+for (const mixed of coverage.mixed) {
+  const directory = path.join(learnerRoot, `mixed-m${mixed.stage}-semantic-v4`)
+  const manifest = JSON.parse(fs.readFileSync(path.join(directory, "manifest.json"), "utf8"))
+  const puzzles = list(JSON.parse(fs.readFileSync(path.join(directory, "chunk-001.json"), "utf8")))
+  assert.deepEqual(manifest.sourceThemes, mixed.sourceThemes, `mixed M${mixed.stage} has the approved contributors only`)
+  assert.equal(puzzles.some((puzzle) => /-v1\b/.test(String(puzzle.learnerCurriculum?.version ?? ""))), false, `mixed M${mixed.stage} contains no v1 contributors`)
+  assert.equal(puzzles.some((puzzle) => ["endgame", "master", "mate", "hangingpiece", "discoveredcheck"].includes(String(puzzle.canonicalThemeKey).toLowerCase())), false, `mixed M${mixed.stage} excludes raw-tag labels`)
 }
 
 const trainerSource = fs.readFileSync(path.join(root, "src", "trainers", "patternTactic", "PatternTacticTrainer.tsx"), "utf8")
-assert.match(trainerSource, /activeDataBasePath = isMixedPatternTactic/, "trainer loads learner overlay paths")
+assert.match(trainerSource, /mixed-m\$\{tacticDistance\}-semantic-v4/, "trainer loads the v4 approved mixed overlay")
 assert.match(trainerSource, /canonicalThemeKey \?\? puzzle\.sourceTheme/, "mixed rotation uses canonical tactic themes")
 assert.match(trainerSource, /pedagogicalFamily: puzzle\.pedagogicalFamily/, "mixed selector receives family recency metadata")
 assert.doesNotMatch(trainerSource, /isCheckmate\(\).*alternative/i, "tactic acceptance remains strict to stored solution lines")
-console.log("PASS: all focused Pattern Tactic M1–M4 learner overlays load, validate stored lines, preserve legacy mapping, and retain catalog-owned themes")
-console.log("PASS: mixed Pattern Tactic M1–M4 pools contain every curated canonical theme and preserve strict stored-line behavior")
+
+console.log("PASS: every Pattern Tactic M1–M4 focused route is verified or explicitly unavailable; mixed pools use no raw v1 content")
