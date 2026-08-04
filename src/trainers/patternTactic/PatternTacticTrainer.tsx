@@ -2053,7 +2053,6 @@ async function completeChunk() {
  // puzzle position interactive. The first-attempt record above is retained;
  // a later correct answer finishes this same puzzle once.
  setLastMoveHighlight(playedUci)
- setHintMoveUci(expectedUci)
  setPhase('solving')
  setMessage('Wrong move — try again.')
  return false

@@ -2016,7 +2016,6 @@ async function completeChunk() {
  }
 
  setLastMoveHighlight(playedUci)
- setHintMoveUci(expectedUci)
  setPhase('solving')
  setMessage(`${wrongMoveMessage} — try again.`)
  return false

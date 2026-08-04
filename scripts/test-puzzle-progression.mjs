@@ -47,8 +47,16 @@ try {
     assert.match(source, /const nextChunkProgress = chunkProgressRef\.current/, `${trainerPath} reads current progress at final transition, not stale render state`)
     assert.match(source, /scheduleCorrectAutoAdvance\(goToNextPuzzle\)/, `${trainerPath} delays correct-answer transition through the shared helper`)
     assert.match(source, /setPhase\('solving'\)[\s\S]*?try again/, `${trainerPath} keeps wrong answers interactive`)
+    assert.doesNotMatch(source, /setHintMoveUci\(expectedUci\)/, `${trainerPath} never turns a wrong move into an automatic solution arrow`)
     assert.doesNotMatch(source, /AUTO_NEXT_DELAY_MS/, `${trainerPath} has no independent legacy correct-answer timer`)
   }
+
+  const mateSource = await readFile("src/trainers/patternMate/PatternMateTrainer.tsx", "utf8")
+  assert.match(mateSource, /onHintStage=\{[\s\S]*?setHintMoveUci\(stage === ['"]square['"]/, "Pattern Mate adds destination guidance only through its explicit second Hint")
+
+  const tacticSource = await readFile("src/trainers/patternTactic/PatternTacticTrainer.tsx", "utf8")
+  assert.match(tacticSource, /onHintStage=\{[\s\S]*?setHintLevel\(stage\)/, "Pattern Tactic advances hint level only through the explicit Hint control")
+  assert.match(tacticSource, /onHintStage=\{[\s\S]*?setHintMoveUci\(stage === ['"]square['"]/, "Pattern Tactic adds destination guidance only through the explicit second Hint")
 
   const tacticTrainer = await readFile("src/trainers/patternTactic/PatternTacticTrainer.tsx", "utf8")
   assert.doesNotMatch(tacticTrainer, /scheduleSemanticAutoAdvance/, "semantic wrong answers no longer schedule terminal auto-advance")
