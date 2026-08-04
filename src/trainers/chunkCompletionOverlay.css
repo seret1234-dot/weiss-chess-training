@@ -1,0 +1,142 @@
+.chunk-completion-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(12, 15, 12, 0.64);
+  animation: chunk-completion-backdrop-in 180ms ease-out both;
+}
+
+.chunk-completion-overlay__panel {
+  width: min(390px, 100%);
+  box-sizing: border-box;
+  padding: clamp(20px, 4vw, 30px);
+  border: 1px solid rgba(221, 184, 73, 0.82);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #426f33, #1d3828 62%, #1b2e21);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.58), inset 0 1px rgba(255, 255, 255, 0.18);
+  color: #fffdf2;
+  text-align: center;
+  animation: chunk-completion-panel-in 260ms cubic-bezier(.2, .9, .2, 1.1) both;
+}
+
+.chunk-completion-overlay__check {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #d7b24c;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+  color: #1d3828;
+  font-size: 37px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.chunk-completion-overlay h2 {
+  margin: 0;
+  color: #fff6c9;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.1;
+}
+
+.chunk-completion-overlay__course,
+.chunk-completion-overlay__chunk,
+.chunk-completion-overlay__summary {
+  margin: 10px 0 0;
+}
+
+.chunk-completion-overlay__course {
+  color: #f2ce6b;
+  font-weight: 850;
+}
+
+.chunk-completion-overlay__chunk {
+  color: #d9ebd5;
+  font-size: 0.92rem;
+}
+
+.chunk-completion-overlay__summary {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  color: #fffdf2;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.chunk-completion-overlay__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.chunk-completion-overlay button {
+  min-height: 44px;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.chunk-completion-overlay__continue {
+  border: 1px solid #c0ec78;
+  background: linear-gradient(#a9dc62, #77ae3d);
+  color: #132110;
+}
+
+.chunk-completion-overlay__stay {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.22);
+  color: #fffdf2;
+}
+
+.chunk-completion-overlay button:focus-visible {
+  outline: 3px solid #fff6c9;
+  outline-offset: 2px;
+}
+
+.chunk-completion-overlay button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+@keyframes chunk-completion-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes chunk-completion-panel-in {
+  from { opacity: 0; transform: scale(0.92) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .chunk-completion-overlay {
+    padding: 14px;
+  }
+
+  .chunk-completion-overlay__panel {
+    max-height: calc(100% - 4px);
+    overflow: auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .chunk-completion-overlay__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chunk-completion-overlay,
+  .chunk-completion-overlay__panel {
+    animation: none;
+  }
+}

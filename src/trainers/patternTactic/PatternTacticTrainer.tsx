@@ -15,6 +15,8 @@ import { useRegisterPlayableBoard } from '../../hooks/useRegisterPlayableBoard'
 import { useAnimatedReplies } from '../../hooks/useAnimatedReplies'
 import { useSearchParams } from 'react-router-dom'
 import TrainerShell from '../../components/trainer/TrainerShell'
+import { ChunkCompletionOverlay, DEBUG_CHUNK_COMPLETION_RESULT, isChunkCompletionDebugEnabled, isChunkCompletionDebugHost, shouldShowChunkCompletionOverlay, type ChunkCompletionResult } from '../ChunkCompletionOverlay'
+import { buildNextActiveLearnerChunkUrl, getNextActiveLearnerChunkIndex } from '../activeChunkNavigation'
 import { SiteExplanationBox } from '../../components/SiteExplanationBox'
 import { siteExplanations } from '../../content/siteExplanations'
 import type { SiteExplanationKey } from '../../content/siteExplanations'
@@ -570,6 +572,8 @@ export default function PatternTacticTrainer({
  } = useAnimatedReplies()
 
  const [searchParams] = useSearchParams()
+ const debugChunkCompleteAllowed = isChunkCompletionDebugHost(window.location.hostname)
+ const debugChunkCompleteRequested = isChunkCompletionDebugEnabled(window.location.hostname, searchParams.get('debugChunkComplete'))
  const requestedLearnerCurriculumVersion = searchParams.get("learnerCurriculum")
  const tacticLearnerCurriculum = getPatternTacticLearnerCurriculum(config.trainerKey)
  const tacticDistance = Math.max(1, Number(config.trainerKey.match(/m([1-4])$/)?.[1] ?? 1))
@@ -662,19 +666,18 @@ export default function PatternTacticTrainer({
  'white'
  )
  const [jumpChunkInput, setJumpChunkInput] = useState('')
- const [curriculumCompletionCard, setCurriculumCompletionCard] = useState<{
-  theme: string
-  stage: number
-  attempts: number
-  correct: number
-  hints: number
-  mixed?: boolean
+ const [curriculumCompletionCard, setCurriculumCompletionCard] = useState<(ChunkCompletionResult & {
   mixedPhase?: MixedSessionPhase
   includedThemes?: string[]
   blindUnlockProgress?: { qualifyingSessions: number; remainingSessions: number } | null
-  masteryIncreased?: boolean
-  reinforcementActivated?: boolean
- } | null>(null)
+ }) | null>(null)
+ const [completionOverlayDismissed, setCompletionOverlayDismissed] = useState(false)
+ const [debugCompletionOverlayOpen, setDebugCompletionOverlayOpen] = useState(false)
+
+ useEffect(() => {
+  setDebugCompletionOverlayOpen(debugChunkCompleteRequested)
+  if (debugChunkCompleteRequested) setCompletionOverlayDismissed(false)
+ }, [debugChunkCompleteRequested])
 
  const [boardSize, setBoardSize] = useState(720)
  const [isDragging, setIsDragging] = useState(false)
@@ -686,6 +689,27 @@ export default function PatternTacticTrainer({
  const [chunkProgress, setChunkProgress] = useState<PuzzleMastery[]>([])
 
  const currentChunkFileName = chunkFiles[currentChunkIndex] || ''
+ const completionOverlayResult = debugCompletionOverlayOpen
+  ? DEBUG_CHUNK_COMPLETION_RESULT
+  : curriculumCompletionCard
+ const showingDebugCompletionOverlay = debugCompletionOverlayOpen
+
+ function goToNextActiveLearnerChunk() {
+  const nextChunkIndex = getNextActiveLearnerChunkIndex(currentChunkIndex, chunkFiles.length)
+  if (nextChunkIndex === null || loading) return
+
+  const nextUrl = buildNextActiveLearnerChunkUrl(
+   window.location.pathname,
+   window.location.search,
+   nextChunkIndex,
+   learnerCurriculumVersion,
+  )
+
+  window.history.replaceState(window.history.state, '', nextUrl)
+  setDebugCompletionOverlayOpen(false)
+  setCompletionOverlayDismissed(true)
+  void loadChunkByIndex(nextChunkIndex, undefined, 0)
+ }
 
  const customPieces = {
  wP: ({ squareWidth }: { squareWidth: number }) =>
@@ -1230,6 +1254,7 @@ export default function PatternTacticTrainer({
  setLoading(true)
  setLoadError('')
  setCurriculumCompletionCard(null)
+ setCompletionOverlayDismissed(false)
  curriculumCompletionInFlightRef.current = false
  curriculumSessionEvidenceRef.current = { attempts: 0, correct: 0, hints: 0, solveMsTotal: 0, recordedPuzzleIds: new Set<string>() }
 
@@ -1662,6 +1687,7 @@ async function completeChunk() {
   includedThemes: isMixedPatternTactic ? mixedSessionThemes : undefined,
   blindUnlockProgress: localBlindProgress,
  }
+ setCompletionOverlayDismissed(false)
  setCurriculumCompletionCard(card)
  try {
   const result = await recordNormalizedCurriculumCompletion({
@@ -2517,6 +2543,20 @@ function onSquareClick(square: string) {
  ✓
  </div>
  )}
+ {shouldShowChunkCompletionOverlay(completionOverlayResult, completionOverlayDismissed) && (
+  <ChunkCompletionOverlay
+   result={completionOverlayResult}
+   chunkNumber={showingDebugCompletionOverlay ? 1 : currentChunkIndex + 1}
+   chunkCount={showingDebugCompletionOverlay ? 5 : chunkFiles.length}
+   hasNextChunk={getNextActiveLearnerChunkIndex(currentChunkIndex, chunkFiles.length) !== null}
+   onContinueAuto={() => window.location.assign('/auto')}
+   onNextChunk={goToNextActiveLearnerChunk}
+   onDismiss={() => {
+    if (showingDebugCompletionOverlay) setDebugCompletionOverlayOpen(false)
+    else setCompletionOverlayDismissed(true)
+   }}
+  />
+ )}
  </div>
  }
  sidePanel={
@@ -2850,8 +2890,16 @@ function onSquareClick(square: string) {
  </div>
 
  <SecondaryButton onClick={() => void restartWholeProgression()}>
- Restart progression
+  Restart progression
  </SecondaryButton>
+ {debugChunkCompleteAllowed && (
+  <SecondaryButton onClick={() => {
+   setCompletionOverlayDismissed(false)
+   setDebugCompletionOverlayOpen(true)
+  }}>
+   Preview completion
+  </SecondaryButton>
+ )}
  </div>
 
  {curriculumCompletionCard && (
