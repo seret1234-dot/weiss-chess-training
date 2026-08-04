@@ -127,7 +127,7 @@ export function getPatternTacticSemanticStatus(theme: string, tacticDistance: 1 
   }
 }
 
-function labelFor(theme: string) {
+export function formatPatternTacticThemeLabel(theme: string) {
   const special: Record<string, string> = {
     "attacking-f2-f7": "Attacking f2/f7",
     "en-passant": "En passant",
@@ -154,7 +154,7 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
     trainerKey: `tactic-${sourceKey}`,
     theme,
     canonicalThemeKey: theme,
-    canonicalThemeLabel: labelFor(theme),
+    canonicalThemeLabel: formatPatternTacticThemeLabel(theme),
     tacticDistance,
     version,
     sourceDataBasePath: `/data/pattern-tactics/${theme}/m${tacticDistance}`,

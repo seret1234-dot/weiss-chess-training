@@ -64,6 +64,7 @@ import {
  getPatternTacticLegacyCompletionCredit,
  getPatternTacticPriorLearnerProgressTrainerKey,
  getPatternTacticLearnerProgressTrainerKey,
+ formatPatternTacticThemeLabel,
  resolvePatternTacticLearnerFacingChunkIndex,
 } from "./m1toM4LearnerCurriculum"
 import {
@@ -398,8 +399,12 @@ function normalizePuzzle(
   chunkIndex,
   rating: raw.rating,
   sourceTheme: raw.canonicalThemeKey || raw.sourceThemeTag || raw.sourceTheme || raw.sourceThemeKeys?.[0] || raw.sourceThemes?.[0] || raw.themes?.[0] || raw.theme || 'tactic',
-  canonicalThemeKey: raw.canonicalThemeKey,
-  canonicalThemeLabel: raw.canonicalThemeLabel,
+  canonicalThemeKey: typeof raw.canonicalThemeKey === 'string' && raw.canonicalThemeKey.trim()
+   ? normaliseMixedThemeKey(raw.canonicalThemeKey, 'tactics')
+   : undefined,
+  canonicalThemeLabel: typeof raw.canonicalThemeKey === 'string' && raw.canonicalThemeKey.trim()
+   ? formatPatternTacticThemeLabel(normaliseMixedThemeKey(raw.canonicalThemeKey, 'tactics'))
+   : undefined,
   rawTags: raw.rawTags,
   sourceIdentity: String(raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
   pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
@@ -1107,7 +1112,7 @@ export default function PatternTacticTrainer({
  throw new Error(`No valid puzzles found in ${fileName}`)
  }
 
- const mixedSessionId = `v3:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
+ const mixedSessionId = `v4-attribution:${config.trainerKey}:${mixedScope}:${mixedPhase}:${fileName}`
  const sessionPuzzles = isMixedPatternTactic
  ? (() => {
  const candidates: MixedSessionCandidate<PatternTacticPuzzle>[] = normalized.map((puzzle) => {
