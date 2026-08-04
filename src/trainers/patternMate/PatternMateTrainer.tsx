@@ -56,7 +56,7 @@ import {
 import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
 import { recordNormalizedCurriculumCompletion } from "../../training/curriculum/curriculumCompletion"
 import { getChunkProgressDisplay } from "../chunkProgressDisplay"
-import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance } from "../puzzleProgression"
+import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance, useWrongMoveReset } from "../puzzleProgression"
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 import { MATE_THEMES } from "../../training/curriculum/curriculumCatalog"
 import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
@@ -539,6 +539,7 @@ export default function PatternMateTrainer({
  const chunkMasterySaveKeyRef = useRef<string | null>(null)
  const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
  const { cancelCorrectAutoAdvance, scheduleCorrectAutoAdvance } = useCorrectPuzzleAutoAdvance()
+ const { cancelWrongMoveReset, scheduleWrongMoveReset } = useWrongMoveReset()
 
  const {
  lastMoveHighlight,
@@ -1513,6 +1514,7 @@ useEffect(() => {
  }
  clearReplyTimer()
  cancelCorrectAutoAdvance()
+ cancelWrongMoveReset()
  }
 
  function incrementFastSolve(puzzleIndex: number) {
@@ -1942,7 +1944,8 @@ async function completeChunk() {
  if (!expectedUci) return false
 
  const expected = parseUci(expectedUci)
- const testGame = new Chess(game.fen())
+ const originalPuzzleFen = game.fen()
+ const testGame = new Chess(originalPuzzleFen)
 
  let move
  try {
@@ -2016,9 +2019,21 @@ async function completeChunk() {
  }
 
  setLastMoveHighlight(playedUci)
- setPhase('solving')
+ setGameAndBoardFen(testGame)
+ setDisplayTurn(testGame.turn())
+ setBoardLocked(true)
  setMessage(`${wrongMoveMessage} — try again.`)
- return false
+ scheduleWrongMoveReset(() => {
+  const restoredGame = new Chess(originalPuzzleFen)
+  setGameAndBoardFen(restoredGame)
+  setDisplayTurn(restoredGame.turn())
+  setLastMoveHighlight(null)
+  setWrongBoardMessage(null)
+  setPhase('solving')
+  setBoardLocked(false)
+  setMessage(`${wrongMoveMessage} — try again.`)
+ })
+ return true
  }
 
  completeCorrectMove(testGame, playedUci, move.to)
@@ -2733,7 +2748,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  )
  }}
  onHintReset={() => setHintMoveUci(null)}
- hintResetKey={`${currentPuzzle?.id ?? ''}:${boardFen}:${currentUserMoveIndexRef.current}`}
+ hintResetKey={`${currentPuzzle?.id ?? ''}:${currentUserMoveIndexRef.current}`}
  disabled={boardLocked}
  style={{ padding: '10px 9px' }}
  >

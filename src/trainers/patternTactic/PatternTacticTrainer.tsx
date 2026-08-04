@@ -55,7 +55,7 @@ import {
 import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
 import { recordNormalizedCurriculumCompletion } from "../../training/curriculum/curriculumCompletion"
 import { getChunkProgressDisplay } from "../chunkProgressDisplay"
-import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance } from "../puzzleProgression"
+import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance, useWrongMoveReset } from "../puzzleProgression"
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 import { TACTIC_THEME_STAGE } from "../../training/curriculum/curriculumCatalog"
 import { getStageThemes } from "../../training/curriculum/curriculumCatalog"
@@ -556,6 +556,7 @@ export default function PatternTacticTrainer({
  const chunkMasterySaveKeyRef = useRef<string | null>(null)
  const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
  const { cancelCorrectAutoAdvance, scheduleCorrectAutoAdvance } = useCorrectPuzzleAutoAdvance()
+ const { cancelWrongMoveReset, scheduleWrongMoveReset } = useWrongMoveReset()
 
  const {
  lastMoveHighlight,
@@ -1474,6 +1475,7 @@ export default function PatternTacticTrainer({
  }
  clearReplyTimer()
   cancelCorrectAutoAdvance()
+  cancelWrongMoveReset()
  }
 
  function incrementFastSolve(puzzleIndex: number) {
@@ -1986,7 +1988,8 @@ async function completeChunk() {
  if (!expectedUci) return false
 
  const expected = parseUci(expectedUci)
- const testGame = new Chess(game.fen())
+ const originalPuzzleFen = game.fen()
+ const testGame = new Chess(originalPuzzleFen)
 
  let move
  try {
@@ -2049,13 +2052,24 @@ async function completeChunk() {
  })
  }
 
- // A wrong attempt reveals verified semantic evidence but leaves the exact
- // puzzle position interactive. The first-attempt record above is retained;
+ // A wrong attempt reveals verified semantic evidence but keeps the wrong
+ // board position visible briefly. The first-attempt record above is retained;
  // a later correct answer finishes this same puzzle once.
  setLastMoveHighlight(playedUci)
- setPhase('solving')
+ setGameAndBoardFen(testGame)
+ setDisplayTurn(testGame.turn())
+ setBoardLocked(true)
  setMessage('Wrong move — try again.')
- return false
+ scheduleWrongMoveReset(() => {
+  const restoredGame = new Chess(originalPuzzleFen)
+  setGameAndBoardFen(restoredGame)
+  setDisplayTurn(restoredGame.turn())
+  setLastMoveHighlight(null)
+  setPhase('solving')
+  setBoardLocked(false)
+  setMessage('Wrong move — try again.')
+ })
+ return true
  }
 
  completeCorrectMove(testGame, playedUci, move.to)
@@ -2799,7 +2813,7 @@ function onSquareClick(square: string) {
   setHintMoveUci(null)
   setHintLevel('none')
  }}
- hintResetKey={`${currentPuzzle?.id ?? ''}:${boardFen}:${currentUserMoveIndexRef.current}`}
+ hintResetKey={`${currentPuzzle?.id ?? ''}:${currentUserMoveIndexRef.current}`}
  disabled={boardLocked}
  >
  Hint
