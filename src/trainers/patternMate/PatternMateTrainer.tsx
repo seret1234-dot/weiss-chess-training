@@ -55,6 +55,7 @@ import {
 } from "../../training/mixedSessionScope"
 import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
 import { recordNormalizedCurriculumCompletion } from "../../training/curriculum/curriculumCompletion"
+import { getChunkProgressDisplay } from "../chunkProgressDisplay"
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 import { MATE_THEMES } from "../../training/curriculum/curriculumCatalog"
 import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
@@ -1627,10 +1628,11 @@ useEffect(() => {
  }
 
  function allPuzzlesMastered() {
- return (
- chunkProgress.length > 0 &&
- chunkProgress.every((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER)
- )
+ return getChunkProgressDisplay({
+  currentPuzzleIndex: currentIndex,
+  totalPuzzleCount: puzzles.length,
+  completedPuzzleCount: chunkProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
+ }).isComplete
  }
 
  function goToPreviousChunk() {
@@ -1663,11 +1665,11 @@ async function completeChunk() {
  if (curriculumCompletionInFlightRef.current) return
  curriculumCompletionInFlightRef.current = true
  const latestProgress = chunkProgressRef.current
- const chunkIsMastered =
- latestProgress.length > 0 &&
- latestProgress.every(
- (item) => item.fastSolves >= FAST_SOLVES_TO_MASTER
- )
+ const chunkIsMastered = getChunkProgressDisplay({
+  currentPuzzleIndex: currentIndex,
+  totalPuzzleCount: puzzles.length,
+  completedPuzzleCount: latestProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
+ }).isComplete
 
  if (chunkIsMastered) {
  await startChunkMasterySave(latestProgress.length)
@@ -1736,9 +1738,11 @@ async function completeChunk() {
  function goToNextPuzzle() {
  const nextChunkProgress = chunkProgress
 
- const chunkIsMastered =
- nextChunkProgress.length > 0 &&
- nextChunkProgress.every((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER)
+ const chunkIsMastered = getChunkProgressDisplay({
+  currentPuzzleIndex: currentIndex,
+  totalPuzzleCount: puzzles.length,
+  completedPuzzleCount: nextChunkProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
+ }).isComplete
 
  if (chunkIsMastered) {
  void completeChunk()
@@ -2159,6 +2163,11 @@ return attemptUserMove(sourceSquare, targetSquare, {
  const masteredPuzzleCount = chunkProgress.filter(
  (item) => item.fastSolves >= FAST_SOLVES_TO_MASTER
  ).length
+ const chunkProgressDisplay = getChunkProgressDisplay({
+  currentPuzzleIndex: currentIndex,
+  totalPuzzleCount: puzzles.length,
+  completedPuzzleCount: masteredPuzzleCount,
+ })
 
  const sideToMoveText =
  phase === 'finished' ? 'Finished' : displayTurn === 'w' ? 'White' : 'Black'
@@ -2524,8 +2533,8 @@ return attemptUserMove(sourceSquare, targetSquare, {
  <div style={{ color: '#e6e6e6', fontWeight: 700 }}>
  {currentPuzzle?.theme || 'mate'}
  </div>
- <div style={{ color: '#d3d3d3' }}>
- {Math.min(currentIndex + 1, puzzles.length)} / {puzzles.length}
+ <div style={{ color: '#d3d3d3' }} aria-label={`Current puzzle ${chunkProgressDisplay.currentPuzzleNumber} of ${chunkProgressDisplay.totalPuzzleCount}`}>
+ Puzzle {chunkProgressDisplay.currentPuzzleNumber} / {chunkProgressDisplay.totalPuzzleCount}
  </div>
  </div>
 
@@ -2588,7 +2597,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }}
  >
  <div>{chunkPercent}% stage mastery</div>
- <div>{masteredPuzzleCount} / {puzzles.length} puzzles at 5/5</div>
+ <div>{chunkProgressDisplay.completedPuzzleCount} / {chunkProgressDisplay.totalPuzzleCount} puzzles completed at 5/5</div>
  </div>
  </PanelCard>
 
