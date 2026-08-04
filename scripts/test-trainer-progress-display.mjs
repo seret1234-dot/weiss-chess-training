@@ -40,7 +40,7 @@ try {
     assert.match(source, /getChunkProgressDisplay/, `${trainerPath} uses the shared one-based progress display`)
     assert.match(source, /Puzzle \{chunkProgressDisplay\.currentPuzzleNumber\} \/ \{chunkProgressDisplay\.totalPuzzleCount\}/, `${trainerPath} labels current puzzle position explicitly`)
     assert.match(source, /chunkProgressDisplay\.completedPuzzleCount/, `${trainerPath} renders completion separately from current position`)
-    assert.match(source, /getChunkProgressDisplay\(\{[\s\S]*?\}\)\.isComplete/, `${trainerPath} uses the same completed-count rule before completion handling`)
+    assert.match(source, /isFinalPuzzleCompletion\(/, `${trainerPath} uses the shared completed-count rule before completion handling`)
     assert.match(source, /curriculumCompletionInFlightRef/, `${trainerPath} still guards exactly-once curriculum completion`)
   }
 

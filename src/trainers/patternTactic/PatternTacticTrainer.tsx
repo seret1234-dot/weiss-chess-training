@@ -55,6 +55,7 @@ import {
 import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
 import { recordNormalizedCurriculumCompletion } from "../../training/curriculum/curriculumCompletion"
 import { getChunkProgressDisplay } from "../chunkProgressDisplay"
+import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance } from "../puzzleProgression"
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 import { TACTIC_THEME_STAGE } from "../../training/curriculum/curriculumCatalog"
 import { getStageThemes } from "../../training/curriculum/curriculumCatalog"
@@ -69,17 +70,8 @@ import {
  resolvePatternTacticLearnerFacingChunkIndex,
 } from "./m1toM4LearnerCurriculum"
 import {
- createSemanticDisclosureCountdown,
- getSemanticDisclosureCountdownRemainingMs,
- getSemanticDisclosureCountdownSeconds,
  getSemanticDisclosurePresentation,
- getSemanticDisclosureTriggerState,
  nextSemanticDisclosureState,
- pauseSemanticDisclosureCountdown,
- resumeSemanticDisclosureCountdown,
- type SemanticDisclosureCountdown,
- type SemanticDisclosureEvent,
- type SemanticDisclosureOutcome,
 } from "./semanticDisclosure"
 
 type ManifestFile = {
@@ -234,7 +226,6 @@ function isTacticChunkReviewDue(
  return dueTime < tomorrow.getTime()
 }
 
-const AUTO_NEXT_DELAY_MS = 1500
 const BOARD_ANIMATION_MS = 140
 const REPLY_PAUSE_AFTER_MS = 80
 const PREMOVE_START_DELAY_MS = 320
@@ -557,18 +548,6 @@ export default function PatternTacticTrainer({
  const isMixedPatternTactic = /^tactic-mixed-m[1-4]$/.test(config.trainerKey)
 
  const containerRef = useRef<HTMLDivElement | null>(null)
- const autoNextTimerRef = useRef<number | null>(null)
- const semanticAutoAdvanceTimerRef = useRef<number | null>(null)
- const semanticCountdownIntervalRef = useRef<number | null>(null)
- const semanticCountdownRef = useRef<SemanticDisclosureCountdown | null>(null)
- const semanticInteractionRef = useRef({
-  hovered: false,
-  focused: false,
-  hidden: typeof document !== 'undefined' && document.hidden,
- })
- const semanticExplanationPanelRef = useRef<HTMLDivElement | null>(null)
- const semanticNextButtonRef = useRef<HTMLDivElement | null>(null)
- const wrongMoveTimerRef = useRef<number | null>(null)
  const preMoveTimerRef = useRef<number | null>(null)
  const solveStartedAtRef = useRef<number | null>(null)
  const currentUserMoveIndexRef = useRef(0)
@@ -576,6 +555,7 @@ export default function PatternTacticTrainer({
  const chunkCanBeCompletedRef = useRef(true)
  const chunkMasterySaveKeyRef = useRef<string | null>(null)
  const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
+ const { cancelCorrectAutoAdvance, scheduleCorrectAutoAdvance } = useCorrectPuzzleAutoAdvance()
 
  const {
  lastMoveHighlight,
@@ -658,7 +638,6 @@ export default function PatternTacticTrainer({
  const [hintMoveUci, setHintMoveUci] = useState<string | null>(null)
  const [hintLevel, setHintLevel] = useState<TacticHintLevel>('none')
  const [semanticDisclosureRevealed, setSemanticDisclosureRevealed] = useState(false)
- const [semanticCountdownSeconds, setSemanticCountdownSeconds] = useState<number | null>(null)
 
  function revealSemanticDisclosure() {
   setSemanticDisclosureRevealed((current) => nextSemanticDisclosureState(current, 'reveal'))
@@ -668,107 +647,6 @@ export default function PatternTacticTrainer({
   setSemanticDisclosureRevealed((current) => nextSemanticDisclosureState(current, event))
  }
 
- function isSemanticAutoAdvancePaused() {
-  return semanticInteractionRef.current.hovered || semanticInteractionRef.current.focused || semanticInteractionRef.current.hidden
- }
-
- function clearSemanticAutoAdvance() {
-  if (semanticAutoAdvanceTimerRef.current !== null) {
-   window.clearTimeout(semanticAutoAdvanceTimerRef.current)
-   semanticAutoAdvanceTimerRef.current = null
-  }
-  if (semanticCountdownIntervalRef.current !== null) {
-   window.clearInterval(semanticCountdownIntervalRef.current)
-   semanticCountdownIntervalRef.current = null
-  }
-  semanticCountdownRef.current = null
-  setSemanticCountdownSeconds(null)
- }
-
- function updateSemanticCountdownDisplay() {
-  const countdown = semanticCountdownRef.current
-  if (!countdown) return
-  setSemanticCountdownSeconds(getSemanticDisclosureCountdownSeconds(countdown, performance.now()))
- }
-
- function runSemanticAutoAdvance() {
-  const countdown = semanticCountdownRef.current
-  if (!countdown || isSemanticAutoAdvancePaused()) return
-
-  const resumed = resumeSemanticDisclosureCountdown(countdown, performance.now())
-  semanticCountdownRef.current = resumed
-  const remainingMs = getSemanticDisclosureCountdownRemainingMs(resumed, performance.now())
-  updateSemanticCountdownDisplay()
-
-  if (remainingMs <= 0) {
-   clearSemanticAutoAdvance()
-   goToNextPuzzle()
-   return
-  }
-
-  semanticAutoAdvanceTimerRef.current = window.setTimeout(() => {
-   const activeCountdown = semanticCountdownRef.current
-   if (!activeCountdown || isSemanticAutoAdvancePaused()) return
-   if (getSemanticDisclosureCountdownRemainingMs(activeCountdown, performance.now()) > 0) {
-    runSemanticAutoAdvance()
-    return
-   }
-   clearSemanticAutoAdvance()
-   goToNextPuzzle()
-  }, remainingMs)
-
-  semanticCountdownIntervalRef.current = window.setInterval(updateSemanticCountdownDisplay, 250)
- }
-
- function pauseSemanticAutoAdvance() {
-  const countdown = semanticCountdownRef.current
-  if (!countdown) return
-  if (semanticAutoAdvanceTimerRef.current !== null) {
-   window.clearTimeout(semanticAutoAdvanceTimerRef.current)
-   semanticAutoAdvanceTimerRef.current = null
-  }
-  if (semanticCountdownIntervalRef.current !== null) {
-   window.clearInterval(semanticCountdownIntervalRef.current)
-   semanticCountdownIntervalRef.current = null
-  }
-  semanticCountdownRef.current = pauseSemanticDisclosureCountdown(countdown, performance.now())
-  updateSemanticCountdownDisplay()
- }
-
- function resumeSemanticAutoAdvance() {
-  if (!semanticCountdownRef.current || isSemanticAutoAdvancePaused()) return
-  runSemanticAutoAdvance()
- }
-
- function scheduleSemanticAutoAdvance(outcome: SemanticDisclosureOutcome) {
-  clearSemanticAutoAdvance()
-  semanticCountdownRef.current = createSemanticDisclosureCountdown(outcome, performance.now())
-  updateSemanticCountdownDisplay()
-  runSemanticAutoAdvance()
- }
-
- function setSemanticHover(hovered: boolean) {
-  semanticInteractionRef.current.hovered = hovered
-  if (hovered) pauseSemanticAutoAdvance()
-  else resumeSemanticAutoAdvance()
- }
-
- function setSemanticFocus(focused: boolean) {
-  semanticInteractionRef.current.focused = focused
-  if (focused) pauseSemanticAutoAdvance()
-  else resumeSemanticAutoAdvance()
- }
-
- function deferSemanticFocusCheck() {
-  window.setTimeout(() => {
-   const activeElement = document.activeElement
-   const remainsFocused = Boolean(
-    semanticExplanationPanelRef.current?.contains(activeElement) ||
-    semanticNextButtonRef.current?.contains(activeElement),
-   )
-   setSemanticFocus(remainsFocused)
-  }, 0)
- }
 
  function advanceUserMoveIndex(nextIndex: number) {
  currentUserMoveIndexRef.current = nextIndex
@@ -850,17 +728,6 @@ export default function PatternTacticTrainer({
  listener.subscription.unsubscribe()
  }
  }, [])
-
- useEffect(() => {
-  const onVisibilityChange = () => {
-   semanticInteractionRef.current.hidden = document.hidden
-   if (document.hidden) pauseSemanticAutoAdvance()
-   else resumeSemanticAutoAdvance()
-  }
-
-  document.addEventListener('visibilitychange', onVisibilityChange)
-  return () => document.removeEventListener('visibilitychange', onVisibilityChange)
- })
 
  useEffect(() => {
   if (!isMixedPatternTactic || !currentUserId) {
@@ -1601,20 +1468,12 @@ export default function PatternTacticTrainer({
  }, [currentUserId, currentChunkIndex, chunkProgress, puzzles.length])
 
  function clearTimers() {
- if (wrongMoveTimerRef.current) {
- window.clearTimeout(wrongMoveTimerRef.current)
- wrongMoveTimerRef.current = null
- }
  if (preMoveTimerRef.current) {
  window.clearTimeout(preMoveTimerRef.current)
  preMoveTimerRef.current = null
  }
  clearReplyTimer()
-  if (autoNextTimerRef.current) {
-   window.clearTimeout(autoNextTimerRef.current)
-   autoNextTimerRef.current = null
-  }
-  clearSemanticAutoAdvance()
+  cancelCorrectAutoAdvance()
  }
 
  function incrementFastSolve(puzzleIndex: number) {
@@ -1721,11 +1580,11 @@ export default function PatternTacticTrainer({
  }
 
  function allPuzzlesMastered() {
- return getChunkProgressDisplay({
+ return isFinalPuzzleCompletion({
   currentPuzzleIndex: currentIndex,
   totalPuzzleCount: puzzles.length,
   completedPuzzleCount: chunkProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
- }).isComplete
+ })
  }
 
  function goToPreviousChunk() {
@@ -1758,11 +1617,11 @@ async function completeChunk() {
  if (curriculumCompletionInFlightRef.current) return
  curriculumCompletionInFlightRef.current = true
  const latestProgress = chunkProgressRef.current
- const chunkIsMastered = getChunkProgressDisplay({
+ const chunkIsMastered = isFinalPuzzleCompletion({
   currentPuzzleIndex: currentIndex,
   totalPuzzleCount: puzzles.length,
   completedPuzzleCount: latestProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
- }).isComplete
+ })
 
  if (chunkIsMastered) {
  await startChunkMasterySave(latestProgress.length)
@@ -1831,14 +1690,14 @@ async function completeChunk() {
 }
 
  function goToNextPuzzle() {
- clearSemanticAutoAdvance()
- const nextChunkProgress = chunkProgress
+ cancelCorrectAutoAdvance()
+ const nextChunkProgress = chunkProgressRef.current
 
- const chunkIsMastered = getChunkProgressDisplay({
+ const chunkIsMastered = isFinalPuzzleCompletion({
   currentPuzzleIndex: currentIndex,
   totalPuzzleCount: puzzles.length,
   completedPuzzleCount: nextChunkProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
- }).isComplete
+ })
 
  if (chunkIsMastered) {
  void completeChunk()
@@ -1888,7 +1747,6 @@ async function completeChunk() {
    return
   }
 
-  const terminalDisclosure = getSemanticDisclosureTriggerState('solution')
   setGameAndBoardFen(solutionGame)
   setDisplayTurn(solutionGame.turn())
   setHintMoveUci(null)
@@ -1898,9 +1756,6 @@ async function completeChunk() {
   setLegalTargets([])
   setMessage(`Solution: ${sanMoves.join(' ') || 'Line complete.'}`)
   revealSemanticDisclosure()
-  if (terminalDisclosure.autoAdvanceOutcome) {
-   scheduleSemanticAutoAdvance(terminalDisclosure.autoAdvanceOutcome)
-  }
  }
 
  function finishSolvedPuzzle(
@@ -1998,16 +1853,9 @@ async function completeChunk() {
  theme: config.studyTheme,
  })
 
- // Semantic Tier A puzzles keep verified evidence visible briefly before
- // advancing. Other tactic courses retain their existing auto-next behavior.
- const terminalDisclosure = getSemanticDisclosureTriggerState('correct')
- if (semanticExplanation(currentPuzzle) && terminalDisclosure.autoAdvanceOutcome) {
-  scheduleSemanticAutoAdvance(terminalDisclosure.autoAdvanceOutcome)
- } else {
-  autoNextTimerRef.current = window.setTimeout(() => {
-   goToNextPuzzle()
-  }, AUTO_NEXT_DELAY_MS)
- }
+ // Semantic evidence and highlights remain visible during the shared brief
+ // success state, then all tactic courses advance through one owned timer.
+ scheduleCorrectAutoAdvance(goToNextPuzzle)
  }
 
  function completeCorrectMove(
@@ -2156,10 +2004,6 @@ async function completeChunk() {
  const playedUci = `${move.from}${move.to}${move.promotion ?? ''}`.toLowerCase()
 
  if (playedUci !== expectedUci.toLowerCase()) {
- if (wrongMoveTimerRef.current) {
- window.clearTimeout(wrongMoveTimerRef.current)
- wrongMoveTimerRef.current = null
- }
 
  setSelectedSquare(null)
  setLegalTargets([])
@@ -2205,41 +2049,13 @@ async function completeChunk() {
  })
  }
 
- const terminalDisclosure = getSemanticDisclosureTriggerState('wrong')
- if (semanticExplanation(currentPuzzle) && terminalDisclosure.autoAdvanceOutcome) {
-  setBoardLocked(true)
-  scheduleSemanticAutoAdvance(terminalDisclosure.autoAdvanceOutcome)
-  return false
- }
-
- if (options?.allowWrongMoveToShow) {
- const resetFen = game.fen()
-
- setGameAndBoardFen(testGame)
- setDisplayTurn(testGame.turn())
+ // A wrong attempt reveals verified semantic evidence but leaves the exact
+ // puzzle position interactive. The first-attempt record above is retained;
+ // a later correct answer finishes this same puzzle once.
  setLastMoveHighlight(playedUci)
-
- wrongMoveTimerRef.current = window.setTimeout(() => {
- const resetGame = new Chess(resetFen)
- setGameAndBoardFen(resetGame)
- setDisplayTurn(resetGame.turn())
- setLastMoveHighlight(null)
+ setHintMoveUci(expectedUci)
  setPhase('solving')
- setMessage(`Find the tactic in ${getUserMoveCount(currentPuzzle)}`)
- }, 2000)
-
- return true
- }
-
- wrongMoveTimerRef.current = window.setTimeout(() => {
- setPhase((prev) => (prev === 'wrong' ? 'solving' : prev))
- setMessage((prev) =>
- prev === 'Wrong move'
- ? `Find the tactic in ${getUserMoveCount(currentPuzzle)}`
- : prev
- )
- }, 700)
-
+ setMessage('Wrong move — try again.')
  return false
  }
 
@@ -2809,20 +2625,10 @@ function onSquareClick(square: string) {
 
  {showSemanticExplanation && (
  <div
- ref={semanticExplanationPanelRef}
  tabIndex={0}
- onPointerEnter={() => setSemanticHover(true)}
- onPointerLeave={() => setSemanticHover(false)}
- onFocus={() => setSemanticFocus(true)}
- onBlur={deferSemanticFocusCheck}
  style={{ marginBottom: 10, padding: '16px 18px', borderRadius: 8, background: '#263b2a', color: '#d8f5d0', fontSize: 16, lineHeight: 1.65, overflowWrap: 'anywhere' }}
  >
  <div role="status" aria-live="polite" aria-atomic="true">{currentSemanticExplanation}</div>
- {semanticCountdownSeconds !== null && (
-  <div aria-live="off" style={{ marginTop: 8, color: '#f2c14e', fontSize: 14, fontWeight: 800 }}>
-   Next puzzle in {semanticCountdownSeconds}…
-  </div>
- )}
  </div>
  )}
 
@@ -3011,12 +2817,10 @@ function onSquareClick(square: string) {
   </SecondaryButton>
  )}
 
- <div ref={semanticNextButtonRef} style={{ display: 'contents' }}>
+ <div style={{ display: 'contents' }}>
  <PrimaryButton
- onFocus={() => setSemanticFocus(true)}
- onBlur={deferSemanticFocusCheck}
  onClick={() => {
- clearSemanticAutoAdvance()
+ cancelCorrectAutoAdvance()
  if (curriculumCompletionCard) {
   window.location.assign('/auto')
   return

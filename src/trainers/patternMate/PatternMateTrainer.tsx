@@ -56,6 +56,7 @@ import {
 import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
 import { recordNormalizedCurriculumCompletion } from "../../training/curriculum/curriculumCompletion"
 import { getChunkProgressDisplay } from "../chunkProgressDisplay"
+import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance } from "../puzzleProgression"
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 import { MATE_THEMES } from "../../training/curriculum/curriculumCatalog"
 import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
@@ -216,7 +217,6 @@ function isMateChunkReviewDue(
  return dueTime < tomorrow.getTime()
 }
 
-const AUTO_NEXT_DELAY_MS = 2000
 const BOARD_ANIMATION_MS = 140
 const REPLY_PAUSE_AFTER_MS = 80
 const PREMOVE_START_DELAY_MS = 320
@@ -531,8 +531,6 @@ export default function PatternMateTrainer({
  const trainerExplanation = config.explanationKey ? siteExplanations[config.explanationKey] : null
 
  const containerRef = useRef<HTMLDivElement | null>(null)
- const autoNextTimerRef = useRef<number | null>(null)
- const wrongMoveTimerRef = useRef<number | null>(null)
  const preMoveTimerRef = useRef<number | null>(null)
  const solveStartedAtRef = useRef<number | null>(null)
  const currentUserMoveIndexRef = useRef(0)
@@ -540,6 +538,7 @@ export default function PatternMateTrainer({
  const chunkCanBeCompletedRef = useRef(true)
  const chunkMasterySaveKeyRef = useRef<string | null>(null)
  const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
+ const { cancelCorrectAutoAdvance, scheduleCorrectAutoAdvance } = useCorrectPuzzleAutoAdvance()
 
  const {
  lastMoveHighlight,
@@ -1508,19 +1507,12 @@ useEffect(() => {
  ])
 
  function clearTimers() {
- if (wrongMoveTimerRef.current) {
- window.clearTimeout(wrongMoveTimerRef.current)
- wrongMoveTimerRef.current = null
- }
  if (preMoveTimerRef.current) {
  window.clearTimeout(preMoveTimerRef.current)
  preMoveTimerRef.current = null
  }
  clearReplyTimer()
- if (autoNextTimerRef.current) {
- window.clearTimeout(autoNextTimerRef.current)
- autoNextTimerRef.current = null
- }
+ cancelCorrectAutoAdvance()
  }
 
  function incrementFastSolve(puzzleIndex: number) {
@@ -1628,11 +1620,11 @@ useEffect(() => {
  }
 
  function allPuzzlesMastered() {
- return getChunkProgressDisplay({
+ return isFinalPuzzleCompletion({
   currentPuzzleIndex: currentIndex,
   totalPuzzleCount: puzzles.length,
   completedPuzzleCount: chunkProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
- }).isComplete
+ })
  }
 
  function goToPreviousChunk() {
@@ -1665,11 +1657,11 @@ async function completeChunk() {
  if (curriculumCompletionInFlightRef.current) return
  curriculumCompletionInFlightRef.current = true
  const latestProgress = chunkProgressRef.current
- const chunkIsMastered = getChunkProgressDisplay({
+ const chunkIsMastered = isFinalPuzzleCompletion({
   currentPuzzleIndex: currentIndex,
   totalPuzzleCount: puzzles.length,
   completedPuzzleCount: latestProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
- }).isComplete
+ })
 
  if (chunkIsMastered) {
  await startChunkMasterySave(latestProgress.length)
@@ -1736,13 +1728,14 @@ async function completeChunk() {
 }
 
  function goToNextPuzzle() {
- const nextChunkProgress = chunkProgress
+ cancelCorrectAutoAdvance()
+ const nextChunkProgress = chunkProgressRef.current
 
- const chunkIsMastered = getChunkProgressDisplay({
+ const chunkIsMastered = isFinalPuzzleCompletion({
   currentPuzzleIndex: currentIndex,
   totalPuzzleCount: puzzles.length,
   completedPuzzleCount: nextChunkProgress.filter((item) => item.fastSolves >= FAST_SOLVES_TO_MASTER).length,
- }).isComplete
+ })
 
  if (chunkIsMastered) {
  void completeChunk()
@@ -1867,9 +1860,7 @@ async function completeChunk() {
  theme: config.studyTheme,
  })
 
- autoNextTimerRef.current = window.setTimeout(() => {
- goToNextPuzzle()
- }, AUTO_NEXT_DELAY_MS)
+ scheduleCorrectAutoAdvance(goToNextPuzzle)
  }
 
  function completeCorrectMove(
@@ -1977,10 +1968,6 @@ async function completeChunk() {
   expectedUci,
   resultingPositionIsCheckmate: testGame.isCheckmate(),
  })) {
- if (wrongMoveTimerRef.current) {
- window.clearTimeout(wrongMoveTimerRef.current)
- wrongMoveTimerRef.current = null
- }
 
  setSelectedSquare(null)
  setLegalTargets([])
@@ -2016,11 +2003,6 @@ async function completeChunk() {
   setBlindThemeRevealed(true)
  }
  setWrongBoardMessage(isStalemateWrong ? wrongMoveMessage : null)
- if (isStalemateWrong) {
- window.setTimeout(() => {
- setWrongBoardMessage(null)
- }, 2000)
- }
  setMessage(wrongMoveMessage)
 
  if (currentUserId && solveStartedAtRef.current != null) {
@@ -2033,34 +2015,10 @@ async function completeChunk() {
  })
  }
 
- if (options?.allowWrongMoveToShow) {
- const resetFen = game.fen()
-
- setGameAndBoardFen(testGame)
- setDisplayTurn(testGame.turn())
  setLastMoveHighlight(playedUci)
-
- wrongMoveTimerRef.current = window.setTimeout(() => {
- const resetGame = new Chess(resetFen)
- setGameAndBoardFen(resetGame)
- setDisplayTurn(resetGame.turn())
- setLastMoveHighlight(null)
+ setHintMoveUci(expectedUci)
  setPhase('solving')
- setMessage(`Find the mate in ${getUserMoveCount(currentPuzzle)}`)
- }, 2000)
-
- return true
- }
-
- wrongMoveTimerRef.current = window.setTimeout(() => {
- setPhase((prev) => (prev === 'wrong' ? 'solving' : prev))
- setMessage((prev) =>
- (prev === 'Wrong move' || prev === 'Stalemate - wrong')
- ? `Find the mate in ${getUserMoveCount(currentPuzzle)}`
- : prev
- )
- }, 2000)
-
+ setMessage(`${wrongMoveMessage} — try again.`)
  return false
  }
 
@@ -2786,6 +2744,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
  <PrimaryButton
  onClick={() => {
+ cancelCorrectAutoAdvance()
  if (curriculumCompletionCard) {
   window.location.assign('/auto')
   return
