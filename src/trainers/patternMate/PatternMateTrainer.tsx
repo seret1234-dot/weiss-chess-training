@@ -54,6 +54,7 @@ import {
  type MixedSessionScope,
 } from "../../training/mixedSessionScope"
 import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
+import { recordNormalizedCurriculumCompletion } from "../../training/curriculum/curriculumCompletion"
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 import { MATE_THEMES } from "../../training/curriculum/curriculumCatalog"
 import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
@@ -591,6 +592,10 @@ export default function PatternMateTrainer({
   const [mixedSessionThemes, setMixedSessionThemes] = useState<string[]>([])
   const [blindThemeRevealed, setBlindThemeRevealed] = useState(false)
   const mixedSessionEvidenceRef = useRef({ attempts: 0, correct: 0, themes: new Set<string>(), recordedPuzzleIds: new Set<string>() })
+  // This evidence is deliberately separate from legacy fast-solve progress:
+  // it records first-attempt session outcomes once per displayed puzzle.
+  const curriculumSessionEvidenceRef = useRef({ attempts: 0, correct: 0, hints: 0, solveMsTotal: 0, recordedPuzzleIds: new Set<string>() })
+  const curriculumCompletionInFlightRef = useRef(false)
   const mixedPuzzleNeededHelpRef = useRef(false)
   const storageKey = getStorageKey(
    isMixedPatternMate ? `${progressTrainerKey}:mixed-v2:${mixedScope}` : progressTrainerKey
@@ -634,6 +639,19 @@ export default function PatternMateTrainer({
  'white'
  )
  const [jumpChunkInput, setJumpChunkInput] = useState('')
+ const [curriculumCompletionCard, setCurriculumCompletionCard] = useState<{
+  theme: string
+  stage: number
+  attempts: number
+  correct: number
+  hints: number
+  mixed?: boolean
+  mixedPhase?: MixedSessionPhase
+  includedThemes?: string[]
+  blindUnlockProgress?: { qualifyingSessions: number; remainingSessions: number } | null
+  masteryIncreased?: boolean
+  reinforcementActivated?: boolean
+ } | null>(null)
 
  const [boardSize, setBoardSize] = useState(720)
  const [isDragging, setIsDragging] = useState(false)
@@ -936,6 +954,9 @@ function startChunkMasterySave(masteredCount: number) {
 
  setLoading(true)
  setLoadError('')
+ setCurriculumCompletionCard(null)
+ curriculumCompletionInFlightRef.current = false
+ curriculumSessionEvidenceRef.current = { attempts: 0, correct: 0, hints: 0, solveMsTotal: 0, recordedPuzzleIds: new Set<string>() }
 
  try {
   const sourceLists = isMixedPatternMate && mixedLearnerCurricula.length
@@ -1638,7 +1659,9 @@ useEffect(() => {
  void loadChunkByIndex(targetIndex, undefined, 0)
  }
 
- async function completeChunk() {
+async function completeChunk() {
+ if (curriculumCompletionInFlightRef.current) return
+ curriculumCompletionInFlightRef.current = true
  const latestProgress = chunkProgressRef.current
  const chunkIsMastered =
  latestProgress.length > 0 &&
@@ -1662,8 +1685,53 @@ useEffect(() => {
   })
  }
 
- window.location.assign('/auto')
+ const sessionEvidence = curriculumSessionEvidenceRef.current
+ const attempts = sessionEvidence.attempts
+ const correct = sessionEvidence.correct
+ const stage = Math.min(4, Math.max(1, Number(config.trainerKey.match(/m([1-5])$/)?.[1] ?? 1)))
+ const theme = learnerCurriculum?.canonicalThemeKey ?? config.studyTheme ?? config.trainerKey
+ const localBlindProgress = isMixedPatternMate && mixedScope === "unlocked" && mixedPhase === "identified"
+  ? getBlindMixedUnlockStatus(config.trainerKey)
+  : null
+ const card = {
+  theme: isMixedPatternMate ? `${mixedPhase === "blind" ? "Blind" : "Identified"} mixed` : theme,
+  stage,
+  attempts,
+  correct,
+  hints: sessionEvidence.hints,
+  mixed: isMixedPatternMate,
+  mixedPhase,
+  includedThemes: isMixedPatternMate ? mixedSessionThemes : undefined,
+  blindUnlockProgress: localBlindProgress,
  }
+ setCurriculumCompletionCard(card)
+ try {
+  const result = await recordNormalizedCurriculumCompletion({
+   userId: currentUserId,
+   area: "mates",
+   stageOrder: stage,
+   canonicalTheme: isMixedPatternMate ? null : theme,
+   trainerKey: config.trainerKey,
+   learnerVersion: learnerCurriculumVersion,
+   learnerChunk: currentChunkIndex + 1,
+   route: window.location.pathname,
+   sessionId: isMixedPatternMate
+    ? mixedSessionIdRef.current ?? `mixed:${currentChunkFileName}`
+    : `chunk:${currentChunkFileName}`,
+   decisionId: searchParams.get("curriculumDecision"),
+   eventKind: isMixedPatternMate ? (mixedPhase === "identified" ? "mixed" : "review") : "focused",
+   attempts,
+   correctAttempts: correct,
+   hintCount: sessionEvidence.hints,
+   averageSolveMs: attempts ? Math.round(sessionEvidence.solveMsTotal / attempts) : null,
+   mixedScope,
+   mixedPhase,
+  })
+  setCurriculumCompletionCard({ ...card, masteryIncreased: result.masteryIncreased, reinforcementActivated: result.reinforcementActivated })
+ } catch (error) {
+  console.error("Could not persist curriculum completion", error)
+ }
+}
 
  function goToNextPuzzle() {
  const nextChunkProgress = chunkProgress
@@ -1718,6 +1786,13 @@ useEffect(() => {
  setGameAndBoardFen(solvedGame)
  setDisplayTurn(solvedGame.turn())
  setSolved(true)
+ const curriculumEvidence = curriculumSessionEvidenceRef.current
+ if (!curriculumEvidence.recordedPuzzleIds.has(currentPuzzle.id)) {
+  curriculumEvidence.recordedPuzzleIds.add(currentPuzzle.id)
+  curriculumEvidence.attempts += 1
+  if (!mixedPuzzleNeededHelpRef.current) curriculumEvidence.correct += 1
+  if (solvedInSeconds !== null) curriculumEvidence.solveMsTotal += Math.round(solvedInSeconds * 1000)
+ }
  if (isMixedPatternMate) {
   setBlindThemeRevealed(true)
   const evidence = mixedSessionEvidenceRef.current
@@ -1926,8 +2001,14 @@ useEffect(() => {
  }
 
  setPhase('wrong')
+ const wrongEvidence = curriculumSessionEvidenceRef.current
+ if (!wrongEvidence.recordedPuzzleIds.has(currentPuzzle.id)) {
+  wrongEvidence.recordedPuzzleIds.add(currentPuzzle.id)
+  wrongEvidence.attempts += 1
+  if (solveStartedAtRef.current != null) wrongEvidence.solveMsTotal += Math.round(performance.now() - solveStartedAtRef.current)
+ }
+ mixedPuzzleNeededHelpRef.current = true
  if (isMixedPatternMate) {
-  mixedPuzzleNeededHelpRef.current = true
   setBlindThemeRevealed(true)
  }
  setWrongBoardMessage(isStalemateWrong ? wrongMoveMessage : null)
@@ -2673,8 +2754,9 @@ return attemptUserMove(sourceSquare, targetSquare, {
  return uci ? { from: uci.slice(0, 2), to: uci.slice(2, 4) } : null
  }}
  onHintStage={(move, stage) => {
+ mixedPuzzleNeededHelpRef.current = true
+ curriculumSessionEvidenceRef.current.hints += 1
  if (isMixedPatternMate) {
-  mixedPuzzleNeededHelpRef.current = true
   setBlindThemeRevealed(true)
  }
  setHintMoveUci(stage === 'square' ? `${move.from}${move.to}` : null)
@@ -2695,6 +2777,10 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
  <PrimaryButton
  onClick={() => {
+ if (curriculumCompletionCard) {
+  window.location.assign('/auto')
+  return
+ }
  if (allPuzzlesMastered()) {
  void completeChunk()
  } else {
@@ -2703,7 +2789,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }}
  style={{ padding: '10px 9px' }}
  >
- {allPuzzlesMastered() ? 'Continue Auto' : 'Next Puzzle'}
+ {curriculumCompletionCard ? 'Continue Auto' : allPuzzlesMastered() ? 'Continue Auto' : 'Next Puzzle'}
  </PrimaryButton>
 
  <SecondaryButton
@@ -2714,6 +2800,17 @@ return attemptUserMove(sourceSquare, targetSquare, {
  </SecondaryButton>
  </div>
  </div>
+
+ {curriculumCompletionCard && (
+ <PanelCard style={{ marginTop: 12, padding: 14 }} aria-live="polite">
+  <SectionTitle>Chunk completed</SectionTitle>
+  <div>{curriculumCompletionCard.theme.replace(/-/g, ' ')} · Stage {curriculumCompletionCard.stage} · Chunk {currentChunkIndex + 1} / {chunkFiles.length}</div>
+  {curriculumCompletionCard.mixed && <div>Included themes: {curriculumCompletionCard.includedThemes?.map(formatMixedThemeName).join(', ') || 'Curriculum-eligible themes'}</div>}
+  <div>{curriculumCompletionCard.correct} / {curriculumCompletionCard.attempts} first-attempt solves · {curriculumCompletionCard.hints} hints used</div>
+  {curriculumCompletionCard.blindUnlockProgress && <div>Blind mixed progress: {curriculumCompletionCard.blindUnlockProgress.qualifyingSessions} qualifying identified sessions · {curriculumCompletionCard.blindUnlockProgress.remainingSessions} remaining on this device.</div>}
+  <div>{curriculumCompletionCard.masteryIncreased ? 'Mastery increased. ' : ''}{curriculumCompletionCard.reinforcementActivated ? 'Temporary reinforcement is active. ' : ''}Continue Auto for your next recommended training.</div>
+ </PanelCard>
+ )}
 
  {trainerExplanation && (
  <div className="pattern-mate-panel-right">

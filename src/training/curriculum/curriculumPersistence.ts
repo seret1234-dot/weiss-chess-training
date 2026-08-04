@@ -196,6 +196,10 @@ export async function getCurriculumSelectionIndex(userId: string, client: Supaba
 
 export async function recordCurriculumSessionEvidence(event: CurriculumSessionEvidence, client: SupabaseLike = supabase) {
   validateCurriculumEvent(event)
+  const { data: existing, error: existingError } = await client.from(TABLES.session).select("*")
+    .eq("user_id", event.userId).eq("idempotency_key", event.idempotencyKey).maybeSingle()
+  throwIfError(existingError, "Could not read existing curriculum session evidence")
+  if (existing) return { data: existing, created: false }
   const { data, error } = await client.from(TABLES.session).upsert({
     user_id: event.userId,
     idempotency_key: event.idempotencyKey,
@@ -213,7 +217,7 @@ export async function recordCurriculumSessionEvidence(event: CurriculumSessionEv
     occurred_on: event.occurredOn ?? new Date().toISOString().slice(0, 10),
   }, { onConflict: "user_id,idempotency_key" }).select().maybeSingle()
   throwIfError(error, "Could not record curriculum session evidence")
-  return data
+  return { data, created: true }
 }
 
 async function loadStageEvents(userId: string, area: CurriculumArea, stageOrder: number, client: SupabaseLike) {
@@ -272,7 +276,11 @@ export async function updateStageAggregate(userId: string, area: CurriculumArea,
   const { data: themeRows, error: themeError } = await client.from(TABLES.theme).select("*")
     .eq("user_id", userId).eq("area", area).eq("stage_order", stageOrder)
   throwIfError(themeError, "Could not read curriculum themes for stage aggregate")
-  const themes: ThemeMastery[] = (themeRows ?? []).map((row: any) => ({
+  const byTheme = new Map((themeRows ?? []).map((row: any) => [String(row.theme_key), row]))
+  // A missing required focused theme is deliberately treated as unmastered.
+  // Otherwise a partial set of rows could falsely complete a whole stage.
+  const requiredThemes = area === "mates" || area === "tactics" ? getStageThemes(area, stageOrder) : []
+  const themes: ThemeMastery[] = (requiredThemes.length ? requiredThemes.map((theme) => byTheme.get(theme) ?? {}) : themeRows ?? []).map((row: any) => ({
     mastered: Boolean(row.permanent_mastery),
     recentAccuracy: Number(row.attempts ?? 0) > 0 ? Number(row.correct_attempts ?? 0) / Number(row.attempts) : 0,
     averageSolveSeconds: Number(row.average_solve_ms ?? 0) / 1000,
@@ -300,6 +308,30 @@ export async function updateStageAggregate(userId: string, area: CurriculumArea,
   return { aggregate, permanentMastery }
 }
 
+/** Advances only one completed current stage and never beyond the persisted ceiling. */
+export async function updateAreaProgressAfterStage(
+  userId: string,
+  area: CurriculumArea,
+  completedStage: number,
+  stageMastered: boolean,
+  client: SupabaseLike = supabase,
+) {
+  const current = await readCurriculumState(userId, client)
+  if (!current) throw new Error("Curriculum state does not exist.")
+  const areaRow = current.raw.areas.find((row: any) => row.area === area)
+  if (!areaRow) return { advanced: false, currentStage: 1 }
+  const currentStage = Number(areaRow.current_stage ?? 1)
+  const ceiling = Number(areaRow.difficulty_ceiling ?? currentStage)
+  const nextStage = stageMastered && completedStage === currentStage && currentStage < ceiling
+    ? currentStage + 1
+    : currentStage
+  if (nextStage !== currentStage) {
+    const { error } = await client.from(TABLES.area).update({ current_stage: nextStage }).eq("user_id", userId).eq("area", area)
+    throwIfError(error, "Could not advance curriculum area stage")
+  }
+  return { advanced: nextStage !== currentStage, currentStage: nextStage }
+}
+
 export async function updateTemporaryReinforcement(userId: string, area: CurriculumArea, client: SupabaseLike = supabase) {
   const current = await readCurriculumState(userId, client)
   if (!current) throw new Error("Curriculum state does not exist.")
@@ -322,6 +354,32 @@ export async function updateTemporaryReinforcement(userId: string, area: Curricu
   }, { onConflict: "user_id,area" })
   throwIfError(error, "Could not update curriculum reinforcement")
   return { active, reason }
+}
+
+/**
+ * Best-effort hydration repair. It reads only durable evidence, then upserts
+ * derived aggregates; local browser state is never used as an input.
+ */
+export async function reconcileCurriculumState(userId: string, client: SupabaseLike = supabase) {
+  const { data, error } = await client.from(TABLES.session).select("area, stage_order, theme_key")
+    .eq("user_id", userId)
+  throwIfError(error, "Could not read curriculum evidence for reconciliation")
+  const events = data ?? []
+  const stageKeys = [...new Set(events.map((row: any) => `${row.area}:${row.stage_order}`))]
+  const themeKeys = [...new Set(events.filter((row: any) => row.theme_key).map((row: any) => `${row.area}:${row.stage_order}:${row.theme_key}`))]
+  for (const key of themeKeys) {
+    const [area, stageOrder, themeKey] = key.split(":")
+    await updateThemeAggregate(userId, area as "mates" | "tactics", Number(stageOrder), themeKey, client)
+  }
+  const areas = new Set<CurriculumArea>()
+  for (const key of stageKeys.sort((a, b) => Number(a.split(":")[1]) - Number(b.split(":")[1]))) {
+    const [area, stageOrder] = key.split(":")
+    const stage = await updateStageAggregate(userId, area as CurriculumArea, Number(stageOrder), client)
+    await updateAreaProgressAfterStage(userId, area as CurriculumArea, Number(stageOrder), stage.permanentMastery, client)
+    areas.add(area as CurriculumArea)
+  }
+  for (const area of areas) await updateTemporaryReinforcement(userId, area, client)
+  return readCurriculumState(userId, client)
 }
 
 export async function recordTransferTestOutcome(userId: string, area: CurriculumArea, stageOrder: number, outcome: TransferOutcome, idempotencyKey: string, client: SupabaseLike = supabase) {

@@ -23,6 +23,7 @@ import {
 import {
   getCurriculumSelectionIndex,
   getOrCreateCurriculumState,
+  reconcileCurriculumState,
 } from "./curriculumPersistence"
 import { selectCurriculumItem } from "./selectCurriculumItem"
 import type {
@@ -178,7 +179,16 @@ export async function getCurriculumDecisionForUser(
   userId: string,
   dependencies: CurriculumRuntimeDependencies = {},
 ): Promise<CurriculumRuntimeDecision | null> {
-  const getState = dependencies.getState ?? getOrCreateCurriculumState
+  const getState = dependencies.getState ?? (async (userId: string) => {
+    const seeded = await getOrCreateCurriculumState(userId)
+    try {
+      return await reconcileCurriculumState(userId)
+    } catch {
+      // A reconciliation outage must not discard a valid durable state or
+      // interrupt the existing curriculum/legacy scheduler fallback.
+      return seeded
+    }
+  })
   const getSelectionIndex = dependencies.getSelectionIndex ?? getCurriculumSelectionIndex
   const getLegacyItem = dependencies.getLegacyItem ?? getNextDueItem
   const getM1LearnerCompletion = dependencies.getM1LearnerCompletion ?? readM1LearnerCompletion
