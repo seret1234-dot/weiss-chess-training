@@ -32,7 +32,8 @@ try {
   const curriculum = await vite.ssrLoadModule("/src/trainers/patternTactic/m1toM4LearnerCurriculum.ts")
   for (const row of coverage.coverage) {
     const definition = curriculum.getPatternTacticLearnerCurriculum(`tactic-${row.canonicalThemeKey}-m${row.stage}`)
-    assert.equal(Boolean(definition?.unavailableReason), row.unavailable, `${row.canonicalThemeKey} M${row.stage} route cannot fall back to raw v1`)
+    const supersededByBatch1 = row.canonicalThemeKey === "hanging-piece" && row.stage === 4
+    assert.equal(Boolean(definition?.unavailableReason), supersededByBatch1 ? false : row.unavailable, `${row.canonicalThemeKey} M${row.stage} route cannot fall back to raw v1`)
   }
 } finally {
   await vite.close()

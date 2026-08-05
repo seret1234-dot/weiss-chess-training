@@ -428,6 +428,11 @@ function semanticExplanation(puzzle?: PatternTacticPuzzle | null) {
 }
 
 function semanticEvidenceSquares(puzzle?: PatternTacticPuzzle | null) {
+ const explicitSquares = (puzzle?.semanticAudit?.evidence as Record<string, unknown> | undefined)?.highlightSquares
+ if (Array.isArray(explicitSquares)) {
+  const verified = explicitSquares.filter((square): square is string => typeof square === "string" && /^[a-h][1-8]$/.test(square))
+  if (verified.length > 0) return [...new Set(verified)]
+ }
  const encoded = JSON.stringify(puzzle?.semanticAudit?.evidence ?? {})
  return [...new Set((encoded.match(/@[a-h][1-8]/g) ?? []).map((match) => match.slice(1)))]
 }
@@ -586,7 +591,7 @@ export default function PatternTacticTrainer({
   ? getPatternTacticLearnerProgressTrainerKey(tacticLearnerCurriculum)
   : config.trainerKey
  const activeDataBasePath = isMixedPatternTactic
-  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-semantic-v4`
+  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-semantic-v5`
   : tacticLearnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
  const urlChunkParam = searchParams.get('chunk')
  const requestedChunkIndex =

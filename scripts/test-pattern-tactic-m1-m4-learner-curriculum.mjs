@@ -30,16 +30,17 @@ for (const row of coverage.coverage) {
 }
 
 for (const mixed of coverage.mixed) {
-  const directory = path.join(learnerRoot, `mixed-m${mixed.stage}-semantic-v4`)
+  const directory = path.join(learnerRoot, `mixed-m${mixed.stage}-semantic-v5`)
   const manifest = JSON.parse(fs.readFileSync(path.join(directory, "manifest.json"), "utf8"))
   const puzzles = list(JSON.parse(fs.readFileSync(path.join(directory, "chunk-001.json"), "utf8")))
-  assert.deepEqual(manifest.sourceThemes, mixed.sourceThemes, `mixed M${mixed.stage} has the approved contributors only`)
+  for (const theme of mixed.sourceThemes) assert.ok(manifest.sourceThemes.includes(theme), `mixed M${mixed.stage} retains approved ${theme} contributors`)
+  assert.equal(manifest.contributionCounts["hanging-piece"] ?? 0, mixed.stage === 4 ? 23 : 0, `mixed M${mixed.stage} includes Batch 1 only where approved`)
   assert.equal(puzzles.some((puzzle) => /-v1\b/.test(String(puzzle.learnerCurriculum?.version ?? ""))), false, `mixed M${mixed.stage} contains no v1 contributors`)
   assert.equal(puzzles.some((puzzle) => ["endgame", "master", "mate", "hangingpiece", "discoveredcheck"].includes(String(puzzle.canonicalThemeKey).toLowerCase())), false, `mixed M${mixed.stage} excludes raw-tag labels`)
 }
 
 const trainerSource = fs.readFileSync(path.join(root, "src", "trainers", "patternTactic", "PatternTacticTrainer.tsx"), "utf8")
-assert.match(trainerSource, /mixed-m\$\{tacticDistance\}-semantic-v4/, "trainer loads the v4 approved mixed overlay")
+assert.match(trainerSource, /mixed-m\$\{tacticDistance\}-semantic-v5/, "trainer loads the current approved mixed overlay")
 assert.match(trainerSource, /canonicalThemeKey \?\? puzzle\.sourceTheme/, "mixed rotation uses canonical tactic themes")
 assert.match(trainerSource, /pedagogicalFamily: puzzle\.pedagogicalFamily/, "mixed selector receives family recency metadata")
 assert.doesNotMatch(trainerSource, /isCheckmate\(\).*alternative/i, "tactic acceptance remains strict to stored solution lines")

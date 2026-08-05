@@ -85,16 +85,39 @@ const FORK_SOUND_V3_RECORD_COUNTS: Record<string, number> = {
   "king-fork-m1": 34, "king-fork-m3": 0, "king-fork-m4": 0,
 }
 
+// Batch 1 is deliberately fail-closed. The dedicated fixed-depth semantic
+// audit restored only courses with at least one normal learner chunk; all
+// other Batch 1 source collections remain unavailable instead of falling
+// back to unreviewed v1 material.
+const BATCH1_SEMANTIC_V5_THEMES = new Set([
+  "bishop-xray", "queen-xray", "rook-xray", "other-xray",
+  "hanging-piece", "trapped-piece", "remove-the-defender", "attacking-f2-f7",
+])
+const BATCH1_SEMANTIC_V5_CHUNKS: Record<string, number> = {
+  "hanging-piece-m4": 2,
+}
+const BATCH1_SEMANTIC_V5_RECORD_COUNTS: Record<string, number> = {
+  "hanging-piece-m4": 23,
+}
+
 export const TIER_A_SEMANTIC_THEME_KEYS = new Set(Object.keys(TIER_A_SEMANTIC_CHUNKS).map((key) => key.replace(/-m[1-4]$/, "")))
 
 export type PatternTacticSemanticStatus = {
-  version: "semantic-v2" | "semantic-v3" | "semantic-v4"
+  version: "semantic-v2" | "semantic-v3" | "semantic-v4" | "semantic-v5"
   active: boolean
   validator: string
 }
 
 export function getPatternTacticSemanticStatus(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticSemanticStatus {
   const sourceKey = `${theme}-m${tacticDistance}`
+  if (BATCH1_SEMANTIC_V5_THEMES.has(theme)) {
+    const approvedRecords = BATCH1_SEMANTIC_V5_RECORD_COUNTS[sourceKey] ?? 0
+    return {
+      version: approvedRecords >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE ? "semantic-v5" : "semantic-v4",
+      active: approvedRecords >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE,
+      validator: "batch1-semantic-v5",
+    }
+  }
   if (FORK_SOUND_V3_THEMES.has(theme)) {
     const approvedRecords = FORK_SOUND_V3_RECORD_COUNTS[sourceKey] ?? 0
     // The catalog-wide semantic policy is intentionally stricter than the
@@ -147,6 +170,8 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
   const activeChunkCount = semantic.active
     ? semantic.version === "semantic-v3"
       ? FORK_SOUND_V3_CHUNKS[sourceKey] ?? 0
+      : semantic.version === "semantic-v5"
+        ? BATCH1_SEMANTIC_V5_CHUNKS[sourceKey] ?? 0
       : TIER_A_SEMANTIC_CHUNKS[sourceKey] ?? 0
     : 0
   const version = `m${tacticDistance}-${semantic.version}`
@@ -187,11 +212,17 @@ export function getPatternTacticLearnerProgressTrainerKey(definitionOrTrainerKey
 // semantic-v2 supersedes (but never overwrites) the original learner overlay.
 // Retain a stable key for deterministic, proportional completion credit.
 export function getPatternTacticPriorLearnerProgressTrainerKey(definition: PatternTacticLearnerCurriculum) {
-  return `${definition.trainerKey}:m${definition.tacticDistance}-${definition.version.includes("semantic-v3") ? "semantic-v2" : "v1"}`
+  const priorVersion = definition.version.includes("semantic-v5")
+    ? "semantic-v4"
+    : definition.version.includes("semantic-v3")
+      ? "semantic-v2"
+      : "v1"
+  return `${definition.trainerKey}:m${definition.tacticDistance}-${priorVersion}`
 }
 
 function priorLearnerActiveChunkCount(definition: PatternTacticLearnerCurriculum) {
   const sourceKey = `${definition.theme}-m${definition.tacticDistance}`
+  if (definition.version.includes("semantic-v5")) return 0
   if (definition.version.includes("semantic-v3")) return TIER_A_SEMANTIC_CHUNKS[sourceKey] ?? 0
   return ACTIVE_CHUNK_COUNT_OVERRIDES[sourceKey] ?? (definition.tacticDistance === 1 ? 5 : 8)
 }
@@ -249,8 +280,9 @@ export function getPatternTacticLearnerCompletionByTrainer(rows: Array<LegacyChu
         .map((row) => Number(row.chunk_index))
         .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= priorLearnerActiveChunkCount(definition))).size
       : 0
-    const priorLearnerCredit = definition.version.includes("semantic")
-      ? Math.min(definition.activeChunkCount, Math.floor((priorLearnerCompleted * definition.activeChunkCount) / priorLearnerActiveChunkCount(definition)))
+    const priorChunkCount = priorLearnerActiveChunkCount(definition)
+    const priorLearnerCredit = definition.version.includes("semantic") && priorChunkCount > 0
+      ? Math.min(definition.activeChunkCount, Math.floor((priorLearnerCompleted * definition.activeChunkCount) / priorChunkCount))
       : 0
     const completedActiveChunks = Math.max(legacy.completedActiveChunks, activeCompletedChunks, priorLearnerCredit)
     return [definition.trainerKey, { ...legacy, completedActiveChunks, complete: completedActiveChunks >= definition.activeChunkCount }]

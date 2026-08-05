@@ -73,7 +73,7 @@ try {
   await vite.close()
 }
 const trainer = fs.readFileSync(path.join(root, "src", "trainers", "patternTactic", "PatternTacticTrainer.tsx"), "utf8")
-assert.match(trainer, /semantic-v4/, "trainer loads the fail-closed semantic-v4 mixed overlay")
+assert.match(trainer, /semantic-v5/, "trainer loads the newer fail-closed mixed overlay")
 assert.match(trainer, /semanticExplanation/, "trainer exposes post-answer semantic explanations")
 assert.match(trainer, /semanticEvidenceSquares/, "trainer highlights only validator-proven tactical relationships after disclosure")
 assert.match(trainer, /semanticDisclosureRevealed/, "trainer keeps semantic disclosure independently of transient feedback state")

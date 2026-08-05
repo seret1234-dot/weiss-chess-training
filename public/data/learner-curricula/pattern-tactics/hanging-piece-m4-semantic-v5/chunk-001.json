@@ -1,0 +1,2373 @@
+{
+  "puzzles": [
+    {
+      "id": "hanging-piece-m4-zWfuK",
+      "puzzleId": "zWfuK",
+      "fen": "8/3K4/p4p2/1pP1pkp1/1P1nR3/8/8/8 w - - 3 44",
+      "preMove": "e4d4",
+      "solutionLine": [
+        "e5d4",
+        "c5c6",
+        "d4d3",
+        "c6c7",
+        "d3d2",
+        "c7c8q",
+        "d2d1q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 941,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 7",
+        "evidence": {
+          "storedLine": [
+            "e5d4",
+            "c5c6",
+            "d4d3",
+            "c6c7",
+            "d3d2",
+            "c7c8q",
+            "d2d1q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "c5c6",
+              "d4d3",
+              "c6c7",
+              "d3d2",
+              "c7c8q",
+              "d2d1q",
+              "d7e7",
+              "f5f4",
+              "c8b8",
+              "f4e4",
+              "e7f6",
+              "d1f3",
+              "f6g7",
+              "g5g4",
+              "b8c8"
+            ],
+            "bestMove": "c5c6",
+            "scoreType": "cp",
+            "scoreValue": -295
+          },
+          "hanging": {
+            "targetSquare": "d4",
+            "capture": "e5d4",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on d4 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "e5",
+            "d4"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 0,
+        "sourceChunk": 1,
+        "sourceIndex": 13,
+        "sourceIdentity": "zWfuK",
+        "canonicalIdentity": "8/3K4/p4p2/1pP1pkp1/1P1R4/8/8/8 b - -|hanging-piece|e5d4,c5c6,d4d3,c6c7,d3d2,c7c8q,d2d1q|zWfuK",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-u0qDh",
+      "puzzleId": "u0qDh",
+      "fen": "7k/1P6/K7/3B2p1/8/8/1r5p/8 b - - 1 52",
+      "preMove": "b2a2",
+      "solutionLine": [
+        "d5a2",
+        "h2h1q",
+        "b7b8q",
+        "h8g7",
+        "b8g8",
+        "g7f6",
+        "g8e6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1997,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "vulnerable-king",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Vulnerable / Exposed King",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 9,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 8",
+        "evidence": {
+          "storedLine": [
+            "d5a2",
+            "h2h1q",
+            "b7b8q",
+            "h8g7",
+            "b8g8",
+            "g7f6",
+            "g8e6"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "h8g7",
+              "b7b8q",
+              "h2h1b",
+              "b8b2",
+              "g7h6",
+              "b2h8",
+              "h6g6",
+              "h8h1",
+              "g5g4",
+              "a6b6",
+              "g6g5",
+              "a2d5",
+              "g5f6"
+            ],
+            "bestMove": "h8g7",
+            "scoreType": "cp",
+            "scoreValue": -644
+          },
+          "hanging": {
+            "targetSquare": "a2",
+            "capture": "d5a2",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on a2 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "d5",
+            "a2"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 1,
+        "sourceChunk": 4,
+        "sourceIndex": 9,
+        "sourceIdentity": "u0qDh",
+        "canonicalIdentity": "7k/1P6/K7/3B2p1/8/8/r6p/8 w - -|hanging-piece|d5a2,h2h1q,b7b8q,h8g7,b8g8,g7f6,g8e6|u0qDh",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-7MJ24",
+      "puzzleId": "7MJ24",
+      "fen": "8/p7/1p6/6P1/k1q4R/6K1/8/8 b - - 29 56",
+      "preMove": "c4h4",
+      "solutionLine": [
+        "g3h4",
+        "b6b5",
+        "g5g6",
+        "b5b4",
+        "g6g7",
+        "b4b3",
+        "g7g8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 578,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 12,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 8",
+        "evidence": {
+          "storedLine": [
+            "g3h4",
+            "b6b5",
+            "g5g6",
+            "b5b4",
+            "g6g7",
+            "b4b3",
+            "g7g8q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "b6b5",
+              "g5g6",
+              "a4a3",
+              "g6g7",
+              "b5b4",
+              "g7g8q",
+              "b4b3",
+              "g8g1",
+              "b3b2",
+              "g1a7",
+              "a3b3",
+              "a7h7",
+              "b3a2",
+              "h7c2",
+              "a2a1",
+              "c2a4",
+              "a1b1",
+              "h4g4",
+              "b1c1",
+              "a4c4",
+              "c1d2",
+              "c4b3",
+              "d2c1",
+              "b3c3",
+              "c1b1",
+              "g4f5",
+              "b1a1",
+              "f5e6",
+              "a1a2",
+              "c3c2",
+              "a2a3"
+            ],
+            "bestMove": "b6b5",
+            "scoreType": "cp",
+            "scoreValue": -268
+          },
+          "hanging": {
+            "targetSquare": "h4",
+            "capture": "g3h4",
+            "capturedPiece": "q",
+            "targetValue": 9
+          },
+          "explanation": "Hanging piece: the queen on h4 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "g3",
+            "h4"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 2,
+        "sourceChunk": 1,
+        "sourceIndex": 12,
+        "sourceIdentity": "7MJ24",
+        "canonicalIdentity": "8/p7/1p6/6P1/k6q/6K1/8/8 w - -|hanging-piece|g3h4,b6b5,g5g6,b5b4,g6g7,b4b3,g7g8q|7MJ24",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-yPoJ7",
+      "puzzleId": "yPoJ7",
+      "fen": "8/8/8/8/1p3P2/3pk3/3N2K1/8 w - - 1 50",
+      "preMove": "f4f5",
+      "solutionLine": [
+        "e3d2",
+        "f5f6",
+        "d2c3",
+        "f6f7",
+        "d3d2",
+        "f7f8q",
+        "d2d1q",
+        "f8c5",
+        "c3b3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2479,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "defense",
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 8,
+      "chunkIndex": 2,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 8",
+        "evidence": {
+          "storedLine": [
+            "e3d2",
+            "f5f6",
+            "d2c3",
+            "f6f7",
+            "d3d2",
+            "f7f8q",
+            "d2d1q",
+            "f8c5",
+            "c3b3"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "f5f6",
+              "d2c3",
+              "f6f7",
+              "d3d2",
+              "f7f8q",
+              "d2d1q",
+              "f8c8",
+              "c3b2",
+              "c8h8",
+              "b2c2",
+              "h8c8",
+              "c2b1",
+              "g2g3",
+              "b4b3"
+            ],
+            "bestMove": "f5f6",
+            "scoreType": "cp",
+            "scoreValue": -277
+          },
+          "hanging": {
+            "targetSquare": "d2",
+            "capture": "e3d2",
+            "capturedPiece": "n",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the knight on d2 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "e3",
+            "d2"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 3,
+        "sourceChunk": 8,
+        "sourceIndex": 2,
+        "sourceIdentity": "yPoJ7",
+        "canonicalIdentity": "8/8/8/5P2/1p6/3pk3/3N2K1/8 b - -|hanging-piece|e3d2,f5f6,d2c3,f6f7,d3d2,f7f8q,d2d1q,f8c5,c3b3|yPoJ7",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-nofVK",
+      "puzzleId": "nofVK",
+      "fen": "8/8/8/1p3KP1/2k2n2/5P2/8/8 b - - 0 73",
+      "preMove": "b5b4",
+      "solutionLine": [
+        "f5f4",
+        "b4b3",
+        "g5g6",
+        "b3b2",
+        "g6g7",
+        "b2b1q",
+        "g7g8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1359,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 15,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 8",
+        "evidence": {
+          "storedLine": [
+            "f5f4",
+            "b4b3",
+            "g5g6",
+            "b3b2",
+            "g6g7",
+            "b2b1q",
+            "g7g8q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "b4b3",
+              "g5g6",
+              "b3b2",
+              "g6g7",
+              "b2b1q",
+              "g7g8q",
+              "c4c5",
+              "g8c8",
+              "c5d6",
+              "c8d8",
+              "d6c6",
+              "d8e8",
+              "c6c7",
+              "f4g5",
+              "b1g1",
+              "g5f6",
+              "g1h1"
+            ],
+            "bestMove": "b4b3",
+            "scoreType": "cp",
+            "scoreValue": -292
+          },
+          "hanging": {
+            "targetSquare": "f4",
+            "capture": "f5f4",
+            "capturedPiece": "n",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the knight on f4 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "f5",
+            "f4"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 4,
+        "sourceChunk": 1,
+        "sourceIndex": 15,
+        "sourceIdentity": "nofVK",
+        "canonicalIdentity": "8/8/8/5KP1/1pk2n2/5P2/8/8 w - -|hanging-piece|f5f4,b4b3,g5g6,b3b2,g6g7,b2b1q,g7g8q|nofVK",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-lCd6o",
+      "puzzleId": "lCd6o",
+      "fen": "8/p1k3Kp/2P2n2/1P6/3P4/8/P7/8 b - - 2 42",
+      "preMove": "h7h5",
+      "solutionLine": [
+        "g7f6",
+        "h5h4",
+        "f6e7",
+        "h4h3",
+        "d4d5",
+        "c7b6",
+        "d5d6",
+        "h3h2",
+        "d6d7",
+        "h2h1q",
+        "d7d8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "tacticDistance": 6,
+      "rating": 2233,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "quiet-move",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Quiet Move",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "quietMove",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 7",
+        "evidence": {
+          "storedLine": [
+            "g7f6",
+            "h5h4",
+            "f6e7",
+            "h4h3",
+            "d4d5",
+            "c7b6",
+            "d5d6",
+            "h3h2",
+            "d6d7",
+            "h2h1q",
+            "d7d8q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "h5h4",
+              "f6e7",
+              "h4h3",
+              "d4d5",
+              "h3h2",
+              "d5d6",
+              "c7b6",
+              "d6d7",
+              "b6b5",
+              "d7d8q",
+              "h2h1q",
+              "d8b8",
+              "b5c4",
+              "b8d6",
+              "h1h7",
+              "e7e8",
+              "h7g8",
+              "e8d7",
+              "g8g7",
+              "d7c8",
+              "g7h8",
+              "c8b7",
+              "h8b2",
+              "b7a8",
+              "b2g2",
+              "a2a4",
+              "a7a5",
+              "a8b7"
+            ],
+            "bestMove": "h5h4",
+            "scoreType": "cp",
+            "scoreValue": -413
+          },
+          "hanging": {
+            "targetSquare": "f6",
+            "capture": "g7f6",
+            "capturedPiece": "n",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the knight on f6 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "g7",
+            "f6"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 5,
+        "sourceChunk": 6,
+        "sourceIndex": 19,
+        "sourceIdentity": "lCd6o",
+        "canonicalIdentity": "8/p1k3K1/2P2n2/1P5p/3P4/8/P7/8 w - -|hanging-piece|g7f6,h5h4,f6e7,h4h3,d4d5,c7b6,d5d6,h3h2,d6d7,h2h1q,d7d8q|lCd6o",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-xMb9Q",
+      "puzzleId": "xMb9Q",
+      "fen": "8/3b4/8/2p1p3/1pPpBk1p/pP1P3P/P4PK1/8 b - - 0 42",
+      "preMove": "d7a4",
+      "solutionLine": [
+        "b3a4",
+        "b4b3",
+        "a4a5",
+        "b3b2",
+        "a5a6",
+        "b2b1q",
+        "a6a7",
+        "b1b6",
+        "a7a8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2010,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "bishopEndgame",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 8",
+        "evidence": {
+          "storedLine": [
+            "b3a4",
+            "b4b3",
+            "a4a5",
+            "b3b2",
+            "a5a6",
+            "b2b1q",
+            "a6a7",
+            "b1b6",
+            "a7a8q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "b4b3",
+              "a4a5",
+              "b3b2",
+              "a5a6",
+              "b2b1q",
+              "a6a7",
+              "b1b6",
+              "a7a8q",
+              "b6h6",
+              "a8a3",
+              "h6g7",
+              "g2h1",
+              "f4g5",
+              "a3c5",
+              "g5h6",
+              "c5c6",
+              "h6g5",
+              "c6c8",
+              "g5f6",
+              "c8d8",
+              "f6e6"
+            ],
+            "bestMove": "b4b3",
+            "scoreType": "cp",
+            "scoreValue": -662
+          },
+          "hanging": {
+            "targetSquare": "a4",
+            "capture": "b3a4",
+            "capturedPiece": "b",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the bishop on a4 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "b3",
+            "a4"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 6,
+        "sourceChunk": 4,
+        "sourceIndex": 6,
+        "sourceIdentity": "xMb9Q",
+        "canonicalIdentity": "8/8/8/2p1p3/bpPpBk1p/pP1P3P/P4PK1/8 w - -|hanging-piece|b3a4,b4b3,a4a5,b3b2,a5a6,b2b1q,a6a7,b1b6,a7a8q|xMb9Q",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-voYrr",
+      "puzzleId": "voYrr",
+      "fen": "8/2b2p2/7P/p1k5/2pp4/8/R1K5/8 w - - 2 43",
+      "preMove": "a2a5",
+      "solutionLine": [
+        "c7a5",
+        "h6h7",
+        "d4d3",
+        "c2b2",
+        "d3d2",
+        "h7h8q",
+        "d2d1q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2496,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "vulnerable-king",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Vulnerable / Exposed King",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "exposedKing",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 13,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 5",
+        "evidence": {
+          "storedLine": [
+            "c7a5",
+            "h6h7",
+            "d4d3",
+            "c2b2",
+            "d3d2",
+            "h7h8q",
+            "d2d1q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "h6h7",
+              "d4d3",
+              "c2b2",
+              "d3d2",
+              "h7h8q",
+              "d2d1q",
+              "h8c8",
+              "c5d6",
+              "c8f8",
+              "d6e6",
+              "f8e8",
+              "e6f6",
+              "e8h8",
+              "f6e7",
+              "h8e5",
+              "e7d7",
+              "e5a5",
+              "d7e6",
+              "a5b6",
+              "d1d6",
+              "b6g1",
+              "d6b8",
+              "b2a1",
+              "b8e5",
+              "a1a2"
+            ],
+            "bestMove": "h6h7",
+            "scoreType": "cp",
+            "scoreValue": -335
+          },
+          "hanging": {
+            "targetSquare": "a5",
+            "capture": "c7a5",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on a5 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "c7",
+            "a5"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 7,
+        "sourceChunk": 9,
+        "sourceIndex": 13,
+        "sourceIdentity": "voYrr",
+        "canonicalIdentity": "8/2b2p2/7P/R1k5/2pp4/8/2K5/8 b - -|hanging-piece|c7a5,h6h7,d4d3,c2b2,d3d2,h7h8q,d2d1q|voYrr",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-pgZxb",
+      "puzzleId": "pgZxb",
+      "fen": "6k1/B3r3/PK3p2/1p6/1P5p/4P3/5P2/8 b - - 2 50",
+      "preMove": "e7a7",
+      "solutionLine": [
+        "b6a7",
+        "h4h3",
+        "a7b8",
+        "h3h2",
+        "a6a7",
+        "h2h1q",
+        "a7a8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1893,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 8",
+        "evidence": {
+          "storedLine": [
+            "b6a7",
+            "h4h3",
+            "a7b8",
+            "h3h2",
+            "a6a7",
+            "h2h1q",
+            "a7a8q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "h4h3",
+              "a7b8",
+              "h3h2",
+              "a6a7",
+              "h2h1q",
+              "a7a8q",
+              "h1f1",
+              "b8a7",
+              "g8g7",
+              "a8b7",
+              "g7g6",
+              "b7e4",
+              "f6f5",
+              "e4f4",
+              "f1e2",
+              "a7b6",
+              "e2d3",
+              "f4c7",
+              "d3e2",
+              "c7c6",
+              "g6h5"
+            ],
+            "bestMove": "h4h3",
+            "scoreType": "cp",
+            "scoreValue": -239
+          },
+          "hanging": {
+            "targetSquare": "a7",
+            "capture": "b6a7",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on a7 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "b6",
+            "a7"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 8,
+        "sourceChunk": 3,
+        "sourceIndex": 18,
+        "sourceIdentity": "pgZxb",
+        "canonicalIdentity": "6k1/r7/PK3p2/1p6/1P5p/4P3/5P2/8 w - -|hanging-piece|b6a7,h4h3,a7b8,h3h2,a6a7,h2h1q,a7a8q|pgZxb",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-wJCkb",
+      "puzzleId": "wJCkb",
+      "fen": "r1R3k1/3P1p2/7p/4P3/p5pq/8/5RP1/6K1 b - - 1 43",
+      "preMove": "g8g7",
+      "solutionLine": [
+        "c8a8",
+        "g4g3",
+        "d7d8q",
+        "g3f2",
+        "g1f1",
+        "h4c4",
+        "f1f2"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 2116,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "queenRookEndgame",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 19,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 3 pawn-equivalent(s) and best-defense PV retains 2",
+        "evidence": {
+          "storedLine": [
+            "c8a8",
+            "g4g3",
+            "d7d8q",
+            "g3f2",
+            "g1f1",
+            "h4c4",
+            "f1f2"
+          ],
+          "concreteResult": "stored continuation gains 3 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "g4g3",
+              "d7d8q",
+              "g3f2",
+              "g1f1",
+              "h4c4",
+              "f1f2",
+              "c4f4",
+              "f2e2",
+              "f4e5",
+              "e2d3",
+              "e5g3",
+              "d3c4",
+              "g3b3",
+              "c4c5",
+              "b3c3",
+              "c5b6",
+              "c3b2",
+              "b6a6"
+            ],
+            "bestMove": "g4g3",
+            "scoreType": "cp",
+            "scoreValue": -243
+          },
+          "hanging": {
+            "targetSquare": "a8",
+            "capture": "c8a8",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on a8 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "c8",
+            "a8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 9,
+        "sourceChunk": 5,
+        "sourceIndex": 19,
+        "sourceIdentity": "wJCkb",
+        "canonicalIdentity": "r1R5/3P1pk1/7p/4P3/p5pq/8/5RP1/6K1 w - -|hanging-piece|c8a8,g4g3,d7d8q,g3f2,g1f1,h4c4,f1f2|wJCkb",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-oFB3j",
+      "puzzleId": "oFB3j",
+      "fen": "2Q5/8/8/p6P/4pp2/P2k4/2p4K/8 w - - 2 51",
+      "preMove": "c8c2",
+      "solutionLine": [
+        "d3c2",
+        "h5h6",
+        "e4e3",
+        "h6h7",
+        "e3e2",
+        "h7h8q",
+        "e2e1q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1217,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 6,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 7",
+        "evidence": {
+          "storedLine": [
+            "d3c2",
+            "h5h6",
+            "e4e3",
+            "h6h7",
+            "e3e2",
+            "h7h8q",
+            "e2e1q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "h5h6",
+              "e4e3",
+              "h6h7",
+              "e3e2",
+              "h7h8q",
+              "e2e1q",
+              "a3a4",
+              "e1e2",
+              "h2h3",
+              "e2e3",
+              "h3h2",
+              "c2b3",
+              "h8a1",
+              "e3c3",
+              "a1f1",
+              "b3a4",
+              "f1f4",
+              "a4a3"
+            ],
+            "bestMove": "h5h6",
+            "scoreType": "cp",
+            "scoreValue": -198
+          },
+          "hanging": {
+            "targetSquare": "c2",
+            "capture": "d3c2",
+            "capturedPiece": "q",
+            "targetValue": 9
+          },
+          "explanation": "Hanging piece: the queen on c2 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "d3",
+            "c2"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 10,
+        "sourceChunk": 1,
+        "sourceIndex": 6,
+        "sourceIdentity": "oFB3j",
+        "canonicalIdentity": "8/8/8/p6P/4pp2/P2k4/2Q4K/8 b - -|hanging-piece|d3c2,h5h6,e4e3,h6h7,e3e2,h7h8q,e2e1q|oFB3j",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-ynBr5",
+      "puzzleId": "ynBr5",
+      "fen": "8/5p1p/4pkp1/1PRp4/2b2P2/6KP/8/8 w - - 1 43",
+      "preMove": "c5c4",
+      "solutionLine": [
+        "d5c4",
+        "b5b6",
+        "c4c3",
+        "b6b7",
+        "c3c2",
+        "b7b8q",
+        "c2c1q",
+        "b8h8",
+        "f6e7"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1757,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 6",
+        "evidence": {
+          "storedLine": [
+            "d5c4",
+            "b5b6",
+            "c4c3",
+            "b6b7",
+            "c3c2",
+            "b7b8q",
+            "c2c1q",
+            "b8h8",
+            "f6e7"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "b5b6",
+              "c4c3",
+              "b6b7",
+              "c3c2",
+              "b7b8q",
+              "c2c1q",
+              "b8h8",
+              "f6e7",
+              "h8h7",
+              "g6g5",
+              "f4g5",
+              "c1g5",
+              "g3h2",
+              "g5g6"
+            ],
+            "bestMove": "b5b6",
+            "scoreType": "cp",
+            "scoreValue": -155
+          },
+          "hanging": {
+            "targetSquare": "c4",
+            "capture": "d5c4",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on c4 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "d5",
+            "c4"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 11,
+        "sourceChunk": 3,
+        "sourceIndex": 10,
+        "sourceIdentity": "ynBr5",
+        "canonicalIdentity": "8/5p1p/4pkp1/1P1p4/2R2P2/6KP/8/8 b - -|hanging-piece|d5c4,b5b6,c4c3,b6b7,c3c2,b7b8q,c2c1q,b8h8,f6e7|ynBr5",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-zOSbN",
+      "puzzleId": "zOSbN",
+      "fen": "8/4k1K1/1p3p2/pPpBp2P/P1P1P1p1/8/8/8 w - - 0 66",
+      "preMove": "d5e6",
+      "solutionLine": [
+        "e7e6",
+        "h5h6",
+        "g4g3",
+        "h6h7",
+        "g3g2",
+        "g7f8",
+        "g2g1q",
+        "h7h8q",
+        "g1g6",
+        "h8h3",
+        "f6f5",
+        "h3f5",
+        "g6f5"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "tacticDistance": 7,
+      "rating": 2150,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 7 pawn-equivalent(s) and best-defense PV retains 7",
+        "evidence": {
+          "storedLine": [
+            "e7e6",
+            "h5h6",
+            "g4g3",
+            "h6h7",
+            "g3g2",
+            "g7f8",
+            "g2g1q",
+            "h7h8q",
+            "g1g6",
+            "h8h3",
+            "f6f5",
+            "h3f5",
+            "g6f5"
+          ],
+          "concreteResult": "stored continuation gains 7 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "g7f8",
+              "g4g3",
+              "f8e8",
+              "g3g2",
+              "e8d8",
+              "g2g1q",
+              "d8c7",
+              "g1g7",
+              "c7b6",
+              "g7d7",
+              "h5h6",
+              "d7d8",
+              "b6b7"
+            ],
+            "bestMove": "g7f8",
+            "scoreType": "cp",
+            "scoreValue": -511
+          },
+          "hanging": {
+            "targetSquare": "e6",
+            "capture": "e7e6",
+            "capturedPiece": "b",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the bishop on e6 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "e7",
+            "e6"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 12,
+        "sourceChunk": 6,
+        "sourceIndex": 10,
+        "sourceIdentity": "zOSbN",
+        "canonicalIdentity": "8/4k1K1/1p2Bp2/pPp1p2P/P1P1P1p1/8/8/8 b - -|hanging-piece|e7e6,h5h6,g4g3,h6h7,g3g2,g7f8,g2g1q,h7h8q,g1g6,h8h3,f6f5,h3f5,g6f5|zOSbN",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-vLywx",
+      "puzzleId": "vLywx",
+      "fen": "8/6kP/2n3P1/1p1KP3/8/8/8/8 b - - 4 55",
+      "preMove": "b5b4",
+      "solutionLine": [
+        "d5c6",
+        "b4b3",
+        "e5e6",
+        "b3b2",
+        "e6e7",
+        "b2b1q",
+        "e7e8q",
+        "b1c2",
+        "c6b6"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 2785,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "defense",
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Defense",
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "defensiveMove",
+        "endgame",
+        "hangingPiece",
+        "master",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 24,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 7",
+        "evidence": {
+          "storedLine": [
+            "d5c6",
+            "b4b3",
+            "e5e6",
+            "b3b2",
+            "e6e7",
+            "b2b1q",
+            "e7e8q",
+            "b1c2",
+            "c6b6"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "b4b3",
+              "e5e6",
+              "b3b2",
+              "e6e7",
+              "b2b1q",
+              "e7e8q",
+              "b1c2",
+              "c6b6",
+              "c2b3",
+              "e8b5",
+              "b3e3",
+              "b5c5",
+              "e3b3",
+              "b6c7",
+              "b3g3",
+              "c5d6",
+              "g3c3",
+              "c7d7",
+              "g7h6",
+              "d6f8",
+              "h6g6"
+            ],
+            "bestMove": "b4b3",
+            "scoreType": "cp",
+            "scoreValue": -459
+          },
+          "hanging": {
+            "targetSquare": "c6",
+            "capture": "d5c6",
+            "capturedPiece": "n",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the knight on c6 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "d5",
+            "c6"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 13,
+        "sourceChunk": 10,
+        "sourceIndex": 24,
+        "sourceIdentity": "vLywx",
+        "canonicalIdentity": "8/6kP/2n3P1/3KP3/1p6/8/8/8 w - -|hanging-piece|d5c6,b4b3,e5e6,b3b2,e6e7,b2b1q,e7e8q,b1c2,c6b6|vLywx",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-vmiao",
+      "puzzleId": "vmiao",
+      "fen": "7r/1p6/k2Kp1p1/P3PpP1/3P3P/4p3/8/7R b - - 1 35",
+      "preMove": "h8h4",
+      "solutionLine": [
+        "h1h4",
+        "e3e2",
+        "h4h1",
+        "f5f4",
+        "d4d5",
+        "f4f3",
+        "d5e6",
+        "f3f2",
+        "e6e7",
+        "f2f1q",
+        "h1f1",
+        "e2f1q",
+        "e7e8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "tacticDistance": 7,
+      "rating": 2161,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "quiet-move",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Quiet Move",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "quietMove",
+        "rookEndgame",
+        "veryLong"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 18,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 3 pawn-equivalent(s) and best-defense PV retains 3",
+        "evidence": {
+          "storedLine": [
+            "h1h4",
+            "e3e2",
+            "h4h1",
+            "f5f4",
+            "d4d5",
+            "f4f3",
+            "d5e6",
+            "f3f2",
+            "e6e7",
+            "f2f1q",
+            "h1f1",
+            "e2f1q",
+            "e7e8q"
+          ],
+          "concreteResult": "stored continuation gains 3 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "e3e2",
+              "h4h1",
+              "f5f4",
+              "d4d5",
+              "f4f3",
+              "d5e6",
+              "f3f2",
+              "e6e7",
+              "e2e1q",
+              "h1e1",
+              "f2e1q",
+              "e7e8q",
+              "e1a1"
+            ],
+            "bestMove": "e3e2",
+            "scoreType": "cp",
+            "scoreValue": -302
+          },
+          "hanging": {
+            "targetSquare": "h4",
+            "capture": "h1h4",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on h4 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "h1",
+            "h4"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 14,
+        "sourceChunk": 6,
+        "sourceIndex": 18,
+        "sourceIdentity": "vmiao",
+        "canonicalIdentity": "8/1p6/k2Kp1p1/P3PpP1/3P3r/4p3/8/7R w - -|hanging-piece|h1h4,e3e2,h4h1,f5f4,d4d5,f4f3,d5e6,f3f2,e6e7,f2f1q,h1f1,e2f1q,e7e8q|vmiao",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-znOjj",
+      "puzzleId": "znOjj",
+      "fen": "8/6R1/1b5P/1k6/4K3/p7/8/8 w - - 0 52",
+      "preMove": "g7g1",
+      "solutionLine": [
+        "b6g1",
+        "h6h7",
+        "g1d4",
+        "e4d4",
+        "a3a2",
+        "d4e4",
+        "a2a1q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1981,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "quiet-move",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Quiet Move",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "quietMove",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 3,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 5 pawn-equivalent(s) and best-defense PV retains 5",
+        "evidence": {
+          "storedLine": [
+            "b6g1",
+            "h6h7",
+            "g1d4",
+            "e4d4",
+            "a3a2",
+            "d4e4",
+            "a2a1q"
+          ],
+          "concreteResult": "stored continuation gains 5 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "h6h7",
+              "g1d4",
+              "e4d4",
+              "a3a2",
+              "d4d5",
+              "a2a1q",
+              "d5d6",
+              "a1h8",
+              "d6e7",
+              "h8g7",
+              "e7d6",
+              "g7h7",
+              "d6e5"
+            ],
+            "bestMove": "h6h7",
+            "scoreType": "cp",
+            "scoreValue": -531
+          },
+          "hanging": {
+            "targetSquare": "g1",
+            "capture": "b6g1",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on g1 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "b6",
+            "g1"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 15,
+        "sourceChunk": 4,
+        "sourceIndex": 3,
+        "sourceIdentity": "znOjj",
+        "canonicalIdentity": "8/8/1b5P/1k6/4K3/p7/8/6R1 b - -|hanging-piece|b6g1,h6h7,g1d4,e4d4,a3a2,d4e4,a2a1q|znOjj",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-xBiX0",
+      "puzzleId": "xBiX0",
+      "fen": "8/4Kp2/4nP2/4P2p/pk5P/8/8/8 b - - 3 44",
+      "preMove": "e6d8",
+      "solutionLine": [
+        "e7d8",
+        "a4a3",
+        "e5e6",
+        "f7e6",
+        "f6f7",
+        "a3a2",
+        "f7f8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1055,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 10,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 7 pawn-equivalent(s) and best-defense PV retains 8",
+        "evidence": {
+          "storedLine": [
+            "e7d8",
+            "a4a3",
+            "e5e6",
+            "f7e6",
+            "f6f7",
+            "a3a2",
+            "f7f8q"
+          ],
+          "concreteResult": "stored continuation gains 7 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "a4a3",
+              "e5e6",
+              "a3a2",
+              "e6f7",
+              "b4b5",
+              "f7f8q",
+              "a2a1q",
+              "f8d6",
+              "a1a8",
+              "d8d7",
+              "a8f3",
+              "d6e6",
+              "f3b7",
+              "d7e8",
+              "b7a8",
+              "e8f7",
+              "a8b7"
+            ],
+            "bestMove": "a4a3",
+            "scoreType": "cp",
+            "scoreValue": -432
+          },
+          "hanging": {
+            "targetSquare": "d8",
+            "capture": "e7d8",
+            "capturedPiece": "n",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the knight on d8 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "e7",
+            "d8"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 16,
+        "sourceChunk": 1,
+        "sourceIndex": 10,
+        "sourceIdentity": "xBiX0",
+        "canonicalIdentity": "3n4/4Kp2/5P2/4P2p/pk5P/8/8/8 w - -|hanging-piece|e7d8,a4a3,e5e6,f7e6,f6f7,a3a2,f7f8q|xBiX0",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-kV7ND",
+      "puzzleId": "kV7ND",
+      "fen": "8/1p2n1k1/4K1P1/p6P/8/3P4/8/8 b - - 2 52",
+      "preMove": "e7f5",
+      "solutionLine": [
+        "e6f5",
+        "a5a4",
+        "f5g5",
+        "a4a3",
+        "h5h6",
+        "g7g8",
+        "g5f6",
+        "a3a2",
+        "h6h7",
+        "g8h8",
+        "g6g7",
+        "h8h7",
+        "f6f7",
+        "h7h6",
+        "g7g8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "tacticDistance": 8,
+      "rating": 2046,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "vulnerable-king",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Vulnerable / Exposed King",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "crushing",
+        "endgame",
+        "exposedKing",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 4,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 7 pawn-equivalent(s) and best-defense PV retains 7",
+        "evidence": {
+          "storedLine": [
+            "e6f5",
+            "a5a4",
+            "f5g5",
+            "a4a3",
+            "h5h6",
+            "g7g8",
+            "g5f6",
+            "a3a2",
+            "h6h7",
+            "g8h8",
+            "g6g7",
+            "h8h7",
+            "f6f7",
+            "h7h6",
+            "g7g8q"
+          ],
+          "concreteResult": "stored continuation gains 7 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "a5a4",
+              "f5g5",
+              "a4a3",
+              "h5h6",
+              "g7g8",
+              "g5f6",
+              "a3a2",
+              "h6h7",
+              "g8h8",
+              "g6g7",
+              "h8h7",
+              "f6f7",
+              "h7h6",
+              "g7g8q",
+              "h6h5",
+              "g8g6",
+              "h5h4"
+            ],
+            "bestMove": "a5a4",
+            "scoreType": "cp",
+            "scoreValue": -487
+          },
+          "hanging": {
+            "targetSquare": "f5",
+            "capture": "e6f5",
+            "capturedPiece": "n",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the knight on f5 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "e6",
+            "f5"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 17,
+        "sourceChunk": 5,
+        "sourceIndex": 4,
+        "sourceIdentity": "kV7ND",
+        "canonicalIdentity": "8/1p4k1/4K1P1/p4n1P/8/3P4/8/8 w - -|hanging-piece|e6f5,a5a4,f5g5,a4a3,h5h6,g7g8,g5f6,a3a2,h6h7,g8h8,g6g7,h8h7,f6f7,h7h6,g7g8q|kV7ND",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-k1uzh",
+      "puzzleId": "k1uzh",
+      "fen": "8/7K/6p1/3pr3/1P3P2/6P1/2k4P/8 b - - 0 58",
+      "preMove": "d5d4",
+      "solutionLine": [
+        "f4e5",
+        "d4d3",
+        "e5e6",
+        "d3d2",
+        "e6e7",
+        "d2d1q",
+        "e7e8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "tacticDistance": 4,
+      "rating": 1181,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "endgame",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 1,
+      "chunkIndex": 25,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 7",
+        "evidence": {
+          "storedLine": [
+            "f4e5",
+            "d4d3",
+            "e5e6",
+            "d3d2",
+            "e6e7",
+            "d2d1q",
+            "e7e8q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "d4d3",
+              "e5e6",
+              "d3d2",
+              "e6e7",
+              "d2d1q",
+              "e7e8q",
+              "d1d2",
+              "b4b5",
+              "d2h2",
+              "h7g7",
+              "g6g5",
+              "e8c8",
+              "c2b2",
+              "b5b6",
+              "h2d2",
+              "c8c7",
+              "d2d4",
+              "g7f7",
+              "d4d5",
+              "f7f8",
+              "d5a8",
+              "f8g7"
+            ],
+            "bestMove": "d4d3",
+            "scoreType": "cp",
+            "scoreValue": -337
+          },
+          "hanging": {
+            "targetSquare": "e5",
+            "capture": "f4e5",
+            "capturedPiece": "r",
+            "targetValue": 5
+          },
+          "explanation": "Hanging piece: the rook on e5 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "f4",
+            "e5"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 18,
+        "sourceChunk": 1,
+        "sourceIndex": 25,
+        "sourceIdentity": "k1uzh",
+        "canonicalIdentity": "8/7K/6p1/4r3/1P1p1P2/6P1/2k4P/8 w - -|hanging-piece|f4e5,d4d3,e5e6,d3d2,e6e7,d2d1q,e7e8q|k1uzh",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    },
+    {
+      "id": "hanging-piece-m4-xxdWW",
+      "puzzleId": "xxdWW",
+      "fen": "4k3/4b3/4P3/3P4/2p3pp/1pB5/5PKP/8 b - - 1 49",
+      "preMove": "e7b4",
+      "solutionLine": [
+        "c3b4",
+        "b3b2",
+        "d5d6",
+        "b2b1q",
+        "d6d7",
+        "e8d8",
+        "b4a5",
+        "d8e7",
+        "d7d8q"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "tacticDistance": 5,
+      "rating": 1989,
+      "label": "Hanging Piece - Tactic in 4+",
+      "theme": "hanging-piece",
+      "sourceThemeKeys": [
+        "advanced-pawn",
+        "hanging-piece",
+        "vulnerable-king",
+        "promotion"
+      ],
+      "sourceThemes": [
+        "Advanced Pawn",
+        "Hanging Piece",
+        "Vulnerable / Exposed King",
+        "Promotion"
+      ],
+      "themes": [
+        "advancedPawn",
+        "advantage",
+        "bishopEndgame",
+        "endgame",
+        "exposedKing",
+        "hangingPiece",
+        "promotion",
+        "veryLong"
+      ],
+      "chunkNumber": 4,
+      "chunkIndex": 23,
+      "canonicalThemeKey": "hanging-piece",
+      "canonicalThemeLabel": "Hanging Piece",
+      "semanticAudit": {
+        "version": "batch1-semantic-v5",
+        "status": "VALID",
+        "reason": "stored continuation wins 8 pawn-equivalent(s) and best-defense PV retains 7",
+        "evidence": {
+          "storedLine": [
+            "c3b4",
+            "b3b2",
+            "d5d6",
+            "b2b1q",
+            "d6d7",
+            "e8d8",
+            "b4a5",
+            "d8e7",
+            "d7d8q"
+          ],
+          "concreteResult": "stored continuation gains 8 pawn-equivalent(s)",
+          "engine": {
+            "depth": 14,
+            "pv": [
+              "b3b2",
+              "d5d6",
+              "b2b1q",
+              "d6d7",
+              "e8d8",
+              "b4a5",
+              "d8e7",
+              "d7d8q",
+              "e7e6",
+              "d8g8",
+              "e6d6",
+              "a5b4",
+              "d6c7",
+              "g8c4",
+              "c7b7",
+              "c4b5",
+              "b7c8",
+              "b5c6",
+              "c8b8",
+              "c6b6",
+              "b8c8"
+            ],
+            "bestMove": "b3b2",
+            "scoreType": "cp",
+            "scoreValue": -394
+          },
+          "hanging": {
+            "targetSquare": "b4",
+            "capture": "c3b4",
+            "capturedPiece": "b",
+            "targetValue": 3
+          },
+          "explanation": "Hanging piece: the bishop on b4 is legally captured without a sufficient recapture.",
+          "highlightSquares": [
+            "c3",
+            "b4"
+          ]
+        }
+      },
+      "learnerCurriculum": {
+        "version": "m4-semantic-v5",
+        "tacticDistance": 4,
+        "learnerChunk": 1,
+        "orderInChunk": 19,
+        "sourceChunk": 4,
+        "sourceIndex": 23,
+        "sourceIdentity": "xxdWW",
+        "canonicalIdentity": "4k3/8/4P3/3P4/1bp3pp/1pB5/5PKP/8 w - -|hanging-piece|c3b4,b3b2,d5d6,b2b1q,d6d7,e8d8,b4a5,d8e7,d7d8q|xxdWW",
+        "retainedReason": "Batch 1 fixed-depth Stockfish 18 best-defense proof plus dedicated semantic validator."
+      }
+    }
+  ]
+}

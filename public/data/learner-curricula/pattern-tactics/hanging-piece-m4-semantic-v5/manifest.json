@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "curriculumVersion": "pattern-tactic-hanging-piece-m4-semantic-v5",
+  "category": "tactics",
+  "theme": "hanging-piece",
+  "canonicalThemeKey": "hanging-piece",
+  "canonicalThemeLabel": "Hanging Piece",
+  "tacticDistance": 4,
+  "totalPuzzles": 23,
+  "totalChunks": 2,
+  "chunkSize": 20,
+  "files": [
+    "chunk-001.json",
+    "chunk-002.json"
+  ],
+  "unavailable": false,
+  "sourceManifest": "/data/pattern-tactics/hanging-piece/m4/manifest.json",
+  "semanticCounts": {
+    "VALID": 23,
+    "AMBIGUOUS": 277,
+    "MISCLASSIFIED": 0,
+    "BROKEN": 0,
+    "retained": 23,
+    "unusedValid": 0
+  },
+  "validation": {
+    "version": "batch1-semantic-v5",
+    "engine": {
+      "name": "Stockfish 18",
+      "depth": 14,
+      "threads": 1,
+      "hashMb": 64,
+      "timeCutoff": false
+    },
+    "policy": "VALID only; ambiguous, misclassified, and broken records are excluded."
+  },
+  "legacyMapping": "Legacy progress rows remain immutable and map proportionally through the existing learner-curriculum compatibility layer."
+}
