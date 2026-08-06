@@ -39,7 +39,13 @@
     "test:connected-import": "node scripts/test-connected-account-import.mjs",
     "test:trainer-progress-display": "node scripts/test-trainer-progress-display.mjs",
     "test:puzzle-progression": "node scripts/test-puzzle-progression.mjs",
-    "test:chunk-completion-overlay": "node scripts/test-chunk-completion-overlay.mjs"
+    "test:chunk-completion-overlay": "node scripts/test-chunk-completion-overlay.mjs",
+    "scan:verified-lichess-atomic-m2": "node scripts/build-verified-lichess-atomic-m2-candidates.mjs --resume",
+    "classify:verified-lichess-atomic-m2": "node scripts/classify-verified-lichess-atomic-m2.mjs",
+    "report:verified-lichess-atomic-coverage": "node scripts/generate-verified-lichess-atomic-coverage.mjs",
+    "cluster:verified-lichess-exact-symmetry-families-v3": "node scripts/cluster-verified-lichess-exact-symmetry-families-v3.mjs",
+    "test:verified-lichess-exact-symmetry-family-v3": "node scripts/test-verified-lichess-exact-symmetry-family-v3.mjs",
+    "test:verified-lichess-atomic-taxonomy": "node scripts/test-verified-lichess-atomic-taxonomy.mjs"
     ,"audit:pattern-tactic-batch1-semantics": "node scripts/audit-pattern-tactic-batch1-semantics.mjs"
     ,"build:pattern-tactic-batch1-semantic-v5": "node scripts/build-pattern-tactic-batch1-semantic-v5.mjs"
     ,"test:pattern-tactic-batch1-semantic-v5": "node scripts/test-pattern-tactic-batch1-semantic-v5.mjs"
