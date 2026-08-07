@@ -36,6 +36,13 @@ cross-course audit.
   the exact target that the next learner move captures. Its first broad run,
   which accepted king check evasions, is retained locally as diagnostic-only;
   the corrected v2 run is the only usable output.
+- Line Clearance structural validator: the learner must vacate the sole blocker
+  between a different friendly slider and a significant enemy target. File,
+  Rank, and Diagonal line types are kept separate. Square Clearance and
+  Clearance Sacrifice require their own causal proofs.
+- The capture-decoy/attraction subtype produced no structural candidates under
+  its strict arrival-and-exact-capture rule, so the focused course is unavailable
+  rather than being padded with raw-tag records.
 
 ## Current stage
 
