@@ -43,6 +43,9 @@ cross-course audit.
 - The capture-decoy/attraction subtype produced no structural candidates under
   its strict arrival-and-exact-capture rule, so the focused course is unavailable
   rather than being padded with raw-tag records.
+- The strict Interference validator found no record that both blocks a previously
+  open enemy slider line and has an immediate concrete tactical consequence.
+  Interference is unavailable for this release.
 
 ## Current stage
 

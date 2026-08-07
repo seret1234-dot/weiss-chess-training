@@ -1,0 +1,1 @@
+import assert from'node:assert/strict';import{Chess}from'chess.js';import{findInterference}from'./lib/verified-lichess-interference.mjs';const b=new Chess('r3k3/8/8/8/8/2N5/8/Q3K3 w - - 0 1'),a=new Chess(b.fen()),m=a.move({from:'c3',to:'a4'});assert.ok(m);assert.equal(findInterference(b,a,m,'w').length,1);console.log('verified Lichess Interference fixtures passed')
