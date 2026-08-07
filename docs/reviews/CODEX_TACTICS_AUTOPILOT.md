@@ -32,6 +32,10 @@ cross-course audit.
 - Strict Discovered Check structural validator: the learner must move the unique
   blocker and reveal a distinct friendly slider as the checker. Genuine double
   checks are excluded from the Discovered Check course.
+- Strict Deflection structural validator: a non-king defender must be forced from
+  the exact target that the next learner move captures. Its first broad run,
+  which accepted king check evasions, is retained locally as diagnostic-only;
+  the corrected v2 run is the only usable output.
 
 ## Current stage
 
