@@ -46,6 +46,10 @@ cross-course audit.
 - The strict Interference validator found no record that both blocks a previously
   open enemy slider line and has an immediate concrete tactical consequence.
   Interference is unavailable for this release.
+- Removal of Defender v2 treats the capture of the sole defender as the M1
+  tactical lesson. It requires a significant enemy target to become immediately
+  attacked and completely undefended after that capture; later collection is not
+  required. The original later-collection-only v1 output is diagnostic-only.
 
 ## Current stage
 
