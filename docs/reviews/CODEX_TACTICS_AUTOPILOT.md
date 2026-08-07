@@ -29,6 +29,9 @@ cross-course audit.
   Underpromotion, En Passant, Zwischencheck, Capture Zwischenzug, and Hanging
   Piece M1.
 - Core focused-motif onset audit, using the existing atomic structural spool.
+- Strict Discovered Check structural validator: the learner must move the unique
+  blocker and reveal a distinct friendly slider as the checker. Genuine double
+  checks are excluded from the Discovered Check course.
 
 ## Current stage
 
