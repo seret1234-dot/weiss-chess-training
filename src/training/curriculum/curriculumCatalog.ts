@@ -22,6 +22,11 @@ export const MATE_THEMES = ["anastasia", "back-rank", "arabian", "boden", "smoth
  */
 export const TACTIC_THEME_STAGE: Record<string, number> = {
   "hanging-piece": 1,
+  "diagonal-clearance": 1,
+  "file-clearance": 1,
+  "rank-clearance": 1,
+  zwischencheck: 1,
+  zwischenzug: 1,
   "trapped-piece": 1,
   "discovered-attack": 1,
   "knight-fork": 1,
@@ -53,7 +58,6 @@ export const TACTIC_THEME_STAGE: Record<string, number> = {
   "rook-xray": 3,
   "bishop-xray": 3,
   zugzwang: 3,
-  zwischenzug: 3,
   "vulnerable-king": 3,
   "kingside-attack": 3,
   "queenside-attack": 3,

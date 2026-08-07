@@ -23,7 +23,7 @@ export type LegacyChunkProgressLike = {
 }
 
 const ALL_STANDARD_THEMES = [
-  "advanced-pawn", "attacking-f2-f7", "bishop-fork", "bishop-pin", "bishop-sacrifice", "bishop-skewer", "bishop-xray", "clearance", "clearance-sacrifice", "decoy-attraction", "decoy-deflection", "defense", "deflection", "discovered-attack", "discovered-check", "double-check", "en-passant", "hanging-piece", "interference", "interference-sacrifice", "king-fork", "king-sacrifice", "kingside-attack", "knight-fork", "knight-sacrifice", "knight-underpromotion", "other-pin", "other-skewer", "other-xray", "pawn-fork", "pawn-sacrifice", "promotion", "queen-fork", "queen-pin", "queen-sacrifice", "queen-skewer", "queen-xray", "queenside-attack", "quiet-move", "remove-the-defender", "rook-fork", "rook-pin", "rook-sacrifice", "rook-skewer", "rook-xray", "trapped-piece", "underpromotion", "vulnerable-king", "zugzwang", "zwischenzug",
+  "advanced-pawn", "attacking-f2-f7", "bishop-fork", "bishop-pin", "bishop-sacrifice", "bishop-skewer", "bishop-xray", "clearance", "clearance-sacrifice", "decoy-attraction", "decoy-deflection", "defense", "deflection", "diagonal-clearance", "discovered-attack", "discovered-check", "double-check", "en-passant", "file-clearance", "hanging-piece", "interference", "interference-sacrifice", "king-fork", "king-sacrifice", "kingside-attack", "knight-fork", "knight-sacrifice", "knight-underpromotion", "other-pin", "other-skewer", "other-xray", "pawn-fork", "pawn-sacrifice", "promotion", "queen-fork", "queen-pin", "queen-sacrifice", "queen-skewer", "queen-xray", "queenside-attack", "quiet-move", "rank-clearance", "remove-the-defender", "rook-fork", "rook-pin", "rook-sacrifice", "rook-skewer", "rook-xray", "trapped-piece", "underpromotion", "vulnerable-king", "zugzwang", "zwischencheck", "zwischenzug",
 ] as const
 
 const THEMES_BY_DISTANCE: Record<1 | 2 | 3 | 4, readonly string[]> = {
@@ -103,50 +103,51 @@ const BATCH1_SEMANTIC_V5_RECORD_COUNTS: Record<string, number> = {
 export const TIER_A_SEMANTIC_THEME_KEYS = new Set(Object.keys(TIER_A_SEMANTIC_CHUNKS).map((key) => key.replace(/-m[1-4]$/, "")))
 
 export type PatternTacticSemanticStatus = {
-  version: "semantic-v2" | "semantic-v3" | "semantic-v4" | "semantic-v5"
+  version: "semantic-v2" | "semantic-v3" | "semantic-v4" | "semantic-v5" | "verified-final-v1"
   active: boolean
   validator: string
 }
 
+// The verified final corpus is the sole runtime source for focused tactics.
+// Anything absent from this immutable approved matrix is deliberately
+// unavailable; no older learner overlay may be used as a fallback.
+const VERIFIED_FINAL_COUNTS: Record<string, number> = {
+  "bishop-fork-m1": 100, "bishop-fork-m2": 37,
+  "bishop-pin-m1": 100, "bishop-pin-m2": 160,
+  "bishop-skewer-m1": 100,
+  "diagonal-clearance-m1": 100,
+  "file-clearance-m1": 96, "file-clearance-m2": 84,
+  "rank-clearance-m1": 61, "rank-clearance-m2": 23,
+  "deflection-m1": 100,
+  "discovered-attack-m1": 100,
+  "discovered-check-m1": 100, "discovered-check-m2": 160,
+  "double-check-m1": 100,
+  "en-passant-m1": 100, "en-passant-m2": 160,
+  "hanging-piece-m1": 100,
+  "knight-fork-m1": 100, "knight-fork-m2": 83,
+  "knight-underpromotion-m1": 100, "knight-underpromotion-m2": 160,
+  "pawn-fork-m1": 100,
+  "promotion-m1": 100, "promotion-m2": 160,
+  "queen-fork-m1": 100, "queen-fork-m2": 103,
+  "queen-pin-m1": 100, "queen-pin-m2": 160,
+  "queen-skewer-m1": 100,
+  "remove-the-defender-m1": 100,
+  "rook-fork-m1": 100,
+  "rook-pin-m1": 100, "rook-pin-m2": 160,
+  "rook-skewer-m1": 100,
+  "zwischencheck-m1": 100,
+  "zwischenzug-m1": 100,
+}
+
 export function getPatternTacticSemanticStatus(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticSemanticStatus {
   const sourceKey = `${theme}-m${tacticDistance}`
-  if (BATCH1_SEMANTIC_V5_THEMES.has(theme)) {
-    const approvedRecords = BATCH1_SEMANTIC_V5_RECORD_COUNTS[sourceKey] ?? 0
-    return {
-      version: approvedRecords >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE ? "semantic-v5" : "semantic-v4",
-      active: approvedRecords >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE,
-      validator: "batch1-semantic-v5",
-    }
-  }
-  if (FORK_SOUND_V3_THEMES.has(theme)) {
-    const approvedRecords = FORK_SOUND_V3_RECORD_COUNTS[sourceKey] ?? 0
-    // The catalog-wide semantic policy is intentionally stricter than the
-    // original fork-only rollout: fewer than 20 independently reviewed
-    // exercises is not enough to make a learner-facing course available.
-    if (approvedRecords < 20) {
-      return {
-        version: "semantic-v4",
-        active: false,
-        validator: "fork-sound-v3",
-      }
-    }
-    return {
-      version: "semantic-v3",
-      active: true,
-      validator: "fork-sound-v3",
-    }
-  }
-  if (TIER_A_SEMANTIC_CHUNKS[sourceKey] !== undefined) {
-    return {
-      version: "semantic-v2",
-      active: TIER_A_SEMANTIC_CHUNKS[sourceKey] > 0,
-      validator: "tier-a-semantic-v2",
-    }
-  }
+  const verifiedCount = VERIFIED_FINAL_COUNTS[sourceKey] ?? 0
   return {
-    version: "semantic-v4",
-    active: false,
-    validator: "dedicated-theme-validator-required",
+    version: "verified-final-v1",
+    active: verifiedCount >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE,
+    validator: verifiedCount >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE
+      ? "verified-final-candidate-corpus"
+      : "verified-final-candidate-corpus-unavailable",
   }
 }
 
@@ -168,7 +169,9 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
   const sourceKey = `${theme}-m${tacticDistance}`
   const semantic = getPatternTacticSemanticStatus(theme, tacticDistance)
   const activeChunkCount = semantic.active
-    ? semantic.version === "semantic-v3"
+    ? semantic.version === "verified-final-v1"
+      ? Math.ceil((VERIFIED_FINAL_COUNTS[sourceKey] ?? 0) / PATTERN_TACTIC_LEARNER_CHUNK_SIZE)
+      : semantic.version === "semantic-v3"
       ? FORK_SOUND_V3_CHUNKS[sourceKey] ?? 0
       : semantic.version === "semantic-v5"
         ? BATCH1_SEMANTIC_V5_CHUNKS[sourceKey] ?? 0
@@ -183,7 +186,9 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
     tacticDistance,
     version,
     sourceDataBasePath: `/data/pattern-tactics/${theme}/m${tacticDistance}`,
-    learnerDataBasePath: `/data/learner-curricula/pattern-tactics/${theme}-m${tacticDistance}-${semantic.version}`,
+    learnerDataBasePath: semantic.version === "verified-final-v1"
+      ? `/data/verified-lichess-tactics-v1/final-v5/${theme}-m${tacticDistance}`
+      : `/data/learner-curricula/pattern-tactics/${theme}-m${tacticDistance}-${semantic.version}`,
     legacyChunkCount: LEGACY_CHUNK_COUNTS[sourceKey] ?? 10,
     activeChunkCount,
     activeChunkSize: PATTERN_TACTIC_LEARNER_CHUNK_SIZE,
@@ -212,7 +217,9 @@ export function getPatternTacticLearnerProgressTrainerKey(definitionOrTrainerKey
 // semantic-v2 supersedes (but never overwrites) the original learner overlay.
 // Retain a stable key for deterministic, proportional completion credit.
 export function getPatternTacticPriorLearnerProgressTrainerKey(definition: PatternTacticLearnerCurriculum) {
-  const priorVersion = definition.version.includes("semantic-v5")
+  const priorVersion = definition.version.includes("verified-final")
+    ? "semantic-v5"
+    : definition.version.includes("semantic-v5")
     ? "semantic-v4"
     : definition.version.includes("semantic-v3")
       ? "semantic-v2"
@@ -222,6 +229,7 @@ export function getPatternTacticPriorLearnerProgressTrainerKey(definition: Patte
 
 function priorLearnerActiveChunkCount(definition: PatternTacticLearnerCurriculum) {
   const sourceKey = `${definition.theme}-m${definition.tacticDistance}`
+  if (definition.version.includes("verified-final")) return ACTIVE_CHUNK_COUNT_OVERRIDES[sourceKey] ?? (definition.tacticDistance === 1 ? 5 : 8)
   if (definition.version.includes("semantic-v5")) return 0
   if (definition.version.includes("semantic-v3")) return TIER_A_SEMANTIC_CHUNKS[sourceKey] ?? 0
   return ACTIVE_CHUNK_COUNT_OVERRIDES[sourceKey] ?? (definition.tacticDistance === 1 ? 5 : 8)
@@ -262,8 +270,10 @@ export function getPatternTacticLegacyCompletionCredit(rows: LegacyChunkProgress
 }
 
 export function isPatternTacticLearnerCourseAvailable(trainerKey: string) {
+  if (/^tactic-mixed-m[12]$/.test(trainerKey)) return true
+  if (/^tactic-mixed-m[34]$/.test(trainerKey)) return false
   const curriculum = getPatternTacticLearnerCurriculum(trainerKey)
-  return !curriculum || curriculum.activeChunkCount > 0
+  return curriculum?.activeChunkCount > 0
 }
 
 export function getPatternTacticLearnerCompletionByTrainer(rows: Array<LegacyChunkProgressLike & { trainer_key?: string | null }>) {
@@ -274,14 +284,14 @@ export function getPatternTacticLearnerCompletionByTrainer(rows: Array<LegacyChu
       .filter((row) => row.trainer_key === learnerTrainerKey && row.is_mastered === true)
       .map((row) => Number(row.chunk_index))
       .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= definition.activeChunkCount)).size
-    const priorLearnerCompleted = definition.version.includes("semantic")
+    const priorLearnerCompleted = (definition.version.includes("semantic") || definition.version.includes("verified-final"))
       ? new Set(rows
         .filter((row) => row.trainer_key === getPatternTacticPriorLearnerProgressTrainerKey(definition) && row.is_mastered === true)
         .map((row) => Number(row.chunk_index))
         .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= priorLearnerActiveChunkCount(definition))).size
       : 0
     const priorChunkCount = priorLearnerActiveChunkCount(definition)
-    const priorLearnerCredit = definition.version.includes("semantic") && priorChunkCount > 0
+    const priorLearnerCredit = (definition.version.includes("semantic") || definition.version.includes("verified-final")) && priorChunkCount > 0
       ? Math.min(definition.activeChunkCount, Math.floor((priorLearnerCompleted * definition.activeChunkCount) / priorChunkCount))
       : 0
     const completedActiveChunks = Math.max(legacy.completedActiveChunks, activeCompletedChunks, priorLearnerCredit)

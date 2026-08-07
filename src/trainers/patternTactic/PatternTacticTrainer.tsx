@@ -83,7 +83,8 @@ type ManifestFile = {
  totalPuzzles?: number
  chunkSize?: number
  totalChunks?: number
- files?: string[]
+  files?: string[]
+  chunks?: Array<{ file: string; count?: number }>
  note?: string
  sourceThemes?: string[]
  canonicalThemeKey?: string
@@ -106,6 +107,8 @@ type ManifestFile = {
 
 type LichessChunkPuzzle = {
  id?: string
+ exerciseId?: string
+ sourcePuzzleId?: string
  lichessId?: string
  localId?: string
  fen?: string
@@ -122,6 +125,10 @@ type LichessChunkPuzzle = {
  gameUrl?: string
  openingTags?: string[]
  source?: string
+ canonicalSubtype?: string | null
+ structuralValidation?: string
+ engineValidation?: Record<string, unknown>
+ provenance?: Record<string, unknown>
  sourceTheme?: string
  sourceThemeTag?: string
  sourceThemeKeys?: string[]
@@ -157,6 +164,7 @@ export type PatternTacticPuzzle = {
  sourceTheme?: string
  canonicalThemeKey?: string
  canonicalThemeLabel?: string
+ canonicalSubtype?: string | null
  rawTags?: string[]
  sourceIdentity?: string
  canonicalIdentity?: string
@@ -396,11 +404,14 @@ function normalizePuzzle(
   canonicalThemeKey: typeof raw.canonicalThemeKey === 'string' && raw.canonicalThemeKey.trim()
    ? normaliseMixedThemeKey(raw.canonicalThemeKey, 'tactics')
    : undefined,
-  canonicalThemeLabel: typeof raw.canonicalThemeKey === 'string' && raw.canonicalThemeKey.trim()
+  canonicalThemeLabel: typeof raw.canonicalThemeLabel === 'string' && raw.canonicalThemeLabel.trim()
+   ? raw.canonicalThemeLabel
+   : typeof raw.canonicalThemeKey === 'string' && raw.canonicalThemeKey.trim()
    ? formatPatternTacticThemeLabel(normaliseMixedThemeKey(raw.canonicalThemeKey, 'tactics'))
    : undefined,
+  canonicalSubtype: raw.canonicalSubtype,
   rawTags: raw.rawTags,
-  sourceIdentity: String(raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
+  sourceIdentity: String(raw.sourcePuzzleId || raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
   pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
   semanticAudit: raw.semanticAudit,
   }
@@ -582,6 +593,9 @@ export default function PatternTacticTrainer({
  const requestedLearnerCurriculumVersion = searchParams.get("learnerCurriculum")
  const tacticLearnerCurriculum = getPatternTacticLearnerCurriculum(config.trainerKey)
  const tacticDistance = Math.max(1, Number(config.trainerKey.match(/m([1-4])$/)?.[1] ?? 1))
+ const mixedUnavailableReason = isMixedPatternTactic && tacticDistance > 2
+  ? "Verified mixed Pattern Tactics is currently available for M1 and M2 only."
+  : null
  const mixedLearnerCurricula = isMixedPatternTactic
   ? getPatternTacticLearnerCurriculaForDistance(tacticDistance)
   : []
@@ -591,8 +605,8 @@ export default function PatternTacticTrainer({
   ? getPatternTacticLearnerProgressTrainerKey(tacticLearnerCurriculum)
   : config.trainerKey
  const activeDataBasePath = isMixedPatternTactic
-  ? `/data/learner-curricula/pattern-tactics/mixed-m${tacticDistance}-semantic-v5`
-  : tacticLearnerCurriculum?.learnerDataBasePath ?? config.dataBasePath
+  ? `/data/verified-lichess-tactics-v1/final-v5/mixed-m${tacticDistance}`
+  : tacticLearnerCurriculum?.learnerDataBasePath ?? ''
  const urlChunkParam = searchParams.get('chunk')
  const requestedChunkIndex =
  urlChunkParam !== null && !isNaN(Number(urlChunkParam))
@@ -997,8 +1011,8 @@ export default function PatternTacticTrainer({
  const sourceLists = await Promise.all(sourceFiles.map(async (sourceFile) => {
   const res = await fetch(sourceFile.startsWith("/") ? sourceFile : `${activeDataBasePath}/${sourceFile}`)
   if (!res.ok) throw new Error(`HTTP ${res.status} while loading ${sourceFile}`)
-  const data = (await res.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
-  return Array.isArray(data) ? data : data.puzzles || []
+  const data = (await res.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[]; exercises?: LichessChunkPuzzle[] }
+  return Array.isArray(data) ? data : data.puzzles || data.exercises || []
  }))
  const rawList = sourceLists.flat()
 
@@ -1263,13 +1277,16 @@ export default function PatternTacticTrainer({
  curriculumCompletionInFlightRef.current = false
  curriculumSessionEvidenceRef.current = { attempts: 0, correct: 0, hints: 0, solveMsTotal: 0, recordedPuzzleIds: new Set<string>() }
 
- if (tacticLearnerCurriculum?.unavailableReason) {
+ if (tacticLearnerCurriculum?.unavailableReason || mixedUnavailableReason || !activeDataBasePath) {
+  const unavailableReason = tacticLearnerCurriculum?.unavailableReason
+   ?? mixedUnavailableReason
+   ?? "This Pattern Tactics course is not part of the verified curriculum."
   setChunkFiles([])
   setPuzzles([])
   setBoardLocked(true)
   setPhase('finished')
-  setMessage(tacticLearnerCurriculum.unavailableReason)
-  setLoadError(tacticLearnerCurriculum.unavailableReason)
+  setMessage(unavailableReason)
+  setLoadError(unavailableReason)
   setLoading(false)
   return
  }
@@ -1280,8 +1297,9 @@ export default function PatternTacticTrainer({
  }
 
  const manifest = (await manifestRes.json()) as ManifestFile
- const files =
- manifest.files && manifest.files.length > 0 ? manifest.files : []
+ const files = manifest.files && manifest.files.length > 0
+  ? manifest.files
+  : manifest.chunks?.map((chunk) => chunk.file).filter(Boolean) ?? []
 
  if (files.length === 0) {
  throw new Error('No chunk files in manifest')
@@ -1295,8 +1313,8 @@ export default function PatternTacticTrainer({
    : (await Promise.all(files.map(async (sourceFile) => {
     const response = await fetch(sourceFile.startsWith("/") ? sourceFile : `${activeDataBasePath}/${sourceFile}`)
     if (!response.ok) throw new Error(`HTTP ${response.status} while reading mixed theme metadata`)
-    const data = (await response.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[] }
-    const items = Array.isArray(data) ? data : data.puzzles || []
+    const data = (await response.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[]; exercises?: LichessChunkPuzzle[] }
+    const items = Array.isArray(data) ? data : data.puzzles || data.exercises || []
     return items.flatMap((item) => item.sourceThemeKeys ?? item.sourceThemes ?? [item.sourceTheme ?? item.theme ?? "other"])
    }))).flat()
   setMixedAvailableThemes(manifestThemes.map((theme) => normaliseMixedThemeKey(theme, "tactics")))
@@ -1320,12 +1338,12 @@ export default function PatternTacticTrainer({
    console.error("Could not read legacy tactic completion credit", legacyError)
   } else {
    const legacyCredit = getPatternTacticLegacyCompletionCredit((legacyRows ?? []).filter((row) => row.trainer_key === config.trainerKey), tacticLearnerCurriculum).completedActiveChunks
-   const priorLearnerCompleted = tacticLearnerCurriculum.version.includes("semantic-v")
+   const priorLearnerCompleted = (tacticLearnerCurriculum.version.includes("semantic-v") || tacticLearnerCurriculum.version.includes("verified-final"))
     ? new Set((legacyRows ?? []).filter((row) => row.trainer_key === priorLearnerKey && row.is_mastered === true)
       .map((row) => Number(row.chunk_index))
       .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= (tacticDistance === 1 ? 5 : 8))).size
     : 0
-   const priorLearnerCredit = tacticLearnerCurriculum.version.includes("semantic-v")
+   const priorLearnerCredit = (tacticLearnerCurriculum.version.includes("semantic-v") || tacticLearnerCurriculum.version.includes("verified-final"))
     ? Math.min(tacticLearnerCurriculum.activeChunkCount, Math.floor((priorLearnerCompleted * tacticLearnerCurriculum.activeChunkCount) / (tacticDistance === 1 ? 5 : 8)))
     : 0
    compatibilityCredit = Math.max(legacyCredit, priorLearnerCredit)

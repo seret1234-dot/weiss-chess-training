@@ -40,7 +40,7 @@ for (const mixed of coverage.mixed) {
 }
 
 const trainerSource = fs.readFileSync(path.join(root, "src", "trainers", "patternTactic", "PatternTacticTrainer.tsx"), "utf8")
-assert.match(trainerSource, /mixed-m\$\{tacticDistance\}-semantic-v5/, "trainer loads the current approved mixed overlay")
+assert.match(trainerSource, /verified-lichess-tactics-v1\/final-v5\/mixed-m\$\{tacticDistance\}/, "trainer loads the final verified mixed overlay")
 assert.match(trainerSource, /canonicalThemeKey \?\? puzzle\.sourceTheme/, "mixed rotation uses canonical tactic themes")
 assert.match(trainerSource, /pedagogicalFamily: puzzle\.pedagogicalFamily/, "mixed selector receives family recency metadata")
 assert.doesNotMatch(trainerSource, /isCheckmate\(\).*alternative/i, "tactic acceptance remains strict to stored solution lines")
