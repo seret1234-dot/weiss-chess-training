@@ -1,4 +1,5 @@
 import { patternTacticConfigByRoute } from "../trainers/patternTactic/pageConfigs"
+import { VERIFIED_FINAL_TACTIC_COURSES } from "../trainers/patternTactic/generatedFinalVerifiedTaxonomy"
 
 export type StudyType = "chunk" | "line" | "game" | "vision"
 export type TrainerCategory =
@@ -19,7 +20,7 @@ export type TrainerCatalogEntry = {
  sortOrder: number
 }
 
-export const TRAINER_CATALOG: TrainerCatalogEntry[] = [
+const legacyTrainerCatalog: TrainerCatalogEntry[] = [
  // =====================
  // MATES - ALL ACTIVE PATTERN TRAINERS
  // =====================
@@ -2362,6 +2363,24 @@ export const TRAINER_CATALOG: TrainerCatalogEntry[] = [
  autoEnabled: true,
  sortOrder: 300,
  },
+]
+
+const finalVerifiedTacticTrainers: TrainerCatalogEntry[] = VERIFIED_FINAL_TACTIC_COURSES.map((course, index) => ({
+ trainerKey: course.trainerKey,
+ route: `/tactics/m${course.stage}/${course.theme}`,
+ title: `${course.label} - Tactic in ${course.stage === 4 ? "4+" : course.stage}`,
+ category: "tactics",
+ studyType: "chunk",
+ autoEnabled: true,
+ sortOrder: 1_000 + (course.stage * 100) + index,
+}))
+
+// No historical tactics entry is learner-selectable.  Rebuild the catalog's
+// tactics segment directly from the final reviewed taxonomy so navigation and
+// curriculum recommendations cannot resurrect a legacy course.
+export const TRAINER_CATALOG: TrainerCatalogEntry[] = [
+ ...legacyTrainerCatalog.filter((trainer) => trainer.category !== "tactics"),
+ ...finalVerifiedTacticTrainers,
 ]
 
 function hasActiveTacticPageConfig(route: string) {

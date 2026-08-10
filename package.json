@@ -4,6 +4,22 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test:verified-lichess-stage-reduction": "node scripts/test-verified-lichess-stage-reduction.mjs",
+    "test:verified-lichess-m3-m4-source-discovery": "node scripts/test-verified-lichess-m3-m4-source-discovery.mjs",
+    "test:verified-lichess-m3-m4-structural": "node scripts/test-verified-lichess-m3-m4-structural.mjs",
+    "test:verified-lichess-atomic-move-findings": "node scripts/test-verified-lichess-atomic-move-findings.mjs",
+    "build:verified-lichess-m3-m4-engine-pool": "node scripts/build-verified-lichess-m3-m4-engine-pool.mjs",
+    "test:verified-lichess-m3-m4-engine": "node scripts/test-verified-lichess-m3-m4-engine.mjs",
+    "validate:verified-lichess-m3-m4-engine": "node scripts/validate-verified-lichess-m3-m4-engine.mjs",
+    "build:verified-lichess-m3-m4-reserve-pool": "node scripts/build-verified-lichess-m3-m4-reserve-pool.mjs",
+    "generate:verified-lichess-m3-m4-candidate-corpora": "node scripts/generate-verified-lichess-m3-m4-candidate-corpora.mjs",
+    "validate:verified-lichess-all-candidate-integrity": "node scripts/validate-verified-lichess-all-candidate-integrity.mjs",
+    "test:verified-lichess-clearance-sacrifice": "node scripts/test-verified-lichess-clearance-sacrifice.mjs",
+    "test:verified-lichess-square-clearance": "node scripts/test-verified-lichess-square-clearance.mjs",
+    "discover:verified-lichess-square-clearance-m2": "node scripts/discover-verified-lichess-square-clearance-m2.mjs",
+    "discover:verified-lichess-clearance-sacrifice-m2": "node scripts/discover-verified-lichess-clearance-sacrifice-m2.mjs",
+    "build:verified-lichess-clearance-sacrifice-m2-engine-pool": "node scripts/build-verified-lichess-clearance-sacrifice-m2-engine-pool.mjs",
+    "generate:verified-lichess-clearance-sacrifice-m2-candidate-corpus": "node scripts/generate-verified-lichess-clearance-sacrifice-m2-candidate-corpus.mjs",
     "dev": "node scripts/dev-with-api.cjs",
     "build": "vite build && node scripts/generate-route-metadata-shells.mjs",
     "preview": "vite preview",
@@ -21,6 +37,7 @@
     "test:pattern-mate-m1-curriculum": "node scripts/test-pattern-mate-m1-learner-curriculum.mjs",
     "test:pattern-mate-m2-m5-curriculum": "node scripts/test-pattern-mate-m2-m5-learner-curriculum.mjs",
     "test:pattern-tactic-m1-m4-curriculum": "node scripts/test-pattern-tactic-m1-m4-learner-curriculum.mjs",
+    "test:verified-tactic-navigation": "node scripts/test-verified-tactic-navigation.mjs",
     "test:pattern-tactic-semantics": "node scripts/test-pattern-tactic-semantic-audit.mjs",
     "audit:pattern-tactic-semantics": "node scripts/audit-pattern-tactic-semantics.mjs",
     "build:pattern-tactic-tier-a-semantic-v2": "node scripts/build-pattern-tactic-tier-a-semantic-v2.mjs && node scripts/generate-pattern-tactic-tier-a-semantic-v2-review.mjs",
@@ -46,6 +63,8 @@
     "cluster:verified-lichess-exact-symmetry-families-v3": "node scripts/cluster-verified-lichess-exact-symmetry-families-v3.mjs",
     "test:verified-lichess-exact-symmetry-family-v3": "node scripts/test-verified-lichess-exact-symmetry-family-v3.mjs",
     "test:verified-lichess-atomic-taxonomy": "node scripts/test-verified-lichess-atomic-taxonomy.mjs",
+    "build:verified-lichess-master-metadata": "node scripts/build-verified-lichess-master-metadata-sidecar.mjs --resume",
+    "test:verified-lichess-master-source": "node scripts/test-verified-lichess-master-source.mjs",
     "validate:verified-lichess-b1-structural": "node scripts/validate-verified-lichess-b1-structural.mjs --resume",
     "test:verified-lichess-b1-validator": "node scripts/test-verified-lichess-b1-validator.mjs",
     "test:verified-lichess-b2-v5": "node scripts/test-verified-lichess-b2-v5.mjs",
@@ -63,6 +82,9 @@
     ,"audit:pattern-tactic-batch1-semantics": "node scripts/audit-pattern-tactic-batch1-semantics.mjs"
     ,"build:pattern-tactic-batch1-semantic-v5": "node scripts/build-pattern-tactic-batch1-semantic-v5.mjs"
     ,"test:pattern-tactic-batch1-semantic-v5": "node scripts/test-pattern-tactic-batch1-semantic-v5.mjs"
+    ,"scan:verified-lichess-b3": "node scripts/scan-verified-lichess-b3-exhaustive.mjs --resume"
+    ,"classify:verified-lichess-b3": "node scripts/classify-verified-lichess-b3.mjs --resume"
+    ,"test:verified-lichess-b3": "node scripts/test-verified-lichess-b3-relationships.mjs"
   },
   "dependencies": {
     "@mliebelt/pgn-parser": "^1.4.19",

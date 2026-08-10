@@ -10,8 +10,8 @@ export default function TacticTrainerRoutePage() {
  if (!config) {
  return (
  <main style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
- <h1>Tactic trainer not found</h1>
- <p>This tactic page does not exist or has too few puzzles.</p>
+ <h1>This tactic course is unavailable</h1>
+ <p>Not enough reviewed material is available for this course yet.</p>
  <Link to="/tactics">Back to Tactics</Link>
  </main>
  )

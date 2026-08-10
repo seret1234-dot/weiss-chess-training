@@ -1,3 +1,5 @@
+import { VERIFIED_FINAL_TACTIC_COURSES } from "./generatedFinalVerifiedTaxonomy"
+
 export const patternTacticPageConfigs = {
  defenseM1: {
  title: "Defense - Tactic in 1",
@@ -1317,7 +1319,23 @@ export const patternTacticPageConfigs = {
  },
 }
 
-export const patternTacticConfigByRoute = {
+const generatedVerifiedFinalConfigs = Object.fromEntries(
+ VERIFIED_FINAL_TACTIC_COURSES.map((course) => {
+  const level = `m${course.stage}`
+  const titleSuffix = course.stage === 4 ? "4+" : String(course.stage)
+  return [`${level}/${course.theme}`, {
+   title: `${course.label} - Tactic in ${titleSuffix}`,
+   manifestPath: `${course.learnerDataBasePath}/manifest.json`,
+   dataBasePath: course.learnerDataBasePath,
+   progressKey: course.trainerKey,
+   trainerKey: course.trainerKey,
+  }]
+ }),
+)
+
+// The generated final taxonomy is applied last, so every active focused route
+// is derived from the reviewed corpus rather than the historical menu list.
+const legacyPatternTacticConfigByRoute = {
  "m1/defense": patternTacticPageConfigs.defenseM1,
  "m2/defense": patternTacticPageConfigs.defenseM2,
  "m3/defense": patternTacticPageConfigs.defenseM3,
@@ -1507,5 +1525,9 @@ export const patternTacticConfigByRoute = {
  "m3/mixed": patternTacticPageConfigs.mixedM3,
  "m4/mixed": patternTacticPageConfigs.mixedM4,
 }
+
+// Only reviewed final-v6 courses may mount a learner board. Keep historical
+// definitions isolated above for migration/reference work, never as routes.
+export const patternTacticConfigByRoute = generatedVerifiedFinalConfigs
 
 export type PatternTacticPageConfigKey = keyof typeof patternTacticPageConfigs

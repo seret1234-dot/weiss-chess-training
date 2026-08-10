@@ -82,7 +82,14 @@ try {
     null,
     'the final variable-length M2–M5 mate chunk has no extra successor',
   )
-  const unavailableTactic = tactics.getPatternTacticLearnerCurriculum('tactic-king-fork-m3')
+  const activeFinalTactic = tactics.getPatternTacticLearnerCurriculum('tactic-king-fork-m3')
+  assert.equal(activeFinalTactic?.activeChunkCount, 8, 'approved final M3 tactic courses expose their generated chunks')
+  assert.equal(
+    navigation.getNextActiveLearnerChunkIndex(activeFinalTactic.activeChunkCount - 1, activeFinalTactic.activeChunkCount),
+    null,
+    'the final approved M3 tactic chunk has no nonexistent successor',
+  )
+  const unavailableTactic = tactics.getPatternTacticLearnerCurriculum('tactic-trapped-piece-m1')
   assert.equal(unavailableTactic?.activeChunkCount, 0, 'unavailable tactic courses have no active chunks to navigate')
   assert.equal(
     navigation.getNextActiveLearnerChunkIndex(0, unavailableTactic.activeChunkCount),
@@ -121,7 +128,10 @@ try {
     assert.match(source, /ChunkCompletionOverlay/, `${trainerPath} renders the shared board-centered completion overlay`)
     assert.match(source, /const completionOverlayResult = debugCompletionOverlayOpen[\s\S]*?curriculumCompletionCard/, `${trainerPath} selects mock data only through the explicitly gated debug overlay state`)
     assert.match(source, /shouldShowChunkCompletionOverlay\(completionOverlayResult, completionOverlayDismissed\)/, `${trainerPath} only opens the overlay from its gated completion result`)
-    assert.match(source, /scheduleCorrectAutoAdvance\(goToNextPuzzle\)/, `${trainerPath} preserves the one-second final-success transition before completion`)
+    const correctTransition = trainerPath.includes('patternTactic')
+      ? /scheduleCorrectAutoAdvance\(goToNextPuzzle, 1_500\)/
+      : /scheduleCorrectAutoAdvance\(goToNextPuzzle\)/
+    assert.match(source, correctTransition, `${trainerPath} preserves its established final-success transition before completion`)
     assert.match(source, /setCurriculumCompletionCard\(card\)/, `${trainerPath} uses the same result object for the side panel and overlay`)
     assert.match(source, /setCompletionOverlayDismissed\(false\)/, `${trainerPath} resets dismissal only when a new chunk/completion result is loaded`)
     assert.match(source, /setCurriculumCompletionCard\(null\)[\s\S]*?curriculumCompletionInFlightRef\.current = false/, `${trainerPath} does not reconstruct an overlay or another completion event on a fresh load`)

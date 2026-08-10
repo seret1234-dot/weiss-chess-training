@@ -1,5 +1,9 @@
 export const PATTERN_TACTIC_LEARNER_CHUNK_SIZE = 20
 
+import {
+  VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY,
+} from "./generatedFinalVerifiedTaxonomy"
+
 export type PatternTacticLearnerCurriculum = {
   trainerKey: string
   theme: string
@@ -108,44 +112,12 @@ export type PatternTacticSemanticStatus = {
   validator: string
 }
 
-// The verified final corpus is the sole runtime source for focused tactics.
-// Anything absent from this immutable approved matrix is deliberately
-// unavailable; no older learner overlay may be used as a fallback.
-const VERIFIED_FINAL_COUNTS: Record<string, number> = {
-  "bishop-fork-m1": 100, "bishop-fork-m2": 37,
-  "bishop-pin-m1": 100, "bishop-pin-m2": 160,
-  "bishop-skewer-m1": 100,
-  "diagonal-clearance-m1": 100,
-  "file-clearance-m1": 96, "file-clearance-m2": 84,
-  "rank-clearance-m1": 61, "rank-clearance-m2": 23,
-  "deflection-m1": 100,
-  "discovered-attack-m1": 100,
-  "discovered-check-m1": 100, "discovered-check-m2": 160,
-  "double-check-m1": 100,
-  "en-passant-m1": 100, "en-passant-m2": 160,
-  "hanging-piece-m1": 100,
-  "knight-fork-m1": 100, "knight-fork-m2": 83,
-  "knight-underpromotion-m1": 100, "knight-underpromotion-m2": 160,
-  "pawn-fork-m1": 100,
-  "promotion-m1": 100, "promotion-m2": 160,
-  "queen-fork-m1": 100, "queen-fork-m2": 103,
-  "queen-pin-m1": 100, "queen-pin-m2": 160,
-  "queen-skewer-m1": 100,
-  "remove-the-defender-m1": 100,
-  "rook-fork-m1": 100,
-  "rook-pin-m1": 100, "rook-pin-m2": 160,
-  "rook-skewer-m1": 100,
-  "zwischencheck-m1": 100,
-  "zwischenzug-m1": 100,
-}
-
 export function getPatternTacticSemanticStatus(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticSemanticStatus {
-  const sourceKey = `${theme}-m${tacticDistance}`
-  const verifiedCount = VERIFIED_FINAL_COUNTS[sourceKey] ?? 0
+  const course = VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY[`tactic-${theme}-m${tacticDistance}`]
   return {
     version: "verified-final-v1",
-    active: verifiedCount >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE,
-    validator: verifiedCount >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE
+    active: Boolean(course && course.exerciseCount >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE),
+    validator: course && course.exerciseCount >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE
       ? "verified-final-candidate-corpus"
       : "verified-final-candidate-corpus-unavailable",
   }
@@ -168,9 +140,10 @@ export function formatPatternTacticThemeLabel(theme: string) {
 function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticLearnerCurriculum {
   const sourceKey = `${theme}-m${tacticDistance}`
   const semantic = getPatternTacticSemanticStatus(theme, tacticDistance)
+  const finalCourse = VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY[`tactic-${sourceKey}`]
   const activeChunkCount = semantic.active
     ? semantic.version === "verified-final-v1"
-      ? Math.ceil((VERIFIED_FINAL_COUNTS[sourceKey] ?? 0) / PATTERN_TACTIC_LEARNER_CHUNK_SIZE)
+      ? finalCourse?.chunkCount ?? 0
       : semantic.version === "semantic-v3"
       ? FORK_SOUND_V3_CHUNKS[sourceKey] ?? 0
       : semantic.version === "semantic-v5"
@@ -186,8 +159,8 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
     tacticDistance,
     version,
     sourceDataBasePath: `/data/pattern-tactics/${theme}/m${tacticDistance}`,
-    learnerDataBasePath: semantic.version === "verified-final-v1"
-      ? `/data/verified-lichess-tactics-v1/final-v5/${theme}-m${tacticDistance}`
+    learnerDataBasePath: semantic.version === "verified-final-v1" && finalCourse
+      ? finalCourse.learnerDataBasePath
       : `/data/learner-curricula/pattern-tactics/${theme}-m${tacticDistance}-${semantic.version}`,
     legacyChunkCount: LEGACY_CHUNK_COUNTS[sourceKey] ?? 10,
     activeChunkCount,
@@ -270,8 +243,7 @@ export function getPatternTacticLegacyCompletionCredit(rows: LegacyChunkProgress
 }
 
 export function isPatternTacticLearnerCourseAvailable(trainerKey: string) {
-  if (/^tactic-mixed-m[12]$/.test(trainerKey)) return true
-  if (/^tactic-mixed-m[34]$/.test(trainerKey)) return false
+  if (/^tactic-mixed-m[1-4]$/.test(trainerKey)) return true
   const curriculum = getPatternTacticLearnerCurriculum(trainerKey)
   return curriculum?.activeChunkCount > 0
 }

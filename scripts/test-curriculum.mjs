@@ -93,7 +93,8 @@ try {
   const unavailable = catalog.CURRICULUM_CATALOG.filter((item) => item.area === "board-vision" && !item.available)
   assert(unavailable.length >= 4, "future Board Vision exercises are explicitly unavailable")
   assert(unavailable.every((item) => !selector.isDueItemAllowedByCurriculum(item, state())), "unavailable Board Vision stages are never eligible")
-  assert.equal(catalog.CURRICULUM_CATALOG.some((item) => item.trainerKey === "tactic-king-fork-m3" || item.trainerKey === "tactic-king-fork-m4"), false, "unavailable semantic Tier A King Fork M3/M4 courses are never scheduled")
+  assert.equal(catalog.CURRICULUM_CATALOG.some((item) => item.trainerKey === "tactic-king-fork-m3"), true, "final-v6 active King Fork M3 is scheduled")
+  assert.equal(catalog.CURRICULUM_CATALOG.some((item) => item.trainerKey === "tactic-king-fork-m4"), true, "final-v6 active King Fork M4 is scheduled")
 
   for (const item of catalog.CURRICULUM_CATALOG.filter((item) => item.available)) {
     assert(routeExists(item.route), `AppRouter is missing curriculum route ${item.route}`)

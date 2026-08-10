@@ -1,5 +1,4 @@
 import { AUTO_TRAINERS } from "../trainerCatalog"
-import { isPatternTacticLearnerCourseAvailable } from "../../trainers/patternTactic/m1toM4LearnerCurriculum"
 import type { CurriculumArea, CurriculumItem } from "./curriculumTypes"
 
 export const CURRICULUM_AREAS: CurriculumArea[] = [
@@ -20,65 +19,6 @@ export const MATE_THEMES = ["anastasia", "back-rank", "arabian", "boden", "smoth
  * These mappings deliberately classify motifs, not merely the existing m1–m4
  * route suffix. Route distance remains variantLevel metadata for later selection.
  */
-export const TACTIC_THEME_STAGE: Record<string, number> = {
-  "hanging-piece": 1,
-  "diagonal-clearance": 1,
-  "file-clearance": 1,
-  "rank-clearance": 1,
-  zwischencheck: 1,
-  zwischenzug: 1,
-  "trapped-piece": 1,
-  "discovered-attack": 1,
-  "knight-fork": 1,
-  "queen-fork": 1,
-  "rook-fork": 1,
-  "bishop-fork": 1,
-  "pawn-fork": 1,
-  "rook-pin": 1,
-  "queen-pin": 1,
-  "bishop-pin": 1,
-  "rook-skewer": 1,
-  "queen-skewer": 1,
-  "bishop-skewer": 1,
-  "advanced-pawn": 2,
-  "discovered-check": 2,
-  "double-check": 2,
-  "king-fork": 2,
-  "decoy-attraction": 2,
-  deflection: 2,
-  "decoy-deflection": 2,
-  "remove-the-defender": 2,
-  promotion: 2,
-  "en-passant": 2,
-  clearance: 3,
-  "clearance-sacrifice": 3,
-  interference: 3,
-  "interference-sacrifice": 3,
-  "queen-xray": 3,
-  "rook-xray": 3,
-  "bishop-xray": 3,
-  zugzwang: 3,
-  "vulnerable-king": 3,
-  "kingside-attack": 3,
-  "queenside-attack": 3,
-  "attacking-f2-f7": 3,
-  defense: 4,
-  "quiet-move": 4,
-  "queen-sacrifice": 4,
-  "rook-sacrifice": 4,
-  "bishop-sacrifice": 4,
-  "knight-sacrifice": 4,
-  "pawn-sacrifice": 4,
-  underpromotion: 4,
-  "knight-underpromotion": 4,
-}
-
-export const TACTIC_STAGE_THEMES: Record<number, string[]> = Object.fromEntries(
-  [1, 2, 3, 4].map((stage) => [stage, Object.entries(TACTIC_THEME_STAGE)
-    .filter(([, mappedStage]) => mappedStage === stage)
-    .map(([theme]) => theme)]),
-)
-
 function parseRoute(route: string) {
   return route.split("/").filter(Boolean)
 }
@@ -111,8 +51,7 @@ function tacticItems(): CurriculumItem[] {
     .flatMap((trainer) => {
       const [, level, theme] = parseRoute(trainer.route)
       const variantLevel = Number(level.slice(1))
-      const stageOrder = theme === "mixed" ? variantLevel : TACTIC_THEME_STAGE[theme]
-      if (!stageOrder || !isPatternTacticLearnerCourseAvailable(trainer.trainerKey)) return []
+      const stageOrder = variantLevel
       return [{
         id: `tactics:${trainer.trainerKey}`,
         area: "tactics" as const,

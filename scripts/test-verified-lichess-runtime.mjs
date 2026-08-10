@@ -2,9 +2,10 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 import { Chess } from 'chess.js'
+import { createServer } from 'vite'
 
 const root = process.cwd()
-const corpus = path.join(root, 'public', 'data', 'verified-lichess-tactics-v1', 'final-v5')
+const corpus = path.join(root, 'public', 'data', 'verified-lichess-tactics-v1', 'final-v6')
 const index = JSON.parse(fs.readFileSync(path.join(corpus, 'index.json'), 'utf8'))
 const sourceIds = new Set()
 const exerciseIds = new Set()
@@ -23,7 +24,7 @@ for (const course of index.courses.filter(course => course.theme !== 'mixed')) {
       assert.ok(!exerciseIds.has(exercise.exerciseId), `duplicate exercise ID ${exercise.exerciseId}`)
       sourceIds.add(exercise.sourcePuzzleId)
       exerciseIds.add(exercise.exerciseId)
-      assert.equal(exercise.provenance?.corpus, 'verified-lichess-final-v5', 'approved runtime provenance')
+      assert.equal(exercise.provenance?.corpus, 'verified-lichess-final-v6', 'approved runtime provenance')
       assert.ok(['STRUCTURALLY_VERIFIED', 'MECHANISM_SUPPORTED_ENGINE_REQUIRED'].includes(exercise.structuralValidation), 'approved structural validation required')
       assert.equal(exercise.engineValidation?.outcome, 'APPROVED', 'individual engine approval required')
       const game = new Chess(exercise.fen)
@@ -31,26 +32,40 @@ for (const course of index.courses.filter(course => course.theme !== 'mixed')) {
         const move = game.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] || undefined })
         assert.ok(move, `illegal runtime replay ${exercise.sourcePuzzleId} ${uci}`)
       }
-      assert.deepEqual(exercise.userMoveIndexes, exercise.stage === 'M2' ? [0, 2] : [0], `${exercise.sourcePuzzleId} stage structure`)
+      const learnerMoves = Number(exercise.stage.slice(1))
+      assert.deepEqual(exercise.userMoveIndexes, Array.from({ length: learnerMoves }, (_, index) => index * 2), `${exercise.sourcePuzzleId} stage structure`)
       replayed++
     }
   }
 }
-assert.equal(index.totalExercises, 3907)
-assert.equal(sourceIds.size, 3907)
-assert.equal(exerciseIds.size, 3907)
-for (const stage of ['M1', 'M2']) {
+assert.equal(index.totalExercises, 9635)
+assert.equal(sourceIds.size, 9635)
+assert.equal(exerciseIds.size, 9635)
+for (const stage of ['M1', 'M2', 'M3', 'M4']) {
   const mixed = index.courses.find(course => course.theme === 'mixed' && course.stage === stage)
   assert.ok(mixed && mixed.path && mixed.chunkCount === 1, `mixed ${stage} manifest required`)
   const manifest = JSON.parse(fs.readFileSync(path.join(corpus, `mixed-${stage.toLowerCase()}`, 'manifest.json'), 'utf8'))
   assert.deepEqual([...manifest.sourceThemes].sort(), [...mixed.sources].sort(), `mixed ${stage} active themes`)
 }
-const pageConfigs = fs.readFileSync(path.join(root, 'src', 'trainers', 'patternTactic', 'pageConfigs.ts'), 'utf8')
 const trainerRuntime = fs.readFileSync(path.join(root, 'src', 'trainers', 'patternTactic', 'PatternTacticTrainer.tsx'), 'utf8')
-for (const course of index.courses.filter(course => course.theme !== 'mixed')) {
-  const route = `m${course.stage.slice(1)}/${course.theme}`
-  assert.ok(pageConfigs.includes(`"${route}"`), `focused runtime route required for ${route}`)
+const vite = await createServer({ server: { middlewareMode: true, hmr: false }, appType: 'custom' })
+try {
+  const { patternTacticConfigByRoute } = await vite.ssrLoadModule('/src/trainers/patternTactic/pageConfigs.ts')
+  for (const course of index.courses.filter(course => course.theme !== 'mixed')) {
+    const route = `m${course.stage.slice(1)}/${course.theme}`
+    assert.ok(patternTacticConfigByRoute[route], `focused runtime route required for ${route}`)
+    assert.equal(patternTacticConfigByRoute[route].trainerKey, `tactic-${course.theme}-${course.stage.toLowerCase()}`, `${route} uses its final generated trainer key`)
+    assert.equal(patternTacticConfigByRoute[route].dataBasePath, course.path, `${route} uses its final generated public path`)
+  }
+  assert.match(trainerRuntime, /VERIFIED_FINAL_RUNTIME_PATH.*mixed-m\$\{tacticDistance\}/s, 'mixed runtime uses the generated final verified corpus')
+  assert.doesNotMatch(trainerRuntime, /tacticLearnerCurriculum\?\.learnerDataBasePath \?\? config\.dataBasePath/, 'focused runtime cannot fall back to legacy data')
+  assert.match(trainerRuntime, /scheduleCorrectAutoAdvance\(goToNextPuzzle, 1_500\)/, 'verified tactics retain the Production correct-move timing')
+  assert.doesNotMatch(trainerRuntime, /getSemanticDisclosurePresentation/, 'verified data does not add a semantic-disclosure presentation state')
+  assert.doesNotMatch(trainerRuntime, /Show Solution/, 'verified data does not add a post-hint solution action')
+  assert.doesNotMatch(trainerRuntime, /semanticEvidenceSquares/, 'verified data does not add instructional evidence highlights')
+  assert.match(trainerRuntime, /getOpponentReplyBeforeNextRequiredLearnerMove\(/, 'verified M1â€“M4 puzzles retain only verified learner/opponent sequences')
+  assert.match(trainerRuntime, /createInteractiveTrainingSequence\(/, 'verified runtime separates source continuation from learner-facing progression')
+  console.log(JSON.stringify({ passed: true, replayed, sources: sourceIds.size, exercises: exerciseIds.size }, null, 2))
+} finally {
+  await vite.close()
 }
-assert.match(trainerRuntime, /final-v5\/mixed-m\$\{tacticDistance\}/, 'mixed runtime uses the final verified corpus')
-assert.doesNotMatch(trainerRuntime, /tacticLearnerCurriculum\?\.learnerDataBasePath \?\? config\.dataBasePath/, 'focused runtime cannot fall back to legacy data')
-console.log(JSON.stringify({ passed: true, replayed, sources: sourceIds.size, exercises: exerciseIds.size }, null, 2))

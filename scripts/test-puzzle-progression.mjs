@@ -79,7 +79,7 @@ try {
     assert.match(source, /useCorrectPuzzleAutoAdvance/, `${trainerPath} uses the shared owned auto-advance timer`)
     assert.match(source, /useWrongMoveReset/, `${trainerPath} uses the shared owned wrong-move reset timer`)
     assert.match(source, /const nextChunkProgress = chunkProgressRef\.current/, `${trainerPath} reads current progress at final transition, not stale render state`)
-    assert.match(source, /scheduleCorrectAutoAdvance\(goToNextPuzzle\)/, `${trainerPath} delays correct-answer transition through the shared helper`)
+    assert.match(source, /scheduleCorrectAutoAdvance\(goToNextPuzzle(?:, 1_500)?\)/, `${trainerPath} delays correct-answer transition through the shared helper`)
     assert.match(source, /setGameAndBoardFen\(testGame\)[\s\S]*?setBoardLocked\(true\)[\s\S]*?scheduleWrongMoveReset/, `${trainerPath} renders and locks a legal wrong move before scheduling its reset`)
     assert.match(source, /const originalPuzzleFen = game\.fen\(\)[\s\S]*?new Chess\(originalPuzzleFen\)[\s\S]*?setBoardLocked\(false\)/, `${trainerPath} restores the original position and unlocks after the wrong-move delay`)
     assert.match(source, /cancelWrongMoveReset\(\)/, `${trainerPath} cancels stale wrong-move resets during navigation/restart cleanup`)
@@ -92,13 +92,16 @@ try {
   assert.match(mateSource, /onHintStage=\{[\s\S]*?setHintMoveUci\(stage === ['"]square['"]/, "Pattern Mate adds destination guidance only through its explicit second Hint")
 
   const tacticSource = await readFile("src/trainers/patternTactic/PatternTacticTrainer.tsx", "utf8")
-  assert.match(tacticSource, /onHintStage=\{[\s\S]*?setHintLevel\(stage\)/, "Pattern Tactic advances hint level only through the explicit Hint control")
+  assert.match(tacticSource, /onHintStage=\{[\s\S]*?setHintMoveUci\(stage === ['"]square['"]/, "Pattern Tactic keeps progressive board guidance behind the explicit Hint control")
   assert.match(tacticSource, /onHintStage=\{[\s\S]*?setHintMoveUci\(stage === ['"]square['"]/, "Pattern Tactic adds destination guidance only through the explicit second Hint")
 
   const tacticTrainer = await readFile("src/trainers/patternTactic/PatternTacticTrainer.tsx", "utf8")
+  assert.match(tacticTrainer, /scheduleCorrectAutoAdvance\(goToNextPuzzle, 1_500\)/, "Pattern Tactic verified-corpus runtime retains Production's 1.5-second correct-move timing")
+  assert.doesNotMatch(tacticTrainer, /getSemanticDisclosurePresentation|Show Solution|semanticEvidenceSquares/, "verified tactics use the existing Production presentation state machine without semantic teaching UI")
+  assert.match(tacticTrainer, /if \(options\?\.allowWrongMoveToShow\)[\s\S]*?scheduleWrongMoveReset\([\s\S]*?\)[\s\S]*?return true[\s\S]*?scheduleWrongMoveReset\([\s\S]*?, 700\)/, "Pattern Tactic retains Production's visible drag wrong-move reset and short click/tap recovery paths")
   assert.doesNotMatch(tacticTrainer, /scheduleSemanticAutoAdvance/, "semantic wrong answers no longer schedule terminal auto-advance")
   assert.doesNotMatch(tacticTrainer, /semanticCountdownSeconds/, "semantic tactics no longer use the five/seven-second terminal countdown")
-  console.log("PASS: correct answers use one cancellable one-second transition; stale callbacks cannot double-advance")
+  console.log("PASS: correct answers use one cancellable transition; stale callbacks cannot double-advance")
   console.log("PASS: legal wrong moves remain visible for two seconds, then restore safely without automatic hints")
   console.log("PASS: progressive hints remain explicit, while final completion requires N of N progress")
 } finally {

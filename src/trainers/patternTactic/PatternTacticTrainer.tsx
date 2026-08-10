@@ -59,7 +59,6 @@ import { recordNormalizedCurriculumCompletion } from "../../training/curriculum/
 import { getChunkProgressDisplay } from "../chunkProgressDisplay"
 import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance, useWrongMoveReset } from "../puzzleProgression"
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
-import { TACTIC_THEME_STAGE } from "../../training/curriculum/curriculumCatalog"
 import { getStageThemes } from "../../training/curriculum/curriculumCatalog"
 import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
 import {
@@ -71,10 +70,17 @@ import {
  formatPatternTacticThemeLabel,
  resolvePatternTacticLearnerFacingChunkIndex,
 } from "./m1toM4LearnerCurriculum"
+import { fetchPatternTacticJson, resolvePatternTacticPublicAssetUrl } from "./patternTacticAssetPaths"
 import {
- getSemanticDisclosurePresentation,
- nextSemanticDisclosureState,
-} from "./semanticDisclosure"
+ completeInitialPremove,
+ sameChessPosition,
+ verifyInitialPremove,
+} from "./initialPremove"
+import {
+ createInteractiveTrainingSequence,
+ getOpponentMovesBeforeNextRequiredLearnerMove,
+} from "./trainingSequence"
+import { VERIFIED_FINAL_RUNTIME_PATH } from "./generatedFinalVerifiedTaxonomy"
 
 type ManifestFile = {
  category?: string
@@ -109,6 +115,9 @@ type LichessChunkPuzzle = {
  id?: string
  exerciseId?: string
  sourcePuzzleId?: string
+ sourceFen?: string
+ displayedFen?: string
+ preMoveSideToMove?: 'w' | 'b'
  lichessId?: string
  localId?: string
  fen?: string
@@ -117,6 +126,7 @@ type LichessChunkPuzzle = {
  solution?: string | string[]
  solutionLine?: string[]
  userMoveIndexes?: number[]
+ stage?: string
  label?: string
  theme?: string
  subtheme?: string
@@ -156,6 +166,9 @@ export type PatternTacticPuzzle = {
  preMove?: string
  solutionLine: string[]
  userMoveIndexes: number[]
+ interactiveTrainingSequence: ReturnType<typeof createInteractiveTrainingSequence>
+ sourceFen: string
+ displayedFen: string
  label: string
  theme: string
  chunkNumber: number
@@ -176,7 +189,6 @@ type PuzzleMastery = {
  fastSolves: number
 }
 
-type TacticHintLevel = 'none' | 'piece' | 'square' | 'solution'
 
 type Phase = 'loading' | 'solving' | 'correct' | 'wrong' | 'finished'
 
@@ -239,7 +251,6 @@ function isTacticChunkReviewDue(
 const BOARD_ANIMATION_MS = 140
 const REPLY_PAUSE_AFTER_MS = 80
 const PREMOVE_START_DELAY_MS = 320
-const PREMOVE_AFTER_PLAY_DELAY_MS = 450
 
 type SavedState = {
  currentChunkIndex: number
@@ -312,7 +323,7 @@ function normalizeThemeName(input?: string) {
 
 function normalizePuzzle(
  raw: LichessChunkPuzzle,
- index: number
+ index: number,
 ): PatternTacticPuzzle | null {
  const fen = raw.fen || raw.FEN || ''
 
@@ -351,6 +362,34 @@ function normalizePuzzle(
 
  if (!fen || solutionLine.length === 0) return null
 
+ const sourceIdentity = String(raw.sourcePuzzleId || raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1)
+ let sourceFen = fen
+ let displayedFen = fen
+ let preMove = raw.preMove
+
+ const isVerifiedRuntimeExercise = String(raw.provenance?.corpus ?? '').startsWith('verified-lichess-final-')
+ const hasEmbeddedPremove = Boolean(raw.sourceFen || raw.displayedFen || raw.preMove)
+
+ if (isVerifiedRuntimeExercise && !hasEmbeddedPremove) {
+  throw new Error(`Missing embedded verified premove provenance for ${sourceIdentity}`)
+ }
+
+ if (hasEmbeddedPremove && raw.sourceFen && raw.displayedFen && raw.preMove) {
+  const verifiedPremove = verifyInitialPremove({
+   sourceFen: raw.sourceFen,
+   displayedFen: raw.displayedFen,
+   preMove: raw.preMove,
+  })
+  if (!sameChessPosition(verifiedPremove.displayedFen, fen)) {
+   throw new Error(`Embedded verified premove provenance does not match runtime displayed FEN for ${sourceIdentity}`)
+  }
+  sourceFen = verifiedPremove.sourceFen
+  displayedFen = verifiedPremove.displayedFen
+  preMove = verifiedPremove.preMove
+ } else if (isVerifiedRuntimeExercise) {
+  throw new Error(`Incomplete embedded verified premove provenance for ${sourceIdentity}`)
+ }
+
  const chunkNumber = raw.chunkNumber ?? raw.chunk ?? raw.chunk_number ?? 1
  const chunkIndex =
  raw.chunkIndex ??
@@ -380,6 +419,17 @@ function normalizePuzzle(
  return result
  })()
 
+ let interactiveTrainingSequence: ReturnType<typeof createInteractiveTrainingSequence>
+ try {
+  interactiveTrainingSequence = createInteractiveTrainingSequence({
+   sourceSolutionLine: solutionLine,
+   userMoveIndexes,
+   stage: raw.stage,
+  })
+ } catch {
+  return null
+ }
+
  return {
  id: String(
  raw.localId ||
@@ -393,10 +443,13 @@ function normalizePuzzle(
  theme: raw.theme
  ? normalizeThemeName(raw.theme)
  : normalizeThemeName(raw.subtheme || raw.Themes || 'tactic'),
- fen,
- preMove: raw.preMove,
+ fen: sourceFen,
+ displayedFen,
+ sourceFen,
+ preMove,
  solutionLine,
  userMoveIndexes,
+  interactiveTrainingSequence,
  chunkNumber,
   chunkIndex,
   rating: raw.rating,
@@ -411,41 +464,10 @@ function normalizePuzzle(
    : undefined,
   canonicalSubtype: raw.canonicalSubtype,
   rawTags: raw.rawTags,
-  sourceIdentity: String(raw.sourcePuzzleId || raw.puzzleId || raw.lichessId || raw.lichess_id || raw.PuzzleId || raw.localId || raw.id || index + 1),
+  sourceIdentity,
   pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
   semanticAudit: raw.semanticAudit,
   }
-}
-
-function semanticExplanation(puzzle?: PatternTacticPuzzle | null) {
- const audit = puzzle?.semanticAudit
- if (!audit?.evidence) return null
- const evidence = audit.evidence as Record<string, unknown>
- const format = (value: unknown) => Array.isArray(value) ? value.join(', ') : typeof value === 'string' ? value : ''
- if (typeof evidence.explanation === 'string') return evidence.explanation
- if (Array.isArray(evidence.targets)) return `Verified fork: ${format(evidence.mover)} attacks ${format(evidence.targets)}.`
- if (Array.isArray(evidence.pins)) {
-  const pin = evidence.pins[0] as Record<string, string> | undefined
-  return pin ? `Verified ${audit.detectedTheme ?? 'pin'}: ${pin.attacker} pins ${pin.pinned} to ${pin.target}.` : audit.reason ?? null
- }
- if (Array.isArray(evidence.skewers)) {
-  const skewer = evidence.skewers[0] as Record<string, string> | undefined
-  return skewer ? `Verified skewer: ${skewer.attacker} attacks ${skewer.front}, with ${skewer.back} behind.` : audit.reason ?? null
- }
- if (Array.isArray(evidence.revealed)) return `Verified ${audit.detectedTheme ?? 'discovered tactic'}: moved piece reveals ${format(evidence.revealed)}.`
- if (evidence.promotion) return `Verified promotion: ${String(evidence.promotion)} promotion on the recorded promotion square.`
- if (evidence.move) return `Verified en-passant capture: ${String(evidence.move)}.`
- return audit.reason ?? null
-}
-
-function semanticEvidenceSquares(puzzle?: PatternTacticPuzzle | null) {
- const explicitSquares = (puzzle?.semanticAudit?.evidence as Record<string, unknown> | undefined)?.highlightSquares
- if (Array.isArray(explicitSquares)) {
-  const verified = explicitSquares.filter((square): square is string => typeof square === "string" && /^[a-h][1-8]$/.test(square))
-  if (verified.length > 0) return [...new Set(verified)]
- }
- const encoded = JSON.stringify(puzzle?.semanticAudit?.evidence ?? {})
- return [...new Set((encoded.match(/@[a-h][1-8]/g) ?? []).map((match) => match.slice(1)))]
 }
 
 function getMoveHighlightStyles(moveUci: string | null) {
@@ -526,7 +548,7 @@ function saveState(storageKey: string, state: SavedState) {
 }
 
 function getUserMoveCount(puzzle?: PatternTacticPuzzle | null) {
- return puzzle?.userMoveIndexes.length ?? 1
+ return puzzle?.interactiveTrainingSequence.requiredLearnerMoves ?? 1
 }
 
 function getExpectedUserMove(
@@ -534,27 +556,20 @@ function getExpectedUserMove(
  solvedUserMoveCount: number
 ) {
  if (!puzzle) return null
- const lineIndex = puzzle.userMoveIndexes[solvedUserMoveCount]
+ const lineIndex = puzzle.interactiveTrainingSequence.userMoveIndexes[solvedUserMoveCount]
  if (lineIndex == null) return null
  return puzzle.solutionLine[lineIndex] ?? null
 }
 
-function getRemainingLineAfterSolvedUserMoves(
+function getOpponentReplyBeforeNextRequiredLearnerMove(
  puzzle: PatternTacticPuzzle | undefined,
  solvedUserMoveCount: number
 ) {
  if (!puzzle) return []
-
- const nextUserLineIndex = puzzle.userMoveIndexes[solvedUserMoveCount]
- const endExclusive =
- nextUserLineIndex == null ? puzzle.solutionLine.length : nextUserLineIndex
-
- const start =
- solvedUserMoveCount === 0
- ? 1
- : puzzle.userMoveIndexes[solvedUserMoveCount - 1] + 1
-
- return puzzle.solutionLine.slice(start, endExclusive)
+ return getOpponentMovesBeforeNextRequiredLearnerMove(
+  puzzle.interactiveTrainingSequence,
+  solvedUserMoveCount
+ )
 }
 
 export default function PatternTacticTrainer({
@@ -593,9 +608,7 @@ export default function PatternTacticTrainer({
  const requestedLearnerCurriculumVersion = searchParams.get("learnerCurriculum")
  const tacticLearnerCurriculum = getPatternTacticLearnerCurriculum(config.trainerKey)
  const tacticDistance = Math.max(1, Number(config.trainerKey.match(/m([1-4])$/)?.[1] ?? 1))
- const mixedUnavailableReason = isMixedPatternTactic && tacticDistance > 2
-  ? "Verified mixed Pattern Tactics is currently available for M1 and M2 only."
-  : null
+ const mixedUnavailableReason = null
  const mixedLearnerCurricula = isMixedPatternTactic
   ? getPatternTacticLearnerCurriculaForDistance(tacticDistance)
   : []
@@ -605,7 +618,7 @@ export default function PatternTacticTrainer({
   ? getPatternTacticLearnerProgressTrainerKey(tacticLearnerCurriculum)
   : config.trainerKey
  const activeDataBasePath = isMixedPatternTactic
-  ? `/data/verified-lichess-tactics-v1/final-v5/mixed-m${tacticDistance}`
+  ? `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m${tacticDistance}`
   : tacticLearnerCurriculum?.learnerDataBasePath ?? ''
  const urlChunkParam = searchParams.get('chunk')
  const requestedChunkIndex =
@@ -617,7 +630,9 @@ export default function PatternTacticTrainer({
   : resolvePatternTacticLearnerFacingChunkIndex(requestedChunkIndex, tacticLearnerCurriculum, isLearnerFacingRequest)
  const requestedMixedPhase = searchParams.get("mixedPhase") === "blind" ? "blind" : null
 
- const manifestFetchPath = `${activeDataBasePath}/manifest.json`
+ const manifestFetchPath = activeDataBasePath
+  ? resolvePatternTacticPublicAssetUrl(activeDataBasePath, 'manifest.json')
+  : ''
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
  const [mixedScope, setMixedScope] = useState<MixedSessionScope>(() => readRememberedMixedScope(config.trainerKey))
  const [mixedPhase, setMixedPhase] = useState<MixedSessionPhase>(() => requestedMixedPhase ?? readRememberedMixedPhase(config.trainerKey))
@@ -660,22 +675,11 @@ export default function PatternTacticTrainer({
  const [phase, setPhase] = useState<Phase>('loading')
  const [solved, setSolved] = useState(false)
  const [hintMoveUci, setHintMoveUci] = useState<string | null>(null)
- const [hintLevel, setHintLevel] = useState<TacticHintLevel>('none')
- const [semanticDisclosureRevealed, setSemanticDisclosureRevealed] = useState(false)
-
- function revealSemanticDisclosure() {
-  setSemanticDisclosureRevealed((current) => nextSemanticDisclosureState(current, 'reveal'))
- }
-
- function clearSemanticDisclosure(event: 'next-puzzle' | 'restart') {
-  setSemanticDisclosureRevealed((current) => nextSemanticDisclosureState(current, event))
- }
 
 
  function advanceUserMoveIndex(nextIndex: number) {
  currentUserMoveIndexRef.current = nextIndex
  setHintMoveUci(null)
- setHintLevel('none')
  }
  const [boardLocked, setBoardLocked] = useState(true)
  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
@@ -1009,9 +1013,8 @@ export default function PatternTacticTrainer({
  try {
  const sourceFiles = isMixedPatternTactic ? files : [fileName]
  const sourceLists = await Promise.all(sourceFiles.map(async (sourceFile) => {
-  const res = await fetch(sourceFile.startsWith("/") ? sourceFile : `${activeDataBasePath}/${sourceFile}`)
-  if (!res.ok) throw new Error(`HTTP ${res.status} while loading ${sourceFile}`)
-  const data = (await res.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[]; exercises?: LichessChunkPuzzle[] }
+  const sourceUrl = resolvePatternTacticPublicAssetUrl(activeDataBasePath, sourceFile)
+  const data = await fetchPatternTacticJson<LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[]; exercises?: LichessChunkPuzzle[] }>(sourceUrl, `tactic chunk ${sourceFile}`)
   return Array.isArray(data) ? data : data.puzzles || data.exercises || []
  }))
  const rawList = sourceLists.flat()
@@ -1218,11 +1221,11 @@ export default function PatternTacticTrainer({
  }
  } catch (err) {
  console.error(err)
- setLoadError(`Could not load ${fileName}`)
+ const detail = err instanceof Error ? err.message : String(err)
+ setLoadError(`Could not load ${fileName}: ${detail}`)
  setPuzzles([])
  setChunkProgress([])
  setCurrentIndex(0)
- setGameAndBoardFen(new Chess())
  setBoardLocked(true)
  setPhase('finished')
  setDisplayTurn('w')
@@ -1234,7 +1237,6 @@ export default function PatternTacticTrainer({
 
  async function restartWholeProgression() {
  clearTimers()
- clearSemanticDisclosure('restart')
  localStorage.removeItem(storageKey)
 
  if (currentUserId) {
@@ -1291,12 +1293,7 @@ export default function PatternTacticTrainer({
   return
  }
 
- const manifestRes = await fetch(manifestFetchPath)
- if (!manifestRes.ok) {
- throw new Error(`HTTP ${manifestRes.status}`)
- }
-
- const manifest = (await manifestRes.json()) as ManifestFile
+ const manifest = await fetchPatternTacticJson<ManifestFile>(manifestFetchPath, 'tactic manifest')
  const files = manifest.files && manifest.files.length > 0
   ? manifest.files
   : manifest.chunks?.map((chunk) => chunk.file).filter(Boolean) ?? []
@@ -1311,9 +1308,8 @@ export default function PatternTacticTrainer({
   const manifestThemes = manifest.sourceThemes?.length
    ? manifest.sourceThemes
    : (await Promise.all(files.map(async (sourceFile) => {
-    const response = await fetch(sourceFile.startsWith("/") ? sourceFile : `${activeDataBasePath}/${sourceFile}`)
-    if (!response.ok) throw new Error(`HTTP ${response.status} while reading mixed theme metadata`)
-    const data = (await response.json()) as LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[]; exercises?: LichessChunkPuzzle[] }
+    const sourceUrl = resolvePatternTacticPublicAssetUrl(activeDataBasePath, sourceFile)
+    const data = await fetchPatternTacticJson<LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[]; exercises?: LichessChunkPuzzle[] }>(sourceUrl, `tactic chunk ${sourceFile}`)
     const items = Array.isArray(data) ? data : data.puzzles || data.exercises || []
     return items.flatMap((item) => item.sourceThemeKeys ?? item.sourceThemes ?? [item.sourceTheme ?? item.theme ?? "other"])
    }))).flat()
@@ -1549,7 +1545,6 @@ export default function PatternTacticTrainer({
  fileNameOverride?: string
  ) {
  clearTimers()
- clearSemanticDisclosure('next-puzzle')
  // Focused trainers retain their normal ordering; this lightweight history
  // record only helps a later mixed session avoid an immediate source repeat.
  const servedSessionId = mixedSessionIdRef.current ?? `${config.trainerKey}:${fileNameOverride ?? currentChunkFileName}`
@@ -1573,7 +1568,6 @@ export default function PatternTacticTrainer({
  setLegalTargets([])
  setSolved(false)
  setHintMoveUci(null)
- setHintLevel('none')
  setPhase('solving')
 
  setCurrentIndex(index)
@@ -1599,26 +1593,50 @@ export default function PatternTacticTrainer({
  setMessage('Opponent move...')
 
  preMoveTimerRef.current = window.setTimeout(() => {
- const afterPreMove = new Chess(puzzle.fen)
-
  try {
- afterPreMove.move(parseUci(puzzle.preMove!))
- } catch {
- setBoardLocked(false)
- solveStartedAtRef.current = performance.now()
- setMessage(`Find the tactic in ${getUserMoveCount(puzzle)}`)
- return
+  const isVerifiedPremove = !sameChessPosition(puzzle.sourceFen, puzzle.displayedFen)
+  const completion = isVerifiedPremove
+   ? completeInitialPremove({
+    sourceFen: puzzle.sourceFen,
+    preMove: puzzle.preMove!,
+    displayedFen: puzzle.displayedFen,
+   })
+   : (() => {
+    const board = new Chess(puzzle.sourceFen)
+    const move = board.move(parseUci(puzzle.preMove!))
+    if (!move) throw new Error(`Illegal initial premove ${puzzle.preMove}`)
+    return {
+     boardFen: board.fen(),
+     activeTurn: board.turn(),
+     currentInteractiveLineIndex: 0 as const,
+     completedLearnerMoves: 0,
+     awaitingOpponent: false,
+     boardLocked: false,
+    }
+   })()
+
+  // Atomic verified handoff: no second timeout is allowed between placing the
+  // premove and re-enabling input. A bootstrap/auth cleanup used to cancel
+  // that second timer and strand boardLocked=true after the move appeared.
+  const afterPreMove = new Chess(completion.boardFen)
+  setGameAndBoardFen(afterPreMove)
+  setDisplayTurn(completion.activeTurn)
+  setLastMoveHighlight(puzzle.preMove!)
+  advanceUserMoveIndex(completion.currentInteractiveLineIndex)
+  setSolved(false)
+  setPhase('solving')
+  solveStartedAtRef.current = performance.now()
+  preMoveTimerRef.current = null
+  setBoardLocked(completion.boardLocked)
+  setMessage(`Find the tactic in ${getUserMoveCount(puzzle)}`)
+ } catch (error) {
+  const detail = error instanceof Error ? error.message : String(error)
+  setLoadError(`Could not start verified tactic: ${detail}`)
+  setPuzzles([])
+  setBoardLocked(true)
+  setPhase('finished')
+  setMessage('Training data is unavailable. The board has been disabled.')
  }
-
- setGameAndBoardFen(afterPreMove)
- setDisplayTurn(userTurn)
- setLastMoveHighlight(puzzle.preMove!)
-
- preMoveTimerRef.current = window.setTimeout(() => {
- setBoardLocked(false)
- solveStartedAtRef.current = performance.now()
- setMessage(`Find the tactic in ${getUserMoveCount(puzzle)}`)
- }, PREMOVE_AFTER_PLAY_DELAY_MS)
  }, PREMOVE_START_DELAY_MS)
 
  return
@@ -1693,9 +1711,7 @@ async function completeChunk() {
  const attempts = sessionEvidence.attempts
  const correct = sessionEvidence.correct
  const theme = tacticLearnerCurriculum?.canonicalThemeKey ?? config.studyTheme ?? config.trainerKey
- const stage = isMixedPatternTactic
-  ? tacticDistance
-  : TACTIC_THEME_STAGE[theme] ?? tacticDistance
+ const stage = tacticDistance
  const localBlindProgress = isMixedPatternTactic && mixedScope === "unlocked" && mixedPhase === "identified"
   ? getBlindMixedUnlockStatus(config.trainerKey)
   : null
@@ -1779,36 +1795,6 @@ async function completeChunk() {
  setMessage('Chunk complete')
  }
 
- function revealStoredSolution() {
-  if (!currentPuzzle || !semanticExplanation(currentPuzzle)) return
-
-  const nextLineIndex = currentPuzzle.userMoveIndexes[currentUserMoveIndexRef.current]
-  const remainingLine = currentPuzzle.solutionLine.slice(nextLineIndex ?? currentPuzzle.solutionLine.length)
-  const solutionGame = new Chess(game.fen())
-  const sanMoves: string[] = []
-
-  try {
-   for (const uci of remainingLine) {
-    const move = solutionGame.move(parseUci(uci))
-    if (!move) throw new Error(`Illegal stored solution move: ${uci}`)
-    sanMoves.push(move.san)
-   }
-  } catch {
-   setMessage('The stored solution could not be shown. Please continue with Next Puzzle.')
-   return
-  }
-
-  setGameAndBoardFen(solutionGame)
-  setDisplayTurn(solutionGame.turn())
-  setHintMoveUci(null)
-  setHintLevel('solution')
-  setBoardLocked(true)
-  setSelectedSquare(null)
-  setLegalTargets([])
-  setMessage(`Solution: ${sanMoves.join(' ') || 'Line complete.'}`)
-  revealSemanticDisclosure()
- }
-
  function finishSolvedPuzzle(
  solvedGame: Chess,
  playedUci: string,
@@ -1833,7 +1819,6 @@ async function completeChunk() {
   if (!mixedPuzzleNeededHelpRef.current) curriculumEvidence.correct += 1
   if (solvedInSeconds !== null) curriculumEvidence.solveMsTotal += Math.round(solvedInSeconds * 1000)
  }
- revealSemanticDisclosure()
  if (isMixedPatternTactic) {
   setBlindThemeRevealed(true)
   const evidence = mixedSessionEvidenceRef.current
@@ -1904,9 +1889,9 @@ async function completeChunk() {
  theme: config.studyTheme,
  })
 
- // Semantic evidence and highlights remain visible during the shared brief
- // success state, then all tactic courses advance through one owned timer.
- scheduleCorrectAutoAdvance(goToNextPuzzle)
+ // The Production trainer kept the correct move visible for 1.5 seconds.
+ // Verified data must use that same interaction timing.
+ scheduleCorrectAutoAdvance(goToNextPuzzle, 1_500)
  }
 
  function completeCorrectMove(
@@ -1926,7 +1911,7 @@ async function completeChunk() {
 
  advanceUserMoveIndex(solvedUserMoveCountAfter)
 
- const autoMoves = getRemainingLineAfterSolvedUserMoves(
+ const autoMoves = getOpponentReplyBeforeNextRequiredLearnerMove(
  currentPuzzle,
  solvedUserMoveCountAfter
  )
@@ -2078,7 +2063,6 @@ async function completeChunk() {
  }
 
  setPhase('wrong')
- revealSemanticDisclosure()
  const wrongEvidence = curriculumSessionEvidenceRef.current
  if (!wrongEvidence.recordedPuzzleIds.has(currentPuzzle.id)) {
   wrongEvidence.recordedPuzzleIds.add(currentPuzzle.id)
@@ -2101,24 +2085,32 @@ async function completeChunk() {
  })
  }
 
- // A wrong attempt reveals verified semantic evidence but keeps the wrong
- // board position visible briefly. The first-attempt record above is retained;
- // a later correct answer finishes this same puzzle once.
- setLastMoveHighlight(playedUci)
- setGameAndBoardFen(testGame)
- setDisplayTurn(testGame.turn())
- setBoardLocked(true)
- setMessage('Wrong move — try again.')
+ if (options?.allowWrongMoveToShow) {
+  // This is the established live interaction: show a legal wrong move for
+  // two seconds, then restore the exact displayed puzzle position.
+  setLastMoveHighlight(playedUci)
+  setGameAndBoardFen(testGame)
+  setDisplayTurn(testGame.turn())
+  setBoardLocked(true)
+  scheduleWrongMoveReset(() => {
+   const restoredGame = new Chess(originalPuzzleFen)
+   setGameAndBoardFen(restoredGame)
+   setDisplayTurn(restoredGame.turn())
+   setLastMoveHighlight(null)
+   setPhase('solving')
+   setBoardLocked(false)
+   setMessage(`Find the tactic in ${getUserMoveCount(currentPuzzle)}`)
+  })
+  return true
+ }
+
  scheduleWrongMoveReset(() => {
-  const restoredGame = new Chess(originalPuzzleFen)
-  setGameAndBoardFen(restoredGame)
-  setDisplayTurn(restoredGame.turn())
-  setLastMoveHighlight(null)
-  setPhase('solving')
-  setBoardLocked(false)
-  setMessage('Wrong move — try again.')
- })
- return true
+  setPhase((previous) => previous === 'wrong' ? 'solving' : previous)
+  setMessage((previous) => previous === 'Wrong move'
+   ? `Find the tactic in ${getUserMoveCount(currentPuzzle)}`
+   : previous)
+ }, 700)
+ return false
  }
 
  completeCorrectMove(testGame, playedUci, move.to)
@@ -2239,10 +2231,6 @@ function onSquareClick(square: string) {
  }
 
  const currentPuzzleFastSolves = chunkProgress[currentIndex]?.fastSolves ?? 0
- const currentSemanticExplanation = semanticExplanation(currentPuzzle)
- const semanticDisclosure = getSemanticDisclosurePresentation(currentSemanticExplanation, semanticEvidenceSquares(currentPuzzle), semanticDisclosureRevealed)
- const showSemanticExplanation = semanticDisclosure.visible
- const semanticSquares = semanticDisclosure.squares
  const currentMixedSourceTheme = currentPuzzle
   ? currentPuzzle.canonicalThemeLabel ?? formatMixedThemeName(normaliseMixedThemeKey(currentPuzzle.canonicalThemeKey ?? currentPuzzle.sourceTheme ?? currentPuzzle.theme, "tactics"))
   : ""
@@ -2308,15 +2296,6 @@ function onSquareClick(square: string) {
  },
  }
  : {}),
- // Verified semantic relationships remain visible above transient move UI
- // until the learner explicitly changes puzzle.
- ...(semanticSquares.reduce<Record<string, CSSProperties>>((acc, square) => {
-  acc[square] = {
-   background: 'radial-gradient(circle, rgba(202,162,39,0.28) 34%, rgba(202,162,39,0.55) 35%, transparent 61%)',
-   boxShadow: 'inset 0 0 8px rgba(242,193,78,0.72)',
-  }
-  return acc
- }, {})),
  }
  const hintArrow =
  hintMoveUci && !boardLocked
@@ -2434,6 +2413,25 @@ function onSquareClick(square: string) {
  >
  Loading puzzles...
  </div>
+ )
+ }
+
+ if (loadError && puzzles.length === 0) {
+ return (
+ <main
+ data-testid="pattern-tactic-load-error"
+ style={{
+ minHeight: '100vh',
+ background: '#161512',
+ color: '#f3f3f3',
+ padding: 40,
+ fontFamily: 'Arial, sans-serif',
+ }}
+ >
+ <h1>{config.trainerTitle}</h1>
+ <p>Training data is unavailable. The board has been disabled.</p>
+ <p style={{ color: '#ffd6d3' }}>{loadError}</p>
+ </main>
  )
  }
 
@@ -2699,15 +2697,6 @@ function onSquareClick(square: string) {
  </div>
  )}
 
- {showSemanticExplanation && (
- <div
- tabIndex={0}
- style={{ marginBottom: 10, padding: '16px 18px', borderRadius: 8, background: '#263b2a', color: '#d8f5d0', fontSize: 16, lineHeight: 1.65, overflowWrap: 'anywhere' }}
- >
- <div role="status" aria-live="polite" aria-atomic="true">{currentSemanticExplanation}</div>
- </div>
- )}
-
  <div
  style={{
  display: 'grid',
@@ -2862,7 +2851,6 @@ function onSquareClick(square: string) {
  if (isMixedPatternTactic) {
   setBlindThemeRevealed(true)
  }
- setHintLevel(stage)
  setHintMoveUci(stage === 'square' ? `${move.from}${move.to}` : null)
  setMessage(
  stage === 'piece'
@@ -2874,23 +2862,12 @@ function onSquareClick(square: string) {
  }}
  onHintReset={() => {
   setHintMoveUci(null)
-  setHintLevel('none')
  }}
  hintResetKey={`${currentPuzzle?.id ?? ''}:${currentUserMoveIndexRef.current}`}
  disabled={boardLocked}
  >
  Hint
  </HintButton>
- )}
-
- {!solved &&
-  phase !== 'finished' &&
-  hintLevel === 'square' &&
-  Boolean(semanticExplanation(currentPuzzle)) &&
-  !semanticDisclosureRevealed && (
-  <SecondaryButton onClick={revealStoredSolution} disabled={boardLocked}>
-   Show Solution
-  </SecondaryButton>
  )}
 
  <div style={{ display: 'contents' }}>

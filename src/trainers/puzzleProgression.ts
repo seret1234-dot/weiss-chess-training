@@ -116,8 +116,8 @@ export function useWrongMoveReset() {
     controllerRef.current?.cancel()
   }, [])
 
-  const scheduleWrongMoveReset = useCallback((onReset: () => void) => {
-    controllerRef.current?.schedule(onReset)
+  const scheduleWrongMoveReset = useCallback((onReset: () => void, delayMs = WRONG_MOVE_RESET_MS) => {
+    controllerRef.current?.schedule(onReset, delayMs)
   }, [])
 
   useEffect(() => cancelWrongMoveReset, [cancelWrongMoveReset])
