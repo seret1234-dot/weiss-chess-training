@@ -201,26 +201,21 @@ export default function AuthPage() {
  <div className="auth-page__panel" style={panelStyle()}>
  <h1 style={{ marginBottom: "16px" }}>{title}</h1>
 
- <div className="auth-page__tabs" style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
- <button
- type="button"
- onClick={() => {
- if (mode !== "signup") trackAnalyticsEvent("sign_up_started")
- setMode("signup")
- }}
- style={buttonStyle(mode === "signup" ? "#81b64c" : "#4b4847")}
- >
- Create Free Account
- </button>
-
- <button
- type="button"
- onClick={() => setMode("login")}
- style={buttonStyle(mode === "login" ? "#81b64c" : "#4b4847")}
- >
- Log In
- </button>
- </div>
+        {mode === "signup" && (
+          <div
+            className="auth-page__login-prompt"
+            style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", color: "#cfcfcf", fontSize: "14px" }}
+          >
+            <span>Already have an account?</span>
+            <button
+              type="button"
+              onClick={() => setMode("login")}
+              style={buttonStyle("#4b4847")}
+            >
+              Log In
+            </button>
+          </div>
+        )}
 
  <form onSubmit={onSubmit}>
  <div style={{ marginBottom: "14px" }}>

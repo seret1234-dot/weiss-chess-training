@@ -3,8 +3,15 @@ import type { CSSProperties } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import { trackAnalyticsEvent } from "../lib/analytics"
-import { importConnectedAccounts } from "../training/importConnectedAccounts"
-import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
+import { useBackgroundAnalysis } from "../context/BackgroundAnalysisContext"
+import TrainingGoalsFields from "../components/TrainingGoalsFields"
+import {
+ readTrainingGoals,
+ serializeLegacyProfileTrainingGoals,
+ serializeTrainingGoals,
+ validateTrainingGoals,
+ type TrainingGoals,
+} from "../training/trainingGoals"
 import "../AuthOnboarding.css"
 
 function sectionCardStyle(): CSSProperties {
@@ -34,7 +41,15 @@ function inputStyle(): CSSProperties {
 export default function OnboardingPage() {
  const navigate = useNavigate()
 
- const [ratingGoal, setRatingGoal] = useState("")
+ const { startAnalysis } = useBackgroundAnalysis()
+
+ const [goals, setGoals] = useState<TrainingGoals>({
+  manualCurrentRating: null,
+  targetRating: null,
+  dailyMinutes: 20,
+  timeframeMonths: null,
+  currentMilestoneRating: null,
+ })
  const [chesscomUsername, setChesscomUsername] = useState("")
  const [lichessUsername, setLichessUsername] = useState("")
  const [saving, setSaving] = useState(false)
@@ -65,6 +80,14 @@ export default function OnboardingPage() {
 
    if (!cancelled && typeof chesscom === "string") setChesscomUsername(chesscom.trim())
    if (!cancelled && typeof lichess === "string") setLichessUsername(lichess.trim())
+   if (user) {
+    const { data: autoProfile } = await supabase
+     .from("user_auto_profile")
+     .select("target_rating, daily_minutes, manual_current_rating, goal_timeframe_months, current_milestone_rating")
+     .eq("user_id", user.id)
+     .maybeSingle()
+    if (!cancelled && autoProfile) setGoals(readTrainingGoals(autoProfile))
+   }
   }
 
   void prefillUsernames()
@@ -91,12 +114,8 @@ export default function OnboardingPage() {
     return
    }
 
-   const parsedTarget =
-    ratingGoal.trim() === "" ? null : Number.parseInt(ratingGoal.trim(), 10)
-
-   if (parsedTarget !== null && Number.isNaN(parsedTarget)) {
-    throw new Error("Enter a number, for example 1500")
-   }
+   const validationError = validateTrainingGoals(goals, true)
+   if (validationError) throw new Error(validationError)
 
    const metadata = user.user_metadata as {
     chessComUsername?: string | null
@@ -126,20 +145,17 @@ export default function OnboardingPage() {
    localStorage.setItem(
     "weissChess:onboardingGoal:v1",
     JSON.stringify({
-     ratingGoal: parsedTarget,
+     ...serializeTrainingGoals(goals),
      chesscomUsername: resolvedChesscomUsername,
      lichessUsername: resolvedLichessUsername || null,
      updatedAt: new Date().toISOString(),
     }),
    )
 
-   const defaultDailyMinutes = 20
-
    const { error: profileError } = await supabase
     .from("profiles")
     .update({
-     target_rating: parsedTarget,
-     minutes_per_day: defaultDailyMinutes,
+     ...serializeLegacyProfileTrainingGoals(goals),
      chesscom_username: resolvedChesscomUsername || null,
      lichess_username: resolvedLichessUsername || null,
     })
@@ -151,12 +167,9 @@ export default function OnboardingPage() {
     .from("user_auto_profile")
     .upsert({
      user_id: user.id,
-     target_rating: parsedTarget,
-     estimated_rating: null,
-     daily_minutes: defaultDailyMinutes,
+     ...serializeTrainingGoals(goals),
      chesscom_username: resolvedChesscomUsername || null,
      lichess_username: resolvedLichessUsername || null,
-     rating_source: null,
      onboarding_step: 1,
      onboarding_complete: false,
     })
@@ -179,47 +192,10 @@ export default function OnboardingPage() {
 
    if (planError) throw planError
 
-   const imported = await importConnectedAccounts({
-    userId: user.id,
-    chesscomUsername: resolvedChesscomUsername,
-    lichessUsername: resolvedLichessUsername,
-    onProgress: (progress) => {
-     setProgressMessage(`Step 1 of 3: ${progress.message}`)
-     if (progress.warning) setWarning(progress.warning)
-    },
-   })
-
+   startAnalysis({ userId: user.id, chesscomUsername: resolvedChesscomUsername, lichessUsername: resolvedLichessUsername })
    setCurrentStep(2)
-   setProgressMessage("Step 2 of 3: Starting Stockfish analysis...")
-   const analysisResult = await analyzeImportedGamesWithStockfish(user.id, {
-    maxGames: 150,
-    depth: 8,
-    minLossCp: 70,
-    onProgress: (progress) => {
-     setProgressMessage(`Step 2 of 3: ${progress.message}`)
-    },
-   })
-
-   setCurrentStep(3)
-   setProgressMessage("Step 3 of 3: Building your training plan...")
-
-   const { error: completionError } = await supabase
-    .from("user_auto_profile")
-    .update({
-     onboarding_step: 2,
-     onboarding_complete: true,
-    })
-    .eq("user_id", user.id)
-
-   if (completionError) throw completionError
-
-   trackAnalyticsEvent("onboarding_completed")
-   setCompleted(true)
-   setProgressMessage(
-    `Your training plan is ready. Imported ${imported.importedGamesCount} games from ${imported.sourcesImported.length} account${imported.sourcesImported.length === 1 ? "" : "s"}. Analyzed ${analysisResult.gamesAnalyzed} games and found ${analysisResult.mistakesFound} training mistakes.`,
-   )
-   await new Promise<void>((resolve) => window.setTimeout(resolve, 1600))
-   navigate("/auto", { replace: true })
+   setProgressMessage("Analysis started. We'll build your training plan in the background.")
+   navigate("/", { replace: true })
   } catch (err) {
    console.error("Onboarding save failed", err)
    setError(err instanceof Error ? err.message : JSON.stringify(err, null, 2))
@@ -246,7 +222,7 @@ export default function OnboardingPage() {
     className="onboarding-page__shell"
     style={{
      width: "100%",
-     maxWidth: 760,
+     maxWidth: 1150,
     }}
    >
     <div className="onboarding-page__card" style={sectionCardStyle()}>
@@ -280,12 +256,14 @@ export default function OnboardingPage() {
       ))}
      </div>
 
-     <h1 style={{ margin: "0 0 10px", fontSize: 38 }}>Connect your chess accounts</h1>
+     <h1 className="onboarding-page__title" style={{ margin: "0 0 10px", fontSize: 38 }}>Connect your chess accounts</h1>
 
-     <p style={{ color: "#cfcfcf", lineHeight: 1.5, fontSize: 16, maxWidth: 620 }}>
+     <p className="onboarding-page__intro" style={{ color: "#cfcfcf", lineHeight: 1.5, fontSize: 16, maxWidth: 620 }}>
       The system will automatically import your recent Chess.com and Lichess games, analyze your mistakes, and create a personalized training plan.
      </p>
 
+     <div className="onboarding-page__form-grid">
+      <div className="onboarding-page__accounts">
      <label
       htmlFor="onboarding-chesscom-username"
       style={{ display: "block", marginBottom: 8, fontSize: 14, fontWeight: 800 }}
@@ -299,6 +277,7 @@ export default function OnboardingPage() {
       onChange={(event) => setChesscomUsername(event.target.value)}
       placeholder="Your Chess.com username"
       autoComplete="username"
+     disabled={saving}
      />
      <p style={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.45 }}>
       Enter your Chess.com username — not your email.
@@ -317,22 +296,26 @@ export default function OnboardingPage() {
       onChange={(event) => setLichessUsername(event.target.value)}
       placeholder="Your Lichess username"
       autoComplete="username"
+     disabled={saving}
      />
      <p style={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.45 }}>
       Enter your Lichess username — not your email.
      </p>
 
-     <input
-      style={inputStyle()}
-      value={ratingGoal}
-      onChange={(e) => setRatingGoal(e.target.value)}
-      placeholder="Example: 1500"
-      inputMode="numeric"
-     />
+      </div>
 
-     <p style={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.45 }}>
-      Optional: add a rating goal, or leave this empty for now.
-     </p>
+      <div className="onboarding-page__goals" style={{ marginTop: 20 }}>
+       <TrainingGoalsFields
+        goals={goals}
+        onChange={setGoals}
+        inputStyle={inputStyle()}
+        labelStyle={{ display: "block", fontSize: 14, fontWeight: 800 }}
+        helperStyle={{ color: "#bdbdbd", fontSize: 13, lineHeight: 1.45 }}
+        compact
+        disabled={saving}
+       />
+      </div>
+     </div>
 
      {error && <div style={{ marginTop: 16, color: "#ffb3b3" }}>{error}</div>}
      {warning && <div style={{ marginTop: 16, color: "#f0dca0", lineHeight: 1.45 }}>{warning}</div>}
@@ -343,6 +326,7 @@ export default function OnboardingPage() {
       )}
 
      <button
+      className="onboarding-page__action"
       type="button"
       onClick={handleSave}
       disabled={saving}
@@ -364,6 +348,7 @@ export default function OnboardingPage() {
      </button>
 
      <div
+      className="onboarding-page__next-steps"
       style={{
        marginTop: 24,
        borderRadius: 16,

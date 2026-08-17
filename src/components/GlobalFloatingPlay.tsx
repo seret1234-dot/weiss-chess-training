@@ -3,8 +3,11 @@ import { createPortal } from "react-dom"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useBoardUiContext } from "../context/BoardUiContext"
 import { supabase } from "../lib/supabase"
+import { performLogout } from "../auth/logout"
 import ThemeSelector from "../theme/ThemeSelector"
 import "./GlobalFloatingPlay.css"
+
+export const FLOATING_MENU_CLOSE_DELAY_MS = 220
 
 function sideToMoveFromFen(fen?: string | null): "white" | "black" | undefined {
   if (!fen) return undefined
@@ -44,6 +47,10 @@ export default function GlobalFloatingPlay({
   const navigate = useNavigate()
   const { boardState } = useBoardUiContext()
   const [desktopMenuExpanded, setDesktopMenuExpanded] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const [logoutError, setLogoutError] = useState("")
+  const desktopMenuRef = useRef<HTMLDivElement | null>(null)
+  const logoutInFlightRef = useRef(false)
   const collapseTimerRef = useRef<number | null>(null)
   const pointerInsideMenuRef = useRef(false)
   const keyboardFocusWithinMenuRef = useRef(false)
@@ -73,10 +80,25 @@ export default function GlobalFloatingPlay({
         return
       }
       collapseDesktopMenu()
-    }, 320)
+    }, FLOATING_MENU_CLOSE_DELAY_MS)
   }, [clearMenuCollapse, collapseDesktopMenu])
 
   useEffect(() => () => clearMenuCollapse(), [clearMenuCollapse])
+
+  useEffect(() => {
+    if (!desktopMenuExpanded) return
+
+    const closeOnOutsidePointerDown = (event: PointerEvent) => {
+      if (desktopMenuRef.current?.contains(event.target as Node)) return
+
+      pointerInsideMenuRef.current = false
+      keyboardFocusWithinMenuRef.current = false
+      collapseDesktopMenu()
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsidePointerDown)
+    return () => document.removeEventListener("pointerdown", closeOnOutsidePointerDown)
+  }, [collapseDesktopMenu, desktopMenuExpanded])
 
   const fenFromUrl = new URLSearchParams(location.search).get("fen")
 
@@ -122,35 +144,50 @@ export default function GlobalFloatingPlay({
     navigate("/auth?mode=signup")
   }, [navigate])
 
+  const closeDesktopMenuThen = useCallback((action: () => void) => {
+    collapseDesktopMenu()
+    action()
+  }, [collapseDesktopMenu])
+
   const flipBoard = useCallback(() => {
     boardState.onFlip?.()
   }, [boardState.onFlip])
 
   const handleAuth = useCallback(async () => {
     if (!isLoggedIn) {
+      collapseDesktopMenu()
       navigate("/auth")
       return
     }
 
+    if (logoutInFlightRef.current) return
+
+    logoutInFlightRef.current = true
+    setIsSigningOut(true)
+    setLogoutError("")
+
     try {
-      const { error } = await supabase.auth.signOut({ scope: "local" })
+      const result = await performLogout({
+        signOut: () => supabase.auth.signOut({ scope: "local" }),
+        onSessionCleared: onSignedOut,
+        navigateToSignedOut: () => navigate("/auth", { replace: true }),
+      })
 
-      if (error) {
-        console.error("Logout failed", error)
-        return
-      }
-
-      onSignedOut()
-      navigate("/auth", { replace: true })
+      if (!result.ok) setLogoutError(result.message)
     } catch (err) {
       console.error("Logout failed", err)
+      setLogoutError("Logout could not be completed. Please try again.")
+    } finally {
+      logoutInFlightRef.current = false
+      setIsSigningOut(false)
     }
-  }, [isLoggedIn, navigate, onSignedOut])
+  }, [collapseDesktopMenu, isLoggedIn, navigate, onSignedOut])
 
   return createPortal(
     <>
       <div className="global-floating-play-desktop">
         <div
+          ref={desktopMenuRef}
           className={`global-floating-play-desktop__menu${desktopMenuExpanded ? " global-floating-play-desktop__menu--expanded" : ""}`}
           onPointerEnter={() => {
             pointerInsideMenuRef.current = true
@@ -198,19 +235,10 @@ export default function GlobalFloatingPlay({
             id="global-floating-play-desktop-panel"
             className="global-floating-play-desktop__panel"
             aria-label="Quick actions"
-            onClick={(event) => {
-              if (event.target instanceof HTMLElement) {
-                event.target.closest("button")?.blur()
-              }
-              if (!keyboardFocusWithinMenuRef.current) {
-                pointerInsideMenuRef.current = false
-                collapseDesktopMenu()
-              }
-            }}
           >
             <button
               type="button"
-              onClick={goHome}
+              onClick={() => closeDesktopMenuThen(goHome)}
               style={btnStyle}
             >
               Home
@@ -218,7 +246,7 @@ export default function GlobalFloatingPlay({
 
             <button
               type="button"
-              onClick={goFunChess}
+              onClick={() => closeDesktopMenuThen(goFunChess)}
               style={btnStyle}
             >
               Fun
@@ -226,7 +254,7 @@ export default function GlobalFloatingPlay({
 
             <button
               type="button"
-              onClick={goAnalyze}
+              onClick={() => closeDesktopMenuThen(goAnalyze)}
               style={btnStyle}
             >
               Analyze
@@ -234,7 +262,7 @@ export default function GlobalFloatingPlay({
 
             <button
               type="button"
-              onClick={goPlayComputer}
+              onClick={() => closeDesktopMenuThen(goPlayComputer)}
               style={{
                 ...btnStyle,
                 background:
@@ -248,7 +276,7 @@ export default function GlobalFloatingPlay({
             {boardState.isAvailable && (
               <button
                 type="button"
-                onClick={flipBoard}
+                onClick={() => closeDesktopMenuThen(flipBoard)}
                 disabled={!boardState.canFlip}
                 style={{
                   ...btnStyle,
@@ -260,14 +288,14 @@ export default function GlobalFloatingPlay({
               </button>
             )}
 
-            <div className="global-floating-play-desktop__theme">
+            <div className="global-floating-play-desktop__theme" data-floating-menu-preference>
               <ThemeSelector compact />
             </div>
 
             {isLoggedIn && (
               <button
                 type="button"
-                onClick={goAccount}
+                onClick={() => closeDesktopMenuThen(goAccount)}
                 style={btnStyle}
               >
                 Account
@@ -277,7 +305,7 @@ export default function GlobalFloatingPlay({
             {!isLoggedIn && (
               <button
                 type="button"
-                onClick={goSignUp}
+                onClick={() => closeDesktopMenuThen(goSignUp)}
                 style={{
                   ...btnStyle,
                   background:
@@ -292,6 +320,7 @@ export default function GlobalFloatingPlay({
             <button
               type="button"
               onClick={handleAuth}
+              disabled={isSigningOut}
               style={{
                 ...btnStyle,
                 background: isLoggedIn
@@ -299,8 +328,9 @@ export default function GlobalFloatingPlay({
                   : "var(--theme-button-bg)",
               }}
             >
-              {isLoggedIn ? "Logout" : "Log In"}
+              {isSigningOut ? "Logging out..." : isLoggedIn ? "Logout" : "Log In"}
             </button>
+            {logoutError && <div role="alert" className="global-floating-play__auth-error">{logoutError}</div>}
             </div>
           )}
           <button
@@ -390,9 +420,11 @@ export default function GlobalFloatingPlay({
           type="button"
           className="global-mobile-nav__button"
           onClick={handleAuth}
+          disabled={isSigningOut}
         >
-          {isLoggedIn ? "Logout" : "Log In"}
+          {isSigningOut ? "Logging out..." : isLoggedIn ? "Logout" : "Log In"}
         </button>
+        {logoutError && <div role="alert" className="global-floating-play__auth-error global-mobile-nav__auth-error">{logoutError}</div>}
       </nav>
     </>,
     document.body,

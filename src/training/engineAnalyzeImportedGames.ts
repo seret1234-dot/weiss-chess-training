@@ -1,6 +1,6 @@
 import { Chess } from "chess.js"
 import { supabase } from "../lib/supabase"
-import { stockfishService } from "../lib/chess/stockfishService"
+import { backgroundAnalysisStockfishService } from "../lib/chess/stockfishService"
 import type { EvalInfo } from "../lib/chess/playComputerTypes"
 
 type ImportedGameRow = {
@@ -32,6 +32,51 @@ type AnalyzeOptions = {
  onProgress?: (progress: EngineAnalysisProgress) => void
 }
 
+export const BACKGROUND_ENGINE_SEARCH_TIMEOUT_MS = 20_000
+export const BACKGROUND_ENGINE_SEARCH_RETRY_LIMIT = 1
+
+export class BackgroundEngineSearchTimeoutError extends Error {
+ constructor() {
+  super("Background Stockfish search timed out")
+  this.name = "BackgroundEngineSearchTimeoutError"
+ }
+}
+
+export async function runBackgroundEngineRequest<T>(
+ operation: () => Promise<T>,
+ options: {
+  timeoutMs?: number
+  retryLimit?: number
+  restart?: () => Promise<void>
+ } = {},
+): Promise<T> {
+ const timeoutMs = options.timeoutMs ?? BACKGROUND_ENGINE_SEARCH_TIMEOUT_MS
+ const retryLimit = options.retryLimit ?? BACKGROUND_ENGINE_SEARCH_RETRY_LIMIT
+ const restart = options.restart ?? (() => backgroundAnalysisStockfishService.restart())
+
+ for (let attempt = 0; attempt <= retryLimit; attempt += 1) {
+  let timeoutId: number | null = null
+  try {
+   const result = await Promise.race([
+    operation(),
+    new Promise<never>((_, reject) => {
+     timeoutId = window.setTimeout(() => reject(new BackgroundEngineSearchTimeoutError()), timeoutMs)
+    }),
+   ])
+   return result
+  } catch (error) {
+   if (attempt >= retryLimit) throw error
+   // This is the dedicated imported-game worker. Restarting it cannot stop or
+   // replace an interactive Play Computer search.
+   await restart()
+  } finally {
+   if (timeoutId !== null) window.clearTimeout(timeoutId)
+  }
+ }
+
+ throw new Error("Background engine retry limit was exhausted")
+}
+
 export type EngineAnalysisResult = {
  gamesAnalyzed: number
  gamesSkipped: number
@@ -42,6 +87,17 @@ export type EngineAnalysisResult = {
 }
 
 export const PENDING_ENGINE_ANALYSIS_FILTER = "engine_analyzed.is.false,engine_analyzed.is.null"
+
+export async function getRemainingImportedGamesToAnalyze(userId: string): Promise<number> {
+ const { count, error } = await supabase
+  .from("user_imported_games")
+  .select("id", { count: "exact", head: true })
+  .eq("user_id", userId)
+  .or(PENDING_ENGINE_ANALYSIS_FILTER)
+
+ if (error) throw error
+ return count || 0
+}
 
 export function getAnalysisTiming(startedAt: number, gamesDone: number, gamesTotal: number, now = Date.now()) {
  const elapsedMs = Math.max(0, now - startedAt)
@@ -234,10 +290,15 @@ async function analyzeOneGame(
   if (sideToMove !== game.user_color) continue
 
   const userMoveUci = moveToUci(userMove)
-  const best = await stockfishService.getBestMove(fenBefore)
+  const best = await runBackgroundEngineRequest(() =>
+   backgroundAnalysisStockfishService.getBestMove(fenBefore),
+  )
   const bestMoveUci = best.bestMove || best.eval?.bestMove || ""
   const evalBeforeCp = userPerspectiveCp(best.eval, true)
-  const evalAfter = await stockfishService.getEvaluation(replay.fen(), { depth })
+  const fenAfter = replay.fen()
+  const evalAfter = await runBackgroundEngineRequest(() =>
+   backgroundAnalysisStockfishService.getEvaluation(fenAfter, { depth }),
+  )
   const evalAfterCp = userPerspectiveCp(evalAfter, false)
 
   if (evalBeforeCp === null || evalAfterCp === null) continue
@@ -308,8 +369,8 @@ export async function analyzeImportedGamesWithStockfish(
   message: "Starting Stockfish...",
  })
 
- await stockfishService.init()
- stockfishService.setSkill({ skillLevel: 20, depth })
+ await backgroundAnalysisStockfishService.init()
+ backgroundAnalysisStockfishService.setSkill({ skillLevel: 20, depth })
 
  const { data: games, error } = await supabase
   .from("user_imported_games")
@@ -361,6 +422,16 @@ export async function analyzeImportedGamesWithStockfish(
   } catch (analysisError) {
    gamesFailed += 1
    console.error("Imported game analysis failed:", game.id, analysisError)
+   // There is no per-game failure-reason column in the existing schema. Mark
+   // the bounded-retry failure as processed so one pathological PGN/search
+   // cannot block the plan forever; the final summary retains gamesFailed.
+   try {
+    await markGameAnalyzed(userId, game.id)
+   } catch (checkpointError) {
+    // Do not let a checkpoint write failure turn one exhausted game retry into
+    // a job-wide failure. The game remains eligible for a later safe retry.
+    console.error("Could not checkpoint failed imported game:", game.id, checkpointError)
+   }
   }
 
   options.onProgress?.({

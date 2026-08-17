@@ -22,6 +22,15 @@ staging/
 # Local verified-tactics audit output is not a browser runtime asset.
 /public/data/verified-lichess-tactics-v1/reports/
 
+# The active Master Tactics production scan is not a browser runtime input.
+/scripts/master-tactics/
+/generated/master-tactics/
+/reports/master-tactics/
+
+# Local copies/artifacts from earlier preview and verification work are not runtime inputs.
+/.vercel-preview*/
+/.local-verified-lichess-tactics-v1/
+
 # Local generation and maintenance scripts
 scripts/*
 !scripts/install-stockfish-assets.cjs

@@ -30,32 +30,45 @@ function PayPalSubscriptionButton({
   planId,
   period,
   onApproved,
+  onRetry,
 }: {
   userId: string
   planId: string
   period: BillingPeriod
   onApproved: (subscriptionId: string) => Promise<void>
+  onRetry: (manual: boolean) => void
 }) {
   const [{ isPending, isRejected }] = usePayPalScriptReducer()
   const [message, setMessage] = useState("")
   const [approving, setApproving] = useState(false)
   const checkoutTracked = useRef(false)
   const activationTracked = useRef(false)
+  const autoRetryScheduled = useRef(false)
+
+  useEffect(() => {
+    if (!isRejected || autoRetryScheduled.current) return
+    autoRetryScheduled.current = true
+    const timer = window.setTimeout(() => onRetry(false), 600)
+    return () => window.clearTimeout(timer)
+  }, [isRejected, onRetry])
 
   if (isRejected) {
     return (
       <div style={checkoutErrorStyle}>
-        PayPal failed to load. Refresh the page and try again.
+        PayPal couldn't load.
+        <button type="button" onClick={() => onRetry(true)} style={retryButtonStyle}>Retry PayPal</button>
       </div>
     )
   }
 
+  // Buttons are not mounted until the SDK reducer has reported readiness.
+  // This avoids a first-navigation race with the asynchronous script insert.
+  if (isPending || typeof window === "undefined" || !window.paypal) {
+    return <div style={checkoutStatusStyle}>Loading PayPal...</div>
+  }
+
   return (
     <div style={{ marginTop: 18 }}>
-      {isPending && (
-        <div style={checkoutStatusStyle}>Loading PayPal...</div>
-      )}
-
       <PayPalButtons
         key={planId}
         forceReRender={[planId, userId, period]}
@@ -135,7 +148,8 @@ function CheckoutButton({
   userId,
   planId,
   period,
-  onApproved,
+      onApproved,
+      onRetry,
   onLogin,
 }: {
   userLoaded: boolean
@@ -143,6 +157,7 @@ function CheckoutButton({
   planId: string
   period: BillingPeriod
   onApproved: (subscriptionId: string) => Promise<void>
+  onRetry: (manual: boolean) => void
   onLogin: () => void
 }) {
   if (!userLoaded) {
@@ -171,8 +186,25 @@ function CheckoutButton({
       planId={planId}
       period={period}
       onApproved={onApproved}
+      onRetry={onRetry}
     />
   )
+}
+
+function PayPalCheckout({ currency, children }: { currency: string; children: (onRetry: (manual: boolean) => void) => React.ReactNode }) {
+ const [attempt, setAttempt] = useState(0)
+ const retry = (manual: boolean) => {
+  setAttempt((current) => manual ? current + 1 : Math.max(current, 1))
+ }
+
+ return (
+  <PayPalScriptProvider
+   key={attempt}
+   options={{ clientId: paypalClientId, components: "buttons", currency, intent: "subscription", vault: true }}
+  >
+   {children(retry)}
+  </PayPalScriptProvider>
+ )
 }
 
 export default function PricingPage() {
@@ -409,15 +441,8 @@ export default function PricingPage() {
                 PayPal Client ID is missing from the site environment.
               </div>
             ) : (
-              <PayPalScriptProvider
-                options={{
-                  clientId: paypalClientId,
-                  components: "buttons",
-                  currency: priceProfile.currency,
-                  intent: "subscription",
-                  vault: true,
-                }}
-              >
+              <PayPalCheckout currency={priceProfile.currency}>
+                {(onRetry) => (
                 <div style={plansStyle}>
                   <div style={planCardStyle}>
                     <div style={planNameStyle}>Monthly</div>
@@ -441,6 +466,7 @@ export default function PricingPage() {
                       planId={priceProfile.monthlyPlanId}
                       period="monthly"
                       onApproved={verifyApprovedSubscription}
+                      onRetry={onRetry}
                       onLogin={() => navigate("/auth")}
                     />
                   </div>
@@ -472,11 +498,13 @@ export default function PricingPage() {
                       planId={priceProfile.yearlyPlanId}
                       period="yearly"
                       onApproved={verifyApprovedSubscription}
+                      onRetry={onRetry}
                       onLogin={() => navigate("/auth")}
                     />
                   </div>
                 </div>
-              </PayPalScriptProvider>
+                )}
+              </PayPalCheckout>
             )}
           </>
         )}
@@ -675,6 +703,11 @@ const checkoutSuccessStyle: React.CSSProperties = {
   background: "rgba(129,182,76,0.14)",
   border: "1px solid rgba(129,182,76,0.4)",
   color: "#dff3c5",
+}
+
+const retryButtonStyle: React.CSSProperties = {
+  display: "block", marginTop: 8, border: "none", borderRadius: 8,
+  padding: "7px 10px", background: "#81b64c", color: "#fff", fontWeight: 800, cursor: "pointer",
 }
 
 const statusStyle: React.CSSProperties = {

@@ -1,5 +1,5 @@
 import StalemateUnderpromotionPage from './pages/StalemateUnderpromotionPage';
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 
@@ -81,6 +81,8 @@ import {
  TrainingQuotaProvider,
  TrainingQuotaRouteGate,
 } from "./context/TrainingQuotaContext"
+import { BackgroundAnalysisProvider } from "./context/BackgroundAnalysisContext"
+import BackgroundAnalysisStatus from "./components/BackgroundAnalysisStatus"
 
 import AnastasiaMateIn1PatternPage from "./pages/pattern/AnastasiaMateIn1PatternPage"
 import SmotheredMateIn1Page from "./SmotheredMateIn1Page"
@@ -140,8 +142,11 @@ function LegacyThemeRedirect({ to }: { to: string }) {
 export default function AppRouter() {
  const [user, setUser] = useState<any>(null)
  const [authReady, setAuthReady] = useState(false)
+ const authStateRevisionRef = useRef(0)
  const handleSignedOut = useCallback(() => {
+  authStateRevisionRef.current += 1
   setUser(null)
+  setAuthReady(true)
  }, [])
 
  useEffect(() => {
@@ -168,12 +173,14 @@ export default function AppRouter() {
 
  const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
  if (cancelled) return
+ authStateRevisionRef.current += 1
  setUser(session?.user ?? null)
  setAuthReady(true)
  })
 
+ const initialRevision = authStateRevisionRef.current
  supabase.auth.getSession().then(({ data }) => {
- if (cancelled) return
+ if (cancelled || authStateRevisionRef.current !== initialRevision) return
  setUser(data.session?.user ?? null)
  setAuthReady(true)
  })
@@ -194,6 +201,8 @@ export default function AppRouter() {
  <BoardUiProvider>
   <SubscriptionProvider key={user?.id ?? "guest"} user={user}>
   <TrainingQuotaProvider key={user?.id ?? "guest"} user={user}>
+  <BackgroundAnalysisProvider user={user}>
+ <BackgroundAnalysisStatus />
  <GlobalBackButton />
  <GlobalFloatingPlay
   isLoggedIn={!!user}
@@ -356,6 +365,7 @@ export default function AppRouter() {
  <Route path="*" element={<NotFoundPage />} />
  </Routes>
  </TrainingQuotaRouteGate>
+ </BackgroundAnalysisProvider>
   </TrainingQuotaProvider>
    </SubscriptionProvider>
  </BoardUiProvider>
@@ -363,7 +373,6 @@ export default function AppRouter() {
  </BrowserRouter>
  )
 }
-
 
 
 

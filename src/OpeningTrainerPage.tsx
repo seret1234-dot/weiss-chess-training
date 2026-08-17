@@ -6,6 +6,7 @@ import { supabase } from './lib/supabase'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
 import { saveTrainingProgress } from './lib/trainingProgress'
 import { HintButton } from './components/trainer/ui'
+import { getViewportConstrainedBoardSize } from './components/trainer/boardViewport'
 import './OpeningTrainerPage.css'
 
 import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
@@ -907,17 +908,28 @@ useEffect(() => {
  useEffect(() => {
  function setInitialBoardSize() {
  const width = window.innerWidth
+ const height = window.visualViewport?.height ?? window.innerHeight
  if (width <= 768) {
- setBoardSize(Math.max(0, Math.floor(width - 16)))
+ setBoardSize(getViewportConstrainedBoardSize({
+ viewportWidth: width,
+ viewportHeight: height,
+ horizontalReserved: 16,
+ verticalReserved: 360,
+ maxBoardSize: 820,
+ }))
  return
  }
- const height = window.innerHeight
  const rightPanelWidth = 340
  const pagePadding = 80
- const availableWidth = width - rightPanelWidth - pagePadding
- const availableHeight = height - 80
- const size = Math.max(320, Math.min(820, availableWidth, availableHeight))
- setBoardSize(size)
+ setBoardSize(getViewportConstrainedBoardSize({
+ viewportWidth: width,
+ viewportHeight: height,
+ horizontalReserved: rightPanelWidth + pagePadding,
+ // Header, player bars, frame, and the bottom safe area all live outside
+ // the playable board. Keep the whole board visible at 100% browser zoom.
+ verticalReserved: 360,
+ maxBoardSize: 820,
+ }))
  }
 
  setInitialBoardSize()
@@ -938,11 +950,14 @@ useEffect(() => {
  const leftPadding = 16
  const rightPanelWidth = 340
  const dividerWidth = 18
- const minBoard = 320
- const maxBoard = Math.min(
- 950,
- rect.width - rightPanelWidth - dividerWidth - leftPadding
- )
+ const maxBoard = getViewportConstrainedBoardSize({
+ viewportWidth: rect.width,
+ viewportHeight: window.visualViewport?.height ?? window.innerHeight,
+ horizontalReserved: rightPanelWidth + dividerWidth + leftPadding,
+ verticalReserved: 360,
+ maxBoardSize: 950,
+ })
+ const minBoard = Math.min(320, maxBoard)
 
  const nextSize = e.clientX - rect.left - leftPadding
  const clamped = Math.max(minBoard, Math.min(maxBoard, nextSize))
@@ -2073,6 +2088,11 @@ useEffect(() => {
  boxSizing: 'border-box',
  }}
  >
+ <div
+ id="trainer-completion-actions"
+ data-testid="trainer-completion-actions"
+ className="trainer-completion-actions opening-trainer-completion-actions"
+ />
  <div
  className="opening-trainer-replay-card"
  style={{

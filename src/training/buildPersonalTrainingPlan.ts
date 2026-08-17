@@ -21,6 +21,10 @@ export type PersonalTrainingPlan = {
  ratingSource: string
  targetRating: number | null
  nextMilestone: number | null
+ dailyPracticeMinutes: number
+ effectiveDailyPracticeMinutes: number
+ timeframeMonths: number | null
+ goalFeasibility: GoalFeasibility | null
  ratingBand: "under1000" | "1000to1600" | "above1600"
  sections: TrainingSection[]
  analysisAvailable: boolean
@@ -66,55 +70,26 @@ const maximumWeights: WeightMap = {
 export const NO_ANALYSIS_PLAN_MESSAGE =
  "Game analysis is not available yet. Your starter plan is based on your current rating; connect Chess.com and analyze games to personalize it."
 
-function asNumber(value: unknown): number | null {
- const n = Number(value)
- return Number.isFinite(n) && n > 0 ? n : null
-}
-
-function getDetectedRatings(autoProfile: any): Record<string, unknown> {
- if (!autoProfile?.detected_ratings || typeof autoProfile.detected_ratings !== "object") {
-  return {}
- }
-
- return autoProfile.detected_ratings
-}
-
-function estimateCurrentRating(autoProfile: any): { rating: number; source: string } {
- const ratings = getDetectedRatings(autoProfile)
-
- const rapid = asNumber(ratings.rapid)
- if (rapid) return { rating: rapid, source: "rapid" }
-
- const blitz = asNumber(ratings.blitz)
- if (blitz) return { rating: blitz, source: "blitz" }
-
- const long = asNumber(ratings.long)
- if (long) return { rating: long, source: "long" }
-
- const estimated = asNumber(autoProfile?.estimated_rating)
- if (estimated) return { rating: estimated, source: "estimated" }
-
- return { rating: 800, source: "default" }
-}
-
 function ratingBand(rating: number): PersonalTrainingPlan["ratingBand"] {
  if (rating < 1000) return "under1000"
  if (rating < 1600) return "1000to1600"
  return "above1600"
 }
 
-function nextMilestone(current: number, target: number | null): number | null {
+function nextMilestone(current: number, target: number | null, savedMilestone: number | null, suggestedMilestone: number | null): number | null {
  if (!target || target <= current) return null
+
+ if (savedMilestone && savedMilestone > current && savedMilestone <= target) return savedMilestone
+ if (suggestedMilestone && suggestedMilestone > current && suggestedMilestone <= target) return suggestedMilestone
 
  const milestones = [900, 1000, 1200, 1400, 1600, 1800, 2000, 2200]
 
  return milestones.find((m) => m > current && m <= target) ?? target
 }
 
-function newMasterGameEveryDays(rating: number): number {
- if (rating < 1000) return 60
- if (rating < 1600) return 30
- return 7
+function newMasterGameEveryDays(rating: number, dailyMinutes: number): number {
+ const base = rating < 1000 ? 60 : rating < 1600 ? 30 : 7
+ return Math.max(3, Math.round(base * (20 / dailyMinutes)))
 }
 
 function getEngineSummary(autoProfile: any) {
@@ -376,6 +351,7 @@ function sectionByKey(
  key: TrainingSectionKey,
  weight: number,
  rating: number,
+ dailyMinutes: number,
 ): TrainingSection {
  if (key === "boardVision") {
   return {
@@ -423,7 +399,7 @@ function sectionByKey(
   weight,
   reason: "",
   route: "/master-games",
-  newMasterGameEveryDays: newMasterGameEveryDays(rating),
+  newMasterGameEveryDays: newMasterGameEveryDays(rating, dailyMinutes),
   masteryTargetReviews: 5,
   maxMasterGameMoves: rating < 1000 ? 30 : undefined,
  }
@@ -433,22 +409,32 @@ function baseSections(
  band: PersonalTrainingPlan["ratingBand"],
  rating: number,
  autoProfile: any,
+ dailyMinutes: number,
 ): TrainingSection[] {
  const adjustment = applyEngineAdjustments(baseWeights(band), autoProfile)
  const weights = normalizeWeights(adjustment.weights, adjustment.preferredRemainder)
 
  return [
-  sectionByKey("boardVision", weights.boardVision, rating),
-  sectionByKey("tactics", weights.tactics, rating),
-  sectionByKey("endgames", weights.endgames, rating),
-  sectionByKey("openings", weights.openings, rating),
-  sectionByKey("masterGames", weights.masterGames, rating),
+  sectionByKey("boardVision", weights.boardVision, rating, dailyMinutes),
+  sectionByKey("tactics", weights.tactics, rating, dailyMinutes),
+  sectionByKey("endgames", weights.endgames, rating, dailyMinutes),
+  sectionByKey("openings", weights.openings, rating, dailyMinutes),
+  sectionByKey("masterGames", weights.masterGames, rating, dailyMinutes),
  ]
 }
 
 export function buildPersonalTrainingPlan(autoProfile: any): PersonalTrainingPlan {
- const current = estimateCurrentRating(autoProfile)
- const target = asNumber(autoProfile?.target_rating)
+ const goals = readTrainingGoals(autoProfile)
+ const current = resolveTrainingCurrentRating(autoProfile)
+ const target = goals.targetRating
+ const feasibility = target
+  ? assessGoalFeasibility({
+    currentRating: current.rating,
+    targetRating: target,
+    dailyMinutes: goals.dailyMinutes,
+    timeframeMonths: goals.timeframeMonths,
+   })
+  : null
  const band = ratingBand(current.rating)
  const adjustment = applyEngineAdjustments(baseWeights(band), autoProfile)
 
@@ -456,9 +442,13 @@ export function buildPersonalTrainingPlan(autoProfile: any): PersonalTrainingPla
   currentRating: current.rating,
   ratingSource: current.source,
   targetRating: target,
-  nextMilestone: nextMilestone(current.rating, target),
+  nextMilestone: nextMilestone(current.rating, target, goals.currentMilestoneRating, feasibility?.recommendedMilestone ?? null),
+  dailyPracticeMinutes: goals.dailyMinutes,
+  effectiveDailyPracticeMinutes: goals.dailyMinutes * 0.65,
+  timeframeMonths: goals.timeframeMonths,
+  goalFeasibility: feasibility,
   ratingBand: band,
-  sections: baseSections(band, current.rating, autoProfile),
+  sections: baseSections(band, current.rating, autoProfile, goals.dailyMinutes),
   analysisAvailable: adjustment.analysisAvailable,
   analysisMessage: adjustment.analysisAvailable ? null : NO_ANALYSIS_PLAN_MESSAGE,
   validatedEvidenceKey: adjustment.validatedEvidenceKey,
@@ -482,3 +472,9 @@ export function getRecommendedSection(plan: PersonalTrainingPlan): TrainingSecti
   return evidenceOrder[a.key] - evidenceOrder[b.key]
  })[0] ?? plan.sections[0]
 }
+import {
+ assessGoalFeasibility,
+ readTrainingGoals,
+ resolveTrainingCurrentRating,
+ type GoalFeasibility,
+} from "./trainingGoals"

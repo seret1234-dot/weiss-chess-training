@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from "react"
 import type { CSSProperties } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { getOrCreateAutoProfile } from "../training/getOrCreateAutoProfile"
 import {
  buildPersonalTrainingPlan,
 } from "../training/buildPersonalTrainingPlan"
 import type { PersonalTrainingPlan, TrainingSection } from "../training/buildPersonalTrainingPlan"
-import { getDueSummary } from "../training/getNextDueItem"
 import { addAutoTrainingParams } from "../training/autoTrainingRoute"
 import {
  buildCurriculumAutoTrainingRoute,
@@ -22,8 +21,9 @@ import {
  prepareNextEndgameTransfer,
  recordRecentEndgameTrainer,
 } from "../training/endgameTransfer"
+import { resolveAutoStartRoute } from "../training/resolveAutoStartRoute"
 import { importConnectedAccounts } from "../training/importConnectedAccounts"
-import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
+import { analyzeImportedGamesWithStockfish, getRemainingImportedGamesToAnalyze } from "../training/engineAnalyzeImportedGames"
 import "../AccountAutoStudy.css"
 
 type LoadState =
@@ -74,6 +74,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
  const [refreshingGames, setRefreshingGames] = useState(false)
  const [engineBusy, setEngineBusy] = useState(false)
  const [engineProgress, setEngineProgress] = useState("")
+ const [remainingAnalysisGames, setRemainingAnalysisGames] = useState<number | null>(null)
  const [weeklyStatus, setWeeklyStatus] = useState<WeeklyTestPlanStatus | null>(null)
  const [curriculumDecision, setCurriculumDecision] = useState<CurriculumRuntimeDecision | null>(null)
 
@@ -107,15 +108,17 @@ export default function AutoStudyPage({ user }: { user: any }) {
     }
 
     const plan = buildPersonalTrainingPlan(autoProfile)
-    const [nextWeeklyStatus, nextCurriculumDecision] = await Promise.all([
+    const [nextWeeklyStatus, nextCurriculumDecision, remainingGames] = await Promise.all([
      getWeeklyTestStatus(user.id),
      getCurriculumDecisionForUser(user.id),
+     getRemainingImportedGamesToAnalyze(user.id),
     ])
 
     if (!cancelled) {
      setState({ status: "ready", autoProfile, plan })
      setWeeklyStatus(nextWeeklyStatus)
      setCurriculumDecision(nextCurriculumDecision)
+     setRemainingAnalysisGames(remainingGames)
     }
    } catch (error) {
     console.error("AUTO PAGE error:", error)
@@ -190,8 +193,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
    const plan = buildPersonalTrainingPlan(autoProfile)
-    setState({ status: "ready", autoProfile, plan })
-    setCurriculumDecision(await getCurriculumDecisionForUser(user.id))
+   setState({ status: "ready", autoProfile, plan })
+   setCurriculumDecision(await getCurriculumDecisionForUser(user.id))
+    setRemainingAnalysisGames(await getRemainingImportedGamesToAnalyze(user.id))
    }
   } catch (error) {
    console.error("Refresh connected games failed:", error)
@@ -221,8 +225,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
    const plan = buildPersonalTrainingPlan(autoProfile)
-    setState({ status: "ready", autoProfile, plan })
-    setCurriculumDecision(await getCurriculumDecisionForUser(user.id))
+   setState({ status: "ready", autoProfile, plan })
+   setCurriculumDecision(await getCurriculumDecisionForUser(user.id))
+    setRemainingAnalysisGames(await getRemainingImportedGamesToAnalyze(user.id))
    }
 
    setEngineProgress(
@@ -251,8 +256,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
   setStartingTraining(true)
 
   try {
-   const [dueSummary, latestWeeklyStatus, nextCurriculumDecision] = await Promise.all([
-    getDueSummary(user.id),
+   const [latestWeeklyStatus, nextCurriculumDecision] = await Promise.all([
     getWeeklyTestStatus(user.id),
     getCurriculumDecisionForUser(user.id),
    ])
@@ -260,16 +264,8 @@ export default function AutoStudyPage({ user }: { user: any }) {
    setWeeklyStatus(latestWeeklyStatus)
    setCurriculumDecision(nextCurriculumDecision)
 
-   if (latestWeeklyStatus.status === "in_progress") {
-    navigate(addAutoTrainingParams("/play-computer?weekly=1"), { replace })
-    return
-   }
-
-   if (
-    latestWeeklyStatus.status === "due" &&
-    (!dueSummary || dueSummary.dueCount === 0)
-   ) {
-    navigate(addAutoTrainingParams("/play-computer?weekly=1"), { replace })
+   if (latestWeeklyStatus.status === "in_progress" || latestWeeklyStatus.status === "due") {
+    navigate(resolveAutoStartRoute({ weeklyStatus: latestWeeklyStatus, curriculumDecision: nextCurriculumDecision }), { replace })
     return
    }
 
@@ -282,19 +278,13 @@ export default function AutoStudyPage({ user }: { user: any }) {
     return
    }
 
-   // Transfer play is a fallback. It must not replace a scheduled course item.
+   // Transfer play remains a fallback after the canonical curriculum decision.
    const endgameTransfer = await prepareNextEndgameTransfer(user.id)
-   if (endgameTransfer) {
-    navigate(addAutoTrainingParams("/play-computer?endgameTransfer=1"), { replace })
-    return
-   }
-
-   if (latestWeeklyStatus.status === "due") {
-    navigate(addAutoTrainingParams("/play-computer?weekly=1"), { replace })
-    return
-   }
-
-   navigate("/auto?caughtUp=1", { replace: true })
+   navigate(resolveAutoStartRoute({
+    weeklyStatus: latestWeeklyStatus,
+    curriculumDecision: null,
+    endgameTransferAvailable: Boolean(endgameTransfer),
+   }), { replace })
   } catch (error) {
    console.error("Could not start recommended training:", error)
    alert("Could not open the next course item. Check the console.")
@@ -346,8 +336,8 @@ export default function AutoStudyPage({ user }: { user: any }) {
     <div className="auto-study-page__header" style={{ marginBottom: 22 }}>
      <h1 className="auto-study-page__title" style={{ fontSize: 40, margin: "0 0 8px" }}>Your Personal Chess Course</h1>
      <p style={{ color: "#cfcfcf", fontSize: 17, lineHeight: 1.5, maxWidth: 760 }}>
-     The course has five regular sections. The weights are calculated from your rating goal,
-      detected ratings, imported games, openings, and later your repeated mistakes.
+      The course has five regular sections. The weights and cadence use your normalized training rating,
+       goal, daily practice capacity, imported games, openings, and later your repeated mistakes.
      </p>
      {!plan.analysisAvailable && plan.analysisMessage && (
       <p style={{ color: "#f0dca0", fontSize: 14, lineHeight: 1.5, maxWidth: 760 }}>
@@ -371,6 +361,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
       >
        {refreshingGames ? "Refreshing games..." : "Refresh connected games"}
       </button>
+      {remainingAnalysisGames !== null && remainingAnalysisGames > 0 ? (
       <button
       onClick={analyzeGamesWithEngine}
       disabled={engineBusy}
@@ -386,8 +377,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
        cursor: engineBusy ? "wait" : "pointer",
       }}
       >
-       {engineBusy ? "Analyzing..." : "Analyze all remaining games with Stockfish"}
+       {engineBusy ? "Analyzing..." : `Analyze ${remainingAnalysisGames} remaining ${remainingAnalysisGames === 1 ? "game" : "games"} with Stockfish`}
       </button>
+      ) : null}
       </div>
      {engineProgress && (
       <div style={{ marginTop: 10, color: "#d6d6d6", fontSize: 14 }}>
@@ -577,7 +569,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
       <div style={{ display: "grid", gap: 12 }}>
        <div style={sectionCardStyle()}>
-        <div style={{ color: "#bdbdbd", fontSize: 13 }}>Detected rating</div>
+         <div style={{ color: "#bdbdbd", fontSize: 13 }}>Current training rating</div>
         <div style={{ fontSize: 26, fontWeight: 900 }}>
          {plan.currentRating}
         </div>
@@ -596,10 +588,25 @@ export default function AutoStudyPage({ user }: { user: any }) {
         <div style={{ fontWeight: 900 }}>{plan.targetRating ?? "Not set"}</div>
        </div>
 
-       <div style={sectionCardStyle()}>
-        <div style={{ color: "#bdbdbd", fontSize: 13 }}>Next milestone</div>
-        <div style={{ fontWeight: 900 }}>{plan.nextMilestone ?? "Maintain and improve"}</div>
-       </div>
+        <div style={sectionCardStyle()}>
+         <div style={{ color: "#bdbdbd", fontSize: 13 }}>Next milestone</div>
+         <div style={{ fontWeight: 900 }}>{plan.nextMilestone ?? "Maintain and improve"}</div>
+        </div>
+
+        <div style={sectionCardStyle()}>
+         <div style={{ color: "#bdbdbd", fontSize: 13 }}>Daily plan capacity</div>
+         <div style={{ fontWeight: 900 }}>{plan.dailyPracticeMinutes} declared min ? {plan.effectiveDailyPracticeMinutes.toFixed(1)} effective min</div>
+         <div style={{ color: "#cfcfcf", fontSize: 13 }}>
+          {plan.timeframeMonths ? `${plan.timeframeMonths}-month target window` : "Long-term / no deadline"}
+         </div>
+        </div>
+
+        {plan.goalFeasibility && (
+         <div style={sectionCardStyle()}>
+          <div style={{ color: "#bdbdbd", fontSize: 13 }}>Goal status</div>
+          <div style={{ fontWeight: 900 }}>{plan.goalFeasibility.status.toLowerCase().replaceAll("_", " ")}</div>
+         </div>
+        )}
 
        <div style={sectionCardStyle()}>
         <div style={{ color: "#bdbdbd", fontSize: 13 }}>Imported games</div>

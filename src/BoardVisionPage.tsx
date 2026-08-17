@@ -2040,6 +2040,12 @@ export default function BoardVisionPage() {
  </div>
  </div>
 
+ <div
+ id="trainer-completion-actions"
+ data-testid="trainer-completion-actions"
+ className="trainer-completion-actions board-vision-completion-actions"
+ />
+
  <div className="board-vision-board" style={{ width: '100%', maxWidth: 900, margin: '0 auto' }}>
  <ThemedChessboard
  id="board-vision-board"

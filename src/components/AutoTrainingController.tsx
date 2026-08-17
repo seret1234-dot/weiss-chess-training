@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { createPortal } from "react-dom"
 import { useLocation, useNavigate } from "react-router-dom"
 import { AUTO_TRAINING_COMPLETE_EVENT } from "../training/autoTrainingRoute"
 
@@ -6,6 +7,7 @@ export default function AutoTrainingController({ user }: { user: any }) {
  const location = useLocation()
  const navigate = useNavigate()
  const [moving, setMoving] = useState(false)
+ const [completionHost, setCompletionHost] = useState<HTMLElement | null>(null)
 
  const params = useMemo(
   () => new URLSearchParams(location.search),
@@ -38,12 +40,22 @@ export default function AutoTrainingController({ user }: { user: any }) {
   }
  }, [active, continueCourse])
 
+ useEffect(() => {
+  if (!active) {
+   setCompletionHost(null)
+   return
+  }
+
+  setCompletionHost(document.getElementById("trainer-completion-actions"))
+ }, [active, location.pathname])
+
  if (!active) return null
 
- return (
+ const control = (
   <button
    type="button"
    className="auto-training-controller"
+   data-testid="finish-drill-continue"
    onClick={continueCourse}
    disabled={moving}
    title="Finish this drill and open the next item in your personal course"
@@ -63,4 +75,6 @@ export default function AutoTrainingController({ user }: { user: any }) {
    {moving ? "Opening next item..." : "Finish drill & continue"}
   </button>
  )
+
+ return completionHost ? createPortal(control, completionHost) : control
 }

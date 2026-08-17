@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react"
 
-export type SiteTheme = "nobleStandard" | "weiss3d" | "classic" | "qwertyxp2000"
+export type SiteTheme = "nobleStandard" | "weiss3d" | "classic" | "merida" | "qwertyxp2000"
 
 // Use the Classic SVG set for users without a saved preference. A saved user
 // choice in localStorage still takes priority.
@@ -38,8 +38,8 @@ type ThemeContextValue = {
   pieces: ThemePieces
 }
 
-const STORAGE_KEY = "weiss-chess-site-theme-v2"
-const themeOrder: SiteTheme[] = ["nobleStandard", "weiss3d", "classic", "qwertyxp2000"]
+export const SITE_THEME_STORAGE_KEY = "weiss-chess-site-theme-v2"
+export const siteThemeOrder: SiteTheme[] = ["nobleStandard", "weiss3d", "classic", "merida", "qwertyxp2000"]
 
 export const siteThemes: Record<SiteTheme, SiteThemeConfig> = {
   nobleStandard: {
@@ -64,6 +64,15 @@ export const siteThemes: Record<SiteTheme, SiteThemeConfig> = {
     id: "classic",
     name: "Classic",
     description: "Refined original board with the familiar flat tournament pieces.",
+    board: {
+      light: "#eeeccf",
+      dark: "#7a995c",
+    },
+  },
+  merida: {
+    id: "merida",
+    name: "Merida",
+    description: "Classic tournament-style 2D pieces.",
     board: {
       light: "#eeeccf",
       dark: "#7a995c",
@@ -125,6 +134,10 @@ function weiss3dUrl(code: PieceCode): string {
 
 function classicUrl(code: PieceCode): string {
   return `/pieces/react-chessboard-default/${code.toLowerCase()}.svg`
+}
+
+function meridaUrl(code: PieceCode): string {
+  return `/pieces/merida/${code.toLowerCase()}.svg`
 }
 
 function nobleUrl(code: PieceCode): string {
@@ -200,6 +213,15 @@ function createClassicPiece(code: PieceCode): PieceRenderer {
   )
 }
 
+function createMeridaPiece(code: PieceCode): PieceRenderer {
+  return createImagePiece(
+    code,
+    meridaUrl(code),
+    1,
+    "drop-shadow(0 2px 1px rgba(0,0,0,0.30)) drop-shadow(0 5px 5px rgba(0,0,0,0.16))",
+  )
+}
+
 function createNoblePiece(code: PieceCode): PieceRenderer {
   const kingLift = code[1] === "K" ? -0.035 : 0
 
@@ -229,13 +251,22 @@ const noblePieces = buildPieces(createNoblePiece)
 const weiss3dPieces = buildPieces(createWeiss3dPiece)
 const classicPieces = buildPieces(createClassicPiece)
 const qwertyPieces = buildPieces(createQwertyPiece)
+const meridaPieces = buildPieces(createMeridaPiece)
 
-function readInitialTheme(): SiteTheme {
+export function resolveThemePieces(theme: SiteTheme): ThemePieces {
+  if (theme === "weiss3d") return weiss3dPieces
+  if (theme === "classic") return classicPieces
+  if (theme === "merida") return meridaPieces
+  if (theme === "qwertyxp2000") return qwertyPieces
+  return noblePieces
+}
+
+export function readInitialTheme(): SiteTheme {
   if (typeof window === "undefined") return DEFAULT_SITE_THEME
 
   try {
-    const saved = window.localStorage.getItem(STORAGE_KEY) as SiteTheme | null
-    return saved && themeOrder.includes(saved) ? saved : DEFAULT_SITE_THEME
+    const saved = window.localStorage.getItem(SITE_THEME_STORAGE_KEY) as SiteTheme | null
+    return saved && siteThemeOrder.includes(saved) ? saved : DEFAULT_SITE_THEME
   } catch {
     return DEFAULT_SITE_THEME
   }
@@ -251,25 +282,20 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const toggleTheme = useCallback(() => {
-    setThemeState((current) => themeOrder[(themeOrder.indexOf(current) + 1) % themeOrder.length])
+    setThemeState((current) => siteThemeOrder[(siteThemeOrder.indexOf(current) + 1) % siteThemeOrder.length])
   }, [])
 
   useEffect(() => {
     document.documentElement.dataset.siteTheme = "classic"
 
     try {
-      window.localStorage.setItem(STORAGE_KEY, theme)
+      window.localStorage.setItem(SITE_THEME_STORAGE_KEY, theme)
     } catch {
       // The selected theme still works for this session when storage is blocked.
     }
   }, [theme])
 
   const value = useMemo<ThemeContextValue>(() => {
-    let pieces = noblePieces
-    if (theme === "weiss3d") pieces = weiss3dPieces
-    else if (theme === "classic") pieces = classicPieces
-    else if (theme === "qwertyxp2000") pieces = qwertyPieces
-
     return {
       theme,
       setTheme,
@@ -278,7 +304,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         ...siteThemes[theme],
         board: siteThemes.classic.board,
       },
-      pieces,
+      pieces: resolveThemePieces(theme),
     }
   }, [theme, setTheme, toggleTheme])
 

@@ -152,11 +152,6 @@ function limitedTrainingRoute(pathname: string) {
   return false
 }
 
-function premiumOnlyRoute(pathname: string) {
-  const path = pathname.replace(/\/+$/, "") || "/"
-  return path === "/auto"
-}
-
 export function TrainingQuotaProvider({
   user,
   children,
@@ -454,14 +449,9 @@ export function TrainingQuotaRouteGate({
   const location = useLocation()
   const quota = useTrainingQuota()
   const isLimited = limitedTrainingRoute(location.pathname)
-  const isPremiumOnly = premiumOnlyRoute(location.pathname)
-
-  if (!isLimited && !isPremiumOnly) return <>{children}</>
+  if (!isLimited) return <>{children}</>
   if (!quota.ready) return <AccessPage mode="loading" />
   if (quota.error) return <AccessPage mode="error" />
-  if (isPremiumOnly && quota.tier !== "premium") {
-    return <AccessPage mode="premium" />
-  }
   if (
     isLimited &&
     quota.tier !== "premium" &&

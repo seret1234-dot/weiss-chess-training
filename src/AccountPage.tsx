@@ -6,6 +6,15 @@ import ThemeSelector from "./theme/ThemeSelector"
 import { ConnectedImportFailure, hasUnsavedConnectedAccountChanges, importConnectedAccounts, requiresVisibleImportFailure, resolveSavedConnectedAccounts } from "./training/importConnectedAccounts"
 import { analyzeImportedGamesWithStockfish, hasHonestAnalysisCompletion, type EngineAnalysisProgress } from "./training/engineAnalyzeImportedGames"
 import { getOrCreateAutoProfile } from "./training/getOrCreateAutoProfile"
+import TrainingGoalsFields from "./components/TrainingGoalsFields"
+import {
+ readTrainingGoals,
+ serializeLegacyProfileTrainingGoals,
+ serializeTrainingGoals,
+ validTrainingRating,
+ validateTrainingGoals,
+ type TrainingGoals,
+} from "./training/trainingGoals"
 import "./AccountAutoStudy.css"
 
 function formatDate(value: string | null | undefined) {
@@ -57,6 +66,17 @@ export default function AccountPage() {
  const [importProgress, setImportProgress] = useState("")
  const [importSummary, setImportSummary] = useState("")
  const [cancelling, setCancelling] = useState(false)
+ const [trainingGoals, setTrainingGoals] = useState<TrainingGoals>({
+  manualCurrentRating: null,
+  targetRating: null,
+  dailyMinutes: 20,
+  timeframeMonths: null,
+  currentMilestoneRating: null,
+ })
+ const [automaticCurrentRating, setAutomaticCurrentRating] = useState<number | null>(null)
+ const [savingTrainingGoals, setSavingTrainingGoals] = useState(false)
+ const [trainingGoalsMessage, setTrainingGoalsMessage] = useState("")
+ const [trainingGoalsError, setTrainingGoalsError] = useState("")
  const [membershipMessage, setMembershipMessage] = useState("")
  const [membershipActionError, setMembershipActionError] = useState("")
  const {
@@ -133,6 +153,8 @@ export default function AccountPage() {
        setLichess(saved.lichess)
        setSavedLichessUsername(saved.lichess)
        setImportedGamesCount(importedCount)
+       setTrainingGoals(readTrainingGoals(autoProfile))
+       setAutomaticCurrentRating(validTrainingRating(autoProfile?.estimated_rating))
        setNeedsConnectedImport(
          Boolean(saved.chesscom || saved.lichess) && importedCount === 0,
        )
@@ -187,6 +209,39 @@ export default function AccountPage() {
    } finally {
     setSaving(false)
    }
+ }
+
+ async function saveTrainingGoals() {
+  const validationError = validateTrainingGoals(trainingGoals, true)
+  if (validationError) {
+   setTrainingGoalsError(validationError)
+   return
+  }
+
+  setSavingTrainingGoals(true)
+  setTrainingGoalsError("")
+  setTrainingGoalsMessage("")
+  try {
+   const { data, error: userError } = await supabase.auth.getUser()
+   if (userError || !data.user) throw new Error("Please log in again before saving training goals.")
+
+   const { error: profileError } = await supabase
+    .from("profiles")
+    .update(serializeLegacyProfileTrainingGoals(trainingGoals))
+    .eq("id", data.user.id)
+   if (profileError) throw profileError
+
+   const { error: autoProfileError } = await supabase
+    .from("user_auto_profile")
+    .upsert({ user_id: data.user.id, ...serializeTrainingGoals(trainingGoals) })
+   if (autoProfileError) throw autoProfileError
+
+   setTrainingGoalsMessage("Training goals saved. Your next course refresh will use this practice capacity and milestone.")
+  } catch (saveError) {
+   setTrainingGoalsError(saveError instanceof Error ? saveError.message : "Could not save training goals.")
+  } finally {
+   setSavingTrainingGoals(false)
+  }
  }
 
  async function importConnectedGames(chesscomOverride: string, lichessOverride: string) {
@@ -369,8 +424,8 @@ export default function AccountPage() {
 
  <ThemeSelector />
 
- <div className="account-page__content-grid" style={contentGridStyle}>
- <div className="account-page__main-card" style={mainCardStyle}>
+  <div className="account-page__content-grid" style={contentGridStyle}>
+   <div className="account-page__main-card account-page__connected-card" style={mainCardStyle}>
  <div style={sectionTitleStyle}>Connected chess accounts</div>
 
  <div style={fieldBlockStyle}>
@@ -422,10 +477,34 @@ export default function AccountPage() {
  {message && <div style={successStyle}>{message}</div>}
  {importProgress && <div style={progressStyle}>{importProgress}</div>}
  {importSummary && <div style={successStyle}>{importSummary}</div>}
- {error && <div style={errorStyle}>{error}</div>}
- </div>
+  {error && <div style={errorStyle}>{error}</div>}
+  </div>
 
- <div className="account-page__side-card" style={sideCardStyle}>
+   <div className="account-page__main-card account-page__training-card" style={mainCardStyle}>
+   <div style={sectionTitleStyle}>Training goals</div>
+   <div style={{ ...helperStyle, margin: "-10px 0 18px" }}>
+    Your imported-game analysis provides the normalized training rating when it is available. These changes do not reconnect or re-import accounts.
+   </div>
+   <TrainingGoalsFields
+    goals={trainingGoals}
+    onChange={setTrainingGoals}
+    automaticCurrentRating={automaticCurrentRating}
+    inputStyle={inputStyle}
+    labelStyle={labelStyle}
+    helperStyle={helperStyle}
+    accentColor="#81b64c"
+    compact
+   />
+   <div style={actionsRowStyle}>
+    <button onClick={() => void saveTrainingGoals()} disabled={savingTrainingGoals} style={saveButtonStyle}>
+     {savingTrainingGoals ? "Saving training goals..." : "Save Training Goals"}
+    </button>
+   </div>
+   {trainingGoalsMessage && <div style={successStyle}>{trainingGoalsMessage}</div>}
+   {trainingGoalsError && <div style={errorStyle}>{trainingGoalsError}</div>}
+   </div>
+
+  <div className="account-page__side-card account-page__side-card--compact" style={sideCardStyle}>
  <div style={membershipBoxStyle}>
  <div style={membershipEyebrowStyle}>Membership</div>
 
@@ -498,7 +577,7 @@ export default function AccountPage() {
 const pageStyle: React.CSSProperties = {
  minHeight: "100vh",
  background: "var(--theme-page-bg)",
- padding: "48px 20px 80px",
+ padding: "20px 24px calc(var(--site-fixed-bottom-clearance) + 18px)",
  fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
  position: "relative",
  overflow: "hidden",
@@ -519,17 +598,17 @@ const glowStyle: React.CSSProperties = {
 const shellStyle: React.CSSProperties = {
  position: "relative",
  zIndex: 1,
- maxWidth: 1060,
+ maxWidth: 1580,
  margin: "0 auto",
  display: "grid",
- gap: 18,
+ gap: 12,
 }
 
 const headerCardStyle: React.CSSProperties = {
  background: "var(--theme-panel)",
  border: "1px solid var(--theme-border)",
  borderRadius: 24,
- padding: "28px 28px 24px",
+ padding: "18px 22px",
  boxShadow: "var(--theme-shadow)",
 }
 
@@ -544,7 +623,7 @@ const eyebrowStyle: React.CSSProperties = {
 
 const titleStyle: React.CSSProperties = {
  color: "var(--theme-text)",
- fontSize: 34,
+ fontSize: 30,
  lineHeight: 1.1,
  margin: 0,
  fontWeight: 800,
@@ -554,21 +633,21 @@ const subtitleStyle: React.CSSProperties = {
  color: "var(--theme-muted)",
  fontSize: 15,
  lineHeight: 1.6,
- marginTop: 10,
+ marginTop: 6,
  maxWidth: 700,
 }
 
 const contentGridStyle: React.CSSProperties = {
  display: "grid",
- gridTemplateColumns: "minmax(0, 1.4fr) minmax(280px, 0.8fr)",
- gap: 18,
+ gridTemplateColumns: "minmax(240px, 0.95fr) minmax(360px, 1.18fr) minmax(250px, 0.78fr)",
+ gap: 12,
 }
 
 const mainCardStyle: React.CSSProperties = {
  background: "var(--theme-panel)",
  border: "1px solid var(--theme-border)",
  borderRadius: 24,
- padding: 28,
+ padding: 20,
  boxShadow: "var(--theme-shadow)",
 }
 
@@ -576,7 +655,7 @@ const sideCardStyle: React.CSSProperties = {
  background: "var(--theme-panel)",
  border: "1px solid var(--theme-border)",
  borderRadius: 24,
- padding: 28,
+ padding: 20,
  boxShadow: "var(--theme-shadow)",
  color: "var(--theme-text)",
  alignSelf: "start",
@@ -586,13 +665,13 @@ const sectionTitleStyle: React.CSSProperties = {
  color: "var(--theme-text)",
  fontSize: 22,
  fontWeight: 800,
- marginBottom: 20,
+ marginBottom: 14,
 }
 
 const fieldBlockStyle: React.CSSProperties = {
  display: "grid",
  gap: 8,
- marginBottom: 18,
+ marginBottom: 14,
 }
 
 const labelStyle: React.CSSProperties = {
@@ -602,7 +681,7 @@ const labelStyle: React.CSSProperties = {
 }
 
 const inputStyle: React.CSSProperties = {
- padding: "14px 16px",
+ padding: "11px 13px",
  borderRadius: 12,
  border: "1px solid var(--theme-border)",
  background: "var(--theme-panel-input)",
@@ -627,7 +706,7 @@ const actionsRowStyle: React.CSSProperties = {
  display: "flex",
  alignItems: "center",
  gap: 12,
- marginTop: 10,
+ marginTop: 8,
 }
 
 const saveButtonStyle: React.CSSProperties = {

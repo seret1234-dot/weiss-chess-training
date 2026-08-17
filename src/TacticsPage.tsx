@@ -88,7 +88,7 @@ export default function TacticsPage() {
  </p>
 
  <Link
- to="/auto"
+ to="/auto?continue=1"
  style={{
  display: "inline-flex",
  alignItems: "center",

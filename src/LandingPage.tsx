@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase'
 import { trainingCatalog } from './trainingCatalog'
 import SemiStudyBanner from './components/SemiStudyBanner'
 import { getOrCreateAutoProfile } from './training/getOrCreateAutoProfile'
+import { AUTO_TRAINING_ENTRY_ROUTE } from './training/resolveAutoStartRoute'
 import './CategoryLandingPages.css'
 
 type LandingPageProps = {
@@ -203,7 +204,7 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
 
  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
  <button
- onClick={() => navigate(user ? '/auto' : '/auth?mode=signup')}
+ onClick={() => navigate(user ? AUTO_TRAINING_ENTRY_ROUTE : '/auth?mode=signup')}
  style={{
  padding: '14px 22px',
  borderRadius: 999,
@@ -217,6 +218,16 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  >
  {user ? 'Start Auto Training' : 'Create Free Account'}
  </button>
+ {user && (
+ <button
+ onClick={() => navigate('/auto')}
+ style={{
+ padding: '14px 22px', borderRadius: 999, background: 'var(--theme-button-bg)', color: 'var(--theme-text)', border: '1px solid var(--theme-border)', fontSize: 16, fontWeight: 800, cursor: 'pointer',
+ }}
+ >
+ View My Training Plan
+ </button>
+ )}
  </div>
  </div>
 
@@ -230,9 +241,12 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  }}
  >
  <h2 style={{ fontSize: 26, margin: '0 0 12px' }}>How it works</h2>
- <p style={{ margin: 0, color: 'var(--theme-muted)', fontSize: 16, lineHeight: 1.7 }}>
- Weiss Chess Trainer turns broad chess study into short, repeatable sessions. Instead of presenting unrelated positions, it groups tactical motifs, mating patterns, opening lines, and endgame ideas so you meet each idea in a clear progression. Structured repetition brings useful positions back when they need review, rather than leaving progress to chance. If you connect a Chess.com account, recent games can be analyzed to surface mistakes, openings, tactics, and endgames worth practicing; your personal plan can then recommend a next task. Start with <Link to="/tactics">Tactics</Link>, build reliable <Link to="/openings">Opening</Link> memory, or practice practical <Link to="/endgame">Endgames</Link>.
- </p>
+ <div style={{ display: 'grid', gap: 10, color: 'var(--theme-muted)', fontSize: 16, lineHeight: 1.55 }}>
+ <p style={{ margin: 0 }}>Learn the basic patterns of chess, one idea at a time.</p>
+ <p style={{ margin: 0 }}>Each skill is divided into clear subthemes and trained at distances of 1, 2, 3, and 4+ moves.</p>
+ <p style={{ margin: 0 }}>Repeat exercises until you can solve them fast 5 times, then they return later for reinforcement.</p>
+ <p style={{ margin: 0 }}>Your individual training plan is built from your own games, so you practice what you need most.</p>
+ </div>
  </section>
 
  <div

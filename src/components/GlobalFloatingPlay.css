@@ -86,6 +86,14 @@
   font-weight: 800;
 }
 
+.global-floating-play__auth-error {
+  color: #ffd2cf;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+}
+
 /* The adaptive-course action is fixed independently of page layouts. */
 .auto-training-controller {
   position: fixed;
@@ -95,6 +103,20 @@
   max-width: calc(100vw - 32px);
   box-sizing: border-box;
   transform: translateX(-50%);
+}
+
+/* Board Vision and Opening Trainer provide this host in their control panel.
+   Keeping the course CTA in normal flow means it can never cover a square. */
+.trainer-completion-actions:has(.auto-training-controller) {
+  display: block;
+  margin: 0 0 12px;
+}
+
+.trainer-completion-actions .auto-training-controller {
+  position: static;
+  width: 100%;
+  max-width: 100%;
+  transform: none;
 }
 
 .global-mobile-nav {
@@ -213,6 +235,11 @@
       );
 
     color: var(--theme-accent-text);
+  }
+
+  .global-mobile-nav__auth-error {
+    grid-column: 1 / -1;
+    padding: 2px 4px;
   }
 
   .global-mobile-nav__button--signup {

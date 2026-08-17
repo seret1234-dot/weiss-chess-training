@@ -185,10 +185,12 @@ function isSetupPieceCode(value: string): value is SetupPieceCode {
  return SETUP_PIECES.some((piece) => piece.code === value);
 }
 const ANALYZE_SIDE_PANEL_WIDTH = 980;
-const ANALYZE_REVIEW_SIDE_PANEL_WIDTH = 1120;
+const ANALYZE_REVIEW_SIDE_PANEL_WIDTH = 854;
 const ANALYZE_PAGE_PADDING = 24;
 const ANALYZE_BOARD_VERTICAL_CHROME = 90;
-const ANALYZE_MAX_BOARD_SIZE = 600;
+const ANALYZE_MAX_BOARD_SIZE = 720;
+const ANALYZE_REVIEW_MAX_BOARD_SIZE = 720;
+const ANALYZE_REVIEW_MEDIUM_BOARD_SIZE = 650;
 const ANALYZE_LAYOUT_SHIFT_LEFT = 120;
 const ANALYZE_REVIEW_LAYOUT_SHIFT_LEFT = 280;
 
@@ -371,8 +373,11 @@ export default function AnalyzePage() {
  const reviewMode =
  new URLSearchParams(window.location.search).get("review") === "1";
 
+ const reviewMaxBoardSize = width >= 1400
+ ? ANALYZE_REVIEW_MAX_BOARD_SIZE
+ : ANALYZE_REVIEW_MEDIUM_BOARD_SIZE;
  const size = reviewMode
- ? Math.max(620, Math.min(780, height - 150))
+ ? Math.max(620, Math.min(reviewMaxBoardSize, height - 150))
  : Math.max(320, Math.min(760, availableWidth, availableHeight));
 
  setBoardSize(size);
@@ -3040,8 +3045,9 @@ function reviewShort(label?: ReviewClass) {
  containerRef={containerRef}
  footerLeft={isReviewMode ? "Review" : "Analyze"}
  footerRight={`${boardSize}px`}
- board={boardWithControls}
- sidePanelWidth={resolvedSidePanelWidth}
+  board={boardWithControls}
+  maxWidth={1640}
+  sidePanelWidth={resolvedSidePanelWidth}
  sidePanel={
  <>
  <style>{`
@@ -3096,15 +3102,12 @@ function reviewShort(label?: ReviewClass) {
  .analyze-review-grid > :nth-child(8) { grid-area: import; min-height: 0; }
  .analyze-review-grid > :nth-child(9) { grid-area: engine; min-height: 0; }
 
- .analyze-review-grid.review-mode {
-  grid-template-columns:
-  minmax(0, 0.95fr)
-  minmax(0, 0.70fr)
-  minmax(0, 1.35fr);
+  .analyze-review-grid.review-mode {
+  grid-template-columns: minmax(288px, 1fr) minmax(270px, 0.95fr) minmax(248px, 0.88fr);
  grid-template-areas:
- "review details moves"
  "review details moves";
- grid-template-rows: 1fr;
+ grid-template-rows: minmax(0, 1fr);
+ gap: 10px;
  align-items: stretch;
  min-height: 0;
  }
@@ -3122,20 +3125,42 @@ function reviewShort(label?: ReviewClass) {
  display: none !important;
  }
 
- .analyze-review-grid.review-mode > :nth-child(1) {
+  .analyze-review-grid.review-mode > :nth-child(1) {
  grid-area: review;
  display: block !important;
  min-height: 0;
- max-height: 100%;
- overflow-y: auto;
- overflow-x: hidden;
- scrollbar-gutter: stable;
- padding-right: 5px;
- }
+  overflow: visible;
+  }
+
+  .analyze-review-grid.review-mode .analyze-classification-label {
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  }
+
+  @media (min-width: 1400px) {
+  .analyze-board-page--review .trainer-shell-page--fixed {
+  padding: 10px 8px 12px 20px !important;
+  }
+
+  .analyze-board-page--review .trainer-shell-layout {
+  gap: 7px !important;
+  }
+
+  .analyze-board-page--review .trainer-shell-side {
+  padding: 4px !important;
+  }
+
+  .analyze-board-page--review .trainer-shell-board-column {
+  margin-top: 14px;
+  }
+  }
 
  .analyze-review-grid.review-mode > :nth-child(2) {
  grid-area: details;
  display: block !important;
+ min-width: 240px;
+ overflow: visible;
  }
 
  .analyze-review-grid.review-mode > :nth-child(7) {
@@ -3588,13 +3613,16 @@ function reviewShort(label?: ReviewClass) {
  <div
  style={{
  display: "grid",
- gridTemplateColumns: "minmax(0, 1fr) minmax(40px, 64px) minmax(40px, 64px)",
+ gridTemplateColumns: "minmax(132px, 1fr) minmax(48px, 60px) minmax(48px, 60px)",
  gap: "6px 6px",
  alignItems: "center",
  fontSize: 12,
  }}
  >
- <div style={{ minWidth: 0, color: "#aaa", fontWeight: 800, overflowWrap: "anywhere" }}>
+ <div
+ className="analyze-classification-label"
+ style={{ minWidth: 0, color: "#aaa", fontWeight: 800, whiteSpace: "nowrap", wordBreak: "normal", overflowWrap: "normal" }}
+ >
  Classification
  </div>
  <div
@@ -3690,7 +3718,8 @@ function reviewShort(label?: ReviewClass) {
  {REVIEW_TABLE_CLASSES.map((label) => (
  <React.Fragment key={label}>
  <div
-  style={{ minWidth: 0, color: reviewColor(label), fontWeight: 800, overflowWrap: "anywhere" }}
+  className="analyze-classification-label"
+  style={{ minWidth: 0, color: reviewColor(label), fontWeight: 800, whiteSpace: "nowrap", wordBreak: "normal", overflowWrap: "normal" }}
  >
  {reviewSummaryLabel(label)}
  </div>
@@ -3780,12 +3809,12 @@ function reviewShort(label?: ReviewClass) {
  </div>
  </PanelCard>
 
- <PanelCard>
+ <PanelCard style={{ minWidth: 0 }}>
  <SectionTitle>Review Details</SectionTitle>
 
  {currentPly > 0 &&
  (reviewMap[currentPly] || reviewUnavailableMap[currentPly]) ? (
- <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+ <div style={{ fontSize: 14, lineHeight: 1.65 }}>
  <div>
  Move: <b>{moveRows[currentPly - 1]?.san}</b>
  </div>
@@ -3824,14 +3853,14 @@ function reviewShort(label?: ReviewClass) {
  <div>Best move: {reviewBestMap[currentPly] || "--"}</div>
 
  <div
- style={{
+style={{
  marginTop: 8,
- padding: 8,
+ padding: 10,
  borderRadius: 8,
  background: "#211e1b",
  color: "#e5e5e5",
- lineHeight: 1.5,
- }}
+ lineHeight: 1.6,
+}}
  >
  {reviewCommentForPly(currentPly)}
  </div>

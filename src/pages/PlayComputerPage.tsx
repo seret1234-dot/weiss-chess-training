@@ -570,6 +570,7 @@ export default function PlayComputerPage() {
  } | null>(null)
  const [engineReady, setEngineReady] = useState(false)
  const [engineThinking, setEngineThinking] = useState(false)
+ const [computerMoveRetryAvailable, setComputerMoveRetryAvailable] = useState(false)
  const [moveList, setMoveList] = useState<string[]>(chessRef.current.history())
  const [selectedHistoryPly, setSelectedHistoryPly] = useState<number | null>(null)
  const [evalText, setEvalText] = useState('-')
@@ -1075,6 +1076,14 @@ export default function PlayComputerPage() {
   if (!isEndgameTransfer || !endgameTransfer || !chessRef.current.isGameOver()) return
   void finishEndgameTransferIfNeeded(chessRef.current)
  }, [isEndgameTransfer, endgameTransfer?.sessionId, endgameTransfer?.status])
+
+ useEffect(() => {
+  // Entering the user-facing weekly route starts Game 1 as soon as the
+  // interactive engine is ready. Game 2 keeps its existing explicit flow.
+  if (!isWeeklyTest || weeklyGameIndex !== 0 || gameStarted || !engineReady || weeklySessionComplete) return
+  if (initialWeeklyRecord?.completed) return
+  startGame()
+ }, [isWeeklyTest, weeklyGameIndex, gameStarted, engineReady, weeklySessionComplete])
  useEffect(() => {
  const strongMode = engineElo >= 2800
 
@@ -1617,6 +1626,7 @@ async function makeEngineMove() {
 
  engineMovePendingRef.current = true
  setEngineThinking(true)
+ setComputerMoveRetryAvailable(false)
  setStatusText('Computer thinking - ')
 
  try {
@@ -1626,7 +1636,29 @@ async function makeEngineMove() {
  moveTime: isEndgameTransfer ? 700 : engineElo >= 2500 ? 350 : 220,
  })
 
- const choice = await chooseComputerMoveWithTransfer(chessRef.current.fen())
+ const requestedFen = chessRef.current.fen()
+ let choice: ComputerMoveChoice
+
+ try {
+  choice = await chooseComputerMoveWithTransfer(requestedFen)
+ } catch (firstAttemptError) {
+  // This service is interactive-only. Restarting it cannot interrupt the
+  // independently owned imported-game analysis worker.
+  if (chessRef.current.fen() !== requestedFen) throw firstAttemptError
+
+  setStatusText('Restarting computer engine - ')
+  await stockfishService.restart()
+
+  // Do not apply a recovered result to a board changed while the worker was
+  // restarting. The retry deliberately restores the original requested FEN.
+  if (chessRef.current.fen() !== requestedFen) throw firstAttemptError
+  choice = await chooseComputerMoveWithTransfer(requestedFen)
+ }
+
+ if (chessRef.current.fen() !== requestedFen) {
+  setStatusText('Position changed. Computer move cancelled.')
+  return
+ }
  const bestMove = choice.move
 
  if (!bestMove || bestMove.length < 4) {
@@ -1671,7 +1703,8 @@ async function makeEngineMove() {
   }
  }
  } catch {
- setStatusText('Computer move failed.')
+ setComputerMoveRetryAvailable(true)
+ setStatusText('Computer move failed. Retry Computer Move.')
  } finally {
  engineMovePendingRef.current = false
  setEngineThinking(false)
@@ -2661,6 +2694,14 @@ async function makeEngineMove() {
  </div>
 
  <div className="play-computer-status-text" style={{ fontSize: 14, opacity: 0.82 }}>{statusText}</div>
+ {computerMoveRetryAvailable ? (
+ <button
+  onClick={() => void makeEngineMove()}
+  style={{ ...btnStyle, marginTop: 8 }}
+ >
+  Retry Computer Move
+ </button>
+ ) : null}
  {isWeeklyTest ? (
  <>
  <div style={{ marginTop: 6, fontSize: 13, opacity: 0.7 }}>
