@@ -1,6 +1,8 @@
 import { ReactNode, RefObject, useEffect, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
+import { Chess } from 'chess.js'
 import ThemedChessboard from "../../theme/ThemedChessboard"
+import PromotionChooser, { type PromotionPiece } from '../chess/PromotionChooser'
 import './trainerShell.css'
 type PieceRendererProps = {
  squareWidth: number
@@ -46,7 +48,7 @@ type TrainerShellProps = {
 
  boardId?: string
  fen?: string
- onPieceDrop?: (sourceSquare: string, targetSquare: string) => boolean
+ onPieceDrop?: (sourceSquare: string, targetSquare: string, promotion?: PromotionPiece) => boolean
  getLegalTargets?: (fromSquare: string) => string[]
  boardOrientation?: 'white' | 'black'
  customDarkSquareStyle?: CSSProperties
@@ -147,6 +149,11 @@ export default function TrainerShell({
 
  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
  const [clickTargets, setClickTargets] = useState<string[]>([])
+ const [pendingPromotion, setPendingPromotion] = useState<{
+  sourceSquare: string
+  targetSquare: string
+  color: 'w' | 'b'
+ } | null>(null)
 
  useEffect(() => {
  const updateMobileBoardSize = () => setMobileBoardSize(getMobileBoardSize())
@@ -187,7 +194,23 @@ export default function TrainerShell({
 
  useEffect(() => {
  clearSelection()
+ setPendingPromotion(null)
  }, [fen])
+
+ function getPromotionColor(sourceSquare: string, targetSquare: string) {
+  if (!fen) return null
+
+  try {
+   const piece = new Chess(fen).get(sourceSquare as any)
+   if (!piece || piece.type !== 'p') return null
+   if (piece.color === 'w' && targetSquare.endsWith('8')) return 'w' as const
+   if (piece.color === 'b' && targetSquare.endsWith('1')) return 'b' as const
+  } catch {
+   return null
+  }
+
+  return null
+ }
 
  function handleSquareClick(square: string) {
  if (!getLegalTargets) return
@@ -207,6 +230,17 @@ export default function TrainerShell({
  }
 
  if (clickTargets.includes(square) && onPieceDrop) {
+ const promotionColor = getPromotionColor(selectedSquare, square)
+ if (promotionColor) {
+  setPendingPromotion({
+   sourceSquare: selectedSquare,
+   targetSquare: square,
+   color: promotionColor,
+  })
+  clearSelection()
+  return
+ }
+
  const accepted = onPieceDrop(selectedSquare, square)
  clearSelection()
 
@@ -339,6 +373,18 @@ export default function TrainerShell({
  arePiecesDraggable={arePiecesDraggable}
  promotionDialogVariant="modal"
 />
+
+ {pendingPromotion ? (
+  <PromotionChooser
+   color={pendingPromotion.color}
+   onCancel={() => setPendingPromotion(null)}
+   onSelect={(promotion) => {
+    const pending = pendingPromotion
+    setPendingPromotion(null)
+    onPieceDrop?.(pending.sourceSquare, pending.targetSquare, promotion)
+   }}
+  />
+ ) : null}
 
  {kpkBoardOverlay && (
  <div

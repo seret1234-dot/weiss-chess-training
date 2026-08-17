@@ -2223,8 +2223,8 @@ function reviewShort(label?: ReviewClass) {
  );
  }
 
- function promotionCodeFromPiece(piece?: string | null) {
- if (!piece) return "q";
+ function promotionCodeFromPiece(piece?: string | null): 'q' | 'r' | 'b' | 'n' | undefined {
+ if (!piece) return undefined;
 
  const code = piece.toLowerCase();
 
@@ -2233,7 +2233,7 @@ function reviewShort(label?: ReviewClass) {
  if (code.includes("r")) return "r";
  if (code.includes("q")) return "q";
 
- return "q";
+ return undefined;
  }
 
  function onAnalyzeDrop(
@@ -2242,14 +2242,16 @@ function reviewShort(label?: ReviewClass) {
  promotionPiece?: string | null,
  ) {
  const next = new Chess(game.fen());
+ const promotion = isAnalyzePromotionAttempt(sourceSquare, targetSquare)
+ ? promotionCodeFromPiece(promotionPiece)
+ : undefined;
+ if (isAnalyzePromotionAttempt(sourceSquare, targetSquare) && !promotion) return false;
 
  try {
  const move = next.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: isAnalyzePromotionAttempt(sourceSquare, targetSquare)
- ? promotionCodeFromPiece(promotionPiece)
- : "q",
+ promotion,
  });
 
  if (!move) return false;

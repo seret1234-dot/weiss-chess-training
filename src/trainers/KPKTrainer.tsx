@@ -505,7 +505,7 @@ export default function KPKTrainer() {
  return { ok: true, reason: "" };
  }
 
- async function onDrop(sourceSquare: string, targetSquare: string) {
+ async function onDrop(sourceSquare: string, targetSquare: string, promotion?: 'q' | 'r' | 'b' | 'n') {
  if (!currentPosition || inputLocked) return false;
 
  const beforeFen = game.fen();
@@ -515,7 +515,7 @@ export default function KPKTrainer() {
  const moveObj = nextGame.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: "q",
+ promotion,
  });
 
  if (!moveObj) return false;

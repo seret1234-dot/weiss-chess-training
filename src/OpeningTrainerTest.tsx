@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Chess } from 'chess.js'
-import { Chessboard } from 'react-chessboard'
+import ThemedChessboard from './theme/ThemedChessboard'
 import { supabase } from './lib/supabase'
 
 export default function OpeningTrainerTest() {
@@ -29,7 +29,7 @@ export default function OpeningTrainerTest() {
  setIndex(0)
  }
 
- function onDrop(source: string, target: string) {
+ function onDrop(source: string, target: string, promotion?: 'q' | 'r' | 'b' | 'n') {
  const move = source + target
  const expectedMove = moves[index]
 
@@ -43,7 +43,7 @@ export default function OpeningTrainerTest() {
  newGame.move({
  from: source,
  to: target,
- promotion: 'q',
+ promotion,
  })
  } catch {
  return false
@@ -57,11 +57,11 @@ export default function OpeningTrainerTest() {
 
  return (
  <div>
- <Chessboard
- position={game.fen()}
- onPieceDrop={onDrop}
- promotionDialogVariant="modal"
-/>
+  <ThemedChessboard
+   position={game.fen()}
+   onPieceDrop={onDrop}
+   promotionDialogVariant="modal"
+  />
  <div>Move: {index}/{moves.length}</div>
  </div>
  )

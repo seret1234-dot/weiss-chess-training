@@ -967,7 +967,7 @@ export default function K2RooksTrainer() {
  }
  }
 
- function onDrop(sourceSquare: string, targetSquare: string) {
+ function onDrop(sourceSquare: string, targetSquare: string, promotion?: 'q' | 'r' | 'b' | 'n') {
  if (locked || allComplete) return false
  if (!currentPuzzle || !currentChunk) return false
 
@@ -978,7 +978,7 @@ export default function K2RooksTrainer() {
  const whiteMove = nextGame.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: 'q',
+ promotion,
  })
 
  if (!whiteMove) return false

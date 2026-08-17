@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Chess } from 'chess.js'
 import type { Square } from 'chess.js'
 import ThemedChessboard from "../theme/ThemedChessboard"
+import PromotionChooser, { type PromotionPiece } from '../components/chess/PromotionChooser'
 import './PlayComputerPage.css'
 import { stockfishService } from '../lib/chess/stockfishService'
 import { supabase } from '../lib/supabase'
@@ -562,6 +563,11 @@ export default function PlayComputerPage() {
  const desktopBoardSizeRef = useRef(PLAY_COMPUTER_DEFAULT_BOARD_SIZE)
 
  const [position, setPosition] = useState(chessRef.current.fen())
+ const [pendingPromotion, setPendingPromotion] = useState<{
+  from: string
+  to: string
+  color: 'w' | 'b'
+ } | null>(null)
  const [engineReady, setEngineReady] = useState(false)
  const [engineThinking, setEngineThinking] = useState(false)
  const [moveList, setMoveList] = useState<string[]>(chessRef.current.history())
@@ -1883,8 +1889,8 @@ async function makeEngineMove() {
  )
  }
 
- function promotionCodeFromPiece(piece?: string | null) {
- if (!piece) return 'q'
+ function promotionCodeFromPiece(piece?: string | null): PromotionPiece | undefined {
+ if (!piece) return undefined
 
  const code = piece.toLowerCase()
 
@@ -1893,13 +1899,14 @@ async function makeEngineMove() {
  if (code.includes('r')) return 'r'
  if (code.includes('q')) return 'q'
 
- return 'q'
+ return undefined
  }
 
  function tryUserMove(from: string, to: string, promotionPiece?: string | null) {
  const promotion = isPromotionAttempt(from, to)
  ? promotionCodeFromPiece(promotionPiece)
  : undefined
+ if (isPromotionAttempt(from, to) && !promotion) return false
  const beforeFen = chessRef.current.fen()
  const playedUci = `${from}${to}${promotion || ''}`
 
@@ -1963,7 +1970,10 @@ async function makeEngineMove() {
  !chessRef.current.isGameOver() &&
  sideToMove(chessRef.current.fen()) !== playerColor
  ) {
- setTimeout(makeEngineMove, 60)
+ // Let the just-played move finish its normal board animation before a fast
+ // engine response replaces the position. react-chessboard snaps when a
+ // second position arrives mid-animation.
+ setTimeout(makeEngineMove, 240)
  } else {
  refreshEval()
  }
@@ -2263,7 +2273,7 @@ async function makeEngineMove() {
 
  customSquareStyles={gameStarted || mode === 'analyze' ? customSquareStyles : {}}
  customArrows={(isAssessment ? [] : hintArrow) as any}
- animationDuration={350}
+ animationDuration={220}
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
  customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
  customBoardStyle={{
@@ -2279,6 +2289,13 @@ async function makeEngineMove() {
  if (selectedSquare === square) {
  clearSelection()
  return
+ }
+
+ if (isPromotionAttempt(selectedSquare, square)) {
+  const pawn = chessRef.current.get(selectedSquare as Square)
+  if (pawn) setPendingPromotion({ from: selectedSquare, to: square, color: pawn.color })
+  clearSelection()
+  return
  }
 
  const moveWorked = tryUserMove(selectedSquare, square)
@@ -2304,6 +2321,18 @@ async function makeEngineMove() {
  }}
  promotionDialogVariant="vertical"
 />
+
+ {pendingPromotion ? (
+  <PromotionChooser
+   color={pendingPromotion.color}
+   onCancel={() => setPendingPromotion(null)}
+   onSelect={(promotion) => {
+    const pending = pendingPromotion
+    setPendingPromotion(null)
+    tryUserMove(pending.from, pending.to, promotion)
+   }}
+  />
+ ) : null}
 
  {checkedKingSquare && !isMate ? (
  <div

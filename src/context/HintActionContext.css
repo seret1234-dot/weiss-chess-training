@@ -63,7 +63,11 @@
     overflow-x: clip !important;
     overflow-y: auto !important;
     overscroll-behavior-y: contain;
-    scroll-padding-bottom: 24px;
+    /* The mobile dock is fixed outside this scroll root. Reserve an actual
+       end gutter as well as scroll/focus space so final trainer controls are
+       fully reachable above it on every board page. */
+    padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+    scroll-padding-bottom: calc(24px + env(safe-area-inset-bottom));
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }

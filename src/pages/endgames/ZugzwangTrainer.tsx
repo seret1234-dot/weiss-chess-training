@@ -2637,7 +2637,7 @@ export default function ZugzwangTrainer() {
  };
  }
 
-function onDrop(sourceSquare: string, targetSquare: string) {
+function onDrop(sourceSquare: string, targetSquare: string, promotion?: 'q' | 'r' | 'b' | 'n') {
  
  hideCoachMistake();
 if (!currentPosition) return false;
@@ -2658,7 +2658,7 @@ if (!currentPosition) return false;
  const moveObj = nextGame.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: "q",
+    promotion,
  });
 
  if (!moveObj) return false;

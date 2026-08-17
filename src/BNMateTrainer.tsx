@@ -1831,7 +1831,7 @@ export default function BNMateTrainer() {
  return { ok: true, reason: '', afterUser }
  }
 
- function onDrop(sourceSquare: string, targetSquare: string) {
+ function onDrop(sourceSquare: string, targetSquare: string, promotion?: 'q' | 'r' | 'b' | 'n') {
  if (!currentPosition || !progress || !currentThemeConfig) return false
  if (loadingChunk || loadError || inputLocked || allComplete) return false
 
@@ -1840,7 +1840,7 @@ export default function BNMateTrainer() {
  const moveObj = nextGame.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: 'q',
+ promotion,
  })
 
  if (!moveObj) return false

@@ -5,6 +5,7 @@ import { Chess } from 'chess.js'
 import { hideCoachMistake, showCoachMistake } from '../../services/coach/coachPopup'
 import type { Square } from 'chess.js'
 import ThemedChessboard from "../../theme/ThemedChessboard"
+import PromotionChooser, { type PromotionPiece } from '../../components/chess/PromotionChooser'
 import ThemePiece from "../../theme/ThemePiece"
 import { supabase } from '../../lib/supabase'
 import {
@@ -683,6 +684,11 @@ export default function PatternTacticTrainer({
  }
  const [boardLocked, setBoardLocked] = useState(true)
  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
+ const [pendingPromotion, setPendingPromotion] = useState<{
+  sourceSquare: string
+  targetSquare: string
+  color: 'w' | 'b'
+ } | null>(null)
  const [legalTargets, setLegalTargets] = useState<string[]>([])
  const [displayTurn, setDisplayTurn] = useState<'w' | 'b'>('w')
  const [boardOrientation, setBoardOrientation] = useState<'white' | 'black'>(
@@ -2183,33 +2189,17 @@ function onSquareClick(square: string) {
    square
   )
  ) {
-  const selectedPromotion =
-   window.prompt(
-    'Promote to q, r, b, or n:',
-    'q'
-   )
-
-  const promotion =
-   tacticPromotionCode(selectedPromotion)
-
-  if (!promotion) {
-   setMessage(
-    'Promotion cancelled. Choose q, r, b, or n.'
-   )
-   return
+  const pawn = game.get(selectedSquare as Square)
+  if (pawn) {
+   setPendingPromotion({
+    sourceSquare: selectedSquare,
+    targetSquare: square,
+    color: pawn.color,
+   })
   }
-
-  const promotionWorked =
-   attemptUserMove(
-    selectedSquare,
-    square,
-    {
-     allowWrongMoveToShow: true,
-     promotion,
-    }
-   )
-
-  if (promotionWorked) return
+  setSelectedSquare(null)
+  setLegalTargets([])
+  return
  } else {
   const moveWorked =
    attemptUserMove(
@@ -2533,6 +2523,21 @@ function onSquareClick(square: string) {
  }
  promotionDialogVariant="modal"
 />
+ {pendingPromotion ? (
+  <PromotionChooser
+   color={pendingPromotion.color}
+   onCancel={() => setPendingPromotion(null)}
+   onSelect={(promotion: PromotionPiece) => {
+    const pending = pendingPromotion
+    setPendingPromotion(null)
+    hideCoachMistake()
+    attemptUserMove(pending.sourceSquare, pending.targetSquare, {
+     allowWrongMoveToShow: true,
+     promotion,
+    })
+   }}
+  />
+ ) : null}
  {animatedReply && animatedReplyStyle && (
  <div style={animatedReplyStyle}>
  <ThemePiece

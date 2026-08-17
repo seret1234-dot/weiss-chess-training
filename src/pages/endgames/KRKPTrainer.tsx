@@ -2347,7 +2347,7 @@ export default function KRKPTrainer() {
       afterUser,
     };
   }
-  function onDrop(sourceSquare: string, targetSquare: string) {
+function onDrop(sourceSquare: string, targetSquare: string, promotion?: 'q' | 'r' | 'b' | 'n') {
     if (!currentPosition || !progress || !currentThemeConfig) return false;
     if (
       loadingChunk ||
@@ -2364,7 +2364,7 @@ export default function KRKPTrainer() {
     const moveObj = nextGame.move({
       from: sourceSquare,
       to: targetSquare,
-      promotion: "q",
+    promotion,
     });
 
     if (!moveObj) return false;

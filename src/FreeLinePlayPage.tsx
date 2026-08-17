@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Chess, Move } from 'chess.js'
 import ThemedChessboard from "./theme/ThemedChessboard"
+import PromotionChooser, { type PromotionPiece } from './components/chess/PromotionChooser'
 import { supabase, getMasterGamePgnUrl } from './lib/supabase'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
 import { StockfishService } from './lib/chess/stockfishService'
@@ -375,6 +376,11 @@ export default function FreeLinePlayPage() {
   const [position, setPosition] = useState(new Chess().fen())
   const [currentPly, setCurrentPly] = useState(0)
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
+  const [pendingPromotion, setPendingPromotion] = useState<{
+    from: string
+    to: string
+    color: 'w' | 'b'
+  } | null>(null)
   const [orientation, setOrientation] = useState<'white' | 'black'>('white')
   const [status, setStatus] = useState('Loading line...')
   const [flash, setFlash] = useState<'idle' | 'good' | 'bad' | 'complete'>('idle')
@@ -650,6 +656,16 @@ const moveRows = useMemo(() => {
 
     if (selectedSquare) {
       const sourcePiece = chess.get(selectedSquare as any)
+      const isPromotion = sourcePiece?.type === 'p' && (
+        (sourcePiece.color === 'w' && square.endsWith('8')) ||
+        (sourcePiece.color === 'b' && square.endsWith('1'))
+      )
+      if (isPromotion && sourcePiece) {
+        setPendingPromotion({ from: selectedSquare, to: square, color: sourcePiece.color })
+        setSelectedSquare(null)
+        return
+      }
+
       const moved = onPieceDrop(
         selectedSquare,
         square,
@@ -669,13 +685,10 @@ const moveRows = useMemo(() => {
     if (!line || complete || !expected) return false
 
     const chess = new Chess(position)
-    const promotion =
-      expected.promotion ||
-      (piece?.toLowerCase() === 'wp' && targetSquare.endsWith('8')
-        ? 'q'
-        : piece?.toLowerCase() === 'bp' && targetSquare.endsWith('1')
-          ? 'q'
-          : undefined)
+    const normalizedPiece = piece?.toLowerCase().slice(-1)
+    const promotion = ['q', 'r', 'b', 'n'].includes(normalizedPiece)
+      ? normalizedPiece as PromotionPiece
+      : undefined
 
     const attempted = chess.move({
       from: sourceSquare,
@@ -1073,6 +1086,17 @@ const moveRows = useMemo(() => {
               customLightSquareStyle={{ backgroundColor: '#ebecd0' }}
               arePiecesDraggable={!complete}
             />
+            {pendingPromotion ? (
+              <PromotionChooser
+                color={pendingPromotion.color}
+                onCancel={() => setPendingPromotion(null)}
+                onSelect={(promotion) => {
+                  const pending = pendingPromotion
+                  setPendingPromotion(null)
+                  onPieceDrop(pending.from, pending.to, promotion)
+                }}
+              />
+            ) : null}
             </div>
 
             <div style={{ height: 8 }} />

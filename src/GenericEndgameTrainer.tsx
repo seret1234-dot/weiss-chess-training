@@ -2245,7 +2245,7 @@ export default function GenericEndgameTrainer({
  afterUser,
  };
  }
- function onDrop(sourceSquare: string, targetSquare: string) {
+ function onDrop(sourceSquare: string, targetSquare: string, promotion?: 'q' | 'r' | 'b' | 'n') {
  if (!currentPosition || !progress || !currentThemeConfig) return false;
  if (
  loadingChunk ||
@@ -2262,7 +2262,7 @@ export default function GenericEndgameTrainer({
  const moveObj = nextGame.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: "q",
+ promotion,
  });
 
  if (!moveObj) return false;

@@ -1591,7 +1591,7 @@ export default function TwoBishopsFinalTrainer() {
  beginMoveTimer()
  }
 
- function onDrop(sourceSquare: string, targetSquare: string) {
+ function onDrop(sourceSquare: string, targetSquare: string, promotion?: 'q' | 'r' | 'b' | 'n') {
  if (locked || allComplete) return false
 
  if (mode.kind === 'phase1') {
@@ -1604,7 +1604,7 @@ export default function TwoBishopsFinalTrainer() {
  const moveObj = nextGame.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: 'q',
+ promotion,
  })
  if (!moveObj) return false
 
@@ -1745,7 +1745,7 @@ export default function TwoBishopsFinalTrainer() {
  const whiteMove = nextGame.move({
  from: sourceSquare,
  to: targetSquare,
- promotion: 'q',
+ promotion,
  })
 
  if (!whiteMove) return false

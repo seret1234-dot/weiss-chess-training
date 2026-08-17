@@ -5,6 +5,7 @@ import { Chess } from 'chess.js'
 import { hideCoachMistake, showCoachMistake } from '../../services/coach/coachPopup'
 import type { Square } from 'chess.js'
 import ThemedChessboard from "../../theme/ThemedChessboard"
+import PromotionChooser, { type PromotionPiece } from '../../components/chess/PromotionChooser'
 import ThemePiece from "../../theme/ThemePiece"
 import { supabase } from '../../lib/supabase'
 import {
@@ -638,6 +639,11 @@ export default function PatternMateTrainer({
  }
  const [boardLocked, setBoardLocked] = useState(true)
  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
+ const [pendingPromotion, setPendingPromotion] = useState<{
+  sourceSquare: string
+  targetSquare: string
+  color: 'w' | 'b'
+ } | null>(null)
  const [legalTargets, setLegalTargets] = useState<string[]>([])
  const [displayTurn, setDisplayTurn] = useState<'w' | 'b'>('w')
  const [boardOrientation, setBoardOrientation] = useState<'white' | 'black'>(
@@ -2082,7 +2088,7 @@ async function completeChunk() {
  targetSquare: string,
  piece?: string
  ): 'q' | 'r' | 'b' | 'n' | undefined {
- if (!piece || piece.length < 2) return undefined
+ if (!piece || piece.length < 1) return undefined
 
  const sourceRank = sourceSquare[1]
  const targetRank = targetSquare[1]
@@ -2092,7 +2098,7 @@ async function completeChunk() {
 
  if (!isPromotionMove) return undefined
 
- const promotedPiece = piece[1].toLowerCase()
+ const promotedPiece = piece.length === 1 ? piece.toLowerCase() : piece[1].toLowerCase()
 
  if (
  promotedPiece === 'q' ||
@@ -2134,6 +2140,18 @@ return attemptUserMove(sourceSquare, targetSquare, {
  setSelectedSquare(null)
  setLegalTargets([])
  return
+ }
+
+ const pawn = game.get(selectedSquare as Square)
+ const isPromotion = pawn?.type === 'p' && (
+  (pawn.color === 'w' && square.endsWith('8')) ||
+  (pawn.color === 'b' && square.endsWith('1'))
+ )
+ if (isPromotion && pawn) {
+  setPendingPromotion({ sourceSquare: selectedSquare, targetSquare: square, color: pawn.color })
+  setSelectedSquare(null)
+  setLegalTargets([])
+  return
  }
 
  const moveWorked = attemptUserMove(selectedSquare, square)
@@ -2404,6 +2422,21 @@ return attemptUserMove(sourceSquare, targetSquare, {
  }
  promotionDialogVariant="vertical"
 />
+ {pendingPromotion ? (
+  <PromotionChooser
+   color={pendingPromotion.color}
+   onCancel={() => setPendingPromotion(null)}
+   onSelect={(promotion: PromotionPiece) => {
+    const pending = pendingPromotion
+    setPendingPromotion(null)
+    hideCoachMistake()
+    attemptUserMove(pending.sourceSquare, pending.targetSquare, {
+     allowWrongMoveToShow: true,
+     promotion,
+    })
+   }}
+  />
+ ) : null}
  {transitionCover && (
  <div
  style={{
