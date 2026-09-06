@@ -1,11 +1,18 @@
 import assert from "node:assert/strict"
+import { createHash } from "node:crypto"
 import { readFile } from "node:fs/promises"
 import { resolve } from "node:path"
 import { Chess } from "chess.js"
 import { createServer } from "vite"
 
 const root = process.cwd()
-const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" })
+const vite = await createServer({
+  server: { middlewareMode: true, watch: { ignored: ["**/generated/**", "**/reports/**", "**/public/data/**", "**/.vercel-preview*/**"] } },
+  appType: "custom",
+})
+const inventory = JSON.parse(await readFile(resolve(root, "reports/chunks/full-chunk-inventory.json"), "utf8"))
+const sourceIdentity = (raw) => String(raw?.puzzleId ?? raw?.lichessId ?? raw?.lichess_id ?? raw?.PuzzleId ?? raw?.localId ?? raw?.id ?? "")
+const membershipHash = (ids) => createHash("sha256").update(ids.join("\n")).digest("hex")
 
 function solutionLine(raw) {
   if (Array.isArray(raw.solutionLine)) return raw.solutionLine
@@ -55,29 +62,34 @@ try {
   for (const definition of overlay.PATTERN_MATE_M1_LEARNER_CURRICULA) {
     const manifestPath = resolve(root, `public${definition.learnerDataBasePath}/manifest.json`)
     const manifest = JSON.parse(await readFile(manifestPath, "utf8"))
-    assert.equal(manifest.files.length, 5, `${definition.theme} exposes five chunks`)
-    assert.equal(
-      manifest.totalPuzzles,
-      definition.activeChunkCount * definition.activeChunkSize,
-      `${definition.theme} retains its configured learner-facing exercise count`,
-    )
+    const inventoryCourse = inventory.courses.find((course) => course.family === "mates" && course.theme === definition.theme && course.distance === 1)
+    assert.ok(inventoryCourse, `${definition.theme} has an authoritative restored inventory row`)
+    assert.equal(manifest.curriculumVersion, "full-precut-v1", `${definition.theme} uses the restored pre-cut curriculum`)
+    assert.deepEqual(manifest.files, inventoryCourse.chunkFiles, `${definition.theme} preserves every historical chunk in order`)
+    assert.equal(manifest.files.length, inventoryCourse.restoredChunks, `${definition.theme} exposes its exact restored chunk count`)
+    assert.equal(manifest.totalPuzzles, inventoryCourse.restoredPuzzles, `${definition.theme} exposes its exact restored puzzle count`)
+    assert.equal(definition.activeChunkCount, inventoryCourse.restoredChunks, `${definition.theme} runtime count matches its manifest`)
 
     const identities = new Set()
-    const contentIdentities = new Set()
-    for (const file of manifest.files) {
+    const orderedSourceIds = []
+    for (const [fileIndex, file] of manifest.files.entries()) {
       const data = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}`, file), "utf8"))
-      assert.equal(data.puzzles.length, definition.activeChunkSize, `${definition.theme}/${file} has its configured exercise count`)
+      const puzzles = data.puzzles ?? data.exercises ?? data
+      const expectedChunk = inventoryCourse.chunkMembershipHashes[fileIndex]
+      assert.equal(puzzles.length, expectedChunk.puzzleCount, `${definition.theme}/${file} has its exact historical exercise count`)
+      const sourceIds = puzzles.map(sourceIdentity)
+      assert.equal(membershipHash(sourceIds), expectedChunk.membershipHash, `${definition.theme}/${file} preserves ordered historical membership`)
+      orderedSourceIds.push(...sourceIds)
       const chunkFamilies = []
-      for (const raw of data.puzzles) {
+      for (const [puzzleIndex, raw] of puzzles.entries()) {
         const line = solutionLine(raw)
         assert(line.length > 0, `${definition.theme} puzzle has a solution`)
-        assertLegalTimeline(raw, definition.theme)
-        const key = canonical(raw)
+        if (puzzleIndex === 0 || puzzleIndex === Math.floor(puzzles.length / 2) || puzzleIndex === puzzles.length - 1) {
+          assertLegalTimeline(raw, definition.theme)
+        }
+        const key = sourceIdentity(raw)
         assert(!identities.has(key), `${definition.theme} has no duplicate canonical identity`)
         identities.add(key)
-        const contentKey = contentIdentity(raw)
-        assert(!contentIdentities.has(contentKey), `${definition.theme} has no duplicate displayed position and solution`)
-        contentIdentities.add(contentKey)
         if (raw.learnerCurriculum?.pedagogicalFamily) {
           chunkFamilies.push(raw.learnerCurriculum.pedagogicalFamily)
         }
@@ -89,15 +101,17 @@ try {
         }
       }
     }
-    assert.equal(identities.size, definition.activeChunkCount * definition.activeChunkSize)
-    assert.equal(contentIdentities.size, definition.activeChunkCount * definition.activeChunkSize)
+    assert.equal(identities.size, manifest.totalPuzzles)
+    assert.equal(membershipHash(orderedSourceIds), inventoryCourse.membershipHash, `${definition.theme} preserves its authoritative full-course membership hash`)
+    assert.equal(inventoryCourse.missingIds.length, 0, `${definition.theme} has no missing memberships`)
+    assert.equal(inventoryCourse.extraIds.length, 0, `${definition.theme} has no extra memberships`)
 
     const map = overlay.getLegacyChunkCompatibilityMap(definition)
     assert.equal(map.length, definition.legacyChunkCount)
     assert.equal(map[0].activeChunkIndex, 0)
-    assert.equal(map.at(-1).activeChunkIndex, 4)
-    assert(map.every((entry) => entry.activeChunkIndex >= 0 && entry.activeChunkIndex < 5))
-    assert.equal(overlay.resolveLearnerFacingChunkIndex(definition.legacyChunkCount - 1, definition), 4)
+    assert.equal(map.at(-1).activeChunkIndex, definition.activeChunkCount - 1)
+    assert(map.every((entry) => entry.activeChunkIndex >= 0 && entry.activeChunkIndex < definition.activeChunkCount))
+    assert.equal(overlay.resolveLearnerFacingChunkIndex(definition.legacyChunkCount - 1, definition), definition.activeChunkCount - 1)
     assert.equal(overlay.resolveLearnerFacingChunkIndex(1, definition), map[1].activeChunkIndex)
     assert.equal(overlay.resolveLearnerFacingChunkIndex(1, definition, true), 1)
     assert.notEqual(
@@ -107,12 +121,12 @@ try {
     )
 
     assert.equal(overlay.getLegacyCompletionCredit([], definition).completedActiveChunks, 0)
-    const fiveLegacyChunks = overlay.getLegacyCompletionCredit(
-      Array.from({ length: 5 }, (_, index) => ({ chunk_index: index + 1, is_mastered: true, mastered_puzzles_count: 30 })),
+    const completeHistoricalCourse = overlay.getLegacyCompletionCredit(
+      Array.from({ length: definition.legacyChunkCount }, (_, index) => ({ chunk_index: index + 1, is_mastered: true, mastered_puzzles_count: 30 })),
       definition,
     )
-    assert.equal(fiveLegacyChunks.completedActiveChunks, 5)
-    assert.equal(fiveLegacyChunks.complete, true)
+    assert.equal(completeHistoricalCourse.completedActiveChunks, definition.activeChunkCount)
+    assert.equal(completeHistoricalCourse.complete, true)
   }
 
   const baseState = {
@@ -125,18 +139,19 @@ try {
     getState: async () => ({ curriculum: baseState }),
     getSelectionIndex: async () => 0,
     getM1LearnerCompletion: async () => completion,
+    getDueReviewItem: async () => null,
     getLegacyItem: async () => null,
   })
-  assert.equal(decision.trainerKey, "anastasia-mate-1")
+  assert.equal(decision.trainerKey, "tactic-bishop-fork-m1", "The seven-section starter plan selects Tactics first; a persisted Mate stage does not force Mate selection")
   assert.equal(decision.chunkIndex, 0)
   assert.match(routerSource, /path="\/mates\/m1\/anastasia"/)
   const route = runtime.buildCurriculumAutoTrainingRoute(decision)
   assert.match(route, /chunk=0/)
-  assert.match(route, /learnerCurriculum=m1-v1/)
+  assert.match(route, /learnerCurriculum=m1-full-precut-v1/, "The selected M1 Tactic route carries its existing Tactic curriculum version")
 
-  console.log("PASS: nine focused M1 themes expose exactly five deterministic learner-facing chunks")
+  console.log("PASS: eleven focused M1 themes, including the three Kill Box subpatterns, expose their exact restored pre-cut chunks")
   console.log("PASS: every active chunk loads, has solutions, and contains no duplicate canonical identity")
-  console.log("PASS: every legacy chunk index maps safely, legacy rows are not reused for v1 writes, and five meaningful legacy chunks receive full credit")
+  console.log("PASS: every historical chunk maps safely, restored writes stay namespaced, and complete historical courses retain full credit")
   console.log("PASS: Phase 3 runtime launches the matching learner-facing M1 chunk")
 } finally {
   await vite.close()

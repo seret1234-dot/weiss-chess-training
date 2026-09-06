@@ -5,7 +5,7 @@ export default function AnastasiaMateIn1PatternPage() {
  <PatternMateTrainer
  config={{
  trainerKey: "anastasia-mate-in-1",
- trainerTitle: "Anastasia Mate in 1",
+ trainerTitle: "Anastasia's Mate in 1",
  dataBasePath: "/data/lichess/mate_in_1/anastasia",
  }}
  />

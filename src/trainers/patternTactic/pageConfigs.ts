@@ -1,4 +1,6 @@
 import { VERIFIED_FINAL_TACTIC_COURSES } from "./generatedFinalVerifiedTaxonomy"
+import type { SiteExplanationKey } from "../../content/siteExplanations"
+import { resolveTacticExplanationKey } from "../../content/trainerExplanationKeys"
 
 export const patternTacticPageConfigs = {
  defenseM1: {
@@ -639,28 +641,28 @@ export const patternTacticPageConfigs = {
  trainerKey: "tactic-trapped-piece-m4",
  },
  removeTheDefenderM1: {
- title: "Remove the Defender - Tactic in 1",
+ title: "Removing the Defender - Tactic in 1",
  manifestPath: "/data/pattern-tactics/remove-the-defender/m1/manifest.json",
  dataBasePath: "/data/pattern-tactics/remove-the-defender/m1",
  progressKey: "tactic-remove-the-defender-m1",
  trainerKey: "tactic-remove-the-defender-m1",
  },
  removeTheDefenderM2: {
- title: "Remove the Defender - Tactic in 2",
+ title: "Removing the Defender - Tactic in 2",
  manifestPath: "/data/pattern-tactics/remove-the-defender/m2/manifest.json",
  dataBasePath: "/data/pattern-tactics/remove-the-defender/m2",
  progressKey: "tactic-remove-the-defender-m2",
  trainerKey: "tactic-remove-the-defender-m2",
  },
  removeTheDefenderM3: {
- title: "Remove the Defender - Tactic in 3",
+ title: "Removing the Defender - Tactic in 3",
  manifestPath: "/data/pattern-tactics/remove-the-defender/m3/manifest.json",
  dataBasePath: "/data/pattern-tactics/remove-the-defender/m3",
  progressKey: "tactic-remove-the-defender-m3",
  trainerKey: "tactic-remove-the-defender-m3",
  },
  removeTheDefenderM4: {
- title: "Remove the Defender - Tactic in 4+",
+ title: "Removing the Defender - Tactic in 4+",
  manifestPath: "/data/pattern-tactics/remove-the-defender/m4/manifest.json",
  dataBasePath: "/data/pattern-tactics/remove-the-defender/m4",
  progressKey: "tactic-remove-the-defender-m4",
@@ -1323,12 +1325,15 @@ const generatedVerifiedFinalConfigs = Object.fromEntries(
  VERIFIED_FINAL_TACTIC_COURSES.map((course) => {
   const level = `m${course.stage}`
   const titleSuffix = course.stage === 4 ? "4+" : String(course.stage)
+  const explanationKey = resolveTacticExplanationKey(course.theme)
+  if (!explanationKey) throw new Error(`Missing tactic explanation mapping for ${course.theme}`)
   return [`${level}/${course.theme}`, {
    title: `${course.label} - Tactic in ${titleSuffix}`,
    manifestPath: `${course.learnerDataBasePath}/manifest.json`,
    dataBasePath: course.learnerDataBasePath,
    progressKey: course.trainerKey,
    trainerKey: course.trainerKey,
+   explanationKey,
   }]
  }),
 )
@@ -1526,8 +1531,19 @@ const legacyPatternTacticConfigByRoute = {
  "m4/mixed": patternTacticPageConfigs.mixedM4,
 }
 
-// Only reviewed final-v6 courses may mount a learner board. Keep historical
-// definitions isolated above for migration/reference work, never as routes.
-export const patternTacticConfigByRoute = generatedVerifiedFinalConfigs
+// The full route catalog is active again. PatternTacticTrainer resolves each
+// route to the quality-filtered pre-cut curriculum; the generated final-v6
+// configs remain available above as immutable migration/reference evidence.
+export const patternTacticConfigByRoute = Object.fromEntries(
+ Object.entries(legacyPatternTacticConfigByRoute).map(([route, config]) => {
+  const theme = route.split("/")[1] ?? ""
+  const explanationKey = resolveTacticExplanationKey(theme)
+  if (!explanationKey) throw new Error(`Missing tactic explanation mapping for ${route}`)
+  return [route, { ...config, explanationKey }]
+ }),
+) as {
+ [Route in keyof typeof legacyPatternTacticConfigByRoute]:
+  (typeof legacyPatternTacticConfigByRoute)[Route] & { explanationKey: SiteExplanationKey }
+}
 
 export type PatternTacticPageConfigKey = keyof typeof patternTacticPageConfigs

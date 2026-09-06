@@ -4,6 +4,7 @@ export type SiteExplanationKey =
  | "anastasiaMate"
  | "backRankMate"
  | "arabianMate"
+ | "bodenMate"
  | "smotheredMate"
  | "hookMate"
  | "killBoxMate"
@@ -40,6 +41,7 @@ export type SiteExplanationKey =
  | "tacticTrappedPiece"
  | "tacticVulnerableKing"
  | "tacticZugzwang"
+ | "tacticZwischencheck"
  | "tacticZwischenzug"
  | "tacticMixed"
  | "tactics"
@@ -81,9 +83,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  anastasiaMate: {
  title: "Anastasia's Mate",
  concept:
- "A knight controls key escape squares while a rook or queen gives mate along a file or rank.",
+ "Anastasia's Mate traps a king on the edge. A knight covers the nearby escape squares, one of the king's own pieces blocks another, and a rook or queen mates along the edge.",
  lookFor:
- "Look for a king near the edge, a knight covering escape squares, and a heavy piece ready to give mate.",
+ "Look for an edge king, a friendly blocker beside it, knight control of the remaining flight squares, and a rook or queen ready to check along the edge file or rank.",
  goal:
  "Learn how a knight and heavy piece cooperate to create a mating net.",
  },
@@ -105,6 +107,16 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  "Look for a king near the corner or edge, a rook ready to check along a file or rank, and a knight close enough to cover the escape squares.",
  goal:
  "Learn one of the classic rook-and-knight mating patterns and recognize when the king is trapped on the edge.",
+ },
+
+ bodenMate: {
+ title: "Boden's Mate",
+ concept:
+ "Boden's Mate uses two bishops on crossing diagonals against a king boxed in by its own pieces. One bishop gives check while the other controls the king's escape.",
+ lookFor:
+ "Look for a confined king and two bishops whose diagonals cross around it.",
+ goal:
+ "Learn to recognize how two bishops can exploit a king trapped by its own pieces.",
  },
 
 
@@ -131,9 +143,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  hookMate: {
  title: "Hook Mate",
  concept:
- "A hook mate uses a knight and a heavy piece to trap the king. The knight acts like the hook by covering escape squares while the rook or queen gives mate.",
+ "In a Hook Mate, a rook gives mate beside the king. A knight protects the rook, and a pawn protects the knight, forming the hook-shaped support chain.",
  lookFor:
- "Look for a king near the edge, a knight close to the king, and a rook or queen that can give a forcing check.",
+ "Look for a rook check next to the king, a knight that guards the rook, and a pawn that guards the knight.",
  goal:
  "Learn to see how a knight can lock the king in place so a heavy piece can finish the attack.",
  },
@@ -141,9 +153,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  killBoxMate: {
  title: "Kill Box Mate",
  concept:
- "A kill box mate happens when the king is boxed into a small area and every escape square is controlled.",
+ "A Kill Box Mate uses a queen and rook to confine the king in a small area. One heavy piece gives mate while the other supports it and controls nearby escape squares.",
  lookFor:
- "Look for checks that shrink the king's space. The final mate usually comes when the king has no safe square, no block, and no capture.",
+ "Look for a compact queen-rook net: an adjacent rook, a rook two squares away on a rail, or an adjacent queen with the rook supplying the fence.",
  goal:
  "Train your eye to build a mating net instead of only looking for one-move checks.",
  },
@@ -151,9 +163,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  dovetailMate: {
  title: "Dovetail Mate",
  concept:
- "A dovetail mate happens when the king's own pieces block its diagonal escape squares, often allowing a queen mate.",
+ "In a Dovetail Mate, a queen gives check from a diagonally adjacent square. The queen covers most escapes, while two of the king's own pieces occupy the squares the queen does not control.",
  lookFor:
- "Look for a king surrounded by friendly pieces on diagonal squares. A queen check can cover the remaining escape squares.",
+ "Look for a queen that can safely move next to the king on a diagonal, with the king's own pieces completing the cage.",
  goal:
  "Recognize when the defender's own pieces become a cage around the king.",
  },
@@ -161,9 +173,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  doubleBishopMate: {
  title: "Double Bishop Mate",
  concept:
- "Two bishops can create a powerful mating net by controlling crossing diagonals around the king.",
+ "Two bishops mate by controlling complementary diagonals around a confined king. One bishop gives check while the other covers an escape square.",
  lookFor:
- "Look for diagonal control, a king with limited escape squares, and checks that use both bishops together.",
+ "Look for a king restricted by its own pieces and two bishops whose diagonals cover different escape squares.",
  goal:
  "Improve your ability to see long diagonal mating patterns.",
  },
@@ -210,7 +222,7 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticQuietMove: {
  title: "Quiet Move",
  concept:
- "A quiet move is not an immediate check or capture, but it creates a threat the opponent cannot meet.",
+ "A quiet move is neither a check nor a capture. It creates or strengthens a serious threat without using an immediate forcing move.",
  lookFor:
  "Look for calm moves that improve a piece, create mate threats, trap a piece, or remove the defender's only resource.",
  goal:
@@ -220,9 +232,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticDiscoveredAttack: {
  title: "Discovered Attack",
  concept:
- "A discovered attack happens when one piece moves away and opens a line for another piece behind it.",
+ "A discovered attack happens when one piece moves away and opens a rook, bishop, or queen line onto a target.",
  lookFor:
- "Find lined-up pieces on ranks, files, or diagonals. Then look for a move by the front piece that creates a second threat.",
+ "Find one of your pieces blocking a line to an enemy target. Check whether moving that piece opens the line, especially if the moving piece can act with tempo.",
  goal:
  "Learn to use hidden line pieces as tactical weapons.",
  },
@@ -230,9 +242,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticDiscoveredCheck: {
  title: "Discovered Check",
  concept:
- "A discovered check opens a line to the king while the moving piece can create another threat.",
+ "A discovered check happens when one piece moves away and uncovers a rook, bishop, or queen line to the enemy king.",
  lookFor:
- "Look for your rook, bishop, or queen lined up with the enemy king behind one of your own pieces.",
+ "Look for your line piece aimed at the king through one of your own pieces. The moving piece may create another threat, but it does not have to.",
  goal:
  "Use check tempo to win material, force mate, or improve the attacking piece.",
  },
@@ -240,7 +252,7 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticDoubleCheck: {
  title: "Double Check",
  concept:
- "Double check attacks the king with two pieces at once, so the king usually must move.",
+ "A double check attacks the king with two pieces at once. Because answering only one check is not enough, the king must move.",
  lookFor:
  "Look for discovered checks where the moving piece also gives check. Blocks and captures often do not work against double check.",
  goal:
@@ -270,7 +282,7 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticSkewer: {
  title: "Skewer",
  concept:
- "A skewer attacks a valuable piece first; when it moves, a weaker piece behind it is lost.",
+ "A skewer attacks a valuable or critical piece in front. When that piece moves, a second target behind it becomes exposed.",
  lookFor:
  "Look for lined-up king, queen, rook, or bishop targets on open files, ranks, and diagonals.",
  goal:
@@ -310,7 +322,7 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticClearanceSacrifice: {
  title: "Clearance Sacrifice",
  concept:
- "A clearance sacrifice gives up a piece to open a square or line for a stronger tactic.",
+ "A clearance sacrifice moves one of your pieces off a needed square or line and deliberately gives it up so another piece can use that space.",
  lookFor:
  "Look for a blocked file, rank, diagonal, or key square near the king where sacrificing the blocker opens the attack.",
  goal:
@@ -330,9 +342,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticDecoyDeflection: {
  title: "Decoy + Deflection",
  concept:
- "This combines luring a piece to a bad square with removing it from an important defensive job.",
+ "A decoy draws a piece onto a particular bad square; a deflection makes it abandon an important defensive duty. In this combined theme, one forcing idea produces both effects.",
  lookFor:
- "Find the defender. Then look for a forcing move that pulls it away or onto a square where it becomes overloaded.",
+ "Identify the defender and the square where you want it to go. Look for a check, capture, or threat that forces it there and leaves its former duty unprotected.",
  goal:
  "Recognize tactics where one forced move creates two problems for the opponent.",
  },
@@ -340,9 +352,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticDeflection: {
  title: "Deflection",
  concept:
- "Deflection removes or distracts a defender from an important square, piece, or mating line.",
+ "Deflection forces a defender away from a piece, square, or line it must protect.",
  lookFor:
- "Ask which enemy piece is holding the position together. Then look for a forcing move that makes it leave.",
+ "Identify the defender holding the position together, then find a forcing move that makes it leave its duty.",
  goal:
  "Learn to attack the defender before attacking the target.",
  },
@@ -360,7 +372,7 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticHangingPiece: {
  title: "Hanging Piece",
  concept:
- "A hanging piece is undefended or insufficiently defended, so it can often be won tactically.",
+ "A hanging piece can be taken without an adequate tactical reply, usually because it is undefended or its defenders cannot recapture safely.",
  lookFor:
  "Scan for loose pieces, especially after forcing moves like checks and captures.",
  goal:
@@ -430,19 +442,19 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticPromotion: {
  title: "Promotion",
  concept:
- "Promotion tactics revolve around making a pawn queen or promoting with decisive effect.",
+ "A promotion tactic uses a pawn reaching the last rank to create a decisive new piece.",
  lookFor:
- "Look for passed pawns, forcing checks, sacrifices that clear the promotion square, and defenders that can be deflected.",
+ "Look for passed pawns, forcing checks, clearance of the promotion square, and defenders that can be distracted. Choose the promotion piece that makes the tactic work.",
  goal:
  "Learn to calculate pawn races and promotion tactics accurately.",
  },
 
  tacticRemoveDefender: {
- title: "Remove the Defender",
+ title: "Removing the Defender",
  concept:
- "Remove-the-defender tactics capture, deflect, or overload the piece guarding an important target.",
+ "Removing the defender eliminates the piece protecting an important target, usually by capturing it or exchanging it away.",
  lookFor:
- "Identify the target, then identify what protects it. The tactic often starts by eliminating that defender.",
+ "Identify the target and its defender. Ask whether you can capture or exchange that defender before taking the target.",
  goal:
  "Train the habit of asking what protects the thing you want to win.",
  },
@@ -470,9 +482,9 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  tacticZugzwang: {
  title: "Zugzwang",
  concept:
- "Zugzwang means the opponent must move, but every legal move worsens their position.",
+ "In zugzwang, every legal move worsens the opponent's position; passing would help, but chess does not allow it.",
  lookFor:
- "Look for positions where quiet waiting moves remove the opponent's last useful move.",
+ "Look for a move that preserves your position while leaving the opponent only damaging choices.",
  goal:
  "Recognize tactics based on forcing the opponent to damage their own position.",
  },
@@ -485,6 +497,16 @@ export const siteExplanations: Record<SiteExplanationKey, SiteExplanation> = {
  "Before making the obvious move, check for a stronger check, capture, or threat first.",
  goal:
  "Train the habit of looking for forcing in-between moves.",
+ },
+
+ tacticZwischencheck: {
+ title: "Zwischencheck",
+ concept:
+ "A zwischencheck is an in-between check played before the expected recapture or reply. Use the check's tempo, then return to the original tactical sequence.",
+ lookFor:
+ "Before making the expected move, check whether an immediate check improves your position or changes the move order.",
+ goal:
+ "Train the habit of checking for a stronger intermediate check before an automatic reply.",
  },
 
  tacticMixed: {

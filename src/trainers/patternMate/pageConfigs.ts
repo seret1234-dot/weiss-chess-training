@@ -5,39 +5,40 @@ export type PatternMatePageConfigEntry = {
  manifestPath: string
  progressKey?: string
  explanationKey?: SiteExplanationKey
+ backHref?: string
  allowChunkNavigation?: boolean
 }
 
 export const patternMatePageConfigs = {
  anastasiaMate1: {
- title: "Anastasia Mate in 1",
+ title: "Anastasia's Mate in 1",
  explanationKey: "anastasiaMate",
  manifestPath: "/data/lichess/mate_in_1/anastasia/manifest.json",
  progressKey: "anastasia-mate-1",
  },
 
  anastasiaMate2: {
- title: "Anastasia Mate in 2",
+ title: "Anastasia's Mate in 2",
  explanationKey: "anastasiaMate",
  manifestPath: "/data/lichess/mate_in_2/anastasia/manifest.json",
  progressKey: "anastasia-mate-2",
  },
  anastasiaMate3: {
- title: "Anastasia Mate in 3",
+ title: "Anastasia's Mate in 3",
  explanationKey: "anastasiaMate",
  manifestPath: "/data/lichess/mate_in_3/anastasia/manifest.json",
  progressKey: "anastasia-mate-in-3",
  },
 
  anastasiaMate4: {
- title: "Anastasia Mate in 4",
+ title: "Anastasia's Mate in 4",
  explanationKey: "anastasiaMate",
  manifestPath: "/data/lichess/mate_in_4/anastasia/manifest.json",
  progressKey: "anastasia-mate-in-4",
  },
 
  anastasiaMate5: {
- title: "Anastasia Mate in 5",
+ title: "Anastasia's Mate in 5",
  explanationKey: "anastasiaMate",
  manifestPath: "/data/lichess/mate_in_5/anastasia/manifest.json",
  progressKey: "anastasia-mate-in-5",
@@ -105,20 +106,20 @@ export const patternMatePageConfigs = {
  progressKey: "arabian-mate-5",
  },
  bodenMate1: {
- title: "Boden Mate in 1",
- explanationKey: "mates",
+ title: "Boden's Mate in 1",
+ explanationKey: "bodenMate",
  manifestPath: "/data/pattern-mates/boden/mate-in-1/manifest.json",
  progressKey: "boden-mate-1",
  },
  bodenMate2: {
- title: "Boden Mate in 2",
- explanationKey: "mates",
+ title: "Boden's Mate in 2",
+ explanationKey: "bodenMate",
  manifestPath: "/data/pattern-mates/boden/mate-in-2/manifest.json",
  progressKey: "boden-mate-2",
  },
  bodenMate3: {
- title: "Boden Mate in 3+",
- explanationKey: "mates",
+ title: "Boden's Mate in 3+",
+ explanationKey: "bodenMate",
  manifestPath: "/data/pattern-mates/boden/mate-in-3/manifest.json",
  progressKey: "boden-mate-3",
  },
@@ -203,41 +204,6 @@ export const patternMatePageConfigs = {
  manifestPath: "/data/pattern-mates/hook/mate-in-5/manifest.json",
  progressKey: "hook-mate-5",
  },
- killBoxMate1: {
- title: "Kill Box Mate in 1",
- explanationKey: "killBoxMate",
- manifestPath: "/data/pattern-mates/kill-box/mate-in-1/manifest.json",
- progressKey: "kill-box-mate-1",
- },
-
- killBoxMate2: {
- title: "Kill Box Mate in 2",
- explanationKey: "killBoxMate",
- manifestPath: "/data/pattern-mates/kill-box/mate-in-2/manifest.json",
- progressKey: "kill-box-mate-2",
- },
-
- killBoxMate3: {
- title: "Kill Box Mate in 3",
- explanationKey: "killBoxMate",
- manifestPath: "/data/pattern-mates/kill-box/mate-in-3/manifest.json",
- progressKey: "kill-box-mate-3",
- },
-
- killBoxMate4: {
- title: "Kill Box Mate in 4",
- explanationKey: "killBoxMate",
- manifestPath: "/data/pattern-mates/kill-box/mate-in-4/manifest.json",
- progressKey: "kill-box-mate-4",
- },
-
- killBoxMate5: {
- title: "Kill Box Mate in 5",
- explanationKey: "killBoxMate",
- manifestPath: "/data/pattern-mates/kill-box/mate-in-5/manifest.json",
- progressKey: "kill-box-mate-5",
- },
-
  dovetailMate1: {
  title: "Dovetail Mate in 1",
  explanationKey: "dovetailMate",
@@ -340,4 +306,26 @@ export type PatternMatePageConfigKey = keyof typeof patternMatePageConfigs
 
 export function getPatternMatePageConfig(key: PatternMatePageConfigKey) {
  return patternMatePageConfigs[key]
+}
+
+export const KILL_BOX_SUBPATTERN_CONFIGS = {
+ "adjacent-rook": { slug: "kill-box-adjacent-rook", title: "Kill Box — Adjacent Rook" },
+ "rook-rail": { slug: "kill-box-rook-rail", title: "Kill Box — Rook Rail" },
+ "queen-fence": { slug: "kill-box-queen-fence", title: "Kill Box — Queen Fence" },
+} as const
+
+export type KillBoxSubpattern = keyof typeof KILL_BOX_SUBPATTERN_CONFIGS
+
+export function getKillBoxSubpatternPageConfig(
+ subpattern: KillBoxSubpattern,
+ mateDistance: 1 | 2 | 3 | 4 | 5,
+): PatternMatePageConfigEntry {
+ const definition = KILL_BOX_SUBPATTERN_CONFIGS[subpattern]
+ return {
+  title: `${definition.title}: Mate in ${mateDistance}`,
+  explanationKey: "killBoxMate",
+  manifestPath: `/data/pattern-mates/${definition.slug}/mate-in-${mateDistance}/manifest.json`,
+  progressKey: `${definition.slug}-mate-${mateDistance}`,
+  backHref: `/mates/m${mateDistance}/kill-box`,
+ }
 }
