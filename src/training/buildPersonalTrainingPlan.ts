@@ -1,484 +1,228 @@
+import {
+  assessGoalFeasibility,
+  readTrainingGoals,
+  resolveTrainingCurrentRating,
+  type GoalFeasibility,
+} from "./trainingGoals"
+import {
+  buildActiveOpeningTracks,
+  getBoardVisionPlacement,
+  getMasterGameCadenceDays,
+  getTrainingRatingBand,
+  selectCalculationDepth,
+  selectWeightedPriorityKey,
+  type OpeningTrack,
+} from "./learningPlanRules"
+
 export type TrainingSectionKey =
- | "boardVision"
- | "openings"
- | "tactics"
- | "endgames"
- | "masterGames"
+  | "boardVision"
+  | "openings"
+  | "tactics"
+  | "masterTactics"
+  | "endgames"
+  | "masterMates"
+  | "masterGames"
+
+export const PERMANENT_TRAINING_SECTION_ORDER: readonly TrainingSectionKey[] = Object.freeze([
+  "boardVision", "openings", "tactics", "masterTactics", "endgames", "masterMates", "masterGames",
+])
 
 export type TrainingSection = {
- key: TrainingSectionKey
- label: string
- weight: number
- reason: string
- route: string
- newMasterGameEveryDays?: number
- masteryTargetReviews?: number
- maxMasterGameMoves?: number
+  key: TrainingSectionKey
+  label: string
+  weight: number
+  reason: string
+  route: string
+  eligible?: boolean
+  detectedOpenings?: string[]
+  preferredOpeningKeys?: string[]
+  placementLevel?: string
+  doneThisSession?: boolean
+  mastered?: boolean
+  nextNewGameEligibleAt?: string | null
+  newMasterGameEveryDays?: number
+  masteryTargetReviews?: number
+  maxMasterGameMoves?: number
 }
 
 export type PersonalTrainingPlan = {
- currentRating: number
- ratingSource: string
- targetRating: number | null
- nextMilestone: number | null
- ratingBand: "under1000" | "1000to1600" | "above1600"
- sections: TrainingSection[]
- analysisAvailable: boolean
- analysisMessage: string | null
- validatedEvidenceKey: TrainingSectionKey | null
+  currentRating: number
+  ratingSource: string
+  targetRating: number | null
+  nextMilestone: number | null
+  dailyPracticeMinutes: number
+  effectiveDailyPracticeMinutes: number
+  timeframeMonths: number | null
+  goalFeasibility: GoalFeasibility | null
+  ratingBand: "under1000" | "1000to1600" | "above1600"
+  calculationDepth: 1 | 2 | 3 | 4
+  activeOpeningTracks: OpeningTrack[]
+  sections: TrainingSection[]
+  analysisAvailable: boolean
+  analysisMessage: string | null
+  validatedEvidenceKey: TrainingSectionKey | null
 }
 
 type WeightMap = Record<TrainingSectionKey, number>
 
-type PhaseEvidence = {
- leading: "opening" | "middlegame" | "endgame" | null
- total: number
- leadingShare: number
- leadOverNext: number
- analyzedGames: number
- strong: boolean
-}
-
-const sectionKeys: TrainingSectionKey[] = [
- "boardVision",
- "tactics",
- "endgames",
- "openings",
- "masterGames",
-]
-
 const minimumWeights: WeightMap = {
- boardVision: 5,
- tactics: 5,
- endgames: 5,
- openings: 5,
- masterGames: 5,
+  boardVision: 3, openings: 5, tactics: 8, masterTactics: 5, endgames: 5, masterMates: 5, masterGames: 3,
 }
-
 const maximumWeights: WeightMap = {
- boardVision: 10,
- tactics: 60,
- endgames: 40,
- openings: 40,
- masterGames: 15,
+  boardVision: 10, openings: 35, tactics: 45, masterTactics: 35, endgames: 35, masterMates: 30, masterGames: 15,
 }
 
 export const NO_ANALYSIS_PLAN_MESSAGE =
- "Game analysis is not available yet. Your starter plan is based on your current rating; connect Chess.com and analyze games to personalize it."
+  "Game analysis is not available yet. Your starter plan is based on your current rating; connect Chess.com and analyze games to personalize it."
 
-function asNumber(value: unknown): number | null {
- const n = Number(value)
- return Number.isFinite(n) && n > 0 ? n : null
+function legacyBand(rating: number): PersonalTrainingPlan["ratingBand"] {
+  const band = getTrainingRatingBand(rating)
+  return band === "beginner" ? "under1000" : band === "intermediate" ? "1000to1600" : "above1600"
 }
 
-function getDetectedRatings(autoProfile: any): Record<string, unknown> {
- if (!autoProfile?.detected_ratings || typeof autoProfile.detected_ratings !== "object") {
-  return {}
- }
-
- return autoProfile.detected_ratings
+function nextMilestone(current: number, target: number | null, saved: number | null, suggested: number | null) {
+  if (!target || target <= current) return null
+  if (saved && saved > current && saved <= target) return saved
+  if (suggested && suggested > current && suggested <= target) return suggested
+  return [900, 1000, 1200, 1400, 1600, 1800, 2000, 2200].find((value) => value > current && value <= target) ?? target
 }
 
-function estimateCurrentRating(autoProfile: any): { rating: number; source: string } {
- const ratings = getDetectedRatings(autoProfile)
-
- const rapid = asNumber(ratings.rapid)
- if (rapid) return { rating: rapid, source: "rapid" }
-
- const blitz = asNumber(ratings.blitz)
- if (blitz) return { rating: blitz, source: "blitz" }
-
- const long = asNumber(ratings.long)
- if (long) return { rating: long, source: "long" }
-
- const estimated = asNumber(autoProfile?.estimated_rating)
- if (estimated) return { rating: estimated, source: "estimated" }
-
- return { rating: 800, source: "default" }
+function baseWeights(rating: number): WeightMap {
+  const band = getTrainingRatingBand(rating)
+  if (band === "beginner") return { boardVision: 8, openings: 13, tactics: 32, masterTactics: 18, endgames: 13, masterMates: 11, masterGames: 5 }
+  if (band === "intermediate") return { boardVision: 6, openings: 16, tactics: 25, masterTactics: 20, endgames: 15, masterMates: 10, masterGames: 8 }
+  return { boardVision: 4, openings: 17, tactics: 20, masterTactics: 22, endgames: 17, masterMates: 10, masterGames: 10 }
 }
 
-function ratingBand(rating: number): PersonalTrainingPlan["ratingBand"] {
- if (rating < 1000) return "under1000"
- if (rating < 1600) return "1000to1600"
- return "above1600"
+function count(map: any, key: string) {
+  const value = Number(map?.[key] ?? 0)
+  return Number.isFinite(value) ? Math.max(0, value) : 0
 }
 
-function nextMilestone(current: number, target: number | null): number | null {
- if (!target || target <= current) return null
-
- const milestones = [900, 1000, 1200, 1400, 1600, 1800, 2000, 2200]
-
- return milestones.find((m) => m > current && m <= target) ?? target
+function transfer(weights: WeightMap, from: TrainingSectionKey, to: TrainingSectionKey, requested: number) {
+  const amount = Math.min(requested, weights[from] - minimumWeights[from], maximumWeights[to] - weights[to])
+  if (amount <= 0) return
+  weights[from] -= amount
+  weights[to] += amount
 }
 
-function newMasterGameEveryDays(rating: number): number {
- if (rating < 1000) return 60
- if (rating < 1600) return 30
- return 7
-}
-
-function getEngineSummary(autoProfile: any) {
- const summary = autoProfile?.engine_analysis_summary
- if (!summary || typeof summary !== "object") return null
- return summary
-}
-
-function countFromMap(map: any, key: string): number {
- const value = Number(map?.[key] || 0)
- return Number.isFinite(value) ? value : 0
-}
-
-function clampWeight(key: TrainingSectionKey, value: number) {
- return Math.min(maximumWeights[key], Math.max(minimumWeights[key], value))
-}
-
-function normalizeWeights(
- weights: WeightMap,
- preferredRemainder: TrainingSectionKey | null,
-): WeightMap {
- const normalized = sectionKeys.reduce((next, key) => {
-  next[key] = Math.round(clampWeight(key, weights[key]))
+function normalized(weights: WeightMap, preferred: TrainingSectionKey | null) {
+  const next = { ...weights }
+  for (const key of PERMANENT_TRAINING_SECTION_ORDER) next[key] = Math.max(minimumWeights[key], Math.min(maximumWeights[key], Math.round(next[key])))
+  let total = PERMANENT_TRAINING_SECTION_ORDER.reduce((sum, key) => sum + next[key], 0)
+  const addOrder = [preferred, "tactics", "masterTactics", "endgames", "openings", "masterMates", "masterGames", "boardVision"].filter(Boolean) as TrainingSectionKey[]
+  while (total < 100) {
+    const key = addOrder.find((candidate) => next[candidate] < maximumWeights[candidate])
+    if (!key) break
+    next[key] += 1
+    total += 1
+  }
+  const removeOrder: TrainingSectionKey[] = ["masterGames", "boardVision", "openings", "endgames", "masterMates", "masterTactics", "tactics"]
+  while (total > 100) {
+    const key = removeOrder.find((candidate) => next[candidate] > minimumWeights[candidate])
+    if (!key) break
+    next[key] -= 1
+    total -= 1
+  }
   return next
- }, {} as WeightMap)
-
- let total = sectionKeys.reduce((sum, key) => sum + normalized[key], 0)
-
- if (total < 100) {
-  const addOrder = [
-   preferredRemainder ?? "tactics",
-   "tactics",
-   "endgames",
-   "openings",
-   "boardVision",
-   "masterGames",
-  ].filter((key, index, values) => values.indexOf(key) === index) as TrainingSectionKey[]
-
-  for (const key of addOrder) {
-   const room = maximumWeights[key] - normalized[key]
-   const addition = Math.min(room, 100 - total)
-   normalized[key] += addition
-   total += addition
-   if (total === 100) break
-  }
- }
-
- if (total > 100) {
-  const removeOrder: TrainingSectionKey[] = [
-   "masterGames",
-   "boardVision",
-   "openings",
-   "endgames",
-   "tactics",
-  ]
-
-  for (const key of removeOrder) {
-   const removable = normalized[key] - minimumWeights[key]
-   const removal = Math.min(removable, total - 100)
-   normalized[key] -= removal
-   total -= removal
-   if (total === 100) break
-  }
- }
-
- return normalized
 }
 
-function baseWeights(band: PersonalTrainingPlan["ratingBand"]): WeightMap {
- if (band === "under1000") {
-  return {
-   boardVision: 10,
-   tactics: 50,
-   endgames: 20,
-   openings: 15,
-   masterGames: 5,
-  }
- }
-
- if (band === "1000to1600") {
-  return {
-   boardVision: 8,
-   tactics: 40,
-   endgames: 22,
-   openings: 20,
-   masterGames: 10,
-  }
- }
-
- return {
-  boardVision: 5,
-  tactics: 30,
-  endgames: 25,
-  openings: 25,
-  masterGames: 15,
- }
-}
-
-function getAnalyzedGames(autoProfile: any) {
- return countFromMap({ value: autoProfile?.engine_analyzed_games_count }, "value")
-}
-
-function phaseEvidence(autoProfile: any, summary: any): PhaseEvidence {
- const opening = countFromMap(summary?.byPhase, "opening")
- const middlegame = countFromMap(summary?.byPhase, "middlegame")
- const endgame = countFromMap(summary?.byPhase, "endgame")
- const total = opening + middlegame + endgame
- const phases = [
-  { key: "opening" as const, count: opening },
-  { key: "middlegame" as const, count: middlegame },
-  { key: "endgame" as const, count: endgame },
- ].sort((a, b) => b.count - a.count)
- const leading = phases[0]
- const second = phases[1]
- const analyzedGames = getAnalyzedGames(autoProfile)
- const leadingShare = total > 0 ? leading.count / total : 0
- const leadOverNext = total > 0 ? (leading.count - second.count) / total : 0
-
- return {
-  leading: total > 0 ? leading.key : null,
-  total,
-  leadingShare,
-  leadOverNext,
-  analyzedGames,
-  strong:
-   analyzedGames >= 12 && total >= 30 && leadingShare >= 0.35,
- }
-}
-
-function openingProfileEvidence(autoProfile: any) {
- const profile = autoProfile?.opening_profile
- const rows = [
-  ...(Array.isArray(profile?.white) ? profile.white : []),
-  ...(Array.isArray(profile?.black) ? profile.black : []),
- ]
-
- let sampleGames = 0
- let weightedScore = 0
-
- for (const row of rows) {
-  const count = Math.max(0, Number(row?.count) || 0)
-  const average = Number(row?.avgScore)
-  if (!Number.isFinite(average) || count <= 0) continue
-  sampleGames += count
-  weightedScore += count * average
- }
-
- return {
-  sampleGames,
-  averageScore: sampleGames > 0 ? weightedScore / sampleGames : null,
-  weak: sampleGames >= 12 && sampleGames > 0 && weightedScore / sampleGames < 0.45,
- }
-}
-
-function transfer(
- weights: WeightMap,
- from: TrainingSectionKey,
- to: TrainingSectionKey,
- amount: number,
-) {
- const available = Math.max(0, weights[from] - minimumWeights[from])
- const moved = Math.min(amount, available, maximumWeights[to] - weights[to])
- weights[from] -= moved
- weights[to] += moved
-}
-
-function applyEngineAdjustments(
- weights: WeightMap,
- autoProfile: any,
-): {
- weights: WeightMap
- preferredRemainder: TrainingSectionKey | null
- analysisAvailable: boolean
- validatedEvidenceKey: TrainingSectionKey | null
-} {
- const summary = getEngineSummary(autoProfile)
- if (!summary || Number(summary.mistakes || 0) <= 0) {
-  return {
-   weights,
-   preferredRemainder: null,
-   analysisAvailable: false,
-   validatedEvidenceKey: null,
-  }
- }
-
- const evidence = phaseEvidence(autoProfile, summary)
- if (!evidence.strong) {
-  return {
-   weights,
-   preferredRemainder: null,
-   analysisAvailable: false,
-   validatedEvidenceKey: null,
-  }
- }
-
- const adjusted: WeightMap = { ...weights }
-
- const blunders = countFromMap(summary.bySeverity, "blunder")
- const mistakes = countFromMap(summary.bySeverity, "mistake")
- const serious = blunders + mistakes
-
- if (evidence.leading === "middlegame") {
-  transfer(adjusted, "boardVision", "tactics", 5)
-  if (serious >= 20) transfer(adjusted, "openings", "tactics", 5)
-  return {
-   weights: adjusted,
-   preferredRemainder: "tactics",
-   analysisAvailable: true,
-   validatedEvidenceKey: "tactics",
-  }
- }
-
- if (evidence.leading === "endgame") {
-  const stronglyDominant =
-   evidence.analyzedGames >= 20 &&
-   evidence.total >= 40 &&
-   evidence.leadingShare >= 0.65 &&
-   evidence.leadOverNext >= 0.2
-
-  if (stronglyDominant) {
-   transfer(adjusted, "tactics", "endgames", 15)
-   transfer(adjusted, "boardVision", "endgames", 5)
+function analyze(profile: any, initial: WeightMap) {
+  const summary = profile?.engine_analysis_summary
+  const analyzedGames = Number(profile?.engine_analyzed_games_count ?? summary?.analyzedGames ?? 0)
+  const opening = count(summary?.byPhase, "opening")
+  const middle = count(summary?.byPhase, "middlegame")
+  const endgame = count(summary?.byPhase, "endgame")
+  const total = opening + middle + endgame
+  if (!summary || analyzedGames < 12 || total < 30) return { weights: normalized(initial, null), available: false, preferred: null as TrainingSectionKey | null }
+  const ranked = [
+    { phase: "opening", value: opening }, { phase: "middlegame", value: middle }, { phase: "endgame", value: endgame },
+  ].sort((a, b) => b.value - a.value)
+  if (ranked[0].value / total < 0.35) return { weights: normalized(initial, null), available: false, preferred: null as TrainingSectionKey | null }
+  const weights = { ...initial }
+  let preferred: TrainingSectionKey
+  if (ranked[0].phase === "opening") {
+    preferred = "openings"
+    transfer(weights, "tactics", "openings", 10)
+    transfer(weights, "masterGames", "openings", 2)
+  } else if (ranked[0].phase === "endgame") {
+    preferred = "endgames"
+    transfer(weights, "openings", "endgames", 6)
+    transfer(weights, "tactics", "endgames", 10)
+    transfer(weights, "masterTactics", "endgames", 3)
   } else {
-   transfer(adjusted, "boardVision", "endgames", 5)
+    preferred = "tactics"
+    transfer(weights, "openings", "tactics", 4)
+    transfer(weights, "endgames", "masterTactics", 3)
   }
-
-  return {
-   weights: adjusted,
-   preferredRemainder: "endgames",
-   analysisAvailable: true,
-   validatedEvidenceKey: "endgames",
-  }
- }
-
- const openingEvidence = openingProfileEvidence(autoProfile)
- const stronglyDominant =
-  evidence.analyzedGames >= 20 &&
-  evidence.total >= 40 &&
-  evidence.leadingShare >= 0.65 &&
-  evidence.leadOverNext >= 0.2 &&
-  openingEvidence.weak
-
- if (stronglyDominant) {
-  transfer(adjusted, "tactics", "openings", 20)
-  transfer(adjusted, "boardVision", "openings", 5)
- } else {
-  transfer(adjusted, "boardVision", "openings", 5)
- }
-
- return {
-  weights: adjusted,
-  preferredRemainder: "openings",
-  analysisAvailable: true,
-  validatedEvidenceKey: "openings",
- }
+  const motifs = summary?.byMotif ?? summary?.byTheme ?? {}
+  const missedMates = count(motifs, "mate") + count(motifs, "missedMate") + count(motifs, "checkmate")
+  if (missedMates > 0) transfer(weights, "tactics", "masterMates", Math.min(5, missedMates))
+  return { weights: normalized(weights, preferred), available: true, preferred }
 }
 
-function sectionByKey(
- key: TrainingSectionKey,
- weight: number,
- rating: number,
-): TrainingSection {
- if (key === "boardVision") {
-  return {
-   key,
-   label: "Board Vision",
-   weight,
-   reason: "Build board fluency: coordinates, square names, orientation, and fast PGN reading for openings and master games.",
-   route: "/board-vision",
-  }
- }
-
- if (key === "tactics") {
-  return {
-   key,
-   label: "Tactics",
-   weight,
-   reason: "Most improvement comes from mate patterns, forks, pins, skewers, calculation, and avoiding hanging pieces.",
-   route: "/tactics",
-  }
- }
-
- if (key === "endgames") {
-  return {
-   key,
-   label: "Endgames",
-   weight,
-   reason: "King, pawn, rook, and conversion skills prevent many lost points.",
-   route: "/endgame-studies",
-  }
- }
-
- if (key === "openings") {
-  return {
-   key,
-   label: "Openings",
-   weight,
-   reason: "Openings are reinforced from your own games. The goal is playable positions, not heavy theory.",
-   route: "/openings",
-  }
- }
-
- return {
-  key,
-  label: "Master Games",
-  weight,
-  reason: "",
-  route: "/master-games",
-  newMasterGameEveryDays: newMasterGameEveryDays(rating),
-  masteryTargetReviews: 5,
-  maxMasterGameMoves: rating < 1000 ? 30 : undefined,
- }
+function masterGameEligibility(profile: any, rating: number) {
+  const cadenceDays = getMasterGameCadenceDays(rating)
+  const raw = profile?.master_game_last_introduced_at ?? profile?.last_new_master_game_at ?? null
+  const last = raw ? new Date(String(raw)) : null
+  if (!last || !Number.isFinite(last.getTime())) return { cadenceDays, eligible: true, nextAt: null }
+  const next = new Date(last)
+  next.setDate(next.getDate() + cadenceDays)
+  return { cadenceDays, eligible: next.getTime() <= Date.now(), nextAt: next.toISOString() }
 }
 
-function baseSections(
- band: PersonalTrainingPlan["ratingBand"],
- rating: number,
- autoProfile: any,
-): TrainingSection[] {
- const adjustment = applyEngineAdjustments(baseWeights(band), autoProfile)
- const weights = normalizeWeights(adjustment.weights, adjustment.preferredRemainder)
-
- return [
-  sectionByKey("boardVision", weights.boardVision, rating),
-  sectionByKey("tactics", weights.tactics, rating),
-  sectionByKey("endgames", weights.endgames, rating),
-  sectionByKey("openings", weights.openings, rating),
-  sectionByKey("masterGames", weights.masterGames, rating),
- ]
+function makeSections(profile: any, rating: number, weights: WeightMap, openings: OpeningTrack[]): TrainingSection[] {
+  const placement = getBoardVisionPlacement(rating, profile?.board_vision_demonstrated_checkpoint)
+  const masterGame = masterGameEligibility(profile, rating)
+  return [
+    { key: "boardVision", label: "Board Vision", weight: weights.boardVision, route: `/board-vision?placement=${placement.level}`, placementLevel: placement.level, doneThisSession: false, mastered: placement.checkpoint >= 7 && Boolean(profile?.board_vision_mastered), reason: "A slow foundation track placed by rating, then adjusted only by Board Vision performance; at most one chunk per Auto session." },
+    { key: "openings", label: "Openings", weight: weights.openings, route: "/openings", detectedOpenings: openings.map((row) => row.key), reason: openings.length ? "Deepen the openings found most often in your imported games before adding unrelated breadth." : "Build a narrow core repertoire; imported games will replace generic priorities with the lines you actually play." },
+    { key: "tactics", label: "Tactics", weight: weights.tactics, route: "/tactics", reason: "Broad practical calculation, mixed application, and recurring mistakes from games and trainers." },
+    { key: "masterTactics", label: "Master Tactics", weight: weights.masterTactics, route: "/master-tactics", eligible: true, reason: "Deliberate motif recognition remains separate from broad Tactics." },
+    { key: "endgames", label: "Endgames", weight: weights.endgames, route: "/endgame-studies", reason: "Technical positions, conversion, and recurring late-game mistakes." },
+    { key: "masterMates", label: "Master Mates", weight: weights.masterMates, route: "/master-mates", eligible: true, reason: "Deliberate real-game mating-pattern mastery remains a separate course." },
+    { key: "masterGames", label: "Master Games", weight: weights.masterGames, route: "/master-games", eligible: masterGame.eligible, preferredOpeningKeys: openings.map((row) => row.key), nextNewGameEligibleAt: masterGame.nextAt, newMasterGameEveryDays: masterGame.cadenceDays, masteryTargetReviews: 5, maxMasterGameMoves: rating < 1000 ? 30 : undefined, reason: openings.length ? "Prefer model games matching your active opening tracks; new-game cadence is independent of due reviews." : "Model-game reviews continue normally; new games follow the locked rating cadence." },
+  ]
 }
 
 export function buildPersonalTrainingPlan(autoProfile: any): PersonalTrainingPlan {
- const current = estimateCurrentRating(autoProfile)
- const target = asNumber(autoProfile?.target_rating)
- const band = ratingBand(current.rating)
- const adjustment = applyEngineAdjustments(baseWeights(band), autoProfile)
-
- return {
-  currentRating: current.rating,
-  ratingSource: current.source,
-  targetRating: target,
-  nextMilestone: nextMilestone(current.rating, target),
-  ratingBand: band,
-  sections: baseSections(band, current.rating, autoProfile),
-  analysisAvailable: adjustment.analysisAvailable,
-  analysisMessage: adjustment.analysisAvailable ? null : NO_ANALYSIS_PLAN_MESSAGE,
-  validatedEvidenceKey: adjustment.validatedEvidenceKey,
- }
+  const goals = readTrainingGoals(autoProfile)
+  const current = resolveTrainingCurrentRating(autoProfile)
+  const feasibility = goals.targetRating ? assessGoalFeasibility({ currentRating: current.rating, targetRating: goals.targetRating, dailyMinutes: goals.dailyMinutes, timeframeMonths: goals.timeframeMonths }) : null
+  const analysis = analyze(autoProfile, baseWeights(current.rating))
+  const activeOpeningTracks = buildActiveOpeningTracks(autoProfile?.opening_profile, current.rating)
+  return {
+    currentRating: current.rating,
+    ratingSource: current.source,
+    targetRating: goals.targetRating,
+    nextMilestone: nextMilestone(current.rating, goals.targetRating, goals.currentMilestoneRating, feasibility?.recommendedMilestone ?? null),
+    dailyPracticeMinutes: goals.dailyMinutes,
+    effectiveDailyPracticeMinutes: goals.dailyMinutes * 0.65,
+    timeframeMonths: goals.timeframeMonths,
+    goalFeasibility: feasibility,
+    ratingBand: legacyBand(current.rating),
+    calculationDepth: selectCalculationDepth(current.rating, Number(autoProfile?.completed_training_selections ?? 0)),
+    activeOpeningTracks,
+    sections: makeSections(autoProfile, current.rating, analysis.weights, activeOpeningTracks),
+    analysisAvailable: analysis.available,
+    analysisMessage: analysis.available ? null : NO_ANALYSIS_PLAN_MESSAGE,
+    validatedEvidenceKey: analysis.preferred,
+  }
 }
 
 export function getRecommendedSection(plan: PersonalTrainingPlan): TrainingSection {
- const evidenceOrder: Record<TrainingSectionKey, number> = {
-  tactics: 0,
-  endgames: 1,
-  openings: 2,
-  boardVision: 3,
-  masterGames: 4,
- }
+  const order = new Map(PERMANENT_TRAINING_SECTION_ORDER.map((key, index) => [key, index]))
+  const eligible = plan.sections.filter((section) => section.eligible !== false && section.key !== "masterGames")
+  return eligible.slice().sort((a, b) => b.weight - a.weight || (order.get(a.key)! - order.get(b.key)!))[0] ?? plan.sections[0]
+}
 
- const normalSections = plan.sections.filter((section) => section.key !== "masterGames")
- return normalSections.slice().sort((a, b) => {
-  if (b.weight !== a.weight) return b.weight - a.weight
-  if (plan.validatedEvidenceKey === a.key) return -1
-  if (plan.validatedEvidenceKey === b.key) return 1
-  return evidenceOrder[a.key] - evidenceOrder[b.key]
- })[0] ?? plan.sections[0]
+export function selectScheduledSection(
+  plan: PersonalTrainingPlan,
+  completedSelections: number,
+  excluded: readonly TrainingSectionKey[] = [],
+) {
+  const weights = Object.fromEntries(plan.sections.map((section) => [section.key, section.weight])) as Record<TrainingSectionKey, number>
+  const unavailable = plan.sections.filter((section) => section.eligible === false).map((section) => section.key)
+  const key = selectWeightedPriorityKey(PERMANENT_TRAINING_SECTION_ORDER, weights, completedSelections, [...excluded, ...unavailable])
+  return plan.sections.find((section) => section.key === key) ?? getRecommendedSection(plan)
 }

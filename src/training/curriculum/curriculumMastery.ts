@@ -1,9 +1,7 @@
 import type { CurriculumArea, CurriculumState, StageMastery, ThemeMastery } from "./curriculumTypes"
 
 export const MIXED_THEME_MASTERY_THRESHOLD = 0.8
-export const STAGE_MASTERY_ATTEMPTS = 30
-export const STAGE_MASTERY_ACCURACY = 0.8
-export const STAGE_MASTERY_SESSION_DAYS = 3
+export const CONSECUTIVE_PERFECT_CHUNKS_TO_MASTER = 2
 export const MAJOR_WEAK_THEME_ACCURACY = 0.7
 
 export function getThemeMastery(area: CurriculumArea, state: CurriculumState) {
@@ -22,13 +20,10 @@ export function isMixedUnlocked(area: CurriculumArea, themes: string[], state: C
 
 export function isStageMastered(stage: StageMastery | undefined, themes: ThemeMastery[]) {
   if (!stage) return false
-  if (stage.permanentlyMastered) return true
   const noMajorWeakTheme = themes.every((theme) => (theme.recentAccuracy ?? 1) >= MAJOR_WEAK_THEME_ACCURACY)
-  return (stage.attempts ?? 0) >= STAGE_MASTERY_ATTEMPTS
-    && (stage.recentAccuracy ?? 0) >= STAGE_MASTERY_ACCURACY
-    && (stage.mixedAccuracy ?? 0) >= STAGE_MASTERY_ACCURACY
-    && (stage.sessionDays ?? 0) >= STAGE_MASTERY_SESSION_DAYS
-    && (stage.overdueReviewCount ?? 0) <= 10
+  const allThemesMastered = themes.length === 0 || themes.every((theme) => theme.mastered === true)
+  return (stage.consecutivePerfectChunks ?? 0) >= CONSECUTIVE_PERFECT_CHUNKS_TO_MASTER
+    && allThemesMastered
     && noMajorWeakTheme
 }
 

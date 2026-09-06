@@ -25,6 +25,7 @@ import type {
   CurriculumSelectionInput,
   CurriculumState,
 } from "./curriculumTypes"
+import { selectCalculationDepth } from "../learningPlanRules"
 
 const AREA_ORDER: CurriculumArea[] = [
   "mates",
@@ -42,15 +43,19 @@ function cyclePick<T>(items: T[], selectionIndex: number) {
 
 function weightedArea(state: CurriculumState, selectionIndex: number) {
   const weights = getCategoryWeights(state)
-  // A coprime stride makes the first sessions representative without introducing
-  // randomness or letting one category consume the first contiguous block.
-  const slot = (((selectionIndex * 37) % 100) + 100) % 100
-  let cursor = 0
-  for (const area of AREA_ORDER) {
-    cursor += weights[area]
-    if (slot < cursor) return area
+  const served = Object.fromEntries(AREA_ORDER.map((area) => [area, 0])) as Record<CurriculumArea, number>
+  const cycle: CurriculumArea[] = []
+  const total = AREA_ORDER.reduce((sum, area) => sum + weights[area], 0)
+  for (let slot = 0; slot < total; slot += 1) {
+    const selected = AREA_ORDER.filter((area) => weights[area] > 0).slice().sort((a, b) => {
+      const aDeficit = ((slot + 1) * weights[a] / total) - served[a]
+      const bDeficit = ((slot + 1) * weights[b] / total) - served[b]
+      return bDeficit - aDeficit || AREA_ORDER.indexOf(a) - AREA_ORDER.indexOf(b)
+    })[0]
+    served[selected] += 1
+    cycle.push(selected)
   }
-  return "tactics" as const
+  return cycle[((selectionIndex % cycle.length) + cycle.length) % cycle.length] ?? "tactics"
 }
 
 function stageProgress(state: CurriculumState, area: CurriculumArea, stage: number) {
@@ -124,29 +129,32 @@ function chooseSequentialItem(area: "mates" | "tactics", state: CurriculumState,
   const mixedUnlocked = isMixedUnlocked(area, themes, state)
   const regression = hasRegressionSignal(area, state, currentStage, themeProgress)
   const allowed = getCurriculumItems(area).filter((item) => isDueItemAllowedByCurriculum(item, state))
+  const currentFocused = allowed.filter((item) => item.stageOrder === currentStage && !item.isMixed)
+  const availableCurrentThemes = new Set(currentFocused.map((item) => item.theme).filter(Boolean))
 
   let kind: CurriculumRecommendationKind = "current"
   let targetStage = currentStage
   let candidates: CurriculumItem[]
-  const previewSlot = ((selectionIndex % 10) + 10) % 10 === 9
+  const scheduledStage = Math.min(ceiling, selectCalculationDepth(state.rating, selectionIndex))
 
   if (regression && currentStage > 1) {
     kind = "reinforcement"
     targetStage = currentStage - 1
     candidates = allowed.filter((item) => item.stageOrder === targetStage && !item.isMixed)
-  } else if (previewSlot && currentStage < ceiling) {
-    kind = "preview"
-    targetStage = currentStage + 1
+  } else if (scheduledStage !== currentStage) {
+    kind = scheduledStage > currentStage ? "preview" : "current"
+    targetStage = scheduledStage
     candidates = allowed.filter((item) => item.stageOrder === targetStage && !item.isMixed)
   } else if (!mixedUnlocked) {
-    const unmastered = themes.filter((theme) => !progress[theme]?.mastered)
-    const focusedTheme = cyclePick(unmastered.length ? unmastered : themes, selectionIndex)
+    const trainableThemes = themes.filter((theme) => availableCurrentThemes.has(theme))
+    const unmastered = trainableThemes.filter((theme) => !progress[theme]?.mastered)
+    const focusedTheme = cyclePick(unmastered.length ? unmastered : trainableThemes, selectionIndex)
     candidates = allowed.filter((item) => item.stageOrder === currentStage && item.theme === focusedTheme && !item.isMixed)
   } else {
     candidates = allowed.filter((item) => item.stageOrder === currentStage && item.isMixed)
   }
 
-  const usable = candidates.length ? candidates : allowed.filter((item) => item.stageOrder <= ceiling && !item.isMixed)
+  const usable = candidates.length ? candidates : currentFocused.length ? currentFocused : allowed.filter((item) => item.stageOrder <= ceiling && !item.isMixed)
   const item = cyclePick(usable, selectionIndex)
   return { item, kind, currentStage, ceiling, mixedUnlocked, regression }
 }
@@ -177,8 +185,10 @@ export function selectCurriculumItem(input: CurriculumSelectionInput): Curriculu
   const candidateAreas = input.area
     ? [firstArea]
     : [firstArea, ...AREA_ORDER.filter((area) => area !== firstArea)]
+  const excluded = new Set(input.excludedAreas ?? [])
 
   for (const area of candidateAreas) {
+    if (excluded.has(area)) continue
     const selected = area === "mates" || area === "tactics"
       ? chooseSequentialItem(area, input.state, selectionIndex)
       : chooseOtherAreaItem(area, input.state, selectionIndex)

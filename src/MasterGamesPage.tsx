@@ -9,6 +9,7 @@ import { HintButton } from './components/trainer/ui'
 import './MasterGamesPage.css'
 
 import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
+import { SPACED_REPETITION_LADDER_DAYS } from './training/learningPlanRules'
 
 type MasterGame = {
  id: number
@@ -271,7 +272,7 @@ function playerBarStyle(): CSSProperties {
  }
 }
 
-const MASTER_GAME_REVIEW_INTERVALS_DAYS = [1, 2, 3, 5, 8, 15, 30, 60, 100, 140, 170, 270, 365] as const
+const MASTER_GAME_REVIEW_INTERVALS_DAYS = SPACED_REPETITION_LADDER_DAYS
 
 function isMasterGameReviewDue(
  nextReviewAt: string | null | undefined,

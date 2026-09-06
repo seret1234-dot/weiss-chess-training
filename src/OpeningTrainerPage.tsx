@@ -9,6 +9,7 @@ import { HintButton } from './components/trainer/ui'
 import './OpeningTrainerPage.css'
 
 import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
+import { SPACED_REPETITION_LADDER_DAYS } from './training/learningPlanRules'
 
 type OpeningLine = {
  id: string
@@ -339,7 +340,7 @@ function playerBarStyle(): CSSProperties {
  }
 }
 
-const OPENING_REVIEW_INTERVALS_DAYS = [1, 2, 3, 5, 8, 15, 30, 60, 100, 140, 170, 270, 365] as const
+const OPENING_REVIEW_INTERVALS_DAYS = SPACED_REPETITION_LADDER_DAYS
 
 function isOpeningReviewDue(
  nextReviewAt: string | null | undefined,

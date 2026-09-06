@@ -1,4 +1,5 @@
 import { supabase } from "../../lib/supabase"
+import { backtrackBoardVisionCheckpoint } from "../learningPlanRules"
 import { getStageThemes } from "./curriculumCatalog"
 import {
   aggregateCurriculumEvents,
@@ -57,6 +58,7 @@ function stateFromRows(stateRow: any, areaRows: any[], stageRows: any[], themeRo
         : 0,
       sessionDays: Number(row.session_days ?? 0),
       permanentlyMastered: Boolean(row.permanent_mastery),
+      consecutivePerfectChunks: Boolean(row.permanent_mastery) ? 2 : 0,
     }
   }
   for (const row of themeRows) {
@@ -239,6 +241,7 @@ async function loadStageEvents(userId: string, area: CurriculumArea, stageOrder:
     averageSolveMs: row.average_solve_ms == null ? null : Number(row.average_solve_ms),
     transferOutcome: row.transfer_outcome,
     occurredOn: row.occurred_on,
+    recordedAt: row.created_at,
   })) as CurriculumSessionEvidence[]
 }
 
@@ -248,7 +251,9 @@ export async function updateThemeAggregate(userId: string, area: "mates" | "tact
   const { data: existing, error: existingError } = await client.from(TABLES.theme).select("permanent_mastery").eq("user_id", userId)
     .eq("area", area).eq("stage_order", stageOrder).eq("theme_key", themeKey).maybeSingle()
   throwIfError(existingError, "Could not read curriculum theme progress")
-  const permanentMastery = Boolean(existing?.permanent_mastery) || isThemeMastered(aggregate)
+  // The database column keeps its legacy name, but the value is current
+  // demonstrated mastery: a later imperfect chunk must be able to revoke it.
+  const permanentMastery = isThemeMastered(aggregate)
   const { error } = await client.from(TABLES.theme).upsert({
     user_id: userId,
     area,
@@ -342,10 +347,13 @@ export async function updateTemporaryReinforcement(userId: string, area: Curricu
   const failedTransferTest = events.some((event) => event.eventKind === "transfer" && event.transferOutcome === "failed")
   const reason = regressionReason(area, aggregate, { ...current.curriculum, failedTransferTest }, themes)
   const active = Boolean(reason)
+  const adjustedStage = area === "board-vision" && active
+    ? backtrackBoardVisionCheckpoint(stage - 1, false) + 1
+    : stage
   const { error } = await client.from(TABLES.area).upsert({
     user_id: userId,
     area,
-    current_stage: stage,
+    current_stage: adjustedStage,
     difficulty_ceiling: Math.max(stage, current.raw.areas.find((row: any) => row.area === area)?.difficulty_ceiling ?? stage),
     category_weight: current.raw.areas.find((row: any) => row.area === area)?.category_weight ?? 0,
     temporary_reinforcement: active,
@@ -353,7 +361,7 @@ export async function updateTemporaryReinforcement(userId: string, area: Curricu
     reinforcement_until: active ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() : null,
   }, { onConflict: "user_id,area" })
   throwIfError(error, "Could not update curriculum reinforcement")
-  return { active, reason }
+  return { active, reason, currentStage: adjustedStage }
 }
 
 /**

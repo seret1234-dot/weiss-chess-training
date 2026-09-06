@@ -61,6 +61,7 @@ try {
     getState: async () => ({ curriculum: baseState() }),
     getSelectionIndex: async () => 9,
     getM1LearnerCompletion: async () => ({}),
+    getDueReviewItem: async () => null,
     getLegacyItem: async () => {
       throw new Error("legacy fallback must not be used for a valid curriculum decision")
     },
@@ -105,6 +106,7 @@ try {
     },
     getSelectionIndex: async () => 0,
     getM1LearnerCompletion: async () => ({}),
+    getDueReviewItem: async () => null,
     getLegacyItem: async () => {
       legacyReads += 1
       return {

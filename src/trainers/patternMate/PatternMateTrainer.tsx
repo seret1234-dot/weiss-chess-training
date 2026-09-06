@@ -1,4 +1,5 @@
 import { updateCategoryStats } from '../../training/updateCategoryStats'
+import { applyReviewOutcome } from '../../training/learningPlanRules'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Chess } from 'chess.js'
@@ -847,15 +848,9 @@ export default function PatternMateTrainer({
  Number(existing?.review_stage ?? 0)
  )
  )
- const nextStage = Math.min(
- MATE_CHUNK_REVIEW_INTERVALS_DAYS.length,
- currentStage + 1
- )
- const intervalDays =
- MATE_CHUNK_REVIEW_INTERVALS_DAYS[nextStage - 1] ??
- MATE_CHUNK_REVIEW_INTERVALS_DAYS[
- MATE_CHUNK_REVIEW_INTERVALS_DAYS.length - 1
- ]
+ const reviewTransition = applyReviewOutcome(currentStage, 'perfect')
+ const nextStage = reviewTransition.reviewStage
+ const intervalDays = reviewTransition.intervalDays
  const nextReviewAt = addMateReviewDays(now, intervalDays).toISOString()
 
  const { error } = await supabase.from('user_chunk_progress').upsert({

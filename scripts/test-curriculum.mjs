@@ -12,15 +12,16 @@ try {
 
   const routeExists = (route) => {
     if (route.startsWith("/tactics/")) return /path="\/tactics\/:level\/:theme"/.test(routerSource)
+    if (/^\/mates\/m[1-5]\/kill-box-/.test(route)) return /path="\/mates\/:level\/:subpattern"/.test(routerSource)
     return routerSource.includes(`path="${route}"`)
   }
   const state = (extra = {}) => ({ rating: 600, ...extra })
 
   assert.deepEqual(placement.getInitialStageDistribution("mates", 600), [{ stage: 1, weight: 90 }, { stage: 2, weight: 10 }])
   assert.deepEqual(placement.getInitialStageDistribution("tactics", 600), [{ stage: 1, weight: 90 }, { stage: 2, weight: 10 }])
-  assert.deepEqual(placement.getInitialStageDistribution("mates", 1000), [{ stage: 1, weight: 25 }, { stage: 2, weight: 65 }, { stage: 3, weight: 10 }])
-  assert.deepEqual(placement.getInitialStageDistribution("tactics", 1400), [{ stage: 1, weight: 15 }, { stage: 2, weight: 45 }, { stage: 3, weight: 35 }, { stage: 4, weight: 5 }])
-  assert.deepEqual(placement.getInitialStageDistribution("mates", 1800), [{ stage: 1, weight: 10 }, { stage: 2, weight: 10 }, { stage: 3, weight: 50 }, { stage: 4, weight: 30 }])
+  assert.deepEqual(placement.getInitialStageDistribution("mates", 1000), [{ stage: 1, weight: 35 }, { stage: 2, weight: 50 }, { stage: 3, weight: 15 }])
+  assert.deepEqual(placement.getInitialStageDistribution("tactics", 1400), [{ stage: 1, weight: 35 }, { stage: 2, weight: 50 }, { stage: 3, weight: 15 }])
+  assert.deepEqual(placement.getInitialStageDistribution("mates", 1800), [{ stage: 1, weight: 15 }, { stage: 2, weight: 35 }, { stage: 3, weight: 35 }, { stage: 4, weight: 15 }])
 
   const firstTwentyMates = Array.from({ length: 20 }, (_, selectionIndex) => selector.selectCurriculumItem({ state: state(), area: "mates", selectionIndex }))
   assert.equal(firstTwentyMates.filter((item) => item.kind === "preview").length, 2, "beginner mate selection has a 90/10 focused/preview split")
@@ -39,7 +40,7 @@ try {
   assert.equal(rating1000Tactics.evidence.currentStage, 2, "1000 rating starts Tactics at Stage 2")
   const rating1400Tactics = selector.selectCurriculumItem({ state: state({ rating: 1400 }), area: "tactics", selectionIndex: 0 })
   assert.equal(rating1400Tactics.evidence.currentStage, 2, "1400 rating uses the largest approved Stage 2 allocation")
-  assert.equal(rating1400Tactics.difficultyCeiling, 4, "1400 rating may receive only the approved Stage 3/4 placement range")
+  assert.equal(rating1400Tactics.difficultyCeiling, 3, "1400 rating uses the centralized M1/M2/M3 range")
   const rating1800Mates = selector.selectCurriculumItem({ state: state({ rating: 1800 }), area: "mates", selectionIndex: 0 })
   assert.equal(rating1800Mates.evidence.currentStage, 3, "1800 rating keeps M3 as the current Mate stage")
 
@@ -48,11 +49,12 @@ try {
   assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, state({ themeMastery: { mates: { anastasia: { mastered: true }, "back-rank": { mastered: true }, arabian: { mastered: true }, boden: { mastered: true }, smothered: { mastered: true }, hook: { mastered: true }, "kill-box": { mastered: true }, dovetail: { mastered: true } } } })), true, "mixed motifs unlock at 80%")
 
   const masteryState = state({
-    stageMastery: { mates: { 1: { attempts: 40, recentAccuracy: 0.9, mixedAccuracy: 0.9, sessionDays: 4, overdueReviewCount: 0 } } },
+    stageMastery: { mates: { 1: { attempts: 40, recentAccuracy: 0.9, mixedAccuracy: 0.9, sessionDays: 4, overdueReviewCount: 0, consecutivePerfectChunks: 2 } } },
     themeMastery: { mates: Object.fromEntries(catalog.MATE_THEMES.map((theme) => [theme, { mastered: true, recentAccuracy: 0.9 }])) },
   })
   assert.equal(selector.selectCurriculumItem({ state: masteryState, area: "mates", selectionIndex: 0 }).evidence.currentStage, 2, "stage mastery advances the current stage")
   const regression = selector.selectCurriculumItem({ state: state({
+    rating: 1200,
     activeStages: { tactics: 2 },
     stageMastery: {
       tactics: {

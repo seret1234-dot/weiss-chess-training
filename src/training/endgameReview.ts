@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase'
+import { SPACED_REPETITION_LADDER_DAYS } from './learningPlanRules'
 
-const REVIEW_INTERVALS_DAYS = [1, 2, 3, 5, 8, 15, 30, 60, 100, 140, 170, 270, 365]
+const REVIEW_INTERVALS_DAYS = SPACED_REPETITION_LADDER_DAYS
 
 type EndgameProgressItem = {
   itemId: string

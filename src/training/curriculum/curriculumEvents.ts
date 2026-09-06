@@ -19,6 +19,7 @@ export type CurriculumSessionEvidence = {
   averageSolveMs?: number | null
   transferOutcome?: TransferOutcome | null
   occurredOn?: string
+  recordedAt?: string
 }
 
 export type CurriculumEventAggregate = {
@@ -30,6 +31,13 @@ export type CurriculumEventAggregate = {
   mixedCorrectAttempts: number
   sessionDays: number
   lastAttemptAt: string | null
+  consecutivePerfectChunks: number
+}
+
+export function isPerfectCurriculumChunk(event: CurriculumSessionEvidence) {
+  return event.attempts > 0
+    && event.correctAttempts === event.attempts
+    && (event.hintCount ?? 0) === 0
 }
 
 const AREAS: CurriculumArea[] = [
@@ -64,6 +72,15 @@ export function aggregateCurriculumEvents(events: CurriculumSessionEvidence[]): 
   const mixed = events.filter((event) => event.eventKind === "mixed")
   const sessionDays = new Set(events.map((event) => event.occurredOn ?? "").filter(Boolean)).size
   const lastAttemptAt = events.map((event) => event.occurredOn ?? "").filter(Boolean).sort().at(-1) ?? null
+  let consecutivePerfectChunks = 0
+  const chronological = events.slice().sort((a, b) => {
+    const aTime = String(a.recordedAt ?? a.occurredOn ?? "")
+    const bTime = String(b.recordedAt ?? b.occurredOn ?? "")
+    return aTime.localeCompare(bTime) || a.idempotencyKey.localeCompare(b.idempotencyKey)
+  })
+  for (const event of chronological) {
+    consecutivePerfectChunks = isPerfectCurriculumChunk(event) ? consecutivePerfectChunks + 1 : 0
+  }
 
   return {
     attempts,
@@ -74,13 +91,12 @@ export function aggregateCurriculumEvents(events: CurriculumSessionEvidence[]): 
     mixedCorrectAttempts: mixed.reduce((sum, event) => sum + event.correctAttempts, 0),
     sessionDays,
     lastAttemptAt,
+    consecutivePerfectChunks,
   }
 }
 
 export function isThemeMastered(aggregate: CurriculumEventAggregate) {
-  return aggregate.attempts >= 30
-    && aggregate.correctAttempts / aggregate.attempts >= 0.8
-    && aggregate.hintCount / aggregate.attempts < 0.35
+  return aggregate.consecutivePerfectChunks >= 2
 }
 
 export function stageMasteryFromEvidence(
@@ -94,6 +110,7 @@ export function stageMasteryFromEvidence(
     mixedAccuracy: aggregate.mixedAttempts ? aggregate.mixedCorrectAttempts / aggregate.mixedAttempts : 0,
     sessionDays: aggregate.sessionDays,
     permanentlyMastered,
+    consecutivePerfectChunks: aggregate.consecutivePerfectChunks,
   }, themes)
 }
 

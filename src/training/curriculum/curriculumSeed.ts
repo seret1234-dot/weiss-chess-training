@@ -1,6 +1,7 @@
 import { CURRICULUM_AREAS, CURRICULUM_CATALOG } from "./curriculumCatalog"
 import { getCategoryWeights, getInitialCurrentStage, getInitialDifficultyCeiling } from "./curriculumPlacement"
 import type { CurriculumArea, CurriculumState } from "./curriculumTypes"
+import { getBoardVisionPlacement } from "../learningPlanRules"
 
 export type LegacyChunkProgress = {
   trainer_key?: string | null
@@ -173,6 +174,15 @@ export function buildConservativeCurriculumSeed(
         area,
         currentStage: getInitialCurrentStage(area, rating.rating),
         difficultyCeiling: getInitialDifficultyCeiling(area, rating.rating),
+        categoryWeight: categoryWeights[area],
+      }
+    }
+    if (area === "board-vision") {
+      const placement = getBoardVisionPlacement(rating.rating)
+      return {
+        area,
+        currentStage: placement.checkpoint + 1,
+        difficultyCeiling: 8,
         categoryWeight: categoryWeights[area],
       }
     }

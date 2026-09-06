@@ -46,6 +46,7 @@ export type StageMastery = {
   sessionDays?: number
   overdueReviewCount?: number
   permanentlyMastered?: boolean
+  consecutivePerfectChunks?: number
 }
 
 export type CurriculumState = {
@@ -104,4 +105,6 @@ export type CurriculumSelectionInput = {
   area?: CurriculumArea
   /** A deterministic session ordinal; callers can persist their own random/session seed later. */
   selectionIndex?: number
+  /** Session-scoped exclusions, currently used to enforce one Board Vision chunk per Auto session. */
+  excludedAreas?: CurriculumArea[]
 }

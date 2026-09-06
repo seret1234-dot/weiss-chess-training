@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { supabase } from './lib/supabase'
 
 type MasterGameItem = {
@@ -53,9 +53,11 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 export default function MasterGamesLibraryPage() {
+ const location = useLocation()
+ const requestedOpening = new URLSearchParams(location.search).get('opening')?.trim() ?? ''
  const [query, setQuery] = useState('')
  const [player, setPlayer] = useState('')
- const [opening, setOpening] = useState('')
+ const [opening, setOpening] = useState(requestedOpening)
  const [event, setEvent] = useState('')
  const [result, setResult] = useState('')
  const [colorFilter, setColorFilter] = useState<'all' | 'white' | 'black'>('all')

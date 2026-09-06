@@ -6,6 +6,7 @@ import { supabase } from './lib/supabase'
 import { SiteExplanationBox } from './components/SiteExplanationBox'
 import { siteExplanations } from './content/siteExplanations'
 import './BoardVisionPage.css'
+import { SPACED_REPETITION_LADDER_DAYS } from './training/learningPlanRules'
 
 import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
 
@@ -128,7 +129,7 @@ function getSupabaseTheme(mode: TrainerMode, side: SideMode) {
 }
 
 const BOARD_VISION_TRAINER_KEY = 'board-vision-basic'
-const BOARD_VISION_REVIEW_INTERVALS_DAYS = [30, 90, 180, 365] as const
+const BOARD_VISION_REVIEW_INTERVALS_DAYS = SPACED_REPETITION_LADDER_DAYS
 const BOARD_VISION_REVIEW_WHITE_CHUNK = 900001
 const BOARD_VISION_REVIEW_BLACK_CHUNK = 900002
 
@@ -928,6 +929,10 @@ export default function BoardVisionPage() {
  ? (searchParams.get('side') as SideMode)
  : null
  const isFullBoardReview = fullBoardReviewSide !== null
+ const requestedPlacement = searchParams.get('placement')
+ const forcedPlacement = requestedPlacement === 'beginning' || requestedPlacement === 'middle' || requestedPlacement === 'final-full-board'
+ ? requestedPlacement
+ : null
  const forcedBoardVisionChunk = decodeBoardVisionUrlChunk(searchParams.get('chunk'))
  const forcedMode: TrainerMode | null =
  isFullBoardReview ? 'find-square' : forcedBoardVisionChunk?.mode ?? null
@@ -980,9 +985,19 @@ export default function BoardVisionPage() {
  ? visibleChunks.findIndex((chunk) => chunk.id === 'final-full-board-speed')
  : -1
 
+ const placementChunkIndex = forcedPlacement === 'beginning'
+ ? 0
+ : forcedPlacement === 'middle'
+ ? Math.floor(Math.max(0, visibleChunks.length - 1) / 2)
+ : forcedPlacement === 'final-full-board'
+ ? visibleChunks.findIndex((chunk) => chunk.id === 'final-full-board-speed')
+ : -1
+
  const forcedChunkIndex =
  isFullBoardReview && fullBoardReviewChunkIndex >= 0
  ? fullBoardReviewChunkIndex
+ : placementChunkIndex >= 0
+ ? placementChunkIndex
  : forcedBoardVisionChunk &&
  forcedBoardVisionChunk.mode === trainerMode &&
  forcedBoardVisionChunk.side === sideMode

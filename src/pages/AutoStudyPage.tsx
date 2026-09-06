@@ -4,9 +4,9 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { getOrCreateAutoProfile } from "../training/getOrCreateAutoProfile"
 import {
  buildPersonalTrainingPlan,
+ selectScheduledSection,
 } from "../training/buildPersonalTrainingPlan"
 import type { PersonalTrainingPlan, TrainingSection } from "../training/buildPersonalTrainingPlan"
-import { getDueSummary } from "../training/getNextDueItem"
 import { addAutoTrainingParams } from "../training/autoTrainingRoute"
 import {
  buildCurriculumAutoTrainingRoute,
@@ -22,9 +22,88 @@ import {
  prepareNextEndgameTransfer,
  recordRecentEndgameTrainer,
 } from "../training/endgameTransfer"
+import { resolveAutoStartRoute } from "../training/resolveAutoStartRoute"
 import { importConnectedAccounts } from "../training/importConnectedAccounts"
 import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
+import { getMasterGameOpeningSearch, selectCalculationDepth } from "../training/learningPlanRules"
+import { supabase } from "../lib/supabase"
 import "../AccountAutoStudy.css"
+
+const AUTO_BOARD_VISION_SESSION_KEY = "weiss-chess-auto-board-vision-done-v1"
+const AUTO_SECTION_OFFSET_KEY = "weiss-chess-auto-section-offset-v1"
+
+async function buildPlanWithMasterGameCadence(autoProfile: any, userId: string) {
+ try {
+  const { data, error } = await supabase
+   .from("training_progress")
+   .select("created_at")
+   .eq("user_id", userId)
+   .eq("course", "master_games")
+   .order("created_at", { ascending: false })
+   .limit(1)
+   .maybeSingle()
+  if (!error && data?.created_at) {
+   return buildPersonalTrainingPlan({ ...autoProfile, master_game_last_introduced_at: data.created_at })
+  }
+ } catch {
+  // Cadence metadata is advisory when an older schema lacks created_at.
+ }
+ return buildPersonalTrainingPlan(autoProfile)
+}
+
+function boardVisionDoneThisSession(userId: string) {
+ try { return sessionStorage.getItem(AUTO_BOARD_VISION_SESSION_KEY) === userId } catch { return false }
+}
+
+function resetBoardVisionSession() {
+ try { sessionStorage.removeItem(AUTO_BOARD_VISION_SESSION_KEY) } catch { /* storage unavailable */ }
+ try { sessionStorage.setItem(AUTO_SECTION_OFFSET_KEY, "0") } catch { /* storage unavailable */ }
+}
+
+function markBoardVisionDoneThisSession(userId: string) {
+ try { sessionStorage.setItem(AUTO_BOARD_VISION_SESSION_KEY, userId) } catch { /* storage unavailable */ }
+}
+
+function getAutoCurriculumDecision(userId: string) {
+ return getCurriculumDecisionForUser(userId, {
+  excludedAreas: boardVisionDoneThisSession(userId) ? ["board-vision"] : [],
+ })
+}
+
+function autoSectionOffset() {
+ try { return Math.max(0, Number(sessionStorage.getItem(AUTO_SECTION_OFFSET_KEY)) || 0) } catch { return 0 }
+}
+
+function advanceAutoSectionOffset() {
+ try { sessionStorage.setItem(AUTO_SECTION_OFFSET_KEY, String(autoSectionOffset() + 1)) } catch { /* storage unavailable */ }
+}
+
+function planAwareDecision(plan: PersonalTrainingPlan, decision: CurriculumRuntimeDecision | null, userId: string) {
+ if (!decision || decision.source === "legacy") return decision
+ const excluded = boardVisionDoneThisSession(userId) ? ["boardVision" as const] : []
+ const completedSelections = (decision.selectionIndex ?? 0) + autoSectionOffset()
+ const section = selectScheduledSection(plan, completedSelections, excluded)
+ const depth = selectCalculationDepth(plan.currentRating, completedSelections)
+ if (section.key === "tactics" && (decision.curriculumArea === "tactics" || decision.curriculumArea === "mates")) return decision
+ if (section.key === "endgames" && decision.curriculumArea?.startsWith("endgame")) return decision
+ const targets: Partial<Record<TrainingSection["key"], { route: string; trainerKey: string; area: string }>> = {
+  boardVision: { route: section.route, trainerKey: "board-vision-basic", area: "board-vision" },
+  openings: { route: section.route, trainerKey: "openings-repertoire", area: "openings" },
+  tactics: { route: "/tactics", trainerKey: "tactics-course", area: "tactics" },
+  masterTactics: { route: `/master-tactics/${depth}/mixed`, trainerKey: `master-tactics-mixed-${depth}`, area: "master-tactics" },
+  endgames: { route: section.route, trainerKey: "endgame-studies", area: "endgame-studies" },
+  masterMates: { route: `/master-mates/${depth}/mixed`, trainerKey: `master-mates-mixed-${depth}`, area: "master-mates" },
+  masterGames: {
+   route: section.preferredOpeningKeys?.[0]
+    ? `${section.route}?opening=${encodeURIComponent(getMasterGameOpeningSearch(section.preferredOpeningKeys[0]))}`
+    : section.route,
+   trainerKey: "master-games-relevance",
+   area: "master-games",
+  },
+ }
+ const target = targets[section.key]!
+ return { ...decision, ...target, chunkIndex: null, curriculumArea: target.area as any, label: section.label, explanation: section.reason }
+}
 
 type LoadState =
  | { status: "loading"; message: string }
@@ -94,6 +173,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
      return
     }
 
+    if (new URLSearchParams(location.search).get("continue") !== "1") resetBoardVisionSession()
     const autoProfile = await getOrCreateAutoProfile(user.id)
 
     if (!autoProfile) {
@@ -106,16 +186,16 @@ export default function AutoStudyPage({ user }: { user: any }) {
      return
     }
 
-    const plan = buildPersonalTrainingPlan(autoProfile)
     const [nextWeeklyStatus, nextCurriculumDecision] = await Promise.all([
      getWeeklyTestStatus(user.id),
-     getCurriculumDecisionForUser(user.id),
+     getAutoCurriculumDecision(user.id),
     ])
+    const plan = await buildPlanWithMasterGameCadence(autoProfile, user.id)
 
     if (!cancelled) {
      setState({ status: "ready", autoProfile, plan })
      setWeeklyStatus(nextWeeklyStatus)
-     setCurriculumDecision(nextCurriculumDecision)
+     setCurriculumDecision(planAwareDecision(plan, nextCurriculumDecision, user.id))
     }
    } catch (error) {
     console.error("AUTO PAGE error:", error)
@@ -189,9 +269,10 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
-   const plan = buildPersonalTrainingPlan(autoProfile)
+   const plan = await buildPlanWithMasterGameCadence(autoProfile, user.id)
     setState({ status: "ready", autoProfile, plan })
-    setCurriculumDecision(await getCurriculumDecisionForUser(user.id))
+   const decision = await getAutoCurriculumDecision(user.id)
+   setCurriculumDecision(planAwareDecision(plan, decision, user.id))
    }
   } catch (error) {
    console.error("Refresh connected games failed:", error)
@@ -220,9 +301,10 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
-   const plan = buildPersonalTrainingPlan(autoProfile)
+   const plan = await buildPlanWithMasterGameCadence(autoProfile, user.id)
     setState({ status: "ready", autoProfile, plan })
-    setCurriculumDecision(await getCurriculumDecisionForUser(user.id))
+   const decision = await getAutoCurriculumDecision(user.id)
+   setCurriculumDecision(planAwareDecision(plan, decision, user.id))
    }
 
    setEngineProgress(
@@ -251,50 +333,39 @@ export default function AutoStudyPage({ user }: { user: any }) {
   setStartingTraining(true)
 
   try {
-   const [dueSummary, latestWeeklyStatus, nextCurriculumDecision] = await Promise.all([
-    getDueSummary(user.id),
+   const [latestWeeklyStatus, nextCurriculumDecision] = await Promise.all([
     getWeeklyTestStatus(user.id),
-    getCurriculumDecisionForUser(user.id),
+    getAutoCurriculumDecision(user.id),
    ])
 
    setWeeklyStatus(latestWeeklyStatus)
-   setCurriculumDecision(nextCurriculumDecision)
+   const currentPlan = state.status === "ready" ? state.plan : null
+   const plannedDecision = currentPlan ? planAwareDecision(currentPlan, nextCurriculumDecision, user.id) : nextCurriculumDecision
+   setCurriculumDecision(plannedDecision)
 
-   if (latestWeeklyStatus.status === "in_progress") {
-    navigate(addAutoTrainingParams("/play-computer?weekly=1"), { replace })
+   if (latestWeeklyStatus.status === "in_progress" || latestWeeklyStatus.status === "due") {
+    navigate(resolveAutoStartRoute({ weeklyStatus: latestWeeklyStatus, curriculumDecision: nextCurriculumDecision }), { replace })
     return
    }
 
-   if (
-    latestWeeklyStatus.status === "due" &&
-    (!dueSummary || dueSummary.dueCount === 0)
-   ) {
-    navigate(addAutoTrainingParams("/play-computer?weekly=1"), { replace })
-    return
-   }
-
-   const nextItem = nextCurriculumDecision
+   const nextItem = plannedDecision
 
    if (nextItem?.route) {
+    if (nextItem.curriculumArea === "board-vision") markBoardVisionDoneThisSession(user.id)
+    advanceAutoSectionOffset()
     recordRecentAutoTrainer(nextItem.trainerKey, nextItem.route)
     recordRecentEndgameTrainer(nextItem.trainerKey, nextItem.route)
     navigate(buildCurriculumAutoTrainingRoute(nextItem), { replace })
     return
    }
 
-   // Transfer play is a fallback. It must not replace a scheduled course item.
+   // Transfer play remains a fallback after the canonical curriculum decision.
    const endgameTransfer = await prepareNextEndgameTransfer(user.id)
-   if (endgameTransfer) {
-    navigate(addAutoTrainingParams("/play-computer?endgameTransfer=1"), { replace })
-    return
-   }
-
-   if (latestWeeklyStatus.status === "due") {
-    navigate(addAutoTrainingParams("/play-computer?weekly=1"), { replace })
-    return
-   }
-
-   navigate("/auto?caughtUp=1", { replace: true })
+   navigate(resolveAutoStartRoute({
+    weeklyStatus: latestWeeklyStatus,
+    curriculumDecision: null,
+    endgameTransferAvailable: Boolean(endgameTransfer),
+   }), { replace })
   } catch (error) {
    console.error("Could not start recommended training:", error)
    alert("Could not open the next course item. Check the console.")
@@ -346,8 +417,8 @@ export default function AutoStudyPage({ user }: { user: any }) {
     <div className="auto-study-page__header" style={{ marginBottom: 22 }}>
      <h1 className="auto-study-page__title" style={{ fontSize: 40, margin: "0 0 8px" }}>Your Personal Chess Course</h1>
      <p style={{ color: "#cfcfcf", fontSize: 17, lineHeight: 1.5, maxWidth: 760 }}>
-     The course has five regular sections. The weights are calculated from your rating goal,
-      detected ratings, imported games, openings, and later your repeated mistakes.
+      Your course keeps the same seven sections. Priorities and depth adapt using your normalized training rating,
+       goal, daily practice capacity, imported games, openings, and later your repeated mistakes.
      </p>
      {!plan.analysisAvailable && plan.analysisMessage && (
       <p style={{ color: "#f0dca0", fontSize: 14, lineHeight: 1.5, maxWidth: 760 }}>
@@ -496,7 +567,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
        className="auto-study-page__priority-grid"
        style={{
         display: "grid",
-        gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+        gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
         gap: 10,
        }}
       >
@@ -577,7 +648,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
       <div style={{ display: "grid", gap: 12 }}>
        <div style={sectionCardStyle()}>
-        <div style={{ color: "#bdbdbd", fontSize: 13 }}>Detected rating</div>
+         <div style={{ color: "#bdbdbd", fontSize: 13 }}>Current training rating</div>
         <div style={{ fontSize: 26, fontWeight: 900 }}>
          {plan.currentRating}
         </div>
@@ -596,10 +667,25 @@ export default function AutoStudyPage({ user }: { user: any }) {
         <div style={{ fontWeight: 900 }}>{plan.targetRating ?? "Not set"}</div>
        </div>
 
-       <div style={sectionCardStyle()}>
-        <div style={{ color: "#bdbdbd", fontSize: 13 }}>Next milestone</div>
-        <div style={{ fontWeight: 900 }}>{plan.nextMilestone ?? "Maintain and improve"}</div>
-       </div>
+        <div style={sectionCardStyle()}>
+         <div style={{ color: "#bdbdbd", fontSize: 13 }}>Next milestone</div>
+         <div style={{ fontWeight: 900 }}>{plan.nextMilestone ?? "Maintain and improve"}</div>
+        </div>
+
+        <div style={sectionCardStyle()}>
+         <div style={{ color: "#bdbdbd", fontSize: 13 }}>Daily plan capacity</div>
+         <div style={{ fontWeight: 900 }}>{plan.dailyPracticeMinutes} declared min ? {plan.effectiveDailyPracticeMinutes.toFixed(1)} effective min</div>
+         <div style={{ color: "#cfcfcf", fontSize: 13 }}>
+          {plan.timeframeMonths ? `${plan.timeframeMonths}-month target window` : "Long-term / no deadline"}
+         </div>
+        </div>
+
+        {plan.goalFeasibility && (
+         <div style={sectionCardStyle()}>
+          <div style={{ color: "#bdbdbd", fontSize: 13 }}>Goal status</div>
+          <div style={{ fontWeight: 900 }}>{plan.goalFeasibility.status.toLowerCase().replaceAll("_", " ")}</div>
+         </div>
+        )}
 
        <div style={sectionCardStyle()}>
         <div style={{ color: "#bdbdbd", fontSize: 13 }}>Imported games</div>

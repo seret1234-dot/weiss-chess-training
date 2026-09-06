@@ -1,4 +1,4 @@
-import { getNextDueItem, type NextDueItem } from "../getNextDueItem"
+import { getNextDueItem, getNextDueReviewItem, type NextDueItem } from "../getNextDueItem"
 import { buildAutoTrainingRoute, type AutoTrainingItem } from "../autoTrainingRoute"
 import { supabase } from "../../lib/supabase"
 import {
@@ -52,7 +52,9 @@ export type CurriculumRuntimeDependencies = {
   getState?: (userId: string) => Promise<PersistedCurriculum>
   getSelectionIndex?: (userId: string) => Promise<number>
   getLegacyItem?: (userId: string) => Promise<NextDueItem | null>
+  getDueReviewItem?: (userId: string) => Promise<NextDueItem | null>
   getM1LearnerCompletion?: (userId: string) => Promise<Record<string, { complete: boolean }>>
+  excludedAreas?: CurriculumRecommendation["area"][]
 }
 
 async function readM1LearnerCompletion(userId: string) {
@@ -131,9 +133,12 @@ export function buildCurriculumDecision(
 ): CurriculumRuntimeDecision {
   const m2ToM5Learner = getPatternMateM2ToM5LearnerCurriculum(recommendation.trainerKey)
   const tacticLearner = getPatternTacticLearnerCurriculum(recommendation.trainerKey)
+  const route = recommendation.area === "board-vision"
+    ? `/board-vision?placement=${recommendation.evidence.currentStage >= 8 ? "final-full-board" : recommendation.evidence.currentStage <= 1 ? "beginning" : "middle"}`
+    : recommendation.route
   return {
     source: "curriculum",
-    route: recommendation.route,
+    route,
     trainerKey: recommendation.trainerKey,
     chunkIndex: m2ToM5Learner
       ? ((selectionIndex % m2ToM5Learner.activeChunkCount) + m2ToM5Learner.activeChunkCount) % m2ToM5Learner.activeChunkCount
@@ -191,20 +196,24 @@ export async function getCurriculumDecisionForUser(
   })
   const getSelectionIndex = dependencies.getSelectionIndex ?? getCurriculumSelectionIndex
   const getLegacyItem = dependencies.getLegacyItem ?? getNextDueItem
+  const getDueReviewItem = dependencies.getDueReviewItem ?? getNextDueReviewItem
   const getM1LearnerCompletion = dependencies.getM1LearnerCompletion ?? readM1LearnerCompletion
 
   try {
-    const [persistedState, selectionIndex, m1LearnerCompletion] = await Promise.all([
+    const [persistedState, selectionIndex, m1LearnerCompletion, dueReview] = await Promise.all([
       getState(userId),
       getSelectionIndex(userId),
       getM1LearnerCompletion(userId),
+      getDueReviewItem(userId),
     ])
+    if (dueReview) return fallbackDecision(dueReview, "Scheduled retention review is due.")
     const persisted = withM1LearnerCompletion(persistedState, m1LearnerCompletion)
     if (!persisted?.curriculum) throw new Error("Curriculum state was unavailable.")
 
     const recommendation = selectCurriculumItem({
       state: persisted.curriculum,
       selectionIndex,
+      excludedAreas: dependencies.excludedAreas,
     })
     if (!recommendation?.route || !recommendation.trainerKey) {
       throw new Error("No eligible curriculum route is mapped for this user.")

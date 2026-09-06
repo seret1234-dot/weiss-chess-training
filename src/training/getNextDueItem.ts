@@ -92,39 +92,24 @@ function compareCandidates(a: NextDueItem, b: NextDueItem) {
  return a.trainerKey.localeCompare(b.trainerKey)
 }
 
-function chooseWeightedFromPool(candidates: NextDueItem[]): NextDueItem | null {
- if (!candidates.length) return null
-
- const totalWeight = candidates.reduce((sum, candidate) => {
- return sum + Math.max(candidate.planWeight ?? 0, 1)
- }, 0)
-
- let r = Math.random() * totalWeight
-
- for (const candidate of candidates) {
- r -= Math.max(candidate.planWeight ?? 0, 1)
- if (r <= 0) {
- return candidate
- }
- }
-
- return candidates[0] ?? null
+function chooseDeterministicFromPool(candidates: NextDueItem[]): NextDueItem | null {
+ return candidates.slice().sort(compareCandidates)[0] ?? null
 }
 
 function chooseBestCandidate(candidates: NextDueItem[]): NextDueItem | null {
  if (!candidates.length) return null
 
  const overdue = candidates.filter((c) => c.dueState === 'overdue')
- if (overdue.length) return chooseWeightedFromPool(overdue)
+ if (overdue.length) return chooseDeterministicFromPool(overdue)
 
  const dueToday = candidates.filter((c) => c.dueState === 'due_today')
- if (dueToday.length) return chooseWeightedFromPool(dueToday)
+ if (dueToday.length) return chooseDeterministicFromPool(dueToday)
 
  const inProgress = candidates.filter((c) => c.dueState === 'in_progress')
- if (inProgress.length) return chooseWeightedFromPool(inProgress)
+ if (inProgress.length) return chooseDeterministicFromPool(inProgress)
 
  const brandNew = candidates.filter((c) => c.dueState === 'new')
- if (brandNew.length) return chooseWeightedFromPool(brandNew)
+ if (brandNew.length) return chooseDeterministicFromPool(brandNew)
 
  return null
 }
@@ -222,7 +207,7 @@ function getDueStateFromRow(
  nextReviewAt = getEffectiveNextReviewAt(bestRow)
 
  if (!nextReviewAt) {
- dueState = 'in_progress'
+ dueState = bestRow.is_mastered === true ? 'due_today' : 'in_progress'
  } else {
  const dueDate = new Date(nextReviewAt)
 
@@ -242,12 +227,16 @@ function getDueStateFromRow(
  }
 }
 
-function getBestRowByTrainer(rows: ChunkProgressRow[]) {
+function getBestRowByTrainer(rows: ChunkProgressRow[], tomorrowStart: Date) {
  const bestRowByTrainer = new Map<string, ChunkProgressRow>()
 
  for (const row of rows) {
  if (!row.trainer_key) continue
- if (row.is_mastered === true) continue
+ if (row.is_mastered === true) {
+ const due = getEffectiveNextReviewAt(row)
+ const dueTime = due ? new Date(due).getTime() : Number.NEGATIVE_INFINITY
+ if (Number.isFinite(dueTime) && dueTime >= tomorrowStart.getTime()) continue
+ }
 
  const existing = bestRowByTrainer.get(row.trainer_key)
  if (!existing) {
@@ -282,7 +271,7 @@ function buildCandidates(
 ): NextDueItem[] {
  const todayStart = startOfTodayLocal()
  const tomorrowStart = endOfTodayLocal()
- const bestRowByTrainer = getBestRowByTrainer(rows)
+ const bestRowByTrainer = getBestRowByTrainer(rows, tomorrowStart)
 
  const candidates: NextDueItem[] = []
 
@@ -325,6 +314,19 @@ export async function getNextDueItem(
 
  const candidates = buildCandidates(plan, rows)
  return chooseBestCandidate(candidates)
+}
+
+/** Due maintenance is a distinct gate; it must not introduce brand-new material. */
+export async function getNextDueReviewItem(
+ userId: string
+): Promise<NextDueItem | null> {
+ const plan = await getOrCreateStudyPlan(userId)
+ if (!plan) return null
+ const rows = await getChunkRows(userId)
+ if (!rows) return null
+ return chooseBestCandidate(buildCandidates(plan, rows).filter(
+  (item) => item.dueState === 'overdue' || item.dueState === 'due_today'
+ ))
 }
 
 export async function getDueSummary(
