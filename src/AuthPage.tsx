@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { CSSProperties, FormEvent } from "react"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
+import { autoEntryEnabled } from './training/autoEntryEnabled'
 import { supabase } from "./lib/supabase"
 import { trackAnalyticsEvent } from "./lib/analytics"
+import {
+ consumeTrainingReturnTarget,
+ resolveTrainingReturnTarget,
+} from "./auth/trainingReturnTarget.mjs"
+import DataCollectionNotice from "./compliance/DataCollectionNotice"
 import "./AuthOnboarding.css"
 
 type AuthMode = "login" | "signup"
@@ -60,7 +66,14 @@ function buttonStyle(background: string): CSSProperties {
 
 export default function AuthPage() {
  const location = useLocation()
+ const navigate = useNavigate()
  const requestedSignup = new URLSearchParams(location.search).get("mode") === "signup"
+ const returnTarget = useMemo(
+  () => requestedSignup
+   ? null
+   : resolveTrainingReturnTarget({ routerState: location.state, search: location.search }),
+  [location.search, location.state, requestedSignup],
+ )
  const [mode, setMode] = useState<AuthMode>(requestedSignup ? "signup" : "login")
 
  const [form, setForm] = useState<FormState>({
@@ -72,6 +85,8 @@ export default function AuthPage() {
  const [loading, setLoading] = useState(false)
 
  const isSubmittingRef = useRef(false)
+ const navigationStartedRef = useRef(false)
+ const authPageActiveRef = useRef(false)
 
  const title = useMemo(
  () => (mode === "signup" ? "Create Free Account" : "Log In"),
@@ -80,14 +95,41 @@ export default function AuthPage() {
 
  useEffect(() => {
   setMode(requestedSignup ? "signup" : "login")
+  if (requestedSignup) consumeTrainingReturnTarget()
  }, [requestedSignup])
 
+ function finishLogin() {
+  // Signing in re-keys the account providers and remounts this page. Ignore
+  // the old form's late completion; only the currently mounted page navigates.
+  if (autoEntryEnabled && !authPageActiveRef.current) return
+  if (autoEntryEnabled && navigationStartedRef.current) return
+  navigationStartedRef.current = true
+  if (returnTarget) consumeTrainingReturnTarget(returnTarget)
+  if (autoEntryEnabled) {
+   navigate(returnTarget || "/", { replace: true })
+   return
+  }
+  window.location.replace(returnTarget || "/")
+ }
+
+ function finishDetectedSession() {
+  if (autoEntryEnabled && !authPageActiveRef.current) return
+  if (requestedSignup) {
+   navigationStartedRef.current = true
+   consumeTrainingReturnTarget()
+   window.location.assign("/onboarding")
+   return
+  }
+  finishLogin()
+ }
+
  useEffect(() => {
+ authPageActiveRef.current = true
  async function checkSession() {
  const { data } = await supabase.auth.getSession()
 
  if (data.session?.user && !isSubmittingRef.current) {
- window.location.assign("/")
+ finishDetectedSession()
  }
  }
 
@@ -96,15 +138,16 @@ export default function AuthPage() {
  const { data: listener } = supabase.auth.onAuthStateChange(
  (_event, session) => {
  if (session?.user && !isSubmittingRef.current) {
- window.location.assign("/")
+ finishDetectedSession()
  }
  }
  )
 
  return () => {
+ authPageActiveRef.current = false
  listener.subscription.unsubscribe()
  }
- }, [])
+ }, [requestedSignup, returnTarget])
 
  function updateField<K extends keyof FormState>(
  key: K,
@@ -152,6 +195,8 @@ export default function AuthPage() {
 
  if (data.session) {
  setStatus("Signup successful. Opening your personal plan...")
+ navigationStartedRef.current = true
+ consumeTrainingReturnTarget()
  window.location.assign("/onboarding")
  } else {
  setStatus("Signup successful. Check your email to confirm your account.")
@@ -167,13 +212,13 @@ export default function AuthPage() {
  return
  }
 
- window.location.assign("/")
+ finishLogin()
  }
  } catch (err) {
  setStatus(err instanceof Error ? err.message : "Something went wrong")
  } finally {
  setLoading(false)
- isSubmittingRef.current = false
+ if (!navigationStartedRef.current) isSubmittingRef.current = false
  }
  }
 
@@ -201,31 +246,34 @@ export default function AuthPage() {
  <div className="auth-page__panel" style={panelStyle()}>
  <h1 style={{ marginBottom: "16px" }}>{title}</h1>
 
- <div className="auth-page__tabs" style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
- <button
- type="button"
- onClick={() => {
- if (mode !== "signup") trackAnalyticsEvent("sign_up_started")
- setMode("signup")
- }}
- style={buttonStyle(mode === "signup" ? "#81b64c" : "#4b4847")}
- >
- Create Free Account
- </button>
+        {mode === "signup" && (
+          <div
+            className="auth-page__login-prompt"
+            style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", color: "#cfcfcf", fontSize: "14px" }}
+          >
+            <span>Already have an account?</span>
+            <button
+              type="button"
+              onClick={() => {
+                setMode("login")
+                if (autoEntryEnabled) navigate('/auth', { replace: true })
+              }}
+              style={buttonStyle("#4b4847")}
+            >
+              Log In
+            </button>
+          </div>
+        )}
 
- <button
- type="button"
- onClick={() => setMode("login")}
- style={buttonStyle(mode === "login" ? "#81b64c" : "#4b4847")}
- >
- Log In
- </button>
- </div>
-
- <form onSubmit={onSubmit}>
+ <form onSubmit={onSubmit} aria-describedby="auth-privacy-notice">
  <div style={{ marginBottom: "14px" }}>
- <label style={labelStyle()}>Email</label>
+ <label htmlFor="auth-email" style={labelStyle()}>Email</label>
  <input
+ id="auth-email"
+ name="email"
+ type="email"
+ autoComplete="email"
+ required
  style={inputStyle()}
  value={form.email}
  onChange={(e) => updateField("email", e.target.value)}
@@ -233,9 +281,13 @@ export default function AuthPage() {
  </div>
 
  <div style={{ marginBottom: "14px" }}>
- <label style={labelStyle()}>Password</label>
+ <label htmlFor="auth-password" style={labelStyle()}>Password</label>
  <input
+ id="auth-password"
+ name="password"
  type="password"
+ autoComplete={mode === "signup" ? "new-password" : "current-password"}
+ required
  style={inputStyle()}
  value={form.password}
  onChange={(e) => updateField("password", e.target.value)}
@@ -243,10 +295,15 @@ export default function AuthPage() {
  </div>
 
  {mode === "signup" && (
- <p className="auth-page__signup-note">
- After confirmation, you will connect Chess.com and build your personalized training plan.
- </p>
+ <div>
+  <p className="auth-page__signup-note">
+  After confirmation, you will connect Chess.com and build your personalized training plan.
+  </p>
+ </div>
  )}
+ <div id="auth-privacy-notice">
+  <DataCollectionNotice context={mode === "signup" ? "signup" : "login"} />
+ </div>
 
  <button
  type="submit"
@@ -265,7 +322,7 @@ export default function AuthPage() {
  </button>
  </form>
 
- <div style={{ marginTop: "16px", color: "#cfcfcf" }}>{status}</div>
+ <div role="status" aria-live="polite" aria-atomic="true" style={{ marginTop: "16px", color: "#cfcfcf" }}>{status}</div>
  </div>
 
  <div className="auth-page__panel auth-page__info-panel" style={panelStyle("#262421")}>

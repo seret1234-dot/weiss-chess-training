@@ -5,6 +5,7 @@ type Side = "white" | "black"
 export type GlobalBoardState = {
  isAvailable: boolean
  fen: string | null
+ orientation?: Side
  suggestedColor?: Side
  canFlip?: boolean
  onFlip?: () => void
@@ -19,6 +20,7 @@ type BoardUiContextValue = {
 const defaultBoardState: GlobalBoardState = {
  isAvailable: false,
  fen: null,
+ orientation: undefined,
  suggestedColor: undefined,
  canFlip: false,
  onFlip: undefined,
@@ -34,6 +36,7 @@ export function BoardUiProvider({ children }: { children: React.ReactNode }) {
  if (
  prev.isAvailable === state.isAvailable &&
  prev.fen === state.fen &&
+ prev.orientation === state.orientation &&
  prev.suggestedColor === state.suggestedColor &&
  prev.canFlip === state.canFlip &&
  prev.onFlip === state.onFlip
@@ -49,6 +52,7 @@ export function BoardUiProvider({ children }: { children: React.ReactNode }) {
  if (
  prev.isAvailable === defaultBoardState.isAvailable &&
  prev.fen === defaultBoardState.fen &&
+ prev.orientation === defaultBoardState.orientation &&
  prev.suggestedColor === defaultBoardState.suggestedColor &&
  prev.canFlip === defaultBoardState.canFlip &&
  prev.onFlip === defaultBoardState.onFlip

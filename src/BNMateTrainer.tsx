@@ -1,3 +1,5 @@
+import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
+import { useEndgameInput } from './trainers/endgame/useEndgameInput'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Chess } from 'chess.js'
@@ -10,7 +12,7 @@ import {
   buildEndgameProgressRows,
   getEndgameReviewMastery,
 } from './training/endgameReview'
-import TrainerShell from './components/trainer/TrainerShell'
+import TrainerShell from './trainers/endgame/EndgameTrainerShell'
 import {
  BigMessage,
  HintButton,
@@ -777,6 +779,7 @@ async function findFirstIncompleteChunk(
 }
 
 export default function BNMateTrainer() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const [progression, setProgression] = useState<ProgressionFile | null>(null)
  const [progress, setProgress] = useState<TrainerProgress | null>(null)
  const [positions, setPositions] = useState<TrainingPosition[]>([])
@@ -846,7 +849,7 @@ export default function BNMateTrainer() {
  useEffect(() => {
  const interval = window.setInterval(() => {
  if (loadingChunk || inputLocked || allComplete) return
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current)
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current))
  }, 100)
 
  return () => window.clearInterval(interval)
@@ -986,6 +989,13 @@ export default function BNMateTrainer() {
  }, [currentChunkFile, currentThemeProgress, globalChunkLookup, progress])
 
  const currentPosition = positions[currentIndex] ?? null
+ const endgameInput = useEndgameInput({
+  fen: game.fen(), attemptKey: currentPosition?.id ?? '',
+  active: (!loadingChunk && !inputLocked && !allComplete) && !!currentPosition && !flashSolvedPositionId && game.turn() === 'w',
+  moveStartedAt: moveStartedAtRef.current, onDrop,
+  onSilentError: () => { setStatus('Wrong, silent error'); setMessage(''); },
+ });
+
  const currentStats = currentPosition ? getPositionStats(progress, currentPosition.id) : null
 
  const chunkMasteredCount = useMemo(() => {
@@ -1011,6 +1021,7 @@ export default function BNMateTrainer() {
  clearPendingFeedbackTimeout()
  setFlashSolvedPositionId(null)
  setCurrentIndex(index)
+ endgameInput.attempt.begin(p.id);
  setGame(new Chess(p.startFen))
  setStatus(getInstructionText(p, currentThemeConfig))
  setMessage('')
@@ -1342,10 +1353,12 @@ export default function BNMateTrainer() {
  return
  }
 
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: 'bn', unitKey: currentChunkFile, itemIds: chunkPositions.map((p: TrainingPosition) => p.id) })) return
  const nextIndex = chooseRandomUnmasteredIndex(chunkPositions, progress)
  const nextPosition = chunkPositions[nextIndex]
 
  setCurrentIndex(nextIndex)
+ endgameInput.attempt.begin(nextPosition.id);
  setGame(new Chess(nextPosition.startFen))
  setStatus(getInstructionText(nextPosition, currentThemeConfig))
  setMessage('')
@@ -1555,6 +1568,7 @@ export default function BNMateTrainer() {
  nextStatus: string,
  nextMessage: string
  ) {
+ endgameInput.attempt.wrongMove();
  clearPendingFeedbackTimeout()
 
   try {
@@ -1583,7 +1597,7 @@ export default function BNMateTrainer() {
  setCorrectSquares([])
  setHintSquares([])
  setEscapeSquares(escapes)
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current)
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current))
  setJustMated(false)
  setStatus(nextStatus)
  setMessage(
@@ -1612,7 +1626,7 @@ export default function BNMateTrainer() {
  clearPendingFeedbackTimeout()
  setFlashSolvedPositionId(currentPosition.id)
 
- const moveElapsedMs = Date.now() - moveStartedAtRef.current
+ const moveElapsedMs = endgameInput.elapsed(moveStartedAtRef.current)
  setCurrentMoveElapsedMs(moveElapsedMs)
  setJustMated(nextGame.isCheckmate())
 
@@ -1621,7 +1635,7 @@ export default function BNMateTrainer() {
 
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3
  const maxMsPerMove = maxSecondsPerMove * 1000
- const wasFast = nextMoveTimes.every((ms) => ms <= maxMsPerMove)
+ const wasFast = endgameInput.attempt.qualify(nextMoveTimes.every((ms) => ms <= maxMsPerMove))
 
  const oldStats = getPositionStats(progress, currentPosition.id)
 
@@ -1663,10 +1677,10 @@ export default function BNMateTrainer() {
  nextGame.isCheckmate()
  ? wasFast
  ? `Checkmate. Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Checkmate, but slower than ${maxSecondsPerMove} seconds.`
+ : endgameInput.attempt.nonQualifyingMessage(`Checkmate, but slower than ${maxSecondsPerMove} seconds.`)
  : wasFast
  ? `Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Solved, but slower than ${maxSecondsPerMove} seconds.`
+ : endgameInput.attempt.nonQualifyingMessage(`Solved, but slower than ${maxSecondsPerMove} seconds.`)
  )
 
  feedbackTimeoutRef.current = window.setTimeout(() => {
@@ -1858,7 +1872,7 @@ export default function BNMateTrainer() {
  nextGame,
  move,
  'Wrong move.',
- 'Stalemate - avoid this.'
+ 'Stalemate — avoid this.'
  )
  return true
  }
@@ -2118,7 +2132,8 @@ export default function BNMateTrainer() {
  footerRight={`${boardWidth}px`}
  boardId="BNMateTrainerBoard"
  fen={game.fen()}
- onPieceDrop={onDrop}
+ onPieceDrop={endgameInput.onDrop}
+ boardControls={endgameInput.controls}
  getLegalTargets={getLegalTargets}
  boardOrientation={boardOrientation}
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
@@ -2134,7 +2149,7 @@ export default function BNMateTrainer() {
  escapeSquares,
  hintSquares
  )}
- arePiecesDraggable={!loadingChunk && !inputLocked && !allComplete}
+ arePiecesDraggable={(!loadingChunk && !inputLocked && !allComplete) && endgameInput.mouseEnabled}
  boardLeft={boardLeft}
  boardOverlay={boardOverlay}
  sidePanel={
@@ -2321,6 +2336,7 @@ export default function BNMateTrainer() {
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: 'grid', gap: 8 }}>
+ {endgameInput.silentButton}
  <HintButton
  getHintMove={getHintMoveForAction}
  onHintStage={(move, stage) => {

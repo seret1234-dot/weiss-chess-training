@@ -29,6 +29,28 @@
   width: 100%;
 }
 
+@media (min-width: 769px) {
+  /* The main workspace is fixed-height on desktop. The board therefore has to
+     fit both its column and the remaining viewport after the trainer chrome. */
+  .board-vision-board {
+    width: min(100%, 900px, calc(100dvh - 430px)) !important;
+    max-width: min(100%, 900px, calc(100dvh - 430px)) !important;
+    aspect-ratio: 1 / 1;
+  }
+
+  .board-vision-board > *,
+  .board-vision-board [data-testid="Chessboard"] {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1340px) {
+  .board-vision-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 360px) !important;
+  }
+}
+
 @media (max-width: 768px) {
   .board-vision-page {
     width: 100%;
@@ -167,8 +189,8 @@
 
   .board-vision-board {
     order: 40;
-    width: 100% !important;
-    max-width: min(100%, 900px) !important;
+    width: min(100%, calc(100dvh - 430px)) !important;
+    max-width: min(100%, 900px, calc(100dvh - 430px)) !important;
     margin: 0 auto !important;
     aspect-ratio: 1 / 1;
     overflow: visible !important;

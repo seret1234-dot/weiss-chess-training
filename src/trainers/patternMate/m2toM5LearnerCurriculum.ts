@@ -2,8 +2,10 @@ import {
   type LegacyChunkProgressLike,
   type PatternMateM1CanonicalTheme,
 } from "./m1LearnerCurriculum"
+import { FULL_PATTERN_MATE_COURSES } from "../fullChunkCurriculumCatalog"
+import { logicalActivityKey } from '../../training/activityIdentity'
 
-export const PATTERN_MATE_M2_TO_M5_LEARNER_CHUNK_SIZE = 20
+export const PATTERN_MATE_M2_TO_M5_LEARNER_CHUNK_SIZE = 30
 
 export type PatternMateM2ToM5LearnerCurriculum = {
   trainerKey: string
@@ -11,12 +13,13 @@ export type PatternMateM2ToM5LearnerCurriculum = {
   catalogTrainerKeys?: readonly string[]
   theme: PatternMateM1CanonicalTheme
   mateDistance: 2 | 3 | 4 | 5
-  version: "m2-v1" | "m3-v1" | "m4-v1" | "m5-v1"
+  version: string
   sourceDataBasePath: string
   learnerDataBasePath: string
   legacyChunkCount: number
   activeChunkCount: number
   activeChunkSize: number
+  reducedActiveChunkCount?: number
 }
 
 type DefinitionInput = Omit<PatternMateM2ToM5LearnerCurriculum, "version" | "learnerDataBasePath" | "activeChunkCount"> & {
@@ -39,14 +42,16 @@ function definition(input: DefinitionInput): PatternMateM2ToM5LearnerCurriculum 
 const sourcePath = (theme: string, mateDistance: 2 | 3 | 4 | 5) =>
   `/data/pattern-mates/${theme}/mate-in-${mateDistance}`
 
-const definitions = [
+const reducedDefinitions = [
   definition({ trainerKey: "anastasia-mate-2", theme: "anastasia", mateDistance: 2, sourceDataBasePath: "/data/lichess/mate_in_2/anastasia", legacyChunkCount: 50, activeChunkSize: 20 }),
   definition({ trainerKey: "back-rank-mate-2", theme: "back-rank", mateDistance: 2, sourceDataBasePath: sourcePath("back-rank", 2), legacyChunkCount: 50, activeChunkSize: 20 }),
   definition({ trainerKey: "arabian-mate-2", theme: "arabian", mateDistance: 2, sourceDataBasePath: sourcePath("arabian", 2), legacyChunkCount: 50, activeChunkSize: 20 }),
   definition({ trainerKey: "boden-mate-2", theme: "boden", mateDistance: 2, sourceDataBasePath: sourcePath("boden", 2), legacyChunkCount: 43, activeChunkSize: 20 }),
   definition({ trainerKey: "smothered-mate-2", theme: "smothered", mateDistance: 2, sourceDataBasePath: sourcePath("smothered", 2), legacyChunkCount: 50, activeChunkSize: 20 }),
   definition({ trainerKey: "hook-mate-2", theme: "hook", mateDistance: 2, sourceDataBasePath: sourcePath("hook", 2), legacyChunkCount: 50, activeChunkSize: 20 }),
-  definition({ trainerKey: "kill-box-mate-2", theme: "kill-box", mateDistance: 2, sourceDataBasePath: sourcePath("kill-box", 2), legacyChunkCount: 50, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-adjacent-rook-mate-2", theme: "kill-box-adjacent-rook", mateDistance: 2, sourceDataBasePath: sourcePath("kill-box-adjacent-rook", 2), legacyChunkCount: 32, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-rook-rail-mate-2", theme: "kill-box-rook-rail", mateDistance: 2, sourceDataBasePath: sourcePath("kill-box-rook-rail", 2), legacyChunkCount: 12, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-queen-fence-mate-2", theme: "kill-box-queen-fence", mateDistance: 2, sourceDataBasePath: sourcePath("kill-box-queen-fence", 2), legacyChunkCount: 6, activeChunkSize: 20 }),
   definition({ trainerKey: "dovetail-mate-2", theme: "dovetail", mateDistance: 2, sourceDataBasePath: sourcePath("dovetail", 2), legacyChunkCount: 32, activeChunkSize: 20 }),
   definition({ trainerKey: "double-bishop-mate-2", theme: "double-bishop", mateDistance: 2, sourceDataBasePath: sourcePath("double-bishop", 2), legacyChunkCount: 40, activeChunkSize: 20 }),
 
@@ -56,7 +61,9 @@ const definitions = [
   definition({ trainerKey: "boden-mate-3", theme: "boden", mateDistance: 3, sourceDataBasePath: sourcePath("boden", 3), legacyChunkCount: 3, activeChunkCount: 3, activeChunkSize: 20 }),
   definition({ trainerKey: "smothered-mate-3", theme: "smothered", mateDistance: 3, sourceDataBasePath: sourcePath("smothered", 3), legacyChunkCount: 50, activeChunkSize: 20 }),
   definition({ trainerKey: "hook-mate-3", theme: "hook", mateDistance: 3, sourceDataBasePath: sourcePath("hook", 3), legacyChunkCount: 33, activeChunkSize: 20 }),
-  definition({ trainerKey: "kill-box-mate-3", theme: "kill-box", mateDistance: 3, sourceDataBasePath: sourcePath("kill-box", 3), legacyChunkCount: 29, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-adjacent-rook-mate-3", theme: "kill-box-adjacent-rook", mateDistance: 3, sourceDataBasePath: sourcePath("kill-box-adjacent-rook", 3), legacyChunkCount: 21, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-rook-rail-mate-3", theme: "kill-box-rook-rail", mateDistance: 3, sourceDataBasePath: sourcePath("kill-box-rook-rail", 3), legacyChunkCount: 3, activeChunkCount: 4, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-queen-fence-mate-3", theme: "kill-box-queen-fence", mateDistance: 3, sourceDataBasePath: sourcePath("kill-box-queen-fence", 3), legacyChunkCount: 5, activeChunkCount: 6, activeChunkSize: 20 }),
   definition({ trainerKey: "dovetail-mate-3", theme: "dovetail", mateDistance: 3, sourceDataBasePath: sourcePath("dovetail", 3), legacyChunkCount: 8, activeChunkSize: 20 }),
   definition({ trainerKey: "double-bishop-mate-3-plus", theme: "double-bishop", mateDistance: 3, sourceDataBasePath: sourcePath("double-bishop", 3), legacyChunkCount: 6, activeChunkSize: 20 }),
 
@@ -65,21 +72,40 @@ const definitions = [
   definition({ trainerKey: "arabian-mate-4", theme: "arabian", mateDistance: 4, sourceDataBasePath: sourcePath("arabian", 4), legacyChunkCount: 4, activeChunkCount: 5, activeChunkSize: 20 }),
   definition({ trainerKey: "smothered-mate-4", theme: "smothered", mateDistance: 4, sourceDataBasePath: sourcePath("smothered", 4), legacyChunkCount: 11, activeChunkSize: 20 }),
   definition({ trainerKey: "hook-mate-4", theme: "hook", mateDistance: 4, sourceDataBasePath: sourcePath("hook", 4), legacyChunkCount: 7, activeChunkSize: 20 }),
-  definition({ trainerKey: "kill-box-mate-4", theme: "kill-box", mateDistance: 4, sourceDataBasePath: sourcePath("kill-box", 4), legacyChunkCount: 6, activeChunkCount: 7, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-adjacent-rook-mate-4", theme: "kill-box-adjacent-rook", mateDistance: 4, sourceDataBasePath: sourcePath("kill-box-adjacent-rook", 4), legacyChunkCount: 4, activeChunkCount: 4, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-rook-rail-mate-4", theme: "kill-box-rook-rail", mateDistance: 4, sourceDataBasePath: sourcePath("kill-box-rook-rail", 4), legacyChunkCount: 1, activeChunkCount: 1, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-queen-fence-mate-4", theme: "kill-box-queen-fence", mateDistance: 4, sourceDataBasePath: sourcePath("kill-box-queen-fence", 4), legacyChunkCount: 1, activeChunkCount: 1, activeChunkSize: 20 }),
   definition({ trainerKey: "dovetail-mate-4", theme: "dovetail", mateDistance: 4, sourceDataBasePath: sourcePath("dovetail", 4), legacyChunkCount: 2, activeChunkCount: 1, activeChunkSize: 20 }),
 
   definition({ trainerKey: "anastasia-mate-in-5", catalogTrainerKeys: ["anastasia-mate-5"], theme: "anastasia", mateDistance: 5, sourceDataBasePath: "/data/lichess/mate_in_5/anastasia", legacyChunkCount: 2, activeChunkCount: 2, activeChunkSize: 20 }),
   definition({ trainerKey: "back-rank-mate-5", theme: "back-rank", mateDistance: 5, sourceDataBasePath: sourcePath("back-rank", 5), legacyChunkCount: 13, activeChunkSize: 20 }),
   definition({ trainerKey: "arabian-mate-5", theme: "arabian", mateDistance: 5, sourceDataBasePath: sourcePath("arabian", 5), legacyChunkCount: 1, activeChunkCount: 1, activeChunkSize: 20 }),
   definition({ trainerKey: "hook-mate-5", theme: "hook", mateDistance: 5, sourceDataBasePath: sourcePath("hook", 5), legacyChunkCount: 2, activeChunkCount: 2, activeChunkSize: 20 }),
-  definition({ trainerKey: "kill-box-mate-5", theme: "kill-box", mateDistance: 5, sourceDataBasePath: sourcePath("kill-box", 5), legacyChunkCount: 2, activeChunkCount: 1, activeChunkSize: 20 }),
+  definition({ trainerKey: "kill-box-adjacent-rook-mate-5", theme: "kill-box-adjacent-rook", mateDistance: 5, sourceDataBasePath: sourcePath("kill-box-adjacent-rook", 5), legacyChunkCount: 1, activeChunkCount: 1, activeChunkSize: 18 }),
+  definition({ trainerKey: "kill-box-rook-rail-mate-5", theme: "kill-box-rook-rail", mateDistance: 5, sourceDataBasePath: sourcePath("kill-box-rook-rail", 5), legacyChunkCount: 1, activeChunkCount: 1, activeChunkSize: 2 }),
+  definition({ trainerKey: "kill-box-queen-fence-mate-5", theme: "kill-box-queen-fence", mateDistance: 5, sourceDataBasePath: sourcePath("kill-box-queen-fence", 5), legacyChunkCount: 1, activeChunkCount: 1, activeChunkSize: 11 }),
   definition({ trainerKey: "dovetail-mate-5", theme: "dovetail", mateDistance: 5, sourceDataBasePath: sourcePath("dovetail", 5), legacyChunkCount: 1, activeChunkCount: 1, activeChunkSize: 9 }),
 ] as const satisfies readonly PatternMateM2ToM5LearnerCurriculum[]
+
+const definitions = reducedDefinitions.map((entry) => {
+  const full = FULL_PATTERN_MATE_COURSES.find((course) => course.theme === entry.theme && course.mateDistance === entry.mateDistance)
+  if (!full) throw new Error(`Missing restored Mate in ${entry.mateDistance} curriculum for ${entry.theme}`)
+  return {
+    ...entry,
+    version: "full-precut-v1",
+    learnerDataBasePath: full.dataBasePath,
+    legacyChunkCount: full.chunkCount,
+    activeChunkCount: full.chunkCount,
+    activeChunkSize: full.chunkSize,
+    reducedActiveChunkCount: entry.activeChunkCount,
+  }
+}) satisfies readonly PatternMateM2ToM5LearnerCurriculum[]
 
 export const PATTERN_MATE_M2_TO_M5_LEARNER_CURRICULA = definitions
 
 export function getPatternMateM2ToM5LearnerCurriculum(trainerKey: string) {
-  return definitions.find((entry) => entry.trainerKey === trainerKey || entry.catalogTrainerKeys?.includes(trainerKey)) ?? null
+  const key = logicalActivityKey(trainerKey)
+  return definitions.find((entry) => logicalActivityKey(entry.trainerKey) === key || entry.catalogTrainerKeys?.includes(key)) ?? null
 }
 
 export function getPatternMateM2ToM5LearnerCurriculaForDistance(mateDistance: number) {
@@ -126,7 +152,11 @@ export function getM2ToM5LearnerCompletionByTrainer(rows: Array<LegacyChunkProgr
       .filter((row) => row.trainer_key === learnerTrainerKey && row.is_mastered === true)
       .map((row) => Number(row.chunk_index))
       .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= definition.activeChunkCount)).size
-    const completedActiveChunks = Math.max(legacy.completedActiveChunks, activeCompletedChunks)
+    const reducedCredit = getM2ToM5LegacyCompletionCredit(
+      rows.filter((row) => row.trainer_key === `${definition.trainerKey}:m${definition.mateDistance}-v1`),
+      { ...definition, legacyChunkCount: definition.reducedActiveChunkCount ?? 8 },
+    ).completedActiveChunks
+    const completedActiveChunks = Math.max(legacy.completedActiveChunks, activeCompletedChunks, reducedCredit)
     return [definition.trainerKey, { ...legacy, completedActiveChunks, complete: completedActiveChunks >= definition.activeChunkCount }]
   })) as Record<string, ReturnType<typeof getM2ToM5LegacyCompletionCredit>>
 }

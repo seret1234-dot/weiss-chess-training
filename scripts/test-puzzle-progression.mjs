@@ -6,6 +6,17 @@ const vite = await createServer({ server: { middlewareMode: true }, appType: "cu
 
 try {
   const progression = await vite.ssrLoadModule("/src/trainers/puzzleProgression.ts")
+  const { preparePuzzleStartPosition } = await vite.ssrLoadModule('/src/trainers/puzzleStartPosition.ts')
+  const initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+  const source = { fen: initialFen, preMove: 'e2e4' }
+  const prepared = preparePuzzleStartPosition(source)
+  assert.equal(prepared.get('e4')?.type, 'p')
+  assert.equal(prepared.turn(), 'b', 'orientation comes from the prepared learner position')
+  assert.equal(source.fen, initialFen, 'source records are never mutated')
+  assert.equal(preparePuzzleStartPosition({ fen: prepared.fen() }).fen(), prepared.fen(), 'Master records without a premove are already ready')
+  assert.equal(preparePuzzleStartPosition({ ...source, sourceFen: initialFen, displayedFen: prepared.fen() }).fen(), prepared.fen(), 'verified setup is prepared using the existing validation contract')
+  assert.throws(() => preparePuzzleStartPosition({ ...source, preMove: 'e2e5' }), 'illegal setup fails closed before any board is published')
+  assert.throws(() => preparePuzzleStartPosition({ ...source, sourceFen: initialFen, displayedFen: '8/8/8/8/8/8/4K3/7k w - - 0 1' }), 'mismatched verified evidence fails closed')
   const queued = new Map()
   let timerId = 0
   const controller = progression.createCorrectPuzzleAutoAdvanceController({
@@ -21,7 +32,11 @@ try {
 
   let advances = 0
   controller.schedule(() => { advances += 1 })
-  assert.equal([...queued.values()][0].delayMs, progression.CORRECT_PUZZLE_AUTO_ADVANCE_MS, "correct answers wait about one second")
+  assert.equal(progression.CORRECT_PUZZLE_AUTO_ADVANCE_MS, 2000)
+  assert.equal(progression.WRONG_MOVE_RESET_MS, 2000, "error readability does not extend board locking")
+  assert.equal(progression.WRONG_MOVE_FEEDBACK, "Wrong move — try again.")
+  assert.equal(progression.SILENT_ERROR_FEEDBACK, "Wrong, silent error")
+  assert.equal([...queued.values()][0].delayMs, 2000, "correct feedback waits two seconds")
   assert.equal(advances, 0, "correct success state remains visible before auto-advance")
   const [firstTimerId, firstTimer] = [...queued.entries()][0]
   queued.delete(firstTimerId)
@@ -79,9 +94,22 @@ try {
     assert.match(source, /useCorrectPuzzleAutoAdvance/, `${trainerPath} uses the shared owned auto-advance timer`)
     assert.match(source, /useWrongMoveReset/, `${trainerPath} uses the shared owned wrong-move reset timer`)
     assert.match(source, /const nextChunkProgress = chunkProgressRef\.current/, `${trainerPath} reads current progress at final transition, not stale render state`)
-    assert.match(source, /scheduleCorrectAutoAdvance\(goToNextPuzzle(?:, 1_500)?\)/, `${trainerPath} delays correct-answer transition through the shared helper`)
+    assert.match(source, /scheduleCorrectAutoAdvance\(goToNextPuzzle\)/, `${trainerPath} uses the shared two-second feedback duration`)
+    assert.match(source, /loadPuzzleImmediate\(nextPuzzle, i, undefined, undefined, undefined, true\)/, `${trainerPath} advances directly to a prepared learner position`)
+    assert.doesNotMatch(source, /puzzleBoardVersion/, `${trainerPath} preserves the mounted board between puzzles`)
+    assert.match(source, /puzzleLearnerSideRef\.current = userTurn/, `${trainerPath} remembers the ready puzzle learner side`)
+    assert.match(source, /setDisplayTurn\(puzzleLearnerSideRef\.current\)/, `${trainerPath} keeps learner side on completion`)
+    assert.doesNotMatch(source, /setDisplayTurn\(solvedGame\.turn\(\)\)/, `${trainerPath} never displays the post-solve opponent turn`)
+    assert.equal(source.match(/setMessage\(\s*'Correct'\s*\)/g)?.length, 1, 'qualifying success keeps exactly Correct')
+    assert.match(source, /setMessage\(\s*puzzleSuccessFeedback\(perfectionTrackerRef.current.snapshot\(\)\)\s*\)/, 'non-qualifying success uses the timing-aware presentation helper without changing progression')
+    assert.doesNotMatch(source, /setMessage\(\s*[`'"][^\n]*(?:perfect solve|perfect credit)/, 'normal feedback does not expose mastery-accounting terms')
+    assert.doesNotMatch(source, /this solve will not count toward mastery|Wrong piece —|Wrong destination —/, 'errors avoid internal mastery wording')
     assert.match(source, /setGameAndBoardFen\(testGame\)[\s\S]*?setBoardLocked\(true\)[\s\S]*?scheduleWrongMoveReset/, `${trainerPath} renders and locks a legal wrong move before scheduling its reset`)
-    assert.match(source, /const originalPuzzleFen = game\.fen\(\)[\s\S]*?new Chess\(originalPuzzleFen\)[\s\S]*?setBoardLocked\(false\)/, `${trainerPath} restores the original position and unlocks after the wrong-move delay`)
+    // Mouse and clear illegal speech now share the extracted wrong-answer path.
+    assert.match(source, /const originalPuzzleFen = game\.fen\(\)[\s\S]*?return registerIncorrectAnswer\(originalPuzzleFen, expectedUci, \{ position: testGame/, `${trainerPath} sends the unchanged original FEN and legal wrong move to the shared handler`)
+    const wrongHandler = source.slice(source.indexOf(' function registerIncorrectAnswer('), source.indexOf(' function attemptUserMove('))
+    assert.match(wrongHandler, /markSubmittedWrongMove\(\)[\s\S]*?suspendLearnerPosition\(\)/, `${trainerPath} records wrong-answer evidence in one shared path`)
+    assert.match(wrongHandler, /scheduleWrongMoveReset\([\s\S]*?new Chess\(originalPuzzleFen\)[\s\S]*?setGameAndBoardFen\(restoredGame\)[\s\S]*?setBoardLocked\(false\)/, `${trainerPath} restores the original position and unlocks after the wrong-move delay`)
     assert.match(source, /cancelWrongMoveReset\(\)/, `${trainerPath} cancels stale wrong-move resets during navigation/restart cleanup`)
     assert.match(source, /hintResetKey=\{`\$\{currentPuzzle\?\.id \?\? ''\}:\$\{currentUserMoveIndexRef\.current\}`\}/, `${trainerPath} does not reset the explicit hint level merely because the temporary wrong board is rendered`)
     assert.doesNotMatch(source, /setHintMoveUci\(expectedUci\)/, `${trainerPath} never turns a wrong move into an automatic solution arrow`)
@@ -96,9 +124,10 @@ try {
   assert.match(tacticSource, /onHintStage=\{[\s\S]*?setHintMoveUci\(stage === ['"]square['"]/, "Pattern Tactic adds destination guidance only through the explicit second Hint")
 
   const tacticTrainer = await readFile("src/trainers/patternTactic/PatternTacticTrainer.tsx", "utf8")
-  assert.match(tacticTrainer, /scheduleCorrectAutoAdvance\(goToNextPuzzle, 1_500\)/, "Pattern Tactic verified-corpus runtime retains Production's 1.5-second correct-move timing")
+  assert.match(tacticTrainer, /scheduleCorrectAutoAdvance\(goToNextPuzzle\)/, "Pattern Tactic uses the same two-second correct-feedback duration as Mates")
   assert.doesNotMatch(tacticTrainer, /getSemanticDisclosurePresentation|Show Solution|semanticEvidenceSquares/, "verified tactics use the existing Production presentation state machine without semantic teaching UI")
-  assert.match(tacticTrainer, /if \(options\?\.allowWrongMoveToShow\)[\s\S]*?scheduleWrongMoveReset\([\s\S]*?\)[\s\S]*?return true[\s\S]*?scheduleWrongMoveReset\([\s\S]*?, 700\)/, "Pattern Tactic retains Production's visible drag wrong-move reset and short click/tap recovery paths")
+  assert.match(tacticTrainer, /return registerIncorrectAnswer\(originalPuzzleFen, expectedUci, \{ position: testGame, uci: playedUci, san: move.san \}, options\?\.allowWrongMoveToShow\)/, 'Pattern Tactic passes the unchanged mouse display option to the extracted handler')
+  assert.match(tacticTrainer, /if \(!wrongMove \|\| allowWrongMoveToShow\)[\s\S]*?scheduleWrongMoveReset\([\s\S]*?\)[\s\S]*?return true[\s\S]*?scheduleWrongMoveReset\([\s\S]*?, 700\)/, "Pattern Tactic retains Production's visible drag wrong-move reset and short click/tap recovery paths")
   assert.doesNotMatch(tacticTrainer, /scheduleSemanticAutoAdvance/, "semantic wrong answers no longer schedule terminal auto-advance")
   assert.doesNotMatch(tacticTrainer, /semanticCountdownSeconds/, "semantic tactics no longer use the five/seven-second terminal countdown")
   console.log("PASS: correct answers use one cancellable transition; stale callbacks cannot double-advance")

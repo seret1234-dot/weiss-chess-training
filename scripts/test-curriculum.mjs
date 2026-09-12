@@ -46,7 +46,8 @@ try {
 
   const mixedMate = catalog.CURRICULUM_CATALOG.find((item) => item.area === "mates" && item.isMixed && item.stageOrder === 1)
   assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, state({ themeMastery: { mates: { anastasia: { mastered: true }, "back-rank": { mastered: true }, arabian: { mastered: true }, boden: { mastered: true }, smothered: { mastered: true }, hook: { mastered: true }, "kill-box": { mastered: true } } } })), false, "mixed motifs stay locked at 79%")
-  assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, state({ themeMastery: { mates: { anastasia: { mastered: true }, "back-rank": { mastered: true }, arabian: { mastered: true }, boden: { mastered: true }, smothered: { mastered: true }, hook: { mastered: true }, "kill-box": { mastered: true }, dovetail: { mastered: true } } } })), true, "mixed motifs unlock at 80%")
+  assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, state({ themeMastery: { mates: { anastasia: { mastered: true }, "back-rank": { mastered: true }, arabian: { mastered: true }, boden: { mastered: true }, smothered: { mastered: true }, hook: { mastered: true }, "kill-box": { mastered: true }, dovetail: { mastered: true } } } })), false, "mixed motifs stay locked with one required component missing")
+  assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, state({ themeMastery: { mates: Object.fromEntries(catalog.MATE_THEMES.map(theme => [theme, { mastered: true }])) } })), true, "mixed motifs unlock only at 100%")
 
   const masteryState = state({
     stageMastery: { mates: { 1: { attempts: 40, recentAccuracy: 0.9, mixedAccuracy: 0.9, sessionDays: 4, overdueReviewCount: 0, consecutivePerfectChunks: 2 } } },

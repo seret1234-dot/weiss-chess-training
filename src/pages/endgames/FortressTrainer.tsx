@@ -1,3 +1,5 @@
+import { useAutoChunkAdmission } from '../../training/useAutoChunkAdmission'
+import { useEndgameInput } from '../../trainers/endgame/useEndgameInput'
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Chess } from "chess.js";
@@ -6,7 +8,8 @@ import { BNEngine } from "../../lib/bnEngine";
 import type { EngineResult } from "../../lib/bnEngine";
 import { useRegisterPlayableBoard } from "../../hooks/useRegisterPlayableBoard";
 import { supabase } from "../../lib/supabase";
-import TrainerShell from "../../components/trainer/TrainerShell";
+import TrainerShell from "../../trainers/endgame/EndgameTrainerShell";
+import { formatEndgameFastSolves } from '../../trainers/endgame/endgameText'
 import {
  BigMessage,
  HintButton,
@@ -425,8 +428,8 @@ function getInstructionText(
 
  if (position.subjectName) {
  return position.result === "draw"
- ? `Hold the draw -  ${position.subjectName}`
- : `Win -  ${position.subjectName}`;
+ ? `Hold the draw — ${position.subjectName}`
+ : `Win — ${position.subjectName}`;
  }
 
  return "Find the drawing fortress move";
@@ -847,8 +850,9 @@ async function findFirstIncompleteChunk(
 }
 
 export default function FortressTrainer() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const trainerId = "fortress";
- const title = "Fortress -  Fortress";
+ const title = "Fortress — Fortress";
  const dataPath = "/data/endgames/fortress";
  const boardId = "FortressTrainerBoard";
  const safeDataPath = dataPath.replace(/\/+$/, "");
@@ -1002,7 +1006,7 @@ export default function FortressTrainer() {
  const interval = window.setInterval(() => {
  if (loadingChunk || inputLocked || allComplete || phase === "classify")
  return;
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current);
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current));
  }, 100);
 
  return () => window.clearInterval(interval);
@@ -1148,6 +1152,14 @@ export default function FortressTrainer() {
  }, [currentChunkFile, currentThemeProgress, globalChunkLookup, progress]);
 
  const currentPosition = positions[currentIndex] ?? null;
+ const endgameInput = useEndgameInput({
+  fen: game.fen(), attemptKey: currentPosition?.id ?? '',
+  active: (!loadingChunk && !inputLocked && !allComplete && phase === "play") && !!currentPosition && !flashSolvedPositionId && game.turn() === (currentPosition?.sideToMove === 'black' ? 'b' : 'w'),
+  canAnswer: !loadingChunk && (phase === "classify" || !inputLocked) && !allComplete && !!currentPosition && !flashSolvedPositionId,
+  moveStartedAt: moveStartedAtRef.current, onDrop,
+  onSilentError: () => { setStatus('Wrong, silent error'); setMessage(''); },
+ });
+
  const currentStats = currentPosition
  ? getPositionStats(progress, currentPosition.id)
  : null;
@@ -1183,6 +1195,7 @@ export default function FortressTrainer() {
  }
 
  function startPositionState(position: TrainingPosition) {
+ endgameInput.attempt.begin(position.id);
  const nextGame = new Chess(position.startFen);
  setGame(nextGame);
  setBoardOrientation(position.sideToMove === "black" ? "black" : "white");
@@ -1190,7 +1203,7 @@ export default function FortressTrainer() {
  if (false && shouldAskWinDraw(position)) {
  const side = nextGame.turn() === "w" ? "White" : "Black";
  setPhase("play");
- setStatus(`${side} to move -  Win or Draw?`);
+ setStatus(`${side} to move — Win or Draw?`);
  setMessage("Evaluate the position. No moves needed in this section.");
  setInputLocked(false);
  return;
@@ -1605,6 +1618,7 @@ export default function FortressTrainer() {
  return;
  }
 
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: trainerId, unitKey: currentChunkFile, itemIds: chunkPositions.map((p: TrainingPosition) => p.id) })) return;
  const nextIndex = chooseRandomUnmasteredIndex(chunkPositions, progress);
  const nextPosition = chunkPositions[nextIndex];
 
@@ -1837,6 +1851,7 @@ export default function FortressTrainer() {
  nextStatus: string,
  nextMessage: string,
  ) {
+ endgameInput.attempt.wrongMove();
  clearPendingFeedbackTimeout();
 
  try {
@@ -1860,7 +1875,7 @@ export default function FortressTrainer() {
  setCorrectSquares([]);
  setHintSquares([]);
  setEscapeSquares(escapes);
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current);
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current));
  setJustMated(false);
  setJustStalemated(false);
  setStatus(nextStatus);
@@ -1927,7 +1942,7 @@ export default function FortressTrainer() {
 
  setFlashSolvedPositionId(currentPosition.id);
 
- const moveElapsedMs = Date.now() - moveStartedAtRef.current;
+ const moveElapsedMs = endgameInput.elapsed(moveStartedAtRef.current);
  setCurrentMoveElapsedMs(moveElapsedMs);
 
  const nextMoveTimes = [...moveTimesMs, moveElapsedMs];
@@ -1935,7 +1950,7 @@ export default function FortressTrainer() {
 
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3;
  const maxMsPerMove = maxSecondsPerMove * 1000;
- const wasFast = nextMoveTimes.every((ms) => ms <= maxMsPerMove);
+ const wasFast = endgameInput.attempt.qualify(nextMoveTimes.every((ms) => ms <= maxMsPerMove));
 
  const oldStats = getPositionStats(progress, currentPosition.id);
 
@@ -1968,7 +1983,7 @@ export default function FortressTrainer() {
  setMessage(
  wasFast
  ? `Solved. Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER}.`
- : `Solved, but slower than ${maxSecondsPerMove} seconds.`,
+ : endgameInput.attempt.nonQualifyingMessage(`Solved, but slower than ${maxSecondsPerMove} seconds.`),
  );
  setHoldMoves(0);
 
@@ -1984,9 +1999,9 @@ export default function FortressTrainer() {
  clearPendingFeedbackTimeout();
  setFlashSolvedPositionId(currentPosition.id);
 
- const reactionTime = Date.now() - moveStartedAtRef.current;
+ const reactionTime = endgameInput.elapsed(moveStartedAtRef.current);
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3;
- const wasFast = reactionTime <= maxSecondsPerMove * 1000;
+ const wasFast = endgameInput.attempt.qualify(reactionTime <= maxSecondsPerMove * 1000);
 
  const oldStats = getPositionStats(progress, currentPosition.id);
 
@@ -2017,13 +2032,13 @@ export default function FortressTrainer() {
  setProgress(updatedProgress);
  setInputLocked(false);
  setStatus(
- currentPosition.result === "draw" ? "Correct -  Draw." : "Correct -  Win.",
+ currentPosition.result === "draw" ? "Correct — Draw." : "Correct — Win.",
  );
  setMessage(
  currentPosition.explanation ||
  (wasFast
  ? `Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER}`
- : `Correct, but slower than ${maxSecondsPerMove} seconds`),
+ : endgameInput.attempt.nonQualifyingMessage(`Correct, but slower than ${maxSecondsPerMove} seconds`)),
  );
 
  feedbackTimeoutRef.current = window.setTimeout(() => {
@@ -2046,6 +2061,7 @@ export default function FortressTrainer() {
 
  if (answer !== correctAnswer) {
  setInputLocked(false);
+ endgameInput.attempt.wrongMove();
  setStatus("Wrong evaluation.");
  setMessage(
  correctAnswer === "win"
@@ -2067,7 +2083,7 @@ export default function FortressTrainer() {
  setPhase("play");
  setInputLocked(false);
  setStatus(getInstructionText(currentPosition, currentThemeConfig));
- setMessage(currentPosition.explanation || "Correct -  now Win the pawn race.");
+ setMessage(currentPosition.explanation || "Correct — now Win the pawn race.");
  setCurrentMoveElapsedMs(0);
  setMoveTimesMs([]);
  moveStartedAtRef.current = Date.now();
@@ -2291,7 +2307,8 @@ export default function FortressTrainer() {
  setJustMated(false);
  setJustStalemated(true);
 
- setStatus("STALEMATE -  FAIL");
+ endgameInput.attempt.wrongMove();
+ setStatus("STALEMATE — FAIL");
  setMessage("Stalemate is a failed conversion. Try again from the beginning.");
  setInputLocked(true);
 
@@ -2402,7 +2419,7 @@ export default function FortressTrainer() {
  setEscapeSquares([]);
  setStatus("Hint");
  setMessage(
- `Best move: ${parsed.from} - ${parsed.to}${parsed.promotion ? ` (${parsed.promotion})` : ""}`,
+ `Best move: ${parsed.from} → ${parsed.to}${parsed.promotion ? ` (${parsed.promotion})` : ""}`,
  );
  setInputLocked(false);
  }
@@ -2614,7 +2631,7 @@ if (!currentPosition) return false;
  showWrongAndReset(
  nextGame,
  { from: moveObj.from, to: moveObj.to, promotion: moveObj.promotion },
- "Wrong - fortress broken",
+ "Wrong — fortress broken",
  "You lost the pawn. Keep the pawn protected to hold the fortress."
  );
  return true;
@@ -2641,7 +2658,7 @@ if (!currentPosition) return false;
  showWrongAndReset(
  nextGame,
  move,
- "Stalemate -  fail.",
+ "Stalemate — fail.",
  "You let the defender escape.",
  );
  return true;
@@ -2668,7 +2685,7 @@ if (!currentPosition) return false;
  showWrongAndReset(
  nextGame,
  move,
- "Wrong move -  try again.",
+ "Wrong move — try again.",
  validation.reason,
  );
  return;
@@ -2889,7 +2906,8 @@ return (
  footerRight={`${boardWidth}px`}
  boardId={boardId ?? `${trainerId}TrainerBoard`}
  fen={game.fen()}
- onPieceDrop={onDrop}
+ onPieceDrop={endgameInput.onDrop}
+ boardControls={endgameInput.controls}
  getLegalTargets={getLegalTargets}
  boardOrientation={boardOrientation}
  customDarkSquareStyle={{ backgroundColor: "#769656" }}
@@ -2905,7 +2923,7 @@ return (
  escapeSquares,
  hintSquares,
  )}
- arePiecesDraggable={!loadingChunk && !inputLocked && !allComplete && phase === "play"}
+ arePiecesDraggable={(!loadingChunk && !inputLocked && !allComplete && phase === "play") && endgameInput.mouseEnabled}
  boardLeft={shouldAskWinDraw() ? undefined : boardLeft}
  sidePanel={
  <div
@@ -3046,7 +3064,7 @@ return (
  {currentFastSolves} / {POSITION_FAST_SOLVES_TO_MASTER} fast
  solves
  </div>
- <div>Fast = - {maxSecondsPerMove}s</div>
+ <div>Fast = ≤ {maxSecondsPerMove}s</div>
  </div>
  </PanelCard>
 
@@ -3085,7 +3103,7 @@ return (
  )}
 
  <BigMessage
- streak={` -  - ${chunkFastSolveCount}`}
+ streak={formatEndgameFastSolves(chunkFastSolveCount)}
  message={status || currentInstruction}
  />
 
@@ -3124,7 +3142,7 @@ return (
  fontWeight: 700,
  }}
  >
- - 
+ ✓ 
  </div>
  );
  })}
@@ -3156,7 +3174,8 @@ return (
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: "grid", gap: 8 }}>
- <HintButton onClick={() => void showHintAction()}>
+ {endgameInput.silentButton}
+ <HintButton getHintMove={async () => { await showHintAction(); return null }}>
  Hint
  </HintButton>
 
@@ -3207,7 +3226,7 @@ return (
  minHeight: 36,
  }}
  >
- {message || " - "}
+ {message || " —"}
  </div>
  </PanelCard>
 

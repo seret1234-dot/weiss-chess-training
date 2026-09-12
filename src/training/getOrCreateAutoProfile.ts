@@ -1,6 +1,9 @@
 import { supabase } from '../lib/supabase'
 
-export async function getOrCreateAutoProfile(userId: string) {
+export async function getOrCreateAutoProfile(
+ userId: string,
+ options: { onboardingComplete?: boolean } = {},
+) {
  // 1. try get existing
  const { data: existing, error } = await supabase
  .from('user_auto_profile')
@@ -22,6 +25,7 @@ export async function getOrCreateAutoProfile(userId: string) {
  .from('user_auto_profile')
  .insert({
  user_id: userId,
+ onboarding_complete: options.onboardingComplete ?? false,
  })
  .select()
  .single()

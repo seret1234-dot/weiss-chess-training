@@ -192,6 +192,7 @@ export async function getCurriculumSelectionIndex(userId: string, client: Supaba
     .from(TABLES.session)
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId)
+    .neq("event_kind", "transfer")
   throwIfError(error, "Could not read curriculum session count")
   return Math.max(0, Number(count ?? 0))
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from './lib/supabase'
+import { searchOpeningRecords } from './openings/openingSearch.mjs'
 
 type OpeningLine = {
  id: string
@@ -20,13 +21,6 @@ function titleFromSlug(slug: string) {
  .filter(Boolean)
  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
  .join(' ')
-}
-
-function lineSearchText(line: OpeningLine) {
- return [line.name, line.family, line.family_slug, line.variation, line.subvariation, line.eco]
- .filter(Boolean)
- .join(' ')
- .toLowerCase()
 }
 
 export default function OpeningFamilyPage() {
@@ -80,10 +74,9 @@ export default function OpeningFamilyPage() {
  }
 
  const filteredLines = useMemo(() => {
- const q = search.trim().toLowerCase()
+ const q = search.trim()
  if (!q) return lines
-
- return lines.filter((line) => lineSearchText(line).includes(q))
+ return searchOpeningRecords(lines, q) as OpeningLine[]
  }, [lines, search])
 
  const familyName = lines[0]?.family || (familySlug ? titleFromSlug(familySlug) : 'Opening Family')

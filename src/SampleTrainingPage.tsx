@@ -75,7 +75,7 @@ export default function SampleTrainingPage() {
   }
 
   return (
-    <main
+    <div
       style={{
         minHeight: '100dvh',
         boxSizing: 'border-box',
@@ -202,6 +202,6 @@ export default function SampleTrainingPage() {
           </section>
         </div>
       )}
-    </main>
+    </div>
   )
 }

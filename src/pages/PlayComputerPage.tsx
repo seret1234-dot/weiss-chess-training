@@ -7,6 +7,8 @@ import PromotionChooser, { type PromotionPiece } from '../components/chess/Promo
 import './PlayComputerPage.css'
 import { stockfishService } from '../lib/chess/stockfishService'
 import { supabase } from '../lib/supabase'
+import { explainedReviewResolved, pendingWeeklyReviewRoute, weeklyReviewRoute, type WeeklyExplainedReview } from '../training/weeklyReviewFlow'
+import { AUTO_TRAINING_ENTRY_ROUTE } from '../training/resolveAutoStartRoute'
 import { useGlobalBoard } from '../hooks/useGlobalBoard'
 import { useHintAction } from '../context/HintActionContext'
 import {
@@ -52,6 +54,7 @@ function getInitialPlayComputerBoardSize() {
 }
 
 type WeeklyGameRecord = {
+ explainedReview?: WeeklyExplainedReview
  color: Side
  started: boolean
  completed: boolean
@@ -65,6 +68,8 @@ type WeeklyGameRecord = {
 }
 
 type WeeklyTestState = {
+ reviewFlowVersion?: 1
+ reviewFlowCompletedAt?: string
  userId?: string
  weekKey: string
  engineElo: number
@@ -98,7 +103,8 @@ function emptyWeeklyGame(color: Side, transferTarget?: TransferTarget): WeeklyGa
  pgn: '',
  fen: new Chess().fen(),
  result: '*',
- updatedAt: new Date().toISOString(),
+ // Initialization must not masquerade as a newer persisted learner action.
+ updatedAt: '1970-01-01T00:00:00.000Z',
  transferTarget,
  transferOpportunities: [],
  }
@@ -107,6 +113,7 @@ function emptyWeeklyGame(color: Side, transferTarget?: TransferTarget): WeeklyGa
 function createWeeklyTestState(weekKey: string, engineElo: number): WeeklyTestState {
  const transferTargets = getRecentTransferTargets(2)
  return {
+ reviewFlowVersion: 1,
  weekKey,
  engineElo,
  currentGame: 0,
@@ -115,7 +122,7 @@ function createWeeklyTestState(weekKey: string, engineElo: number): WeeklyTestSt
   emptyWeeklyGame('black', transferTargets[1] ?? transferTargets[0]),
  ],
  transferTargets,
- updatedAt: new Date().toISOString(),
+ updatedAt: '1970-01-01T00:00:00.000Z',
  }
 }
 
@@ -525,6 +532,7 @@ export default function PlayComputerPage() {
  const engineMovePendingRef = useRef(false)
  const evalPendingRef = useRef(false)
  const weeklyCloudSaveTimerRef = useRef<number | null>(null)
+ const weeklyCloudSavePendingRef = useRef<Promise<boolean>>(Promise.resolve(true))
  const weeklyAutoReviewTimerRef = useRef<number | null>(null)
  const weeklyAutoReviewLaunchRef = useRef<string | null>(null)
  const weeklyTransferOpportunitiesRef = useRef<TransferOpportunity[]>(
@@ -570,6 +578,7 @@ export default function PlayComputerPage() {
  } | null>(null)
  const [engineReady, setEngineReady] = useState(false)
  const [engineThinking, setEngineThinking] = useState(false)
+ const [computerMoveRetryAvailable, setComputerMoveRetryAvailable] = useState(false)
  const [moveList, setMoveList] = useState<string[]>(chessRef.current.history())
  const [selectedHistoryPly, setSelectedHistoryPly] = useState<number | null>(null)
  const [evalText, setEvalText] = useState('-')
@@ -603,6 +612,8 @@ export default function PlayComputerPage() {
  weeklyTest?.currentGame === 1 || weeklyTest?.currentGame === 2 ? 1 : 0
  const weeklyGameNumber = weeklyGameIndex + 1
  const weeklySessionComplete = weeklyTest?.currentGame === 2
+ const weeklyReviewPending = Boolean(weeklyTest && pendingWeeklyReviewRoute(weeklyTest))
+ const weeklyInputReady = !isWeeklyTest || (weeklyCloudReady && engineReady && gameStarted && !weeklyReviewPending)
  const weeklyTransferTarget = weeklyTest?.games[weeklyGameIndex]?.transferTarget
  const weeklyTransferOpportunities =
   weeklyTest?.games[weeklyGameIndex]?.transferOpportunities ?? []
@@ -622,9 +633,9 @@ export default function PlayComputerPage() {
 
  weeklyCloudSaveTimerRef.current = window.setTimeout(() => {
  weeklyCloudSaveTimerRef.current = null
- void saveWeeklyTestToCloud(weeklyCloudUserId, next).then((saved) => {
- setWeeklyCloudAvailable(saved)
- })
+ weeklyCloudSavePendingRef.current = weeklyCloudSavePendingRef.current
+  .catch(() => false).then(() => saveWeeklyTestToCloud(weeklyCloudUserId, next))
+ void weeklyCloudSavePendingRef.current.then(setWeeklyCloudAvailable)
  }, 300)
  }
 
@@ -731,7 +742,7 @@ export default function PlayComputerPage() {
 
  saveWeeklyTestState(next)
  setWeeklyTest(next)
- queueWeeklyCloudSave(next)
+ return next
  }
 
  function scheduleWeeklyAutomaticReview(chess: Chess, gameIndex: 0 | 1) {
@@ -750,9 +761,19 @@ export default function PlayComputerPage() {
  window.clearTimeout(weeklyAutoReviewTimerRef.current)
  }
 
- weeklyAutoReviewTimerRef.current = window.setTimeout(() => {
+ weeklyAutoReviewTimerRef.current = window.setTimeout(async () => {
  weeklyAutoReviewTimerRef.current = null
- markWeeklyAutoReviewOpened(gameIndex)
+ const snapshot = markWeeklyAutoReviewOpened(gameIndex)
+ if (weeklyCloudSaveTimerRef.current !== null) {
+  window.clearTimeout(weeklyCloudSaveTimerRef.current); weeklyCloudSaveTimerRef.current = null
+ }
+ // Analyze now restores from the durable game, so flush its final snapshot before navigating.
+ await weeklyCloudSavePendingRef.current.catch(() => false)
+ if (!snapshot.userId || !await saveWeeklyTestToCloud(snapshot.userId, snapshot)) {
+  weeklyAutoReviewLaunchRef.current = null
+  setStatusText('Could not save the completed Weekly game. Reopen Weekly Test to retry.')
+  return
+ }
  window.sessionStorage.setItem('weissAnalyzeReviewPgn', pgn)
  window.sessionStorage.setItem(
  'weissWeeklyReviewContext',
@@ -764,7 +785,7 @@ export default function PlayComputerPage() {
  transferOpportunities: weeklyTransferOpportunitiesRef.current,
  }),
  )
- navigate(`/analyze/board?review=1&weekly=1&weeklyGame=${gameIndex + 1}`)
+ navigate(weeklyReviewRoute(weeklyWeekKey, gameIndex))
  }, 850)
  }
 
@@ -842,31 +863,7 @@ export default function PlayComputerPage() {
  transferOpportunities: record.transferOpportunities ?? [],
  }),
  )
- navigate(`/analyze/board?review=1&weekly=1&weeklyGame=${gameIndex + 1}`)
- }
-
- function continueToSecondWeeklyGame() {
- if (!weeklyTest?.games[0].completed) return
-
- const next: WeeklyTestState = {
- ...weeklyTest,
- currentGame: 1,
- }
- persistWeeklyState(next)
-
- const fresh = chessFromWeeklyGame(next.games[1])
- chessRef.current = fresh
- setPlayerColor('black')
- setBoardOrientation('black')
- setPosition(fresh.fen())
- setMoveList(fresh.history())
- setLastMoveHighlight(null)
- setHintArrow([])
- clearSelection()
- setGameStarted(Boolean(next.games[1].started))
- setStatusText(next.games[1].started ? 'Weekly game 2 resumed' : 'Weekly game 2 ready')
- setEvalText('-')
- weeklyTransferOpportunitiesRef.current = next.games[1].transferOpportunities ?? []
+ navigate(weeklyReviewRoute(weeklyTest.weekKey, gameIndex))
  }
 
  useEffect(() => {
@@ -921,6 +918,8 @@ export default function PlayComputerPage() {
  ]
  let merged: WeeklyTestState = {
  ...newest,
+ // Adopt the new flow for active sessions, without reopening historical completed tests.
+ ...(!newest.completedAt ? { reviewFlowVersion: 1 as const } : {}),
  userId: user.id,
  games: mergedGames,
  transferTargets: mergedTargets,
@@ -930,7 +929,7 @@ export default function PlayComputerPage() {
  if (
  continueWeeklyGameTwo &&
  merged.currentGame === 0 &&
- merged.games[0]?.completed
+ merged.games[0]?.completed && explainedReviewResolved(merged.games[0])
  ) {
  merged = {
  ...merged,
@@ -969,6 +968,12 @@ export default function PlayComputerPage() {
 
  useEffect(() => {
  if (!isWeeklyTest || !weeklyCloudReady || !weeklyTest) return
+
+ if (weeklyTest.reviewFlowVersion === 1) {
+  if (weeklyTest.reviewFlowCompletedAt) { navigate(AUTO_TRAINING_ENTRY_ROUTE, { replace: true }); return }
+  const index = weeklyTest.games.findIndex(game => game.completed && !explainedReviewResolved(game))
+  if (index >= 0) { scheduleWeeklyAutomaticReview(chessFromWeeklyGame(weeklyTest.games[index]), index as 0 | 1); return }
+ }
 
  let gameIndex: 0 | 1 | null = null
 
@@ -1075,6 +1080,16 @@ export default function PlayComputerPage() {
   if (!isEndgameTransfer || !endgameTransfer || !chessRef.current.isGameOver()) return
   void finishEndgameTransferIfNeeded(chessRef.current)
  }, [isEndgameTransfer, endgameTransfer?.sessionId, endgameTransfer?.status])
+
+ useEffect(() => {
+  // Both weekly games use the normal start path only after engine and saved
+  // state hydration are ready. Resumed/completed games must never be reset.
+  if (!isWeeklyTest || !weeklyCloudReady || !engineReady || gameStarted || weeklySessionComplete) return
+  if (weeklyReviewPending) return
+  const record = weeklyTest?.games[weeklyGameIndex]
+  if (!record || record.started || record.completed) return
+  startGame()
+ }, [isWeeklyTest, weeklyCloudReady, engineReady, gameStarted, weeklySessionComplete, weeklyTest, weeklyGameIndex, weeklyReviewPending])
  useEffect(() => {
  const strongMode = engineElo >= 2800
 
@@ -1160,6 +1175,7 @@ export default function PlayComputerPage() {
  useEffect(() => {
  if (mode !== 'play') return
  if (!gameStarted || !engineReady || engineThinking) return
+ if (!weeklyInputReady) return
  if (chessRef.current.isGameOver()) return
 
  const turnSide = sideToMove(chessRef.current.fen())
@@ -1189,7 +1205,7 @@ export default function PlayComputerPage() {
  }, 160)
 
  return () => window.clearTimeout(timer)
- }, [mode, gameStarted, engineReady, engineThinking, position, playerColor])
+ }, [mode, gameStarted, engineReady, engineThinking, position, playerColor, weeklyInputReady])
  function clearSelection() {
  setSelectedSquare(null)
  setLegalTargets([])
@@ -1617,6 +1633,7 @@ async function makeEngineMove() {
 
  engineMovePendingRef.current = true
  setEngineThinking(true)
+ setComputerMoveRetryAvailable(false)
  setStatusText('Computer thinking - ')
 
  try {
@@ -1626,7 +1643,29 @@ async function makeEngineMove() {
  moveTime: isEndgameTransfer ? 700 : engineElo >= 2500 ? 350 : 220,
  })
 
- const choice = await chooseComputerMoveWithTransfer(chessRef.current.fen())
+ const requestedFen = chessRef.current.fen()
+ let choice: ComputerMoveChoice
+
+ try {
+  choice = await chooseComputerMoveWithTransfer(requestedFen)
+ } catch (firstAttemptError) {
+  // This service is interactive-only. Restarting it cannot interrupt the
+  // independently owned imported-game analysis worker.
+  if (chessRef.current.fen() !== requestedFen) throw firstAttemptError
+
+  setStatusText('Restarting computer engine - ')
+  await stockfishService.restart()
+
+  // Do not apply a recovered result to a board changed while the worker was
+  // restarting. The retry deliberately restores the original requested FEN.
+  if (chessRef.current.fen() !== requestedFen) throw firstAttemptError
+  choice = await chooseComputerMoveWithTransfer(requestedFen)
+ }
+
+ if (chessRef.current.fen() !== requestedFen) {
+  setStatusText('Position changed. Computer move cancelled.')
+  return
+ }
  const bestMove = choice.move
 
  if (!bestMove || bestMove.length < 4) {
@@ -1671,7 +1710,8 @@ async function makeEngineMove() {
   }
  }
  } catch {
- setStatusText('Computer move failed.')
+ setComputerMoveRetryAvailable(true)
+ setStatusText('Computer move failed. Retry Computer Move.')
  } finally {
  engineMovePendingRef.current = false
  setEngineThinking(false)
@@ -1746,6 +1786,7 @@ async function makeEngineMove() {
  useGlobalBoard({
  isAvailable: true,
  fen: position,
+ orientation: boardOrientation,
  suggestedColor: sideToMove(position),
  canFlip: true,
  onFlip: handleFlipBoard,
@@ -1903,6 +1944,7 @@ async function makeEngineMove() {
  }
 
  function tryUserMove(from: string, to: string, promotionPiece?: string | null) {
+ if (!weeklyInputReady) return false
  const promotion = isPromotionAttempt(from, to)
  ? promotionCodeFromPiece(promotionPiece)
  : undefined
@@ -2120,7 +2162,7 @@ async function makeEngineMove() {
  <div className="play-computer-title" style={pageTitleStyle}>
  {isWeeklyTest ? 'Weekly Adaptive Test' : isEndgameTransfer ? 'Endgame Transfer Test' : 'Play Computer'}
  </div>
- <div className="play-computer-mobile-status" aria-live="polite">
+<div className="play-computer-mobile-status" role="status" aria-live="polite" aria-atomic="true">
  {statusText}
  </div>
  </div>
@@ -2265,11 +2307,17 @@ async function makeEngineMove() {
  </>
  ) : null}
 
- <ThemedChessboard
- position={position}
- boardOrientation={topBoardOrientation}
- boardWidth={boardSize}
- arePiecesDraggable={gameStarted || mode === 'analyze'}
+<ThemedChessboard
+id="play-computer-board"
+position={position}
+boardOrientation={topBoardOrientation}
+accessibilityTitle="Play Computer"
+accessibilitySelectedSquare={selectedSquare}
+accessibilityCurrentMove={`Ply ${moveList.length}`}
+accessibilityStatus={statusText}
+accessibilityInteraction="Select a source and destination square by click or drag. Use the named move list and game controls to review or continue the game."
+boardWidth={boardSize}
+ arePiecesDraggable={weeklyInputReady && (gameStarted || mode === 'analyze')}
 
  customSquareStyles={gameStarted || mode === 'analyze' ? customSquareStyles : {}}
  customArrows={(isAssessment ? [] : hintArrow) as any}
@@ -2280,6 +2328,7 @@ async function makeEngineMove() {
  boxShadow: '0 0 0 1px rgba(255,255,255,0.04)',
  }}
  onSquareClick={(square) => {
+ if (!weeklyInputReady) return
  if (!gameStarted && mode !== 'analyze') return
  if (engineThinking) return
  if (chessRef.current.isGameOver()) return
@@ -2305,6 +2354,7 @@ async function makeEngineMove() {
  selectSquare(square)
  }}
  onPieceDrop={(sourceSquare, targetSquare) => {
+ if (!weeklyInputReady) return false
  if (!gameStarted && mode !== 'analyze') return false
  if (engineThinking) return false
  if (chessRef.current.isGameOver()) return false
@@ -2569,7 +2619,7 @@ async function makeEngineMove() {
  </div>
  )}
 
- <button
+ {!isWeeklyTest && <button
  className="play-computer-primary-control"
  onClick={startGame}
  disabled={!engineReady || (isWeeklyTest && weeklySessionComplete)}
@@ -2585,12 +2635,10 @@ async function makeEngineMove() {
  >
  {!engineReady
  ? 'Loading Engine...'
- : isWeeklyTest
- ? `Start Weekly Game ${weeklyGameNumber}`
  : isEndgameTransfer
  ? 'Start Endgame Test'
  : 'Start Game'}
- </button>
+ </button>}
 
  {!isAssessment && !initialFen ? (
  <button
@@ -2661,6 +2709,14 @@ async function makeEngineMove() {
  </div>
 
  <div className="play-computer-status-text" style={{ fontSize: 14, opacity: 0.82 }}>{statusText}</div>
+ {computerMoveRetryAvailable ? (
+ <button
+  onClick={() => void makeEngineMove()}
+  style={{ ...btnStyle, marginTop: 8 }}
+ >
+  Retry Computer Move
+ </button>
+ ) : null}
  {isWeeklyTest ? (
  <>
  <div style={{ marginTop: 6, fontSize: 13, opacity: 0.7 }}>
@@ -2868,18 +2924,6 @@ async function makeEngineMove() {
  }}
  >
  Analyze Game 1
- </button>
- <button
- onClick={continueToSecondWeeklyGame}
- disabled={!weeklyTest?.games[0].completed}
- style={{
- ...primaryButtonStyle,
- padding: '12px 10px',
- opacity: weeklyTest?.games[0].completed ? 1 : 0.5,
- cursor: weeklyTest?.games[0].completed ? 'pointer' : 'not-allowed',
- }}
- >
- Continue to Game 2
  </button>
  </>
  ) : (

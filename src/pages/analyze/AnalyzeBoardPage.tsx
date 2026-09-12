@@ -1,12 +1,20 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Chess, type Square } from "chess.js";
+import { captureMaterialLoss } from "../../lib/chess/captureMaterial";
 import { stockfishService } from "../../lib/chess/stockfishService";
 import { supabase } from "../../lib/supabase";
+import { persistWeeklyReview, persistWeeklyExplainedReview } from '../../training/weeklyAssessmentPersistence';
+import { weeklyGameKey } from '../../training/weeklyAssessment';
+import { loadWeeklyTestFromCloud, type WeeklyStateLike } from '../../training/weeklyAdaptiveTest';
+import { explainedReviewResolved, pendingWeeklyReviewRoute, type WeeklyExplainedReview } from '../../training/weeklyReviewFlow';
+import { AUTO_TRAINING_ENTRY_ROUTE } from '../../training/resolveAutoStartRoute';
 import TrainerShell from "../../components/trainer/TrainerShell";
 import ThemedChessboard from "../../theme/ThemedChessboard"
+import { useSiteTheme } from "../../theme/ThemeContext"
 import { useGlobalBoard } from "../../hooks/useGlobalBoard";
 import ImageToPositionPanel from "./ImageToPositionPanel";
 import "./AnalyzeSubpages.css";
+import { useWeeklyReviewPlayback } from './useWeeklyReviewPlayback';
 import {
   explainMistake,
   type MistakeExplainInput,
@@ -185,16 +193,23 @@ function isSetupPieceCode(value: string): value is SetupPieceCode {
  return SETUP_PIECES.some((piece) => piece.code === value);
 }
 const ANALYZE_SIDE_PANEL_WIDTH = 980;
-const ANALYZE_REVIEW_SIDE_PANEL_WIDTH = 1120;
-const ANALYZE_PAGE_PADDING = 24;
+const ANALYZE_REVIEW_SIDE_PANEL_WIDTH = 854;
 const ANALYZE_BOARD_VERTICAL_CHROME = 90;
-const ANALYZE_MAX_BOARD_SIZE = 600;
-const ANALYZE_LAYOUT_SHIFT_LEFT = 120;
-const ANALYZE_REVIEW_LAYOUT_SHIFT_LEFT = 280;
+const ANALYZE_MAX_BOARD_SIZE = 720;
+const ANALYZE_REVIEW_MAX_BOARD_SIZE = 720;
+const ANALYZE_REVIEW_MEDIUM_BOARD_SIZE = 650;
+const ANALYZE_DESKTOP_SHELL_MAX_WIDTH = 2200;
+
+function analyzeOrientationFromSearch(search: string): "white" | "black" | null {
+ const value = new URLSearchParams(search).get("orientation");
+ return value === "white" || value === "black" ? value : null;
+}
 
 export default function AnalyzePage() {
+ const { showCoordinates, setShowCoordinates } = useSiteTheme();
  const containerRef = useRef<HTMLDivElement | null>(null);
  const pgnFileInputRef = useRef<HTMLInputElement | null>(null);
+ const movesListRef = useRef<HTMLDivElement | null>(null);
  const reviewRunIdRef = useRef(0);
  const reviewAutoStartedRef = useRef(false);
  const reviewCoachRequestedRef = useRef<Set<number>>(new Set());
@@ -209,7 +224,7 @@ export default function AnalyzePage() {
  const [isDragging, setIsDragging] = useState(false);
  const [isHandleHovered, setIsHandleHovered] = useState(false);
  const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(
- "white",
+ () => analyzeOrientationFromSearch(window.location.search) ?? "white",
  );
  const [isPgnDragActive, setIsPgnDragActive] = useState(false);
  const [whitePlayer, setWhitePlayer] = useState("White");
@@ -266,7 +281,6 @@ export default function AnalyzePage() {
  },
  );
  const [showBestMoveArrow, setShowBestMoveArrow] = useState(false);
- const [showCoordinates, setShowCoordinates] = useState(true);
  const [showLastMoveArrow, setShowLastMoveArrow] = useState(false);
  const [lastMoveArrow, setLastMoveArrow] = useState<string[][]>([]);
  const [autoAnalyze, setAutoAnalyze] = useState(true);
@@ -280,7 +294,7 @@ export default function AnalyzePage() {
  const value = new URLSearchParams(window.location.search).get("weeklyGame");
  return value === "1" || value === "2" ? Number(value) : null;
  }, []);
- const weeklyReviewContext = useMemo<WeeklyReviewContext | null>(() => {
+ const sessionWeeklyReviewContext = useMemo<WeeklyReviewContext | null>(() => {
  if (weeklyReviewGame === null) return null;
 
  try {
@@ -322,6 +336,14 @@ export default function AnalyzePage() {
  return null;
  }
  }, [weeklyReviewGame]);
+ const [storedWeeklyContext, setStoredWeeklyContext] = useState<WeeklyReviewContext | null>(null);
+ const weeklyReviewContext = storedWeeklyContext ?? sessionWeeklyReviewContext;
+ const [weeklyIdentity, setWeeklyIdentity] = useState<{ userId: string; weekKey: string; pgn: string } | null>(null);
+ const [weeklyProgress, setWeeklyProgress] = useState<WeeklyExplainedReview | null>(null);
+ const [weeklySaveBusy, setWeeklySaveBusy] = useState(false);
+ const weeklySaveBusyRef = useRef(false);
+ const weeklyAdvanceRef = useRef(false);
+ const [weeklyError, setWeeklyError] = useState('');
  const weeklyTransferTarget = weeklyReviewContext?.transferTarget ?? null;
  const weeklyTransferOpportunities =
  weeklyReviewContext?.transferOpportunities ?? [];
@@ -355,6 +377,36 @@ export default function AnalyzePage() {
  const [currentPly, setCurrentPly] = useState(0);
 
  useEffect(() => {
+ const list = movesListRef.current;
+ if (!list) return;
+
+ const frame = window.requestAnimationFrame(() => {
+ if (currentPly <= 0) {
+ list.scrollTop = 0;
+ return;
+ }
+
+ const activeMove = list.querySelector<HTMLElement>(
+ `[data-analyze-ply="${currentPly}"]`,
+ );
+ if (!activeMove) return;
+
+ const listRect = list.getBoundingClientRect();
+ const activeRect = activeMove.getBoundingClientRect();
+ const visibleTop = listRect.top + list.clientTop;
+ const visibleBottom = visibleTop + list.clientHeight;
+
+ if (activeRect.top < visibleTop) {
+ list.scrollTop += activeRect.top - visibleTop;
+ } else if (activeRect.bottom > visibleBottom) {
+ list.scrollTop += activeRect.bottom - visibleBottom;
+ }
+ });
+
+ return () => window.cancelAnimationFrame(frame);
+ }, [currentPly, moveRows.length]);
+
+ useEffect(() => {
  function setInitialBoardSize() {
  const width = window.innerWidth;
  const height = window.innerHeight;
@@ -364,16 +416,32 @@ export default function AnalyzePage() {
  return;
  }
 
- const availableWidth =
- width - ANALYZE_SIDE_PANEL_WIDTH - ANALYZE_PAGE_PADDING;
+ if (width <= 1100) {
+ setBoardSize(
+ Math.max(
+ 320,
+ Math.min(ANALYZE_MAX_BOARD_SIZE, width - 48, height - 150),
+ ),
+ );
+ return;
+ }
+
+ const sidePanelReserve = width < 1500 ? 720 : 900;
+ const availableWidth = width - sidePanelReserve - 64;
  const availableHeight = height - ANALYZE_BOARD_VERTICAL_CHROME;
 
  const reviewMode =
  new URLSearchParams(window.location.search).get("review") === "1";
 
+ const reviewMaxBoardSize = width >= 1400
+ ? ANALYZE_REVIEW_MAX_BOARD_SIZE
+ : ANALYZE_REVIEW_MEDIUM_BOARD_SIZE;
  const size = reviewMode
- ? Math.max(620, Math.min(780, height - 150))
- : Math.max(320, Math.min(760, availableWidth, availableHeight));
+ ? Math.max(620, Math.min(reviewMaxBoardSize, height - 150))
+ : Math.max(
+ 320,
+ Math.min(ANALYZE_MAX_BOARD_SIZE, availableWidth, availableHeight),
+ );
 
  setBoardSize(size);
  }
@@ -423,7 +491,9 @@ export default function AnalyzePage() {
  return list;
  }, [startFen, moveRows]);
 
- function goToPly(ply: number) {
+ function goToPly(ply: number, automatic = false) {
+ if (!automatic && weeklyReviewGame !== null) weeklyPlayback.pause();
+ if (weeklyReviewGame !== null && (!weeklyProgress || weeklySaveBusyRef.current || weeklyAdvanceRef.current || reviewInProgress)) return;
  const maxPly = moveRows.length;
  const nextPly = Math.max(0, Math.min(maxPly, ply));
  const fen = fenByPly[nextPly] || startFen;
@@ -433,6 +503,16 @@ export default function AnalyzePage() {
  setGame(next);
  setCurrentPly(nextPly);
  setMessage(nextPly === 0 ? "Start position" : `Move ${nextPly} loaded`);
+ if (weeklyIdentity && weeklyProgress && weeklyReviewGame !== null) {
+  weeklySaveBusyRef.current = true; setWeeklySaveBusy(true); setWeeklyError('');
+  void persistWeeklyExplainedReview(weeklyIdentity.userId, weeklyIdentity.weekKey, weeklyReviewGame - 1, weeklyIdentity.pgn, nextPly)
+   .then(state => setWeeklyProgress(state.games![weeklyReviewGame - 1].explainedReview!))
+   .catch(error => {
+    setGame(new Chess(fenByPly[weeklyProgress.currentPly] || startFen));
+    setCurrentPly(weeklyProgress.currentPly);
+    setWeeklyError(String(error.message ?? error));
+   }).finally(() => { weeklySaveBusyRef.current = false; setWeeklySaveBusy(false); });
+ }
  } catch {
  setMessage("Could not load move position");
  }
@@ -604,9 +684,49 @@ export default function AnalyzePage() {
 
  useEffect(() => {
  const params = new URLSearchParams(window.location.search);
+ if (weeklyReviewGame !== null) {
+  let cancelled = false;
+  void (async () => {
+   const { data: auth, error } = await supabase.auth.getUser();
+   if (error || !auth.user) throw new Error('Sign in to resume this Weekly review.');
+   const weekKey = params.get('weekKey') || sessionWeeklyReviewContext?.weekKey;
+   if (!weekKey) throw new Error('Weekly review context is missing. Open the Weekly Test to resume.');
+   const loaded = await loadWeeklyTestFromCloud(auth.user.id, weekKey);
+   if (cancelled) return;
+   const state = loaded.state, record = state?.games?.[weeklyReviewGame - 1];
+   if (!state || !record?.completed || !record.pgn) throw new Error('Completed Weekly game could not be loaded.');
+   if (explainedReviewResolved(record)) {
+    window.location.replace(pendingWeeklyReviewRoute(state) || (weeklyReviewGame === 1 ? '/play-computer?weekly=1&continue=2' : AUTO_TRAINING_ENTRY_ROUTE));
+    return;
+   }
+   setStoredWeeklyContext({ weekKey, gameIndex: weeklyReviewGame - 1, gameNumber: weeklyReviewGame,
+    transferTarget: record.transferTarget, transferOpportunities: record.transferOpportunities });
+   setWeeklyIdentity({ userId: auth.user.id, weekKey, pgn: record.pgn });
+   loadPgn(record.pgn);
+   setBoardOrientation(record.color === 'black' ? 'black' : 'white');
+   const snapshot = record.analysisSnapshot;
+   if (snapshot && record.analysis?.status === 'complete' && record.analysis.gameKey === weeklyGameKey(record.pgn)) {
+    reviewAutoStartedRef.current = true;
+    setReviewMap(snapshot.classifications as Record<number, ReviewClass>);
+    setReviewLossMap(snapshot.losses); setReviewBestMap(snapshot.best); setReviewUnavailableMap(snapshot.unavailable);
+    setReviewLineMap(snapshot.lines); setReviewCoverage(snapshot.coverage);
+    setReviewCounts(snapshot.counts as Record<ReviewClass, number>);
+    setAccuracyWhite(snapshot.accuracyWhite); setAccuracyBlack(snapshot.accuracyBlack);
+    const replay = new Chess(); replay.loadPgn(record.pgn); const history = replay.history({ verbose: true });
+    const progress = record.explainedReview ?? { version: 1, gameKey: record.analysis.gameKey, currentPly: 0, furthestPly: 0 };
+    setWeeklyProgress(progress);
+    setCurrentPly(progress.currentPly);
+    setGame(new Chess(progress.currentPly ? history[progress.currentPly - 1].after : history[0].before));
+    setReviewProgress({ done: history.length, total: history.length });
+    setReviewSummary('Saved analysis restored. Continue the explained review in move order.');
+   }
+  })().catch(error => { if (!cancelled) setWeeklyError(String(error.message ?? error)); });
+  return () => { cancelled = true; reviewRunIdRef.current++; };
+ }
  const fenFromUrl = params.get("fen");
  const pgnFromUrl = params.get("pgn");
  const colorFromUrl = params.get("color");
+ const sourceOrientation = analyzeOrientationFromSearch(window.location.search);
  const reviewFromSession =
  params.get("review") === "1"
  ? window.sessionStorage.getItem("weissAnalyzeReviewPgn")
@@ -618,6 +738,10 @@ export default function AnalyzePage() {
  setInputText(pgnToLoad);
  loadPgn(pgnToLoad);
 
+ if (sourceOrientation) {
+ setBoardOrientation(sourceOrientation);
+ }
+
  if (reviewFromSession) {
  setMessage("PGN loaded from Game Analysis. Click Analyze Game.");
  }
@@ -628,7 +752,9 @@ export default function AnalyzePage() {
  if (fenFromUrl) {
  loadFenOnly(fenFromUrl);
 
- if (colorFromUrl === "white" || colorFromUrl === "black") {
+ if (sourceOrientation) {
+ setBoardOrientation(sourceOrientation);
+ } else if (colorFromUrl === "white" || colorFromUrl === "black") {
  setBoardOrientation(colorFromUrl);
  } else {
  setBoardOrientation(
@@ -790,7 +916,7 @@ export default function AnalyzePage() {
  // Keep the original PGN text visible so $1/$3/$9 annotations are not lost after loading.
  setInputText(rawText);
  // Weekly review: always open from the student's side.
- const reviewOrientation =
+ const reviewOrientation: "white" | "black" | null =
  weeklyReviewGame !== null
  ? nextWhitePlayer.toLowerCase().includes("student")
  ? "white"
@@ -799,8 +925,8 @@ export default function AnalyzePage() {
  : weeklyReviewGame === 1
  ? "white"
  : "black"
- : "white";
- setBoardOrientation(reviewOrientation);
+ : null;
+ if (reviewOrientation) setBoardOrientation(reviewOrientation);
  setWhitePlayer(nextWhitePlayer);
  setBlackPlayer(nextBlackPlayer);
  setGameInfo(nextGameInfo);
@@ -1328,6 +1454,7 @@ export default function AnalyzePage() {
  row.fen,
  afterPlayed.bestMove || "",
  row.color,
+ beforeFen,
  );
 
  evalLossCp = Math.min(
@@ -1395,6 +1522,28 @@ export default function AnalyzePage() {
  }
  }
 
+ const accuracyFromAcl = (acl: number, evaluatedMoves: number) =>
+ evaluatedMoves > 0 ? Math.max(0, Math.min(100, 100 * Math.exp(-acl / 180))) : null;
+ let weeklyAssessmentWarning = '';
+ let savedWeekly: WeeklyStateLike | null = null;
+ if (weeklyReviewGame !== null && weeklyReviewContext?.weekKey) {
+  try {
+   const { data: auth, error: authError } = await supabase.auth.getUser();
+   if (authError || !auth.user) throw new Error('Sign in to save Weekly assessment.');
+   if (reviewRunIdRef.current !== runId) return;
+   savedWeekly = await persistWeeklyReview(auth.user.id, weeklyReviewContext.weekKey, weeklyReviewGame - 1, inputText, {
+    rows: moveRows, classifications: nextReviewMap, losses: nextReviewLossMap, unavailable: nextReviewUnavailableMap,
+    snapshot: { classifications: nextReviewMap, losses: nextReviewLossMap, best: nextReviewBestMap,
+     unavailable: nextReviewUnavailableMap, lines: nextReviewLineMap, coverage: nextReviewCoverage, counts,
+     accuracyWhite: accuracyFromAcl(whiteLoss / Math.max(1, nextReviewCoverage.white.evaluated), nextReviewCoverage.white.evaluated),
+     accuracyBlack: accuracyFromAcl(blackLoss / Math.max(1, nextReviewCoverage.black.evaluated), nextReviewCoverage.black.evaluated) },
+   });
+  } catch (error) {
+   console.error('Weekly assessment persistence failed:', error);
+   weeklyAssessmentWarning = ' Weekly assessment was not saved; retry Review Full Game before continuing.';
+  }
+ }
+ if (reviewRunIdRef.current !== runId) return;
  setReviewInProgress(false);
 
   // Full review has finished, so position analysis may safely resume.
@@ -1408,11 +1557,6 @@ export default function AnalyzePage() {
  setReviewUnavailableMap({ ...nextReviewUnavailableMap });
  setReviewLineMap({ ...nextReviewLineMap });
  setReviewCoverage({ ...nextReviewCoverage });
-
- const accuracyFromAcl = (acl: number, evaluatedMoves: number) =>
- evaluatedMoves > 0
- ? Math.max(0, Math.min(100, 100 * Math.exp(-acl / 180)))
- : null;
 
  setAccuracyWhite(
  accuracyFromAcl(
@@ -1471,7 +1615,13 @@ export default function AnalyzePage() {
  if (studentMoveColor) {
  setBoardOrientation(studentMoveColor === "w" ? "white" : "black");
  }
- goToPly(firstInteresting);
+ if (weeklyReviewGame !== null) {
+  const progress = savedWeekly?.games?.[weeklyReviewGame - 1]?.explainedReview;
+  const ply = progress?.currentPly ?? 0;
+  setWeeklyProgress(progress ?? null);
+  setCurrentPly(ply); setGame(new Chess(fenByPly[ply] || startFen));
+  setWeeklyError(progress ? '' : 'Complete analysis must be saved before reviewing. Retry Review Full Game.');
+ } else goToPly(firstInteresting);
  const whiteCoverageIncomplete =
  nextReviewCoverage.white.eligible > 0 &&
  nextReviewCoverage.white.evaluated /
@@ -1490,17 +1640,18 @@ export default function AnalyzePage() {
  ].join("; ");
  const cacheSummary = `${reviewUniqueFens.size} unique positions, ${reviewCacheHits} cache hits, ${reviewRetries} retries`;
  setReviewSummary(
- reviewIsIncomplete
+ (reviewIsIncomplete
  ? `Analysis incomplete: ${coverageSummary}. ${cacheSummary}.`
  : weeklyTransferTarget
  ? `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}. ${cacheSummary}. Transfer target: ${weeklyTransferTarget.label}; ${weeklyTransferCreatedCount} created, ${weeklyTransferRecognizedCount} recognized, ${weeklyTransferMissedCount} missed.`
- : `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}. ${cacheSummary}.`,
+ : `Review complete: ${moveRows.length} moves analyzed - ${whitePlayer} vs ${blackPlayer}. ${cacheSummary}.`) + weeklyAssessmentWarning,
  );
  }
 
  // Auto-start full review when arriving from /analyze/review.
  useEffect(() => {
  if (!isReviewMode) return;
+ if (weeklyReviewGame !== null && !weeklyIdentity) return;
  if (!engineReady) return;
  if (moveRows.length < 2) return;
  if (reviewInProgress) return;
@@ -1509,7 +1660,25 @@ export default function AnalyzePage() {
  reviewAutoStartedRef.current = true;
  setReviewSummary("Game Analysis starting...");
  void startGameReview();
- }, [isReviewMode, engineReady, moveRows.length, reviewInProgress]);
+ }, [isReviewMode, engineReady, moveRows.length, reviewInProgress, weeklyIdentity]);
+
+ // Called only after the final sequential move has received its reading time.
+ function completeWeeklyPlayback() {
+  finishWeeklyExplainedReview(false);
+ }
+
+ function finishWeeklyExplainedReview(skip: boolean) {
+  if (!weeklyIdentity || weeklyReviewGame === null || !weeklyProgress || weeklySaveBusy || weeklyAdvanceRef.current || weeklyError) return;
+  if (reviewInProgress) return;
+  if (!skip && (currentPly !== moveRows.length || weeklyProgress.furthestPly !== moveRows.length || weeklyProgress.currentPly !== currentPly)) return;
+   if (weeklySaveBusyRef.current || weeklyAdvanceRef.current) return;
+   weeklyPlayback.pause();
+   weeklyAdvanceRef.current = true; setWeeklySaveBusy(true);
+   void persistWeeklyExplainedReview(weeklyIdentity.userId, weeklyIdentity.weekKey, weeklyReviewGame - 1, weeklyIdentity.pgn, currentPly, skip ? 'skip' : true)
+    .then(state => window.location.replace(pendingWeeklyReviewRoute(state) || (weeklyReviewGame === 1
+     ? '/play-computer?weekly=1&continue=2' : AUTO_TRAINING_ENTRY_ROUTE)))
+    .catch(error => { weeklyAdvanceRef.current = false; setWeeklySaveBusy(false); setWeeklyError(String(error.message ?? error)); });
+ }
 
  const PIECE_VALUE: Record<string, number> = {
  p: 100,
@@ -1542,21 +1711,17 @@ export default function AnalyzePage() {
  fen: string,
  opponentBestUci: string,
  moverColor: "w" | "b",
+ beforeFen: string,
  ) {
  if (!opponentBestUci || opponentBestUci.length < 4) return 0;
 
  try {
- const temp = new Chess(fen);
- const targetSquare = opponentBestUci.slice(2, 4) as Square;
- const captured = temp.get(targetSquare);
-
- if (!captured || captured.color !== moverColor) return 0;
-
- const value = PIECE_VALUE[captured.type] ?? 0;
-
- // If the played move allows the opponent's best reply to win material,
- // use a conservative tactical penalty. This catches "left queen hanging"
- // cases where raw eval-diff may come back too soft.
+ // Keep the existing penalty bands, but apply them to net material loss
+ // after the best legal immediate recapture, relative to BEFORE the candidate
+ // move. Otherwise its own capture is forgotten when the opponent recaptures.
+ const { loss: value } = captureMaterialLoss(
+ fen, opponentBestUci, moverColor, PIECE_VALUE, beforeFen,
+ );
  if (value >= 900) return 900;
  if (value >= 500) return 450;
  if (value >= 300) return 180;
@@ -1661,7 +1826,7 @@ export default function AnalyzePage() {
 function reviewShort(label?: ReviewClass) {
  if (!label) return "";
  if (label === "Book") return "Book";
- if (label === "Inspired") return "â˜…";
+ if (label === "Inspired") return "\u2605";
  if (label === "Best") return "Best";
  if (label === "Excellent") return "\u2713";
  if (label === "Good") return "Good";
@@ -1926,8 +2091,22 @@ function reviewShort(label?: ReviewClass) {
  }
  }
 
+ // Cache the existing verified explanations once per completed analysis, not per
+ // playback step. Weekly playback never initiates new AI explanation requests.
+ const weeklyComments = useMemo(() => {
+  if (weeklyReviewGame === null || !weeklyProgress || reviewInProgress) return {} as Record<number, string>;
+  return Object.fromEntries(moveRows.map(row => [row.ply, reviewCommentForPly(row.ply)]));
+ }, [weeklyReviewGame, Boolean(weeklyProgress), reviewInProgress, moveRows, startFen, reviewMap, reviewBestMap, reviewLossMap, reviewLineMap, reviewUnavailableMap, reviewCoachMap, gameInfo]);
+ const weeklyPlayback = useWeeklyReviewPlayback({
+  reviewKey: weeklyIdentity ? `${weeklyIdentity.userId}:${weeklyIdentity.weekKey}:${weeklyReviewGame}` : null,
+  ready: Boolean(weeklyProgress && !reviewInProgress && !weeklySaveBusy && !weeklyError),
+  ply: currentPly, total: moveRows.length, sequentialThrough: weeklyProgress?.furthestPly ?? 0,
+  text: `${moveRows[currentPly - 1]?.san ?? ''} ${reviewMap[currentPly] ?? ''} ${reviewBestMap[currentPly] ?? ''} ${weeklyComments[currentPly] ?? ''}`,
+  advance: ply => goToPly(ply, true), complete: completeWeeklyPlayback,
+ });
+
  useEffect(() => {
- if (reviewInProgress) return;
+ if (reviewInProgress || weeklyReviewGame !== null) return;
 
  const label = reviewMap[currentPly];
  if (
@@ -2096,6 +2275,7 @@ function reviewShort(label?: ReviewClass) {
  () => ({
  isAvailable: true,
  fen: analyzeFen,
+ orientation: boardOrientation,
  suggestedColor: boardOrientation,
  canFlip: true,
  onFlip: flipBoard,
@@ -2669,7 +2849,8 @@ function reviewShort(label?: ReviewClass) {
  function reviewBadgeText(label?: ReviewClass) {
  if (!label) return ""
  if (label === "Book") return "Book"
- if (label === "Inspired") return "â˜…";if (label === "Best") return "Best"
+ if (label === "Inspired") return "\u2605"
+ if (label === "Best") return "Best"
  if (label === "Excellent") return "\u2713"
  if (label === "Good") return "Good"
  if (label === "Inaccuracy") return "?"
@@ -2891,9 +3072,6 @@ function reviewShort(label?: ReviewClass) {
  </div>
  ) : null
 
- const layoutShiftLeft = isReviewMode
- ? ANALYZE_REVIEW_LAYOUT_SHIFT_LEFT
- : ANALYZE_LAYOUT_SHIFT_LEFT;
  const resolvedSidePanelWidth = isReviewMode
  ? ANALYZE_REVIEW_SIDE_PANEL_WIDTH
  : ANALYZE_SIDE_PANEL_WIDTH;
@@ -2907,11 +3085,15 @@ function reviewShort(label?: ReviewClass) {
 
  <div style={{ position: "relative", width: boardSize, height: boardSize }}>
 <ThemedChessboard
- id="AnalyzeBoard"
- position={(isSetupPositionOpen ? setupBoard : game.fen()) as any}
- boardWidth={boardSize}
- boardOrientation={boardOrientation}
- onSquareClick={(square) => {
+id="AnalyzeBoard"
+position={(isSetupPositionOpen ? setupBoard : game.fen()) as any}
+boardWidth={boardSize}
+boardOrientation={boardOrientation}
+accessibilityTitle={isSetupPositionOpen ? "Analyze position setup" : "Analyze position"}
+accessibilityCurrentMove={isSetupPositionOpen ? undefined : `Ply ${currentPly} of ${moveRows.length}${currentPly > 0 ? `, ${moveRows[currentPly - 1]?.san ?? "move selected"}` : ""}`}
+accessibilityStatus={message}
+accessibilityInteraction={isSetupPositionOpen ? "Choose a piece in Setup Position, then select a square on this board. Use the setup controls to load or close the position." : "Use First, Previous, Next, Last, or the named move list to review positions. Pieces may also be moved by click or drag."}
+onSquareClick={(square) => {
  if (isSetupPositionOpen) setupSquareClick(square);
  }}
  onPieceDrop={(sourceSquare, targetSquare) => {
@@ -2952,7 +3134,7 @@ function reviewShort(label?: ReviewClass) {
 
  {boardPlayerBar(bottomBoardSide)}
 
- <div
+ <div className="analyze-move-navigation"
  style={{
  display: "grid",
  gridTemplateColumns: "repeat(4, 1fr)",
@@ -2997,8 +3179,8 @@ function reviewShort(label?: ReviewClass) {
  style={{
  position: "relative",
  minHeight: "100vh",
- marginLeft: isReviewMode ? 0 : -layoutShiftLeft,
- width: isReviewMode ? "100%" : `calc(100% + ${layoutShiftLeft}px)`,
+ marginLeft: 0,
+ width: "100%",
  boxSizing: "border-box",
  }}
  >
@@ -3040,27 +3222,103 @@ function reviewShort(label?: ReviewClass) {
  containerRef={containerRef}
  footerLeft={isReviewMode ? "Review" : "Analyze"}
  footerRight={`${boardSize}px`}
- board={boardWithControls}
- sidePanelWidth={resolvedSidePanelWidth}
+  board={boardWithControls}
+  maxWidth={isReviewMode ? 2200 : ANALYZE_DESKTOP_SHELL_MAX_WIDTH}
+  sidePanelWidth={resolvedSidePanelWidth}
  sidePanel={
  <>
  <style>{`
  .analyze-review-grid {
  display: grid;
- grid-template-columns: minmax(210px, 0.85fr) minmax(165px, 0.62fr) minmax(240px, 1.08fr) minmax(240px, 1.08fr);
+ grid-template-columns: minmax(260px, 0.95fr) minmax(240px, 0.9fr) minmax(360px, 1.35fr);
  grid-template-areas:
- "review details moves moves"
- "review status moves moves"
- "setup pgn moves moves"
- "setup opening moves moves"
- "import engine moves moves";
- gap: 7px;
+ "review details moves"
+ "review status opening"
+ "review pgn engine"
+ "setup pgn engine"
+ "setup pgn engine"
+ "import pgn engine";
+ gap: 12px;
  align-items: start;
  padding-right: 0;
  box-sizing: border-box;
- height: calc(100vh - 118px);
- max-height: calc(100vh - 118px);
- overflow: hidden;
+ min-height: calc(100vh - 118px);
+ height: auto;
+ max-height: none;
+ overflow: visible;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .trainer-shell-side {
+ flex: 1 1 900px;
+ min-width: 0;
+ }
+
+ @media (min-width: 1500px) {
+ .analyze-board-page:not(.analyze-board-page--review) .trainer-shell-page {
+ padding: 8px 24px 8px 96px !important;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .trainer-shell-content > :first-child {
+ margin-bottom: 8px !important;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .trainer-shell-side {
+ padding: 4px 12px !important;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .analyze-review-grid {
+ gap: 10px !important;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .analyze-classification-table {
+ margin-top: 4px !important;
+ row-gap: 4px !important;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .analyze-classification-help {
+ margin-top: 4px !important;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .analyze-setup-actions > div {
+ margin-top: 0 !important;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .analyze-import-actions {
+ flex-direction: row !important;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .analyze-import-actions > button {
+ flex: 1 1 0;
+ }
+
+ .analyze-board-page:not(.analyze-board-page--review) .analyze-import-copy {
+ margin-bottom: 4px !important;
+ }
+ }
+
+ @media (min-width: 1101px) and (max-width: 1499px) {
+ .analyze-board-page:not(.analyze-board-page--review) .trainer-shell-side {
+ flex-basis: 680px;
+ }
+
+ .analyze-review-grid:not(.review-mode) {
+ grid-template-columns: minmax(256px, 0.95fr) minmax(294px, 1.05fr);
+ grid-template-areas:
+ "review moves"
+ "review moves"
+ "review moves"
+ "details status"
+ "setup pgn"
+ "import opening"
+ "engine engine";
+ }
+
+ .analyze-review-grid:not(.review-mode).review-loaded {
+ grid-template-areas:
+ "review moves"
+ "details moves"
+ "status moves";
+ }
  }
 
  .analyze-review-grid.review-loaded {
@@ -3096,15 +3354,12 @@ function reviewShort(label?: ReviewClass) {
  .analyze-review-grid > :nth-child(8) { grid-area: import; min-height: 0; }
  .analyze-review-grid > :nth-child(9) { grid-area: engine; min-height: 0; }
 
- .analyze-review-grid.review-mode {
-  grid-template-columns:
-  minmax(0, 0.95fr)
-  minmax(0, 0.70fr)
-  minmax(0, 1.35fr);
+  .analyze-review-grid.review-mode {
+  grid-template-columns: minmax(288px, 1fr) minmax(270px, 0.95fr) minmax(248px, 0.88fr);
  grid-template-areas:
- "review details moves"
  "review details moves";
- grid-template-rows: 1fr;
+ grid-template-rows: minmax(0, 1fr);
+ gap: 10px;
  align-items: stretch;
  min-height: 0;
  }
@@ -3122,20 +3377,42 @@ function reviewShort(label?: ReviewClass) {
  display: none !important;
  }
 
- .analyze-review-grid.review-mode > :nth-child(1) {
+  .analyze-review-grid.review-mode > :nth-child(1) {
  grid-area: review;
  display: block !important;
  min-height: 0;
- max-height: 100%;
- overflow-y: auto;
- overflow-x: hidden;
- scrollbar-gutter: stable;
- padding-right: 5px;
- }
+  overflow: visible;
+  }
+
+  .analyze-review-grid.review-mode .analyze-classification-label {
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  }
+
+  @media (min-width: 1400px) {
+  .analyze-board-page--review .trainer-shell-page--fixed {
+  padding: 10px 8px 12px 20px !important;
+  }
+
+  .analyze-board-page--review .trainer-shell-layout {
+  gap: 7px !important;
+  }
+
+  .analyze-board-page--review .trainer-shell-side {
+  padding: 4px !important;
+  }
+
+  .analyze-board-page--review .trainer-shell-board-column {
+  margin-top: 14px;
+  }
+  }
 
  .analyze-review-grid.review-mode > :nth-child(2) {
  grid-area: details;
  display: block !important;
+ min-width: 240px;
+ overflow: visible;
  }
 
  .analyze-review-grid.review-mode > :nth-child(7) {
@@ -3176,6 +3453,7 @@ function reviewShort(label?: ReviewClass) {
  : ""
  }`}
  >
+ <div className="analyze-review-summary-group">
  <PanelCard>
  <SectionTitle>Game Analysis</SectionTitle>
 
@@ -3331,7 +3609,7 @@ function reviewShort(label?: ReviewClass) {
  )}
 
  {reviewSummary && (
- <div style={{ fontSize: 13, color: "#aaa", marginBottom: 10 }}>
+ <div role="status" aria-live="polite" aria-atomic="true" style={{ fontSize: 13, color: "#aaa", marginBottom: 10 }}>
  {reviewSummary}
  </div>
  )}
@@ -3551,27 +3829,25 @@ function reviewShort(label?: ReviewClass) {
  </div>
  )}
 
- {isReviewMode &&
- weeklyReviewGame !== null &&
- !reviewInProgress &&
- reviewProgress.total > 0 &&
- reviewProgress.done >= reviewProgress.total && (
- <div style={{ marginBottom: 10 }}>
- <PrimaryButton
- onClick={() => {
- window.location.href =
- weeklyReviewGame === 1
- ? "/play-computer?weekly=1&continue=2"
- : "/auto";
- }}
- >
- {weeklyReviewGame === 1
- ? "Continue to Weekly Game 2"
- : "Return to Personal Course"}
- </PrimaryButton>
+ {isReviewMode && weeklyReviewGame !== null && (
+ <div data-name="weekly-explained-review" data-ply={currentPly} data-reviewed={weeklyProgress?.furthestPly ?? 0}
+  data-ready={Boolean(weeklyProgress && !reviewInProgress)} data-saving={weeklySaveBusy}
+  data-paused={weeklyPlayback.paused} data-reading-ms={weeklyPlayback.readingMs} role="status" style={{ marginBottom: 10 }}>
+ {weeklyError || (weeklyProgress
+  ? `Weekly Game ${weeklyReviewGame}: explained review ${currentPly} / ${moveRows.length}. ${weeklyPlayback.paused ? 'Playback paused. Resume to continue; skipped moves must still be reviewed in order.' : 'Playing automatically. Navigate manually to pause.'}`
+  : 'Preparing the complete Weekly game analysis…')}
+ <SecondaryButton onClick={weeklyPlayback.paused ? weeklyPlayback.resume : weeklyPlayback.pause}>
+ {weeklyPlayback.paused ? 'Resume playback' : 'Pause playback'}
+ </SecondaryButton>
+ {weeklyProgress && !reviewInProgress && (
+ <SecondaryButton disabled={weeklySaveBusy || Boolean(weeklyError)} onClick={() => finishWeeklyExplainedReview(true)}>
+ {weeklyReviewGame === 1 ? 'Skip Review' : 'Skip Review & Continue to Practice'}
+ </SecondaryButton>
+ )}
  </div>
  )}
-
+ </PanelCard>
+ <PanelCard>
  <div
  style={{
  marginTop: 8,
@@ -3586,15 +3862,19 @@ function reviewShort(label?: ReviewClass) {
  }}
  >
  <div
+ className="analyze-classification-table"
  style={{
  display: "grid",
- gridTemplateColumns: "minmax(0, 1fr) minmax(40px, 64px) minmax(40px, 64px)",
+ gridTemplateColumns: "minmax(132px, 1fr) minmax(48px, 60px) minmax(48px, 60px)",
  gap: "6px 6px",
  alignItems: "center",
  fontSize: 12,
  }}
  >
- <div style={{ minWidth: 0, color: "#aaa", fontWeight: 800, overflowWrap: "anywhere" }}>
+ <div
+ className="analyze-classification-label"
+ style={{ minWidth: 0, color: "#aaa", fontWeight: 800, whiteSpace: "nowrap", wordBreak: "normal", overflowWrap: "normal" }}
+ >
  Classification
  </div>
  <div
@@ -3690,7 +3970,8 @@ function reviewShort(label?: ReviewClass) {
  {REVIEW_TABLE_CLASSES.map((label) => (
  <React.Fragment key={label}>
  <div
-  style={{ minWidth: 0, color: reviewColor(label), fontWeight: 800, overflowWrap: "anywhere" }}
+  className="analyze-classification-label"
+  style={{ minWidth: 0, color: reviewColor(label), fontWeight: 800, whiteSpace: "nowrap", wordBreak: "normal", overflowWrap: "normal" }}
  >
  {reviewSummaryLabel(label)}
  </div>
@@ -3763,6 +4044,7 @@ function reviewShort(label?: ReviewClass) {
  </div>
 
  <div
+ className="analyze-classification-help"
  style={{
  marginTop: 8,
  fontSize: 11,
@@ -3780,12 +4062,13 @@ function reviewShort(label?: ReviewClass) {
  </div>
  </PanelCard>
 
- <PanelCard>
+ </div>
+ <PanelCard style={{ minWidth: 0 }}>
  <SectionTitle>Review Details</SectionTitle>
 
  {currentPly > 0 &&
  (reviewMap[currentPly] || reviewUnavailableMap[currentPly]) ? (
- <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+ <div style={{ fontSize: 14, lineHeight: 1.65 }}>
  <div>
  Move: <b>{moveRows[currentPly - 1]?.san}</b>
  </div>
@@ -3824,16 +4107,16 @@ function reviewShort(label?: ReviewClass) {
  <div>Best move: {reviewBestMap[currentPly] || "--"}</div>
 
  <div
- style={{
+style={{
  marginTop: 8,
- padding: 8,
+ padding: 10,
  borderRadius: 8,
  background: "#211e1b",
  color: "#e5e5e5",
- lineHeight: 1.5,
- }}
+ lineHeight: 1.6,
+}}
  >
- {reviewCommentForPly(currentPly)}
+ {weeklyReviewGame !== null ? weeklyComments[currentPly] : reviewCommentForPly(currentPly)}
  </div>
  </>
  )}
@@ -3847,7 +4130,7 @@ function reviewShort(label?: ReviewClass) {
 
  <PanelCard>
  <SectionTitle>Status</SectionTitle>
- <div style={{ fontSize: 13, color: "#d0d0d0", lineHeight: 1.5 }}>
+ <div role="status" aria-live="polite" aria-atomic="true" style={{ fontSize: 13, color: "#d0d0d0", lineHeight: 1.5 }}>
  {message}
  </div>
 
@@ -3870,7 +4153,7 @@ function reviewShort(label?: ReviewClass) {
  <PanelCard>
  <SectionTitle>Setup Position</SectionTitle>
 
- <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+ <div className="analyze-setup-actions" style={{ display: "flex", gap: 8, marginBottom: 10 }}>
  <PrimaryButton onClick={openSetupPosition}>
  {isSetupPositionOpen ? "Reload From Board" : "Setup Position"}
  </PrimaryButton>
@@ -4104,7 +4387,10 @@ function reviewShort(label?: ReviewClass) {
  </div>
  ) : (
  <div
+ ref={movesListRef}
  className="analyze-moves-list"
+ role="list"
+ aria-label="Analyzed game moves"
  style={{
  height: isReviewMode ? "auto" : "calc(100vh - 300px)",
  maxHeight: isReviewMode ? "none" : "calc(100vh - 300px)",
@@ -4124,10 +4410,15 @@ function reviewShort(label?: ReviewClass) {
  const black = moveRows[i * 2 + 1];
 
  return (
- <div key={i} style={{ display: "contents" }}>
+ <div key={i} role="listitem" aria-label={`Move ${i + 1}`} style={{ display: "contents" }}>
  <div style={{ color: "#aaa" }}>{i + 1}.</div>
 
   <button
+  type="button"
+  data-analyze-ply={white?.ply}
+  aria-current={currentPly === white?.ply ? "step" : undefined}
+  aria-label={white ? `Move ${i + 1}, White: ${white.san}` : `Move ${i + 1}, White move unavailable`}
+  disabled={!white}
   onClick={() => white && goToPly(white.ply)}
   style={{
   minWidth: 0,
@@ -4175,6 +4466,11 @@ function reviewShort(label?: ReviewClass) {
  </button>
 
   <button
+  type="button"
+  data-analyze-ply={black?.ply}
+  aria-current={currentPly === black?.ply ? "step" : undefined}
+  aria-label={black ? `Move ${i + 1}, Black: ${black.san}` : `Move ${i + 1}, Black move unavailable`}
+  disabled={!black}
   onClick={() => black && goToPly(black.ply)}
   style={{
   minWidth: 0,
@@ -4231,7 +4527,7 @@ function reviewShort(label?: ReviewClass) {
  <PanelCard>
  <SectionTitle>Move navigation</SectionTitle>
 
- <div
+ <div className="analyze-move-navigation"
  style={{
  display: "grid",
  gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
@@ -4273,6 +4569,7 @@ function reviewShort(label?: ReviewClass) {
  <PanelCard>
  <SectionTitle>Import</SectionTitle>
  <div
+ className="analyze-import-copy"
  style={{
  fontSize: 12,
  color: "#cfcfcf",
@@ -4282,7 +4579,7 @@ function reviewShort(label?: ReviewClass) {
  >
  Drop a PGN anywhere on the page, or use the upload button.
  </div>
- <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+ <div className="analyze-import-actions" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
  <input
  ref={pgnFileInputRef}
  type="file"

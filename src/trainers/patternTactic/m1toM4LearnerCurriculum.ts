@@ -1,8 +1,10 @@
-export const PATTERN_TACTIC_LEARNER_CHUNK_SIZE = 20
+export const PATTERN_TACTIC_LEARNER_CHUNK_SIZE = 30
 
 import {
   VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY,
 } from "./generatedFinalVerifiedTaxonomy"
+import { FULL_PATTERN_TACTIC_COURSE_BY_TRAINER_KEY } from "../fullChunkCurriculumCatalog"
+import { logicalActivityKey } from '../../training/activityIdentity'
 
 export type PatternTacticLearnerCurriculum = {
   trainerKey: string
@@ -32,7 +34,7 @@ const ALL_STANDARD_THEMES = [
 
 const THEMES_BY_DISTANCE: Record<1 | 2 | 3 | 4, readonly string[]> = {
   1: ALL_STANDARD_THEMES,
-  2: ALL_STANDARD_THEMES.filter((theme) => theme !== "king-fork" && theme !== "vulnerable-king"),
+  2: ALL_STANDARD_THEMES,
   3: ALL_STANDARD_THEMES,
   4: ALL_STANDARD_THEMES,
 }
@@ -107,19 +109,19 @@ const BATCH1_SEMANTIC_V5_RECORD_COUNTS: Record<string, number> = {
 export const TIER_A_SEMANTIC_THEME_KEYS = new Set(Object.keys(TIER_A_SEMANTIC_CHUNKS).map((key) => key.replace(/-m[1-4]$/, "")))
 
 export type PatternTacticSemanticStatus = {
-  version: "semantic-v2" | "semantic-v3" | "semantic-v4" | "semantic-v5" | "verified-final-v1"
+  version: "semantic-v2" | "semantic-v3" | "semantic-v4" | "semantic-v5" | "verified-final-v1" | "full-precut-v1"
   active: boolean
   validator: string
 }
 
 export function getPatternTacticSemanticStatus(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticSemanticStatus {
-  const course = VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY[`tactic-${theme}-m${tacticDistance}`]
+  const course = FULL_PATTERN_TACTIC_COURSE_BY_TRAINER_KEY[`tactic-${theme}-m${tacticDistance}`]
   return {
-    version: "verified-final-v1",
-    active: Boolean(course && course.exerciseCount >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE),
-    validator: course && course.exerciseCount >= PATTERN_TACTIC_LEARNER_CHUNK_SIZE
-      ? "verified-final-candidate-corpus"
-      : "verified-final-candidate-corpus-unavailable",
+    version: "full-precut-v1",
+    active: Boolean(course && course.chunkCount > 0),
+    validator: course && course.chunkCount > 0
+      ? "pre-cut-membership-with-deterministic-invalid-exclusions"
+      : "pre-cut-course-unavailable",
   }
 }
 
@@ -141,8 +143,11 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
   const sourceKey = `${theme}-m${tacticDistance}`
   const semantic = getPatternTacticSemanticStatus(theme, tacticDistance)
   const finalCourse = VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY[`tactic-${sourceKey}`]
+  const fullCourse = FULL_PATTERN_TACTIC_COURSE_BY_TRAINER_KEY[`tactic-${sourceKey}`]
   const activeChunkCount = semantic.active
-    ? semantic.version === "verified-final-v1"
+    ? semantic.version === "full-precut-v1"
+      ? fullCourse?.chunkCount ?? 0
+      : semantic.version === "verified-final-v1"
       ? finalCourse?.chunkCount ?? 0
       : semantic.version === "semantic-v3"
       ? FORK_SOUND_V3_CHUNKS[sourceKey] ?? 0
@@ -159,10 +164,12 @@ function definition(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTactic
     tacticDistance,
     version,
     sourceDataBasePath: `/data/pattern-tactics/${theme}/m${tacticDistance}`,
-    learnerDataBasePath: semantic.version === "verified-final-v1" && finalCourse
+    learnerDataBasePath: semantic.version === "full-precut-v1" && fullCourse
+      ? fullCourse.dataBasePath
+      : semantic.version === "verified-final-v1" && finalCourse
       ? finalCourse.learnerDataBasePath
       : `/data/learner-curricula/pattern-tactics/${theme}-m${tacticDistance}-${semantic.version}`,
-    legacyChunkCount: LEGACY_CHUNK_COUNTS[sourceKey] ?? 10,
+    legacyChunkCount: fullCourse?.chunkCount ?? LEGACY_CHUNK_COUNTS[sourceKey] ?? 10,
     activeChunkCount,
     activeChunkSize: PATTERN_TACTIC_LEARNER_CHUNK_SIZE,
     unavailableReason: activeChunkCount === 0 ? "Not enough reviewed material is available for this course yet." : undefined,
@@ -173,7 +180,7 @@ export const PATTERN_TACTIC_M1_TO_M4_LEARNER_CURRICULA = ([1, 2, 3, 4] as const)
   .flatMap((tacticDistance) => THEMES_BY_DISTANCE[tacticDistance].map((theme) => definition(theme, tacticDistance)))
 
 export function getPatternTacticLearnerCurriculum(trainerKey: string) {
-  return PATTERN_TACTIC_M1_TO_M4_LEARNER_CURRICULA.find((entry) => entry.trainerKey === trainerKey) ?? null
+  return PATTERN_TACTIC_M1_TO_M4_LEARNER_CURRICULA.find((entry) => entry.trainerKey === logicalActivityKey(trainerKey)) ?? null
 }
 
 export function getPatternTacticLearnerCurriculaForDistance(tacticDistance: number) {
@@ -190,18 +197,23 @@ export function getPatternTacticLearnerProgressTrainerKey(definitionOrTrainerKey
 // semantic-v2 supersedes (but never overwrites) the original learner overlay.
 // Retain a stable key for deterministic, proportional completion credit.
 export function getPatternTacticPriorLearnerProgressTrainerKey(definition: PatternTacticLearnerCurriculum) {
-  const priorVersion = definition.version.includes("verified-final")
+  const priorVersion = definition.version.includes("full-precut")
+    ? `m${definition.tacticDistance}-verified-final-v1`
+    : definition.version.includes("verified-final")
     ? "semantic-v5"
     : definition.version.includes("semantic-v5")
     ? "semantic-v4"
     : definition.version.includes("semantic-v3")
       ? "semantic-v2"
       : "v1"
-  return `${definition.trainerKey}:m${definition.tacticDistance}-${priorVersion}`
+  return priorVersion.startsWith('m')
+    ? `${definition.trainerKey}:${priorVersion}`
+    : `${definition.trainerKey}:m${definition.tacticDistance}-${priorVersion}`
 }
 
-function priorLearnerActiveChunkCount(definition: PatternTacticLearnerCurriculum) {
+export function getPatternTacticPriorLearnerActiveChunkCount(definition: PatternTacticLearnerCurriculum) {
   const sourceKey = `${definition.theme}-m${definition.tacticDistance}`
+  if (definition.version.includes("full-precut")) return VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY[definition.trainerKey]?.chunkCount ?? 0
   if (definition.version.includes("verified-final")) return ACTIVE_CHUNK_COUNT_OVERRIDES[sourceKey] ?? (definition.tacticDistance === 1 ? 5 : 8)
   if (definition.version.includes("semantic-v5")) return 0
   if (definition.version.includes("semantic-v3")) return TIER_A_SEMANTIC_CHUNKS[sourceKey] ?? 0
@@ -256,14 +268,15 @@ export function getPatternTacticLearnerCompletionByTrainer(rows: Array<LegacyChu
       .filter((row) => row.trainer_key === learnerTrainerKey && row.is_mastered === true)
       .map((row) => Number(row.chunk_index))
       .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= definition.activeChunkCount)).size
-    const priorLearnerCompleted = (definition.version.includes("semantic") || definition.version.includes("verified-final"))
+    const hasPriorLearnerVersion = definition.version.includes("semantic") || definition.version.includes("verified-final") || definition.version.includes("full-precut")
+    const priorLearnerCompleted = hasPriorLearnerVersion
       ? new Set(rows
         .filter((row) => row.trainer_key === getPatternTacticPriorLearnerProgressTrainerKey(definition) && row.is_mastered === true)
         .map((row) => Number(row.chunk_index))
-        .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= priorLearnerActiveChunkCount(definition))).size
+        .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= getPatternTacticPriorLearnerActiveChunkCount(definition))).size
       : 0
-    const priorChunkCount = priorLearnerActiveChunkCount(definition)
-    const priorLearnerCredit = (definition.version.includes("semantic") || definition.version.includes("verified-final")) && priorChunkCount > 0
+    const priorChunkCount = getPatternTacticPriorLearnerActiveChunkCount(definition)
+    const priorLearnerCredit = hasPriorLearnerVersion && priorChunkCount > 0
       ? Math.min(definition.activeChunkCount, Math.floor((priorLearnerCompleted * definition.activeChunkCount) / priorChunkCount))
       : 0
     const completedActiveChunks = Math.max(legacy.completedActiveChunks, activeCompletedChunks, priorLearnerCredit)

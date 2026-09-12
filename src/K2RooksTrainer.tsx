@@ -1,3 +1,5 @@
+import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
+import { useEndgameInput } from './trainers/endgame/useEndgameInput'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Chess } from 'chess.js'
@@ -9,7 +11,7 @@ import {
   buildEndgameProgressRows,
   getEndgameReviewMastery,
 } from './training/endgameReview'
-import TrainerShell from './components/trainer/TrainerShell'
+import TrainerShell from './trainers/endgame/EndgameTrainerShell'
 import {
  BigMessage,
  HintButton,
@@ -373,6 +375,7 @@ function getCustomSquareStyles(
 }
 
 export default function K2RooksTrainer() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const chunks = useMemo(() => buildChunks(), [])
  const engineRef = useRef<BNEngine | null>(null)
  const analysisTokenRef = useRef(0)
@@ -413,6 +416,13 @@ export default function K2RooksTrainer() {
  const currentPuzzleIndex = order[queueIndex]
  const currentPuzzle = currentChunk?.puzzles[currentPuzzleIndex] ?? null
  const currentPuzzleId = currentPuzzle?.id ?? ''
+ const endgameInput = useEndgameInput({
+  fen: game.fen(), attemptKey: currentPuzzleId,
+  active: (!locked && !allComplete) && !!currentPuzzleId && !justSolved && game.turn() === 'w',
+  moveStartedAt: moveStartedAtRef.current, onDrop,
+  onSilentError: () => { setStatus('Wrong, silent error'); setMessage(''); },
+ });
+
  const currentProgress = currentPuzzleId ? getPuzzleProgress(progressMap, currentPuzzleId) : null
 
  function getLegalTargets(fromSquare: string) {
@@ -456,7 +466,7 @@ export default function K2RooksTrainer() {
  useEffect(() => {
  const interval = window.setInterval(() => {
  if (locked) return
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current)
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current))
  }, 100)
  return () => window.clearInterval(interval)
  }, [locked])
@@ -534,6 +544,7 @@ export default function K2RooksTrainer() {
  }
 
  async function loadPuzzle(puzzle: TrainerPuzzle, nextOrder: number[], nextQueueIndex: number, chunkMate: number) {
+ endgameInput.attempt.begin(puzzle.id);
  activePuzzleRef.current = puzzle
  clearHighlights()
  setCorrectSquares([])
@@ -541,6 +552,7 @@ export default function K2RooksTrainer() {
  setHintSquares([])
  setOrder(nextOrder)
  setQueueIndex(nextQueueIndex)
+ endgameInput.attempt.begin(puzzle.id);
  setGame(new Chess(puzzle.fen))
  setLocked(false)
  setLastMove({})
@@ -620,6 +632,8 @@ export default function K2RooksTrainer() {
  return
  }
 
+ setLocked(true)
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: 'k2r', unitKey: chunk.id, itemIds: chunk.puzzles.map(p => p.id) })) return
  const reviewPuzzle = chunk.puzzles[0]
  await loadPuzzle(reviewPuzzle, reviewOrder, 0, chunk.mateDistance)
  setMessage('Review mode')
@@ -638,6 +652,8 @@ export default function K2RooksTrainer() {
  return
  }
 
+ setLocked(true)
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: 'k2r', unitKey: chunk.id, itemIds: chunk.puzzles.map(p => p.id) })) return
  const puzzle = chunk.puzzles[nextOrder[nextQueueIndex]]
  await loadPuzzle(puzzle, nextOrder, nextQueueIndex, chunk.mateDistance)
  }
@@ -683,8 +699,8 @@ export default function K2RooksTrainer() {
  : moveTimesMs
 
  const wasFast =
- solveTimes.length > 0 &&
- solveTimes.every((ms) => ms <= MAX_SECONDS_PER_MOVE * 1000)
+ endgameInput.attempt.qualify(solveTimes.length > 0 &&
+ solveTimes.every((ms) => ms <= MAX_SECONDS_PER_MOVE * 1000))
 
  const nextFastSolves = wasFast
  ? Math.min(FAST_SOLVES_TO_MASTER, oldStats.fastSolves + 1)
@@ -761,7 +777,7 @@ export default function K2RooksTrainer() {
  setMessage(
  wasFast
  ? `Fast solve ${nextStats?.fastSolves ?? 0}/${FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Solved, but one or more moves were slower than ${MAX_SECONDS_PER_MOVE} seconds.`
+ : endgameInput.attempt.nonQualifyingMessage(`Solved, but one or more moves were slower than ${MAX_SECONDS_PER_MOVE} seconds.`)
  )
 
  await sleep(CORRECT_DELAY_MS)
@@ -823,6 +839,7 @@ export default function K2RooksTrainer() {
  const puzzle = activePuzzleRef.current
  if (!puzzle || !currentChunk) return
 
+ endgameInput.attempt.begin(puzzle.id);
  setGame(new Chess(puzzle.fen))
  setLocked(false)
  setLastMove({})
@@ -839,6 +856,7 @@ export default function K2RooksTrainer() {
  nextStatus: string,
  nextMessage: string
  ) {
+ endgameInput.attempt.wrongMove();
 
   // Reliable piece-mate coach: k2r
   try {
@@ -989,7 +1007,7 @@ export default function K2RooksTrainer() {
  promotion: whiteMove.promotion,
  })
 
- const elapsed = Date.now() - moveStartedAtRef.current
+ const elapsed = endgameInput.elapsed(moveStartedAtRef.current)
  setMoveTimesMs((prev) => [...prev, elapsed])
  setGame(nextGame)
  setLastMove({ from: whiteMove.from, to: whiteMove.to })
@@ -1056,7 +1074,7 @@ export default function K2RooksTrainer() {
  }
 
  setLocked(false)
- setStatus(`Continue - mate in ${afterBlackEval?.mate ?? '?'}`)
+ setStatus(`Continue — mate in ${afterBlackEval?.mate ?? '?'}`)
  setMessage('Black replied. Continue the mate.')
  beginMoveTimer()
  })()
@@ -1191,11 +1209,12 @@ export default function K2RooksTrainer() {
  footerRight={`${boardWidth}px`}
  boardId="K2RooksTrainerBoard"
  fen={game.fen()}
- onPieceDrop={onDrop}
+ onPieceDrop={endgameInput.onDrop}
+ boardControls={endgameInput.controls}
  getLegalTargets={getLegalTargets}
  boardOrientation={boardOrientation}
  customSquareStyles={getCustomSquareStyles(lastMove, markedSquares, hintSquares, correctSquares)}
- arePiecesDraggable={!locked && !allComplete}
+ arePiecesDraggable={(!locked && !allComplete) && endgameInput.mouseEnabled}
  boardLeft={boardLeft}
  boardOverlay={boardOverlay}
  sidePanel={
@@ -1305,7 +1324,7 @@ export default function K2RooksTrainer() {
  }}
  >
  <div>{currentProgress?.fastSolves ?? 0} / {FAST_SOLVES_TO_MASTER} fast solves</div>
- <div>Fast = every move - {MAX_SECONDS_PER_MOVE}s</div>
+ <div>Fast = every move ≤ {MAX_SECONDS_PER_MOVE}s</div>
  </div>
  </PanelCard>
 
@@ -1387,6 +1406,7 @@ export default function K2RooksTrainer() {
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: 'grid', gap: 8 }}>
+ {endgameInput.silentButton}
  <HintButton
  getHintMove={getHintMoveForAction}
  onHintStage={(move, stage) => {

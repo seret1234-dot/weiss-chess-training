@@ -1,3 +1,5 @@
+import { useAutoChunkAdmission } from '../../training/useAutoChunkAdmission'
+import { useEndgameInput } from '../../trainers/endgame/useEndgameInput'
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Chess } from "chess.js";
@@ -6,7 +8,8 @@ import { BNEngine } from "../../lib/bnEngine";
 import type { EngineResult } from "../../lib/bnEngine";
 import { useRegisterPlayableBoard } from "../../hooks/useRegisterPlayableBoard";
 import { supabase } from "../../lib/supabase";
-import TrainerShell from "../../components/trainer/TrainerShell";
+import TrainerShell from "../../trainers/endgame/EndgameTrainerShell";
+import { formatEndgameFastSolves } from '../../trainers/endgame/endgameText'
 import {
  BigMessage,
  HintButton,
@@ -883,6 +886,7 @@ async function findFirstIncompleteChunk(
 }
 
 export default function PhilidorTrainer() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const trainerId = "philidor";
  const title = "Philidor";
  const dataPath = "/data/endgames/philidor";
@@ -968,7 +972,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
  const interval = window.setInterval(() => {
  if (loadingChunk || inputLocked || allComplete || phase === "classify")
  return;
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current);
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current));
  }, 100);
 
  return () => window.clearInterval(interval);
@@ -1129,6 +1133,14 @@ const REQUIRED_DEFENSE_MOVES = 20;
  }, [currentChunkFile, currentThemeProgress, globalChunkLookup, progress]);
 
  const currentPosition = positions[currentIndex] ?? null;
+ const endgameInput = useEndgameInput({
+  fen: game.fen(), attemptKey: currentPosition?.id ?? '',
+  active: (!loadingChunk && !inputLocked && !allComplete && phase === "play") && !!currentPosition && !flashSolvedPositionId && game.turn() === 'b',
+  canAnswer: !loadingChunk && (phase === "classify" || !inputLocked) && !allComplete && !!currentPosition && !flashSolvedPositionId,
+  moveStartedAt: moveStartedAtRef.current, onDrop,
+  onSilentError: () => { setStatus('Wrong, silent error'); setMessage(''); },
+ });
+
  const currentStats = currentPosition
  ? getPositionStats(progress, currentPosition.id)
  : null;
@@ -1164,13 +1176,14 @@ const REQUIRED_DEFENSE_MOVES = 20;
  }
 
  function startPositionState(position: TrainingPosition) {
+ endgameInput.attempt.begin(position.id);
  const nextGame = new Chess(position.startFen);
  setGame(nextGame);
 
  if (shouldAskWinDraw(currentPosition)) {
  const side = nextGame.turn() === "w" ? "White" : "Black";
  setPhase("classify");
- setStatus(`${side} to move -  Win or Draw?`);
+ setStatus(`${side} to move — Win or Draw?`);
  setMessage("Evaluate the position. No moves needed in this section.");
  setInputLocked(false);
  return;
@@ -1584,6 +1597,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
  return;
  }
 
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: trainerId, unitKey: currentChunkFile, itemIds: chunkPositions.map((p: TrainingPosition) => p.id) })) return;
  const nextIndex = chooseRandomUnmasteredIndex(chunkPositions, progress);
  const nextPosition = chunkPositions[nextIndex];
 
@@ -1815,6 +1829,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
  nextStatus: string,
  nextMessage: string,
  ) {
+ endgameInput.attempt.wrongMove();
  clearPendingFeedbackTimeout();
 
  try {
@@ -1838,7 +1853,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
  setCorrectSquares([]);
  setHintSquares([]);
  setEscapeSquares(escapes);
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current);
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current));
  setJustMated(false);
  setStatus(nextStatus);
  setMessage(
@@ -1880,7 +1895,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
  clearPendingFeedbackTimeout();
  setFlashSolvedPositionId(currentPosition.id);
 
- const moveElapsedMs = Date.now() - moveStartedAtRef.current;
+ const moveElapsedMs = endgameInput.elapsed(moveStartedAtRef.current);
  setCurrentMoveElapsedMs(moveElapsedMs);
  setJustMated(nextGame.isCheckmate());
 
@@ -1889,7 +1904,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
 
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3;
  const maxMsPerMove = maxSecondsPerMove * 1000;
- const wasFast = nextMoveTimes.every((ms) => ms <= maxMsPerMove);
+ const wasFast = endgameInput.attempt.qualify(nextMoveTimes.every((ms) => ms <= maxMsPerMove));
 
  const oldStats = getPositionStats(progress, currentPosition.id);
 
@@ -1939,10 +1954,10 @@ const REQUIRED_DEFENSE_MOVES = 20;
  nextGame.isCheckmate()
  ? wasFast
  ? `Checkmate. Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Checkmate, but slower than ${maxSecondsPerMove} seconds.`
+ : endgameInput.attempt.nonQualifyingMessage(`Checkmate, but slower than ${maxSecondsPerMove} seconds.`)
  : wasFast
  ? `Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Solved, but slower than ${maxSecondsPerMove} seconds.`,
+ : endgameInput.attempt.nonQualifyingMessage(`Solved, but slower than ${maxSecondsPerMove} seconds.`),
  );
 
  feedbackTimeoutRef.current = window.setTimeout(() => {
@@ -1957,9 +1972,9 @@ const REQUIRED_DEFENSE_MOVES = 20;
  clearPendingFeedbackTimeout();
  setFlashSolvedPositionId(currentPosition.id);
 
- const reactionTime = Date.now() - moveStartedAtRef.current;
+ const reactionTime = endgameInput.elapsed(moveStartedAtRef.current);
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3;
- const wasFast = reactionTime <= maxSecondsPerMove * 1000;
+ const wasFast = endgameInput.attempt.qualify(reactionTime <= maxSecondsPerMove * 1000);
 
  const oldStats = getPositionStats(progress, currentPosition.id);
 
@@ -1990,13 +2005,13 @@ const REQUIRED_DEFENSE_MOVES = 20;
  setProgress(updatedProgress);
  setInputLocked(false);
  setStatus(
- currentPosition.result === "draw" ? "Correct -  Draw." : "Correct -  Win.",
+ currentPosition.result === "draw" ? "Correct — Draw." : "Correct — Win.",
  );
  setMessage(
  currentPosition.explanation ||
  (wasFast
  ? `Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER}`
- : `Correct, but slower than ${maxSecondsPerMove} seconds`),
+ : endgameInput.attempt.nonQualifyingMessage(`Correct, but slower than ${maxSecondsPerMove} seconds`)),
  );
 
  feedbackTimeoutRef.current = window.setTimeout(() => {
@@ -2019,6 +2034,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
 
  if (answer !== correctAnswer) {
  setInputLocked(false);
+ endgameInput.attempt.wrongMove();
  setStatus("Wrong evaluation.");
  setMessage(
  correctAnswer === "win"
@@ -2040,7 +2056,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
  setPhase("play");
  setInputLocked(false);
  setStatus(getInstructionText(currentPosition, currentThemeConfig));
- setMessage(currentPosition.explanation || "Correct -  now convert the win.");
+ setMessage(currentPosition.explanation || "Correct — now convert the win.");
  setCurrentMoveElapsedMs(0);
  setDefenseMoves(0);
  setMoveTimesMs([]);
@@ -2494,7 +2510,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  nextGame,
  move,
  "Wrong move.",
- "Stalemate -  avoid this.",
+ "Stalemate — avoid this.",
  );
  return true;
  }
@@ -2791,7 +2807,8 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  footerRight={`${boardWidth}px`}
  boardId={boardId ?? `${trainerId}TrainerBoard`}
  fen={game.fen()}
- onPieceDrop={onDrop}
+ onPieceDrop={endgameInput.onDrop}
+ boardControls={endgameInput.controls}
  getLegalTargets={getLegalTargets}
  boardOrientation={boardOrientation}
  customDarkSquareStyle={{ backgroundColor: "#769656" }}
@@ -2807,9 +2824,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  escapeSquares,
  hintSquares,
  )}
- arePiecesDraggable={
- !loadingChunk && !inputLocked && !allComplete && phase === "play"
- }
+ arePiecesDraggable={(!loadingChunk && !inputLocked && !allComplete && phase === "play") && endgameInput.mouseEnabled}
  boardLeft={shouldAskWinDraw() ? undefined : boardLeft}
  boardOverlay={boardOverlay}
  sidePanel={
@@ -2951,7 +2966,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  {currentFastSolves} / {POSITION_FAST_SOLVES_TO_MASTER} fast
  solves
  </div>
- <div>Fast = - {maxSecondsPerMove}s</div>
+ <div>Fast = ≤ {maxSecondsPerMove}s</div>
  </div>
  </PanelCard>
 
@@ -2990,7 +3005,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  )}
 
  <BigMessage
- streak={` -  - ${chunkFastSolveCount}`}
+ streak={formatEndgameFastSolves(chunkFastSolveCount)}
  message={status || currentInstruction}
  />
 
@@ -3029,7 +3044,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  fontWeight: 700,
  }}
  >
- - 
+ ✓ 
  </div>
  );
  })}
@@ -3061,7 +3076,8 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: "grid", gap: 8 }}>
- <HintButton onClick={() => void showHintAction()}>
+ {endgameInput.silentButton}
+ <HintButton getHintMove={async () => { await showHintAction(); return null }}>
  Hint
  </HintButton>
 
@@ -3112,7 +3128,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  minHeight: 36,
  }}
  >
- {message || " - "}
+ {message || " —"}
  </div>
  </PanelCard>
 

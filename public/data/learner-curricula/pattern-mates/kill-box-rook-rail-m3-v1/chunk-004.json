@@ -1,0 +1,1326 @@
+{
+  "puzzles": [
+    {
+      "id": "kill-box-mate-in-3-2emu1",
+      "puzzleId": "2emu1",
+      "fen": "1r5k/2q1p3/3p2Q1/4p3/1p4P1/7P/rpP5/1K1R1R2 w - - 0 33",
+      "initialFen": "1r5k/2q1p3/3p2Q1/4p3/1p4P1/7P/rpP5/1K1R1R2 w - - 0 33",
+      "preMove": "b1a2",
+      "solutionLine": [
+        "b8a8",
+        "a2b2",
+        "c7c3",
+        "b2c1",
+        "a8a1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2160,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 27,
+      "chunkIndex": 21,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "exposedKing",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:R:-1,-7>-2,-7|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DP:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DP@0,-1,DR@1,0,DR@3,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 13,
+        "canonicalIdentity": "1r5k/2q1p3/3p2Q1/4p3/1p4P1/7P/KpP5/3R1R2 b - -|mate-in-3|b8a8,a2b2,c7c3,b2c1,a8a1|2emu1",
+        "pedagogicalFamily": "first:R:-1,-7>-2,-7|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DP:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DP@0,-1,DR@1,0,DR@3,0",
+        "symmetry": "mirror-ranks",
+        "diversityTags": [
+          "king-region:queenside-low",
+          "first-move:Ra8+",
+          "final-mating-piece:R",
+          "final-mating-square:a1",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-HE5ha",
+      "puzzleId": "HE5ha",
+      "fen": "4R3/ppqr2k1/1r3p1p/2p2Qp1/5bP1/3P4/P4P2/4R1K1 b - - 7 35",
+      "initialFen": "4R3/ppqr2k1/1r3p1p/2p2Qp1/5bP1/3P4/P4P2/4R1K1 b - - 7 35",
+      "preMove": "b6d6",
+      "solutionLine": [
+        "e8g8",
+        "g7g8",
+        "f5g6",
+        "d7g7",
+        "e1e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1929,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "attraction",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 23,
+      "chunkIndex": 23,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "attraction",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "sacrifice"
+      ],
+      "pedagogicalFamily": "first:R:-2,0>0,0|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DR:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DP@-1,-2,DP@1,-2,DR@-3,-2,DR@0,-1",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 2,
+        "canonicalIdentity": "4R3/ppqr2k1/3r1p1p/2p2Qp1/5bP1/3P4/P4P2/4R1K1 w - -|mate-in-3|e8g8,g7g8,f5g6,d7g7,e1e8|HE5ha",
+        "pedagogicalFamily": "first:R:-2,0>0,0|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DR:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DP@-1,-2,DP@1,-2,DR@-3,-2,DR@0,-1",
+        "symmetry": "identity",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Rg8+",
+          "final-mating-piece:R",
+          "final-mating-square:e8",
+          "line-plies:5",
+          "defender-nearby:4"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-i4LLj",
+      "puzzleId": "i4LLj",
+      "fen": "r7/1p6/p2p1k2/4n3/3bb3/7Q/BPq3PP/5R1K b - - 1 29",
+      "initialFen": "r7/1p6/p2p1k2/4n3/3bb3/7Q/BPq3PP/5R1K b - - 1 29",
+      "preMove": "f6e7",
+      "solutionLine": [
+        "h3e6",
+        "e7d8",
+        "e6d6",
+        "e5d7",
+        "f1f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2107,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "deflection",
+        "fork",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 27,
+      "chunkIndex": 0,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "deflection",
+        "fork",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "pedagogicalFamily": "first:Q:-4,-5>-1,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DN:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DN@0,-1,DP@2,-1,DR@3,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 12,
+        "canonicalIdentity": "r7/1p2k3/p2p4/4n3/3bb3/7Q/BPq3PP/5R1K w - -|mate-in-3|h3e6,e7d8,e6d6,e5d7,f1f8|i4LLj",
+        "pedagogicalFamily": "first:Q:-4,-5>-1,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DN:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DN@0,-1,DP@2,-1,DR@3,0",
+        "symmetry": "mirror-files",
+        "diversityTags": [
+          "king-region:center-high",
+          "first-move:Qe6+",
+          "final-mating-piece:R",
+          "final-mating-square:f8",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-kEFKa",
+      "puzzleId": "kEFKa",
+      "fen": "4qk2/1r3p2/2pR4/2n1p1Qp/1p2P3/1P2PK2/6P1/8 b - - 9 42",
+      "initialFen": "4qk2/1r3p2/2pR4/2n1p1Qp/1p2P3/1P2PK2/6P1/8 b - - 9 42",
+      "preMove": "b7d7",
+      "solutionLine": [
+        "d6h6",
+        "f7f6",
+        "g5f6",
+        "d7f7",
+        "h6h8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2299,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 28,
+      "chunkIndex": 28,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:R:-2,-2>-2,2|final:R:-2,2>0,2|line:5|escape:-1,-1:empty:controlled,-1,0:DR:controlled,-1,1:empty:controlled,0,-1:DQ:free,0,1:empty:controlled,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,2,DN@-3,-3,DQ@0,-1,DR@-1,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 15,
+        "canonicalIdentity": "4qk2/3r1p2/2pR4/2n1p1Qp/1p2P3/1P2PK2/6P1/8 w - -|mate-in-3|d6h6,f7f6,g5f6,d7f7,h6h8|kEFKa",
+        "pedagogicalFamily": "first:R:-2,-2>-2,2|final:R:-2,2>0,2|line:5|escape:-1,-1:empty:controlled,-1,0:DR:controlled,-1,1:empty:controlled,0,-1:DQ:free,0,1:empty:controlled,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,2,DN@-3,-3,DQ@0,-1,DR@-1,0",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Rh6",
+          "final-mating-piece:R",
+          "final-mating-square:h8",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-pFBJF",
+      "puzzleId": "pFBJF",
+      "fen": "1k1r3r/1p3pp1/2N5/1pQ4p/5q2/2P5/6PP/R5K1 b - - 3 26",
+      "initialFen": "1k1r3r/1p3pp1/2N5/1pQ4p/5q2/2P5/6PP/R5K1 b - - 3 26",
+      "preMove": "b7c6",
+      "solutionLine": [
+        "c5b6",
+        "b8c8",
+        "b6c6",
+        "f4c7",
+        "a1a8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2058,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 26,
+      "chunkIndex": 4,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "exposedKing",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:Q:-3,0>-2,-1|final:R:-7,-2>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DQ:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:DR:free,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DQ@-1,0,DR@0,1",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 9,
+        "canonicalIdentity": "1k1r3r/5pp1/2p5/1pQ4p/5q2/2P5/6PP/R5K1 w - -|mate-in-3|c5b6,b8c8,b6c6,f4c7,a1a8|pFBJF",
+        "pedagogicalFamily": "first:Q:-3,0>-2,-1|final:R:-7,-2>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DQ:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:DR:free,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DQ@-1,0,DR@0,1",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "king-region:queenside-high",
+          "first-move:Qb6+",
+          "final-mating-piece:R",
+          "final-mating-square:a8",
+          "line-plies:5",
+          "defender-nearby:2"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-bcnfC",
+      "puzzleId": "bcnfC",
+      "fen": "7r/2p2pp1/p1pk4/3P3q/5P2/8/PP3bQ1/R3RKNr w - - 0 28",
+      "initialFen": "7r/2p2pp1/p1pk4/3P3q/5P2/8/PP3bQ1/R3RKNr w - - 0 28",
+      "preMove": "g2f2",
+      "solutionLine": [
+        "h1g1",
+        "f2g1",
+        "h5f3",
+        "g1f2",
+        "h8h1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2013,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "clearance",
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "sacrifice"
+      ],
+      "chunkNumber": 24,
+      "chunkIndex": 25,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "clearance",
+        "exposedKing",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "sacrifice"
+      ],
+      "pedagogicalFamily": "first:R:-2,0>-1,0|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DQ@0,-1,DR@1,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 5,
+        "canonicalIdentity": "7r/2p2pp1/p1pk4/3P3q/5P2/8/PP3Q2/R3RKNr b - -|mate-in-3|h1g1,f2g1,h5f3,g1f2,h8h1|bcnfC",
+        "pedagogicalFamily": "first:R:-2,0>-1,0|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DQ@0,-1,DR@1,0",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "king-region:kingside-low",
+          "first-move:Rxg1+",
+          "final-mating-piece:R",
+          "final-mating-square:h1",
+          "line-plies:5",
+          "defender-nearby:2"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-YSaPG",
+      "puzzleId": "YSaPG",
+      "fen": "6k1/Q5pp/2p4r/3p4/P6q/5r2/6P1/R3R1K1 w - - 0 27",
+      "initialFen": "6k1/Q5pp/2p4r/3p4/P6q/5r2/6P1/R3R1K1 w - - 0 27",
+      "preMove": "g2f3",
+      "solutionLine": [
+        "h4g3",
+        "g1f1",
+        "g3f3",
+        "a7f2",
+        "h6h1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2211,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 28,
+      "chunkIndex": 4,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "exposedKing",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:Q:-2,-3>-1,-2|final:R:-2,-5>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DQ@0,-1,DR@1,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 14,
+        "canonicalIdentity": "6k1/Q5pp/2p4r/3p4/P6q/5P2/8/R3R1K1 b - -|mate-in-3|h4g3,g1f1,g3f3,a7f2,h6h1|YSaPG",
+        "pedagogicalFamily": "first:Q:-2,-3>-1,-2|final:R:-2,-5>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DQ@0,-1,DR@1,0",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "king-region:kingside-low",
+          "first-move:Qg3+",
+          "final-mating-piece:R",
+          "final-mating-square:h1",
+          "line-plies:5",
+          "defender-nearby:2"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-RIvdM",
+      "puzzleId": "RIvdM",
+      "fen": "6k1/2Q2pp1/7p/4r1q1/8/P3r1PP/1P1R2PK/3R4 w - - 7 37",
+      "initialFen": "6k1/2Q2pp1/7p/4r1q1/8/P3r1PP/1P1R2PK/3R4 w - - 7 37",
+      "preMove": "b2b4",
+      "solutionLine": [
+        "g5g3",
+        "h2g1",
+        "e3e1",
+        "d1e1",
+        "e5e1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1301,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 4,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:Q:-4,0>-2,0|final:R:-4,-2>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DP:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:empty:free,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DP@-1,0,DP@-2,1,DR@-1,-3",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 22,
+        "canonicalIdentity": "6k1/2Q2pp1/7p/4r1q1/1P6/P3r1PP/3R2PK/3R4 b - -|mate-in-3|g5g3,h2g1,e3e1,d1e1,e5e1|RIvdM",
+        "pedagogicalFamily": "first:Q:-4,0>-2,0|final:R:-4,-2>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DP:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:empty:free,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DP@-1,0,DP@-2,1,DR@-1,-3",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "king-region:kingside-low",
+          "first-move:Qxg3+",
+          "final-mating-piece:R",
+          "final-mating-square:e1",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-Q7T8w",
+      "puzzleId": "Q7T8w",
+      "fen": "8/1R2rk2/4p3/3pPn1Q/3P3p/5pp1/5Pq1/4KN2 b - - 5 45",
+      "initialFen": "8/1R2rk2/4p3/3pPn1Q/3P3p/5pp1/5Pq1/4KN2 b - - 5 45",
+      "preMove": "f7g8",
+      "solutionLine": [
+        "h5g6",
+        "f5g7",
+        "b7b8",
+        "e7e8",
+        "b8e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2312,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "master",
+        "mate",
+        "mateIn3",
+        "pin"
+      ],
+      "chunkNumber": 29,
+      "chunkIndex": 3,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "exposedKing",
+        "long",
+        "master",
+        "mate",
+        "mateIn3",
+        "pin"
+      ],
+      "pedagogicalFamily": "first:Q:-1,-3>0,-2|final:R:5,0>2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:free,-1,1:edge,0,-1:DN:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:controlled,1,1:edge|near:AQ@0,-2,AR@2,0,DN@0,-1,DP@2,-2",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 17,
+        "canonicalIdentity": "6k1/1R2r3/4p3/3pPn1Q/3P3p/5pp1/5Pq1/4KN2 w - -|mate-in-3|h5g6,f5g7,b7b8,e7e8,b8e8|Q7T8w",
+        "pedagogicalFamily": "first:Q:-1,-3>0,-2|final:R:5,0>2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:free,-1,1:edge,0,-1:DN:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:controlled,1,1:edge|near:AQ@0,-2,AR@2,0,DN@0,-1,DP@2,-2",
+        "symmetry": "mirror-files",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Qg6+",
+          "final-mating-piece:R",
+          "final-mating-square:e8",
+          "line-plies:5",
+          "defender-nearby:2"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-Xoa7l",
+      "puzzleId": "Xoa7l",
+      "fen": "2rr1k2/p3b3/1p2pNR1/2q1P3/8/5Q2/PP3P1P/7K b - - 0 28",
+      "initialFen": "2rr1k2/p3b3/1p2pNR1/2q1P3/8/5Q2/PP3P1P/7K b - - 0 28",
+      "preMove": "e7f6",
+      "solutionLine": [
+        "f3f6",
+        "f8e8",
+        "f6e6",
+        "c5e7",
+        "g6g8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1932,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 23,
+      "chunkIndex": 26,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "exposedKing",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:Q:-1,-5>-1,-2|final:R:-2,-2>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DQ@0,-1,DR@1,0,DR@2,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 3,
+        "canonicalIdentity": "2rr1k2/p7/1p2pbR1/2q1P3/8/5Q2/PP3P1P/7K w - -|mate-in-3|f3f6,f8e8,f6e6,c5e7,g6g8|Xoa7l",
+        "pedagogicalFamily": "first:Q:-1,-5>-1,-2|final:R:-2,-2>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DQ@0,-1,DR@1,0,DR@2,0",
+        "symmetry": "mirror-files",
+        "diversityTags": [
+          "king-region:center-high",
+          "first-move:Qxf6+",
+          "final-mating-piece:R",
+          "final-mating-square:g8",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-PtYWZ",
+      "puzzleId": "PtYWZ",
+      "fen": "r4r1k/pp5n/n1p1R2Q/8/3b4/3P1B2/PqP3PP/4R2K b - - 2 21",
+      "initialFen": "r4r1k/pp5n/n1p1R2Q/8/3b4/3P1B2/PqP3PP/4R2K b - - 2 21",
+      "preMove": "f8f7",
+      "solutionLine": [
+        "e6e8",
+        "a8e8",
+        "e1e8",
+        "f7f8",
+        "e8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1308,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "exposedKing",
+        "killBoxMate",
+        "kingsideAttack",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 6,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "exposedKing",
+        "kingsideAttack",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "pedagogicalFamily": "first:R:-2,-3>0,-3|final:R:0,-3>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DN:controlled,-1,1:edge,0,-1:empty:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DN@-1,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 23,
+        "canonicalIdentity": "r6k/pp3r1n/n1p1R2Q/8/3b4/3P1B2/PqP3PP/4R2K w - -|mate-in-3|e6e8,a8e8,e1e8,f7f8,e8f8|PtYWZ",
+        "pedagogicalFamily": "first:R:-2,-3>0,-3|final:R:0,-3>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DN:controlled,-1,1:edge,0,-1:empty:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DN@-1,0",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Re8+",
+          "final-mating-piece:R",
+          "final-mating-square:f8",
+          "line-plies:5",
+          "defender-nearby:1"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-YEb9l",
+      "puzzleId": "YEb9l",
+      "fen": "4r1k1/p1q2p1p/2P3p1/5p2/8/1Q2r1PP/P1R3PK/2R5 w - - 5 36",
+      "initialFen": "4r1k1/p1q2p1p/2P3p1/5p2/8/1Q2r1PP/P1R3PK/2R5 w - - 5 36",
+      "preMove": "c2c3",
+      "solutionLine": [
+        "c7g3",
+        "h2g1",
+        "e3e1",
+        "c1e1",
+        "e8e1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1318,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 15,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:Q:-4,-6>0,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DP:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DP@0,-1,DP@1,-2",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 25,
+        "canonicalIdentity": "4r1k1/p1q2p1p/2P3p1/5p2/8/1QR1r1PP/P5PK/2R5 b - -|mate-in-3|c7g3,h2g1,e3e1,c1e1,e8e1|YEb9l",
+        "pedagogicalFamily": "first:Q:-4,-6>0,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DP:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DP@0,-1,DP@1,-2",
+        "symmetry": "mirror-ranks",
+        "diversityTags": [
+          "king-region:kingside-low",
+          "first-move:Qxg3+",
+          "final-mating-piece:R",
+          "final-mating-square:e1",
+          "line-plies:5",
+          "defender-nearby:2"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-k5vGi",
+      "puzzleId": "k5vGi",
+      "fen": "1k5r/2p2p2/p3p3/2Q1P3/6Pq/1PB2b2/P5P1/4R1K1 w - - 0 31",
+      "initialFen": "1k5r/2p2p2/p3p3/2Q1P3/6Pq/1PB2b2/P5P1/4R1K1 w - - 0 31",
+      "preMove": "g2f3",
+      "solutionLine": [
+        "h4g3",
+        "g1f1",
+        "g3f3",
+        "c5f2",
+        "h8h1"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2077,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "master",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 26,
+      "chunkIndex": 14,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "exposedKing",
+        "long",
+        "master",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:Q:-2,-3>-1,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DB@3,-2,DQ@0,-1,DR@1,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 11,
+        "canonicalIdentity": "1k5r/2p2p2/p3p3/2Q1P3/6Pq/1PB2P2/P7/4R1K1 b - -|mate-in-3|h4g3,g1f1,g3f3,c5f2,h8h1|k5vGi",
+        "pedagogicalFamily": "first:Q:-2,-3>-1,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DB@3,-2,DQ@0,-1,DR@1,0",
+        "symmetry": "rotate-180",
+        "diversityTags": [
+          "king-region:kingside-low",
+          "first-move:Qg3+",
+          "final-mating-piece:R",
+          "final-mating-square:h1",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-ZlZfW",
+      "puzzleId": "ZlZfW",
+      "fen": "r5kr/pp6/n1p2Qp1/8/P2PR3/q4P2/7P/4R1K1 b - - 3 28",
+      "initialFen": "r5kr/pp6/n1p2Qp1/8/P2PR3/q4P2/7P/4R1K1 b - - 3 28",
+      "preMove": "a3f8",
+      "solutionLine": [
+        "f6g6",
+        "f8g7",
+        "e4e8",
+        "a8e8",
+        "e1e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1253,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 9,
+      "chunkIndex": 11,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "exposedKing",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "pedagogicalFamily": "first:Q:-1,-2>0,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DQ@0,-1,DR@1,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 19,
+        "canonicalIdentity": "r4qkr/pp6/n1p2Qp1/8/P2PR3/5P2/7P/4R1K1 w - -|mate-in-3|f6g6,f8g7,e4e8,a8e8,e1e8|ZlZfW",
+        "pedagogicalFamily": "first:Q:-1,-2>0,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:DR:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DQ@0,-1,DR@1,0",
+        "symmetry": "identity",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Qxg6+",
+          "final-mating-piece:R",
+          "final-mating-square:e8",
+          "line-plies:5",
+          "defender-nearby:2"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-sFyxf",
+      "puzzleId": "sFyxf",
+      "fen": "r6k/p4r1n/bp2R2Q/2pP1P1N/2P5/8/Pq3P1P/4R2K b - - 0 32",
+      "initialFen": "r6k/p4r1n/bp2R2Q/2pP1P1N/2P5/8/Pq3P1P/4R2K b - - 0 32",
+      "preMove": "b2f2",
+      "solutionLine": [
+        "e6e8",
+        "a8e8",
+        "e1e8",
+        "f7f8",
+        "e8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1046,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 6,
+      "chunkIndex": 8,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "exposedKing",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "pedagogicalFamily": "first:R:-2,-3>0,-3|final:R:0,-3>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DN:controlled,-1,1:edge,0,-1:empty:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AN@-3,0,AQ@-2,0,AR@0,-2,DN@-1,0",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 8,
+        "canonicalIdentity": "r6k/p4r1n/bp2R2Q/2pP1P1N/2P5/8/P4q1P/4R2K w - -|mate-in-3|e6e8,a8e8,e1e8,f7f8,e8f8|sFyxf",
+        "pedagogicalFamily": "first:R:-2,-3>0,-3|final:R:0,-3>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DN:controlled,-1,1:edge,0,-1:empty:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AN@-3,0,AQ@-2,0,AR@0,-2,DN@-1,0",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Re8+",
+          "final-mating-piece:R",
+          "final-mating-square:f8",
+          "line-plies:5",
+          "defender-nearby:1"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-ZRuEM",
+      "puzzleId": "ZRuEM",
+      "fen": "3r2k1/2q2p2/5bNp/8/1rp5/7P/1PQ1RPP1/4R1K1 b - - 0 27",
+      "initialFen": "3r2k1/2q2p2/5bNp/8/1rp5/7P/1PQ1RPP1/4R1K1 b - - 0 27",
+      "preMove": "f7g6",
+      "solutionLine": [
+        "c2g6",
+        "c7g7",
+        "e2e8",
+        "d8e8",
+        "e1e8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1312,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "exposedKing",
+        "fork",
+        "killBoxMate",
+        "long",
+        "master",
+        "mate",
+        "mateIn3",
+        "middlegame"
+      ],
+      "chunkNumber": 10,
+      "chunkIndex": 9,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "exposedKing",
+        "fork",
+        "long",
+        "master",
+        "mate",
+        "mateIn3",
+        "middlegame"
+      ],
+      "pedagogicalFamily": "first:Q:-4,-6>0,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DB@-1,-2,DP@1,-2,DQ@0,-1",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 24,
+        "canonicalIdentity": "3r2k1/2q5/5bpp/8/1rp5/7P/1PQ1RPP1/4R1K1 w - -|mate-in-3|c2g6,c7g7,e2e8,d8e8,e1e8|ZRuEM",
+        "pedagogicalFamily": "first:Q:-4,-6>0,-2|final:R:-2,-7>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DQ:controlled,0,1:edge,1,-1:empty:controlled,1,0:empty:free,1,1:edge|near:AQ@0,-2,AR@-2,0,DB@-1,-2,DP@1,-2,DQ@0,-1",
+        "symmetry": "identity",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Qxg6+",
+          "final-mating-piece:R",
+          "final-mating-square:e8",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-syPl9",
+      "puzzleId": "syPl9",
+      "fen": "2r2r1k/4R2p/p1pp2pQ/1p6/2n5/2q2P2/P5PP/4R1K1 b - - 1 26",
+      "initialFen": "2r2r1k/4R2p/p1pp2pQ/1p6/2n5/2q2P2/P5PP/4R1K1 b - - 1 26",
+      "preMove": "f8f7",
+      "solutionLine": [
+        "e7e8",
+        "c8e8",
+        "e1e8",
+        "f7f8",
+        "e8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 1348,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame"
+      ],
+      "chunkNumber": 11,
+      "chunkIndex": 8,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame"
+      ],
+      "pedagogicalFamily": "first:R:-1,-3>0,-3|final:R:0,-3>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DP:controlled,-1,1:edge,0,-1:empty:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DP@-1,0,DP@-2,-1",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 29,
+        "canonicalIdentity": "2r4k/4Rr1p/p1pp2pQ/1p6/2n5/2q2P2/P5PP/4R1K1 w - -|mate-in-3|e7e8,c8e8,e1e8,f7f8,e8f8|syPl9",
+        "pedagogicalFamily": "first:R:-1,-3>0,-3|final:R:0,-3>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DP:controlled,-1,1:edge,0,-1:empty:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DP@-1,0,DP@-2,-1",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Re8+",
+          "final-mating-piece:R",
+          "final-mating-square:f8",
+          "line-plies:5",
+          "defender-nearby:2"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-eqCnI",
+      "puzzleId": "eqCnI",
+      "fen": "2r4k/ppr2p1p/4p1pQ/3p1BP1/1q6/4R3/P1P2P1P/4R1K1 b - - 0 25",
+      "initialFen": "2r4k/ppr2p1p/4p1pQ/3p1BP1/1q6/4R3/P1P2P1P/4R1K1 b - - 0 25",
+      "preMove": "e6f5",
+      "solutionLine": [
+        "e3e8",
+        "c8e8",
+        "e1e8",
+        "b4f8",
+        "e8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 895,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "endgame",
+        "killBoxMate",
+        "kingsideAttack",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "chunkNumber": 3,
+      "chunkIndex": 25,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "endgame",
+        "kingsideAttack",
+        "long",
+        "mate",
+        "mateIn3"
+      ],
+      "pedagogicalFamily": "first:R:-3,-5>-3,0|final:R:-3,0>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DP:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@0,-2,AR@-2,0,DP@-1,-2,DP@-2,-1,DP@0,-1",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 2,
+        "canonicalIdentity": "2r4k/ppr2p1p/6pQ/3p1pP1/1q6/4R3/P1P2P1P/4R1K1 w - -|mate-in-3|e3e8,c8e8,e1e8,b4f8,e8f8|eqCnI",
+        "pedagogicalFamily": "first:R:-3,-5>-3,0|final:R:-3,0>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DP:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@0,-2,AR@-2,0,DP@-1,-2,DP@-2,-1,DP@0,-1",
+        "symmetry": "identity",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Re8+",
+          "final-mating-piece:R",
+          "final-mating-square:f8",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-zTyEC",
+      "puzzleId": "zTyEC",
+      "fen": "3r1r1k/4pN2/5np1/p1q4p/1p2P3/1B6/P1PQ2P1/1K1R4 b - - 1 27",
+      "initialFen": "3r1r1k/4pN2/5np1/p1q4p/1p2P3/1B6/P1PQ2P1/1K1R4 b - - 1 27",
+      "preMove": "f8f7",
+      "solutionLine": [
+        "d2h6",
+        "f6h7",
+        "d1d8",
+        "f7f8",
+        "d8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 2063,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "discoveredAttack",
+        "exposedKing",
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "chunkNumber": 26,
+      "chunkIndex": 7,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "discoveredAttack",
+        "exposedKing",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame",
+        "pin"
+      ],
+      "pedagogicalFamily": "first:Q:-4,-6>0,-2|final:R:-4,0>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DN:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@0,-2,AR@-2,0,DN@0,-1,DP@-1,-2",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 2,
+        "sourcePuzzleIndex": 10,
+        "canonicalIdentity": "3r3k/4pr2/5np1/p1q4p/1p2P3/1B6/P1PQ2P1/1K1R4 w - -|mate-in-3|d2h6,f6h7,d1d8,f7f8,d8f8|zTyEC",
+        "pedagogicalFamily": "first:Q:-4,-6>0,-2|final:R:-4,0>-2,0|line:5|escape:-1,-1:empty:controlled,-1,0:empty:controlled,-1,1:edge,0,-1:DN:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@0,-2,AR@-2,0,DN@0,-1,DP@-1,-2",
+        "symmetry": "identity",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Qh6+",
+          "final-mating-piece:R",
+          "final-mating-square:f8",
+          "line-plies:5",
+          "defender-nearby:2"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    },
+    {
+      "id": "kill-box-mate-in-3-0pVKR",
+      "puzzleId": "0pVKR",
+      "fen": "r4r1k/4RN1p/6pQ/2p4n/8/8/pq3PPP/4R1K1 b - - 0 33",
+      "initialFen": "r4r1k/4RN1p/6pQ/2p4n/8/8/pq3PPP/4R1K1 b - - 0 33",
+      "preMove": "f8f7",
+      "solutionLine": [
+        "e7e8",
+        "a8e8",
+        "e1e8",
+        "f7f8",
+        "e8f8"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "mateDistance": 3,
+      "solutionMoveCount": 5,
+      "rating": 982,
+      "label": "Kill Box Mate in 3",
+      "theme": "killBoxMate",
+      "themes": [
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame"
+      ],
+      "chunkNumber": 5,
+      "chunkIndex": 8,
+      "killBoxSubpattern": "rook-rail",
+      "killBoxSourceTheme": "kill-box",
+      "canonicalThemeKey": "kill-box-rook-rail",
+      "canonicalThemeLabel": "Kill Box — Rook Rail",
+      "rawTags": [
+        "killBoxMate",
+        "long",
+        "mate",
+        "mateIn3",
+        "middlegame"
+      ],
+      "pedagogicalFamily": "first:R:-1,-3>0,-3|final:R:0,-3>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DP:controlled,-1,1:edge,0,-1:empty:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DN@-3,0,DP@-1,0,DP@-2,-1",
+      "learnerCurriculum": {
+        "version": "m3-v1",
+        "mateDistance": 3,
+        "sourceChunkIndex": 0,
+        "sourcePuzzleIndex": 4,
+        "canonicalIdentity": "r6k/4Rr1p/6pQ/2p4n/8/8/pq3PPP/4R1K1 w - -|mate-in-3|e7e8,a8e8,e1e8,f7f8,e8f8|0pVKR",
+        "pedagogicalFamily": "first:R:-1,-3>0,-3|final:R:0,-3>0,-2|line:5|escape:-1,-1:empty:controlled,-1,0:DP:controlled,-1,1:edge,0,-1:empty:controlled,0,1:edge,1,-1:edge,1,0:edge,1,1:edge|near:AQ@-2,0,AR@0,-2,DN@-3,0,DP@-1,0,DP@-2,-1",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "king-region:kingside-high",
+          "first-move:Re8+",
+          "final-mating-piece:R",
+          "final-mating-square:f8",
+          "line-plies:5",
+          "defender-nearby:3"
+        ],
+        "retainedReason": "Unique legal pedagogical family selected for structural variety"
+      }
+    }
+  ]
+}

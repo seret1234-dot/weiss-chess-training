@@ -7,11 +7,11 @@ import React, {
   useState,
 } from "react"
 
-export type SiteTheme = "nobleStandard" | "weiss3d" | "classic" | "qwertyxp2000"
+export type SiteTheme = "nobleStandard" | "weiss3d" | "classic" | "merida" | "qwertyxp2000"
 
-// Use the Classic SVG set for users without a saved preference. A saved user
+// Use Merida when no preference is saved. A saved user
 // choice in localStorage still takes priority.
-export const DEFAULT_SITE_THEME: SiteTheme = "classic"
+export const DEFAULT_SITE_THEME: SiteTheme = "merida"
 
 type PieceRendererProps = {
   squareWidth: number
@@ -34,18 +34,23 @@ type ThemeContextValue = {
   theme: SiteTheme
   setTheme: (theme: SiteTheme) => void
   toggleTheme: () => void
+  showCoordinates: boolean
+  setShowCoordinates: (show: boolean) => void
+  toggleCoordinates: () => void
   config: SiteThemeConfig
   pieces: ThemePieces
 }
 
-const STORAGE_KEY = "weiss-chess-site-theme-v2"
-const themeOrder: SiteTheme[] = ["nobleStandard", "weiss3d", "classic", "qwertyxp2000"]
+export const SITE_THEME_STORAGE_KEY = "weiss-chess-site-theme-v2"
+export const SHOW_BOARD_COORDINATES_STORAGE_KEY = "weiss-chess-show-board-coordinates-v1"
+export const DEFAULT_SHOW_BOARD_COORDINATES = true
+export const siteThemeOrder: SiteTheme[] = ["nobleStandard", "weiss3d", "classic", "merida", "qwertyxp2000"]
 
 export const siteThemes: Record<SiteTheme, SiteThemeConfig> = {
   nobleStandard: {
     id: "nobleStandard",
     name: "Noble Standard",
-    description: "Your new default: centered premium 2D pieces with strong soft shadows.",
+    description: "Centered premium 2D pieces with strong soft shadows.",
     board: {
       light: "#e6d7b0",
       dark: "#6f7b4e",
@@ -64,6 +69,15 @@ export const siteThemes: Record<SiteTheme, SiteThemeConfig> = {
     id: "classic",
     name: "Classic",
     description: "Refined original board with the familiar flat tournament pieces.",
+    board: {
+      light: "#eeeccf",
+      dark: "#7a995c",
+    },
+  },
+  merida: {
+    id: "merida",
+    name: "Default (Merida)",
+    description: "Classic tournament-style 2D pieces.",
     board: {
       light: "#eeeccf",
       dark: "#7a995c",
@@ -127,12 +141,52 @@ function classicUrl(code: PieceCode): string {
   return `/pieces/react-chessboard-default/${code.toLowerCase()}.svg`
 }
 
+function meridaUrl(code: PieceCode): string {
+  return `/pieces/merida/${code.toLowerCase()}.svg`
+}
+
 function nobleUrl(code: PieceCode): string {
   return `/pieces/noble-standard/${code.toLowerCase()}.png`
 }
 
 function qwertyUrl(code: PieceCode): string {
   return `/pieces/qwertyxp2000/${code.toLowerCase()}.png`
+}
+
+// Keep decoded image *nodes*, not just URLs in the HTTP cache. Moving a ready
+// node into a new square does not start another image load/decode on that frame.
+const decodedPiecePools = new Map<string, HTMLImageElement[]>()
+function decodedPiecePool(src: string) {
+  let pool = decodedPiecePools.get(src)
+  if (pool) return pool
+  pool = []
+  decodedPiecePools.set(src, pool)
+  for (let i = 0; i < 16; i++) {
+    const image = new Image()
+    image.src = src
+    void image.decode().then(() => pool!.push(image)).catch(() => {})
+  }
+  return pool
+}
+
+function DecodedPieceImage({ src, width, height, style }: { src: string; width: number; height: number; style: React.CSSProperties }) {
+  const host = React.useRef<HTMLSpanElement>(null)
+  React.useLayoutEffect(() => {
+    const pool = decodedPiecePool(src)
+    const image = pool.pop() ?? new Image()
+    if (!image.getAttribute('src')) image.src = src
+    image.alt = ''
+    image.draggable = false
+    image.width = width
+    image.height = height
+    Object.assign(image.style, style, { width: `${width}px`, height: `${height}px` })
+    host.current?.appendChild(image)
+    return () => {
+      image.remove()
+      if (image.complete && image.naturalWidth > 0) pool.push(image)
+    }
+  }, [src, width, height, style])
+  return <span ref={host} style={{ display: 'contents' }} />
 }
 
 function createImagePiece(
@@ -159,10 +213,8 @@ function createImagePiece(
           userSelect: "none",
         }}
       >
-        <img
+        <DecodedPieceImage
           src={src}
-          alt=""
-          draggable={false}
           width={renderedSize}
           height={renderedSize}
           style={{
@@ -200,6 +252,15 @@ function createClassicPiece(code: PieceCode): PieceRenderer {
   )
 }
 
+function createMeridaPiece(code: PieceCode): PieceRenderer {
+  return createImagePiece(
+    code,
+    meridaUrl(code),
+    1,
+    "drop-shadow(0 2px 1px rgba(0,0,0,0.30)) drop-shadow(0 5px 5px rgba(0,0,0,0.16))",
+  )
+}
+
 function createNoblePiece(code: PieceCode): PieceRenderer {
   const kingLift = code[1] === "K" ? -0.035 : 0
 
@@ -229,15 +290,48 @@ const noblePieces = buildPieces(createNoblePiece)
 const weiss3dPieces = buildPieces(createWeiss3dPiece)
 const classicPieces = buildPieces(createClassicPiece)
 const qwertyPieces = buildPieces(createQwertyPiece)
+const meridaPieces = buildPieces(createMeridaPiece)
 
-function readInitialTheme(): SiteTheme {
+export function resolveThemePieces(theme: SiteTheme): ThemePieces {
+  if (theme === "nobleStandard") return noblePieces
+  if (theme === "weiss3d") return weiss3dPieces
+  if (theme === "classic") return classicPieces
+  if (theme === "merida") return meridaPieces
+  if (theme === "qwertyxp2000") return qwertyPieces
+  return meridaPieces
+}
+
+// Warm/decode the complete selected set before later puzzles need a new piece
+// type. A position replacement must not wait for an image network request.
+function preloadThemePieces(theme: SiteTheme) {
+  const url = theme === 'classic' ? classicUrl : theme === 'weiss3d' ? weiss3dUrl
+    : theme === 'nobleStandard' ? nobleUrl : theme === 'qwertyxp2000' ? qwertyUrl : meridaUrl
+  for (const code of pieceCodes) {
+    decodedPiecePool(url(code))
+  }
+}
+
+export function readInitialTheme(): SiteTheme {
   if (typeof window === "undefined") return DEFAULT_SITE_THEME
 
   try {
-    const saved = window.localStorage.getItem(STORAGE_KEY) as SiteTheme | null
-    return saved && themeOrder.includes(saved) ? saved : DEFAULT_SITE_THEME
+    const saved = window.localStorage.getItem(SITE_THEME_STORAGE_KEY) as SiteTheme | null
+    return saved && siteThemeOrder.includes(saved) ? saved : DEFAULT_SITE_THEME
   } catch {
     return DEFAULT_SITE_THEME
+  }
+}
+
+export function readInitialShowCoordinates(): boolean {
+  if (typeof window === "undefined") return DEFAULT_SHOW_BOARD_COORDINATES
+
+  try {
+    const saved = window.localStorage.getItem(SHOW_BOARD_COORDINATES_STORAGE_KEY)
+    if (saved === "false") return false
+    if (saved === "true") return true
+    return DEFAULT_SHOW_BOARD_COORDINATES
+  } catch {
+    return DEFAULT_SHOW_BOARD_COORDINATES
   }
 }
 
@@ -245,42 +339,54 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<SiteTheme>(readInitialTheme)
+  useEffect(() => { preloadThemePieces(theme) }, [theme])
+  const [showCoordinates, setShowCoordinates] = useState<boolean>(readInitialShowCoordinates)
 
   const setTheme = useCallback((nextTheme: SiteTheme) => {
     setThemeState(nextTheme)
   }, [])
 
   const toggleTheme = useCallback(() => {
-    setThemeState((current) => themeOrder[(themeOrder.indexOf(current) + 1) % themeOrder.length])
+    setThemeState((current) => siteThemeOrder[(siteThemeOrder.indexOf(current) + 1) % siteThemeOrder.length])
+  }, [])
+
+  const toggleCoordinates = useCallback(() => {
+    setShowCoordinates((current) => !current)
   }, [])
 
   useEffect(() => {
     document.documentElement.dataset.siteTheme = "classic"
 
     try {
-      window.localStorage.setItem(STORAGE_KEY, theme)
+      window.localStorage.setItem(SITE_THEME_STORAGE_KEY, theme)
     } catch {
       // The selected theme still works for this session when storage is blocked.
     }
   }, [theme])
 
-  const value = useMemo<ThemeContextValue>(() => {
-    let pieces = noblePieces
-    if (theme === "weiss3d") pieces = weiss3dPieces
-    else if (theme === "classic") pieces = classicPieces
-    else if (theme === "qwertyxp2000") pieces = qwertyPieces
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SHOW_BOARD_COORDINATES_STORAGE_KEY, String(showCoordinates))
+    } catch {
+      // The selected board preference still works for this session when storage is blocked.
+    }
+  }, [showCoordinates])
 
+  const value = useMemo<ThemeContextValue>(() => {
     return {
       theme,
       setTheme,
       toggleTheme,
+      showCoordinates,
+      setShowCoordinates,
+      toggleCoordinates,
       config: {
         ...siteThemes[theme],
         board: siteThemes.classic.board,
       },
-      pieces,
+      pieces: resolveThemePieces(theme),
     }
-  }, [theme, setTheme, toggleTheme])
+  }, [theme, setTheme, toggleTheme, showCoordinates, toggleCoordinates])
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

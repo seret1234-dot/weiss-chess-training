@@ -3,9 +3,46 @@
   isolation: isolate;
 }
 
+.trainer-shell-board-controls {
+  width: 100%;
+  margin-top: 8px;
+  /* Below-board controls must not contribute transcript/diagnostic intrinsic
+     width to the board flex item and steal space from the existing side panel. */
+  contain: inline-size;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.accessible-move-input {
+  padding: 8px 10px;
+  border: 1px solid var(--theme-border);
+  border-radius: 10px;
+  color: var(--theme-text);
+  background: var(--theme-panel-2);
+  font-size: 12px;
+}
+
+.accessible-move-input summary { cursor: pointer; font-weight: 800; }
+.accessible-move-input p { margin: 8px 0; line-height: 1.45; color: var(--theme-muted); }
+.accessible-move-input__fields { display: grid; grid-template-columns: auto minmax(62px, 1fr) auto; gap: 8px; align-items: center; }
+.accessible-move-input__fields label { font-weight: 700; }
+.accessible-move-input__fields input { min-width: 0; padding: 8px; border: 1px solid var(--theme-border); border-radius: 7px; color: var(--theme-text); background: var(--theme-panel-input); font: inherit; text-transform: lowercase; }
+.accessible-move-input__fields button { min-height: 40px; padding: 7px 10px; color: var(--theme-text); background: var(--theme-button-bg); }
+.accessible-move-input__status { min-height: 1.4em; margin-bottom: 0 !important; }
+
+@media (max-width: 520px) {
+  .accessible-move-input__fields { grid-template-columns: 1fr 1fr; }
+  .accessible-move-input__fields label { grid-column: 1 / -1; }
+}
+
 .trainer-shell-layout,
 .trainer-shell-side {
   min-width: 0;
+}
+
+.trainer-shell-side {
+  overflow-wrap: anywhere;
 }
 
 .trainer-shell-board-left {
@@ -16,20 +53,124 @@
   min-height: 0 !important;
 }
 
-@media (min-width: 1120px) and (min-height: 720px) {
+.trainer-shell-puzzle-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.trainer-shell-puzzle-actions button {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.trainer-puzzle-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 224px;
+  align-items: start;
+  gap: 12px;
+  width: 100%;
+}
+
+.trainer-puzzle-panel--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.trainer-puzzle-panel-controls,
+.trainer-puzzle-panel-reference {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trainer-puzzle-panel-controls {
+  min-height: var(--trainer-panel-board-size);
+}
+
+.trainer-puzzle-panel-reference .site-explanation-box {
+  margin: 0;
+  padding: 12px 13px;
+}
+
+.trainer-puzzle-panel-reference .site-explanation-title {
+  font-size: 1.02rem;
+  margin-bottom: 7px;
+}
+
+.trainer-puzzle-panel-reference .site-explanation-box p {
+  margin: 5px 0;
+  font-size: 0.82rem;
+  line-height: 1.38;
+}
+
+.trainer-puzzle-panel .trainer-shell-puzzle-actions button {
+  font-size: 12px !important;
+  /* A zero flex basis plus anywhere wrapping squeezed five labels into one
+     narrow row. Size rows from their labels and wrap between buttons/words. */
+  flex-basis: auto !important;
+  min-width: min-content;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* Collapse by width, not laptop height: short desktops keep Idea beside controls. */
+@media (max-width: 1240px) {
+  .trainer-puzzle-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .trainer-puzzle-panel-reference {
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .trainer-puzzle-panel-controls {
+    min-height: 0;
+  }
+  .trainer-puzzle-panel-reference {
+    grid-row: auto;
+  }
+  .trainer-puzzle-panel .trainer-shell-puzzle-actions {
+    margin-top: 0;
+  }
+  .trainer-puzzle-panel .trainer-shell-puzzle-actions button {
+    flex: 1 1 140px;
+  }
+}
+
+/* Puzzle trainers use the in-panel Hint instead of the global floating copy. */
+.trainer-shell-puzzle-actions .site-inline-hint {
+  display: inline-flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Keep large boards in document flow, so the site footer follows all controls.
+   The side panel has one independent vertical scroll area, even on short laptops. */
+@media (min-width: 769px) {
   .trainer-shell-page--fixed {
-    height: 100dvh;
+    height: auto;
     min-height: 100dvh !important;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .trainer-shell-page--fixed .trainer-shell-layout {
-    max-height: calc(100dvh - 64px);
+    max-height: none;
   }
 
-  .trainer-shell-page--fixed .trainer-shell-side {
-    max-height: calc(100dvh - 76px);
-    overflow: hidden;
+  .trainer-shell-side {
+    position: sticky;
+    top: 12px;
+    min-height: 0;
+    max-height: calc(100dvh - 88px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+    scroll-padding-block: 12px;
   }
 }
 

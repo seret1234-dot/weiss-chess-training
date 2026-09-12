@@ -43,7 +43,7 @@ function requiredEnvironment(name, alternatives = []) {
   )
 }
 
-function createServerSupabase() {
+export function createServerSupabase() {
   const url = requiredEnvironment(
     "SUPABASE_URL",
     ["VITE_SUPABASE_URL"],
@@ -124,13 +124,13 @@ function normalizeQuota(rawQuota) {
   }
 }
 
-async function authenticateUser(supabase, authorization) {
+export async function authenticateUser(supabase, authorization, feature = "Image to Position") {
   const accessToken = extractAccessToken(authorization)
 
   if (!accessToken) {
     throw new HttpError(
       401,
-      "Log in to use Image to Position.",
+      `Log in to use ${feature}.`,
       { code: "AUTH_REQUIRED" },
     )
   }

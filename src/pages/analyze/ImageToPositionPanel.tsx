@@ -5,6 +5,7 @@ import {
  SecondaryButton,
  SectionTitle,
 } from "../../components/trainer/ui";
+import { buildBoardAccessibilityDescription, describeBoardSquare } from "../../components/chess/boardAccessibility.mjs";
 
 type PieceCode =
  | "wP"
@@ -213,6 +214,7 @@ export default function ImageToPositionPanel({
  const [status, setStatus] = useState(
  "Upload a board image, then place/correct the pieces and load the FEN.",
  );
+ const [activeSquare, setActiveSquare] = useState("a1");
 
  const squares = useMemo(() => displaySquares(orientation), [orientation]);
 
@@ -267,6 +269,31 @@ export default function ImageToPositionPanel({
  });
  }
 
+ function handleSquareKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, square: string) {
+ const fileIndex = FILES.indexOf(square[0]);
+ const rank = Number(square[1]);
+ let nextFile = fileIndex;
+ let nextRank = rank;
+ const horizontal = orientation === "white" ? 1 : -1;
+ const vertical = orientation === "white" ? 1 : -1;
+ if (event.key === "ArrowRight") nextFile += horizontal;
+ else if (event.key === "ArrowLeft") nextFile -= horizontal;
+ else if (event.key === "ArrowUp") nextRank += vertical;
+ else if (event.key === "ArrowDown") nextRank -= vertical;
+ else return;
+ event.preventDefault();
+ nextFile = Math.max(0, Math.min(7, nextFile));
+ nextRank = Math.max(1, Math.min(8, nextRank));
+ const nextSquare = `${FILES[nextFile]}${nextRank}`;
+ setActiveSquare(nextSquare);
+ document.getElementById(`image-position-square-${nextSquare}`)?.focus();
+ }
+
+ function selectOrientation(next: "white" | "black") {
+ setOrientation(next);
+ setStatus(`Board orientation: ${next === "white" ? "White" : "Black"} at bottom.`);
+ }
+
  function toggleCastling(right: string) {
  setCastling((current) => {
  const normalized = normalizeCastling(current);
@@ -297,6 +324,16 @@ export default function ImageToPositionPanel({
  setStatus("Castling rights guessed from king and rook home squares. Check this manually.");
  }
 
+ const boardAccessibility = buildBoardAccessibilityDescription({
+ id: "image-position-editor-board",
+ title: "Image to Position editor",
+ position: fen,
+ orientation,
+ showCoordinates: true,
+ selectedSquare: activeSquare,
+ interactionDescription: "The board has one Tab stop. Use Arrow keys to choose a square, then Enter or Space to apply the selected piece or Erase tool.",
+ });
+
  return (
  <div
  className="analyze-image-position-modal"
@@ -314,6 +351,9 @@ export default function ImageToPositionPanel({
  >
  <div
  className="analyze-image-position-modal__dialog"
+ role="dialog"
+ aria-modal="true"
+ aria-labelledby="image-to-position-dialog-title"
  style={{
  width: "min(1180px, 96vw)",
  maxHeight: "94vh",
@@ -341,7 +381,7 @@ export default function ImageToPositionPanel({
  }}
  >
  <div>
- <SectionTitle>Image to Position</SectionTitle>
+ <div id="image-to-position-dialog-title"><SectionTitle>Image to Position</SectionTitle></div>
  <div style={{ color: "#aaa", fontSize: 12 }}>
  First version: image background + manual correction to FEN.
  </div>
@@ -351,6 +391,9 @@ export default function ImageToPositionPanel({
 
  <div
  className="analyze-image-position-modal__board"
+ role="grid"
+ aria-label={boardAccessibility.label}
+ aria-describedby="image-position-board-description"
  style={{
  position: "relative",
  width: "min(66vh, 620px)",
@@ -363,6 +406,7 @@ export default function ImageToPositionPanel({
  border: "1px solid rgba(255,255,255,0.12)",
  }}
  >
+ <span id="image-position-board-description" className="sr-only">{boardAccessibility.description}</span>
  {imageUrl ? (
  <img
  src={imageUrl}
@@ -413,6 +457,14 @@ export default function ImageToPositionPanel({
  return (
  <button
  key={square}
+ id={`image-position-square-${square}`}
+ type="button"
+ role="gridcell"
+ tabIndex={activeSquare === square ? 0 : -1}
+ aria-label={describeBoardSquare(square, board, { selected: activeSquare === square })}
+ aria-selected={activeSquare === square}
+ onFocus={() => setActiveSquare(square)}
+ onKeyDown={(event) => handleSquareKeyDown(event, square)}
  onClick={() => placePiece(square)}
  title={square}
  style={{
@@ -488,8 +540,11 @@ export default function ImageToPositionPanel({
  >
  {(Object.keys(PIECE_SYMBOLS) as PieceCode[]).map((piece) => (
  <button
+ type="button"
  key={piece}
  onClick={() => setSelectedPiece(piece)}
+ aria-label={`Select ${piece.startsWith("w") ? "White" : "Black"} ${({ P: "pawn", N: "knight", B: "bishop", R: "rook", Q: "queen", K: "king" } as const)[piece[1] as "P" | "N" | "B" | "R" | "Q" | "K"]}`}
+ aria-pressed={selectedPiece === piece}
  style={{
  borderRadius: 8,
  border:
@@ -513,7 +568,9 @@ export default function ImageToPositionPanel({
  </div>
 
  <button
+ type="button"
  onClick={() => setSelectedPiece("erase")}
+ aria-pressed={selectedPiece === "erase"}
  style={{
  width: "100%",
  borderRadius: 8,
@@ -543,10 +600,10 @@ export default function ImageToPositionPanel({
  <SectionTitle>3. Position details</SectionTitle>
 
  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
- <SecondaryButton onClick={() => setOrientation("white")}>
+ <SecondaryButton aria-pressed={orientation === "white"} onClick={() => selectOrientation("white")}>
  View White
  </SecondaryButton>
- <SecondaryButton onClick={() => setOrientation("black")}>
+ <SecondaryButton aria-pressed={orientation === "black"} onClick={() => selectOrientation("black")}>
  View Black
  </SecondaryButton>
  </div>
@@ -662,7 +719,7 @@ export default function ImageToPositionPanel({
  >
  {fen}
  </div>
- <div style={{ color: "#aaa", fontSize: 12, lineHeight: 1.4, marginBottom: 8 }}>
+ <div role="status" aria-live="polite" aria-atomic="true" style={{ color: "#aaa", fontSize: 12, lineHeight: 1.4, marginBottom: 8 }}>
  {status}
  </div>
  <PrimaryButton onClick={loadFen}>Load Position into Analyze</PrimaryButton>

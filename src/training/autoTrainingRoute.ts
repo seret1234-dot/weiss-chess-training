@@ -1,6 +1,10 @@
+import { logicalActivityKey } from './activityIdentity'
+
 export type AutoTrainingItem = {
+ mixedPrerequisitesVerified?: boolean
  route: string
  trainerKey: string
+ progressTrainerKey?: string
  chunkIndex?: number | null
  curriculumArea?: string
  curriculumStage?: string
@@ -53,7 +57,8 @@ export function buildAutoTrainingRoute(item: AutoTrainingItem) {
 
  return addAutoTrainingParams(item.route, {
   chunk: safeChunk,
-  autoKey: item.trainerKey,
+  autoKey: logicalActivityKey(item.trainerKey),
+  autoProgressKey: item.progressTrainerKey,
   autoChunk: safeChunk,
   autoRoute: item.route,
   curriculumArea: item.curriculumArea,

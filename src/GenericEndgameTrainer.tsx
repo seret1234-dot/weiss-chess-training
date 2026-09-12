@@ -1,3 +1,4 @@
+import { useEndgameInput } from './trainers/endgame/useEndgameInput'
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Chess } from "chess.js";
@@ -920,7 +921,7 @@ export default function GenericEndgameTrainer({
  const interval = window.setInterval(() => {
  if (loadingChunk || inputLocked || allComplete || phase === "classify")
  return;
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current);
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current));
  }, 100);
 
  return () => window.clearInterval(interval);
@@ -1066,6 +1067,14 @@ export default function GenericEndgameTrainer({
  }, [currentChunkFile, currentThemeProgress, globalChunkLookup, progress]);
 
  const currentPosition = positions[currentIndex] ?? null;
+ const endgameInput = useEndgameInput({
+  fen: game.fen(), attemptKey: currentPosition?.id ?? '',
+  active: (!loadingChunk && !inputLocked && !allComplete && phase === "play") && !!currentPosition && !flashSolvedPositionId && game.turn() === 'w',
+  canAnswer: !loadingChunk && (phase === "classify" || !inputLocked) && !allComplete && !!currentPosition && !flashSolvedPositionId,
+  moveStartedAt: moveStartedAtRef.current, onDrop,
+  onSilentError: () => { setStatus('Wrong, silent error'); setMessage(''); },
+ });
+
  const currentStats = currentPosition
  ? getPositionStats(progress, currentPosition.id)
  : null;
@@ -1101,6 +1110,7 @@ export default function GenericEndgameTrainer({
  }
 
  function startPositionState(position: TrainingPosition) {
+ endgameInput.attempt.begin(position.id);
  const nextGame = new Chess(position.startFen);
  setGame(nextGame);
 
@@ -1734,6 +1744,7 @@ export default function GenericEndgameTrainer({
  nextStatus: string,
  nextMessage: string,
  ) {
+ endgameInput.attempt.wrongMove();
  clearPendingFeedbackTimeout();
 
  const blackKingSquare = getBlackKingSquare(nextGame);
@@ -1745,7 +1756,7 @@ export default function GenericEndgameTrainer({
  setCorrectSquares([]);
  setHintSquares([]);
  setEscapeSquares(escapes);
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current);
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current));
  setJustMated(false);
  setStatus(nextStatus);
  setMessage(
@@ -1785,7 +1796,7 @@ export default function GenericEndgameTrainer({
  clearPendingFeedbackTimeout();
  setFlashSolvedPositionId(currentPosition.id);
 
- const moveElapsedMs = Date.now() - moveStartedAtRef.current;
+ const moveElapsedMs = endgameInput.elapsed(moveStartedAtRef.current);
  setCurrentMoveElapsedMs(moveElapsedMs);
  setJustMated(nextGame.isCheckmate());
 
@@ -1794,7 +1805,7 @@ export default function GenericEndgameTrainer({
 
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3;
  const maxMsPerMove = maxSecondsPerMove * 1000;
- const wasFast = nextMoveTimes.every((ms) => ms <= maxMsPerMove);
+ const wasFast = endgameInput.attempt.qualify(nextMoveTimes.every((ms) => ms <= maxMsPerMove));
 
  const oldStats = getPositionStats(progress, currentPosition.id);
 
@@ -1836,10 +1847,10 @@ export default function GenericEndgameTrainer({
  nextGame.isCheckmate()
  ? wasFast
  ? `Checkmate. Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Checkmate, but slower than ${maxSecondsPerMove} seconds.`
+ : endgameInput.attempt.nonQualifyingMessage(`Checkmate, but slower than ${maxSecondsPerMove} seconds.`)
  : wasFast
  ? `Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Solved, but slower than ${maxSecondsPerMove} seconds.`,
+ : endgameInput.attempt.nonQualifyingMessage(`Solved, but slower than ${maxSecondsPerMove} seconds.`),
  );
 
  feedbackTimeoutRef.current = window.setTimeout(() => {
@@ -1854,9 +1865,9 @@ export default function GenericEndgameTrainer({
  clearPendingFeedbackTimeout();
  setFlashSolvedPositionId(currentPosition.id);
 
- const reactionTime = Date.now() - moveStartedAtRef.current;
+ const reactionTime = endgameInput.elapsed(moveStartedAtRef.current);
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3;
- const wasFast = reactionTime <= maxSecondsPerMove * 1000;
+ const wasFast = endgameInput.attempt.qualify(reactionTime <= maxSecondsPerMove * 1000);
 
  const oldStats = getPositionStats(progress, currentPosition.id);
 
@@ -1893,7 +1904,7 @@ export default function GenericEndgameTrainer({
  currentPosition.explanation ||
  (wasFast
  ? `Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER}`
- : `Correct, but slower than ${maxSecondsPerMove} seconds`),
+ : endgameInput.attempt.nonQualifyingMessage(`Correct, but slower than ${maxSecondsPerMove} seconds`)),
  );
 
  feedbackTimeoutRef.current = window.setTimeout(() => {
@@ -1916,6 +1927,7 @@ export default function GenericEndgameTrainer({
 
  if (answer !== correctAnswer) {
  setInputLocked(true);
+ endgameInput.attempt.wrongMove();
  setStatus("Wrong evaluation.");
  setMessage(
  correctAnswer === "win"
@@ -2577,7 +2589,8 @@ export default function GenericEndgameTrainer({
  footerRight={`${boardWidth}px`}
  boardId={boardId ?? `${trainerId}TrainerBoard`}
  fen={game.fen()}
- onPieceDrop={onDrop}
+ onPieceDrop={endgameInput.onDrop}
+ boardControls={endgameInput.controls}
  getLegalTargets={getLegalTargets}
  boardOrientation={boardOrientation}
  customDarkSquareStyle={{ backgroundColor: "#769656" }}
@@ -2593,9 +2606,7 @@ export default function GenericEndgameTrainer({
  escapeSquares,
  hintSquares,
  )}
- arePiecesDraggable={
- !loadingChunk && !inputLocked && !allComplete && phase === "play"
- }
+ arePiecesDraggable={(!loadingChunk && !inputLocked && !allComplete && phase === "play") && endgameInput.mouseEnabled}
  boardLeft={shouldAskWinDraw() ? undefined : boardLeft}
  boardOverlay={boardOverlay}
  sidePanel={
@@ -2847,6 +2858,7 @@ export default function GenericEndgameTrainer({
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: "grid", gap: 8 }}>
+ {endgameInput.silentButton}
  <HintButton onClick={() => void showHintAction()}>
  Hint
  </HintButton>

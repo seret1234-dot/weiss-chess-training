@@ -1,12 +1,15 @@
+import { useAutoChunkAdmission } from '../../training/useAutoChunkAdmission'
 import { updateCategoryStats } from '../../training/updateCategoryStats'
-import { applyReviewOutcome } from '../../training/learningPlanRules'
+import { applyReviewOutcome, PUZZLE_MASTERY_RULES, SPACED_REPETITION_LADDER_DAYS } from '../../training/learningPlanRules'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
+import { createChunkCompletionGate } from '../chunkCompletionGate'
+import type { CSSProperties, ReactNode } from 'react'
 import { Chess } from 'chess.js'
 import { hideCoachMistake, showCoachMistake } from '../../services/coach/coachPopup'
 import type { Square } from 'chess.js'
 import ThemedChessboard from "../../theme/ThemedChessboard"
 import PromotionChooser, { type PromotionPiece } from '../../components/chess/PromotionChooser'
+import AccessibleMoveInput from '../../components/chess/AccessibleMoveInput'
 import ThemePiece from "../../theme/ThemePiece"
 import { supabase } from '../../lib/supabase'
 import {
@@ -16,7 +19,9 @@ import {
 import { useRegisterPlayableBoard } from '../../hooks/useRegisterPlayableBoard'
 import { useAnimatedReplies } from '../../hooks/useAnimatedReplies'
 import { useSearchParams } from 'react-router-dom'
+import { useHierarchicalNavigation } from '../../navigation/useHierarchicalNavigation'
 import TrainerShell from '../../components/trainer/TrainerShell'
+import PuzzleTrainerPanel from '../../components/trainer/PuzzleTrainerPanel'
 import { ChunkCompletionOverlay, DEBUG_CHUNK_COMPLETION_RESULT, isChunkCompletionDebugEnabled, isChunkCompletionDebugHost, shouldShowChunkCompletionOverlay, type ChunkCompletionResult } from '../ChunkCompletionOverlay'
 import { buildNextActiveLearnerChunkUrl, getNextActiveLearnerChunkIndex } from '../activeChunkNavigation'
 import { SiteExplanationBox } from '../../components/SiteExplanationBox'
@@ -42,7 +47,6 @@ import {
  type MixedSessionCandidate,
 } from "../../training/mixedSessionSelector"
 import {
- MIXED_SESSION_SIZE,
  getBlindMixedUnlockStatus,
  formatMixedThemeName,
  normaliseMixedThemeKey,
@@ -59,7 +63,9 @@ import {
 import { readCurriculumState } from "../../training/curriculum/curriculumPersistence"
 import { recordNormalizedCurriculumCompletion } from "../../training/curriculum/curriculumCompletion"
 import { getChunkProgressDisplay } from "../chunkProgressDisplay"
-import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance, useWrongMoveReset } from "../puzzleProgression"
+import { isFinalPuzzleCompletion, useCorrectPuzzleAutoAdvance, useWrongMoveReset, WRONG_MOVE_FEEDBACK, SILENT_ERROR_FEEDBACK } from "../puzzleProgression"
+import { preparePuzzleStartPosition } from '../puzzleStartPosition'
+import { puzzleSuccessFeedback } from '../puzzleSuccessFeedback'
 import type { CurriculumState } from "../../training/curriculum/curriculumTypes"
 import { getStageThemes } from "../../training/curriculum/curriculumCatalog"
 import { isMixedUnlocked } from "../../training/curriculum/curriculumMastery"
@@ -68,6 +74,7 @@ import {
  getPatternTacticLearnerCurriculaForDistance,
  getPatternTacticLegacyCompletionCredit,
  getPatternTacticPriorLearnerProgressTrainerKey,
+ getPatternTacticPriorLearnerActiveChunkCount,
  getPatternTacticLearnerProgressTrainerKey,
  formatPatternTacticThemeLabel,
  resolvePatternTacticLearnerFacingChunkIndex,
@@ -82,9 +89,15 @@ import {
  createInteractiveTrainingSequence,
  getOpponentMovesBeforeNextRequiredLearnerMove,
 } from "./trainingSequence"
-import { VERIFIED_FINAL_RUNTIME_PATH } from "./generatedFinalVerifiedTaxonomy"
+import { FULL_CHUNK_CURRICULUM_VERSION, FULL_MIXED_TACTIC_COURSES } from "../fullChunkCurriculumCatalog"
+import { createProgressionResetCoordinator, resetCourseProgressPersistence, uniqueProgressTrainerKeys } from "../progressionRestart.mjs"
+import { nextPerfectSolveCount, PUZZLE_MOVE_LIMIT_MS, PUZZLE_RECOGNITION_LIMIT_MS, PuzzlePerfectionTracker } from "../puzzlePerfection"
+import { useTimedMastery } from "../../accessibility/TimedMasteryContext"
+import VoiceMoveInput from '../voice/VoiceMoveInput'
+import { useTrainerInputMode } from '../voice/useTrainerInputMode'
+import { submitVoiceMove, submitIllegalVoiceAnswer } from '../voice/submitVoiceMove'
 
-type ManifestFile = {
+export type PatternTacticManifestFile = {
  category?: string
  theme?: string
  subtheme?: string
@@ -113,7 +126,16 @@ type ManifestFile = {
  }
 }
 
-type LichessChunkPuzzle = {
+export type PatternTacticMasterProvenance = {
+ masterGame: Record<string, string | number | null | undefined>
+ historicalMoveSan?: string
+ historicalMoveUci?: string
+ sourceFen?: string
+ sourcePly?: number
+ learnerSide?: 'w' | 'b'
+}
+
+export type PatternTacticSourcePuzzle = {
  id?: string
  exerciseId?: string
  sourcePuzzleId?: string
@@ -134,6 +156,7 @@ type LichessChunkPuzzle = {
  subtheme?: string
  rating?: number
  themes?: string[]
+ rawTags?: string[]
  gameUrl?: string
  openingTags?: string[]
  source?: string
@@ -145,6 +168,11 @@ type LichessChunkPuzzle = {
  sourceThemeTag?: string
  sourceThemeKeys?: string[]
  sourceThemes?: string[]
+ canonicalThemeKey?: string
+ canonicalThemeLabel?: string
+ pedagogicalFamily?: string
+ semanticAudit?: PatternTacticManifestFile['semanticAudit']
+ learnerCurriculum?: PatternTacticManifestFile['learnerCurriculum']
  puzzleId?: string
  chunk?: number
  chunkNumber?: number
@@ -160,6 +188,14 @@ type LichessChunkPuzzle = {
  Themes?: string
  chunk_number?: number
  orderInChunk?: number
+ acceptedEquivalentMovesByUserMove?: string[][]
+ equivalentOpponentDefenses?: { plyOffset: number; canonicalMove: string; equivalentDefenses: string[] }[]
+ masterProvenance?: PatternTacticMasterProvenance
+}
+
+export type PatternTacticDataSource = {
+ loadManifest: () => Promise<PatternTacticManifestFile>
+ loadChunk: (fileName: string) => Promise<PatternTacticSourcePuzzle[]>
 }
 
 export type PatternTacticPuzzle = {
@@ -184,7 +220,10 @@ export type PatternTacticPuzzle = {
  sourceIdentity?: string
  canonicalIdentity?: string
  pedagogicalFamily?: string
- semanticAudit?: LichessChunkPuzzle['semanticAudit']
+ semanticAudit?: PatternTacticSourcePuzzle['semanticAudit']
+ acceptedEquivalentMovesByUserMove?: string[][]
+ equivalentOpponentDefenses?: { plyOffset: number; canonicalMove: string; equivalentDefenses: string[] }[]
+ masterProvenance?: PatternTacticMasterProvenance
 }
 
 type PuzzleMastery = {
@@ -198,7 +237,9 @@ export type PatternTacticTrainerConfig = {
  trainerKey: string
  trainerTitle: string
  dataBasePath: string
+ dataSource?: PatternTacticDataSource
  explanationKey?: SiteExplanationKey
+ backHref?: string
  studyCourse?: string
  studyTheme?: string
  onPuzzleSolved?: (payload: {
@@ -208,6 +249,11 @@ export type PatternTacticTrainerConfig = {
  course?: string
  theme?: string
  }) => void
+ renderPuzzleInfo?: (puzzle: PatternTacticPuzzle | null, solved: boolean) => ReactNode
+ renderBoardPlayerLabels?: (
+  puzzle: PatternTacticPuzzle | null,
+  orientation: 'white' | 'black',
+ ) => { top: ReactNode; bottom: ReactNode } | null
 }
 
 type PieceCode =
@@ -224,9 +270,8 @@ type PieceCode =
  | 'bQ'
  | 'bK'
 
-const FAST_SOLVES_TO_MASTER = 5
-const FAST_SOLVE_SECONDS_PER_MOVE = 3
-const TACTIC_CHUNK_REVIEW_INTERVALS_DAYS = [1, 2, 3, 5, 8, 15, 30, 60, 100, 140, 170, 270, 365] as const
+const FAST_SOLVES_TO_MASTER = PUZZLE_MASTERY_RULES.qualifyingFastSolves
+const TACTIC_CHUNK_REVIEW_INTERVALS_DAYS = SPACED_REPETITION_LADDER_DAYS
 
 function addTacticReviewDays(date: Date, days: number) {
  const next = new Date(date)
@@ -324,7 +369,7 @@ function normalizeThemeName(input?: string) {
 }
 
 function normalizePuzzle(
- raw: LichessChunkPuzzle,
+ raw: PatternTacticSourcePuzzle,
  index: number,
 ): PatternTacticPuzzle | null {
  const fen = raw.fen || raw.FEN || ''
@@ -469,6 +514,9 @@ function normalizePuzzle(
   sourceIdentity,
   pedagogicalFamily: raw.pedagogicalFamily ?? raw.learnerCurriculum?.pedagogicalFamily,
   semanticAudit: raw.semanticAudit,
+  acceptedEquivalentMovesByUserMove: raw.acceptedEquivalentMovesByUserMove,
+  equivalentOpponentDefenses: raw.equivalentOpponentDefenses,
+  masterProvenance: raw.masterProvenance,
   }
 }
 
@@ -510,10 +558,6 @@ function squareToCoords(
  : (7 - rankIndexFromWhiteTop) * squareSize
 
  return { left, top, squareSize }
-}
-
-function formatSeconds(value: number) {
- return value.toFixed(1)
 }
 
 function getStorageKey(trainerKey: string) {
@@ -563,6 +607,15 @@ function getExpectedUserMove(
  return puzzle.solutionLine[lineIndex] ?? null
 }
 
+function getAcceptedUserMoves(
+ puzzle: PatternTacticPuzzle | undefined,
+ solvedUserMoveCount: number
+) {
+ const expected = getExpectedUserMove(puzzle, solvedUserMoveCount)
+ const equivalents = puzzle?.acceptedEquivalentMovesByUserMove?.[solvedUserMoveCount] ?? []
+ return [...new Set([expected, ...equivalents].filter((move): move is string => Boolean(move)).map((move) => move.toLowerCase()))]
+}
+
 function getOpponentReplyBeforeNextRequiredLearnerMove(
  puzzle: PatternTacticPuzzle | undefined,
  solvedUserMoveCount: number
@@ -579,19 +632,31 @@ export default function PatternTacticTrainer({
 }: {
  config: PatternTacticTrainerConfig
 }) {
+ const admitAutoChunk = useAutoChunkAdmission()
  const trainerExplanation = config.explanationKey ? siteExplanations[config.explanationKey] : null
+ const { backToParent } = useHierarchicalNavigation()
+ const { timedMasteryEnabled } = useTimedMastery()
+ const { mode: inputMode, setMode: setInputMode, mouseEnabled, setAiReady } = useTrainerInputMode()
  const isMixedPatternTactic = /^tactic-mixed-m[1-4]$/.test(config.trainerKey)
 
  const containerRef = useRef<HTMLDivElement | null>(null)
  const preMoveTimerRef = useRef<number | null>(null)
  const solveStartedAtRef = useRef<number | null>(null)
+ const perfectionTrackerRef = useRef(new PuzzlePerfectionTracker())
+ const timedMasteryEnabledRef = useRef(timedMasteryEnabled)
  const currentUserMoveIndexRef = useRef(0)
  const chunkProgressRef = useRef<PuzzleMastery[]>([])
- const chunkCanBeCompletedRef = useRef(true)
+ const chunkCanBeCompletedRef = useRef(false)
+ const chunkCompletionGateRef = useRef(createChunkCompletionGate())
  const chunkMasterySaveKeyRef = useRef<string | null>(null)
  const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
+ const progressionResetRef = useRef(createProgressionResetCoordinator())
  const { cancelCorrectAutoAdvance, scheduleCorrectAutoAdvance } = useCorrectPuzzleAutoAdvance()
  const { cancelWrongMoveReset, scheduleWrongMoveReset } = useWrongMoveReset()
+
+ useEffect(() => {
+  timedMasteryEnabledRef.current = timedMasteryEnabled
+ }, [timedMasteryEnabled])
 
  const {
  lastMoveHighlight,
@@ -614,13 +679,18 @@ export default function PatternTacticTrainer({
  const mixedLearnerCurricula = isMixedPatternTactic
   ? getPatternTacticLearnerCurriculaForDistance(tacticDistance)
   : []
- const learnerCurriculumVersion = tacticLearnerCurriculum?.version ?? (isMixedPatternTactic ? `m${tacticDistance}-v1` : null)
+ const mixedFullCourse = isMixedPatternTactic
+  ? FULL_MIXED_TACTIC_COURSES.find((course) => course.distance === tacticDistance)
+  : null
+ const learnerCurriculumVersion = tacticLearnerCurriculum?.version ?? (isMixedPatternTactic ? FULL_CHUNK_CURRICULUM_VERSION : null)
  const isLearnerFacingRequest = requestedLearnerCurriculumVersion === learnerCurriculumVersion
  const progressTrainerKey = tacticLearnerCurriculum
   ? getPatternTacticLearnerProgressTrainerKey(tacticLearnerCurriculum)
   : config.trainerKey
- const activeDataBasePath = isMixedPatternTactic
-  ? `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m${tacticDistance}`
+ const activeDataBasePath = config.dataSource
+  ? config.dataBasePath
+  : isMixedPatternTactic
+  ? mixedFullCourse?.dataBasePath ?? ''
   : tacticLearnerCurriculum?.learnerDataBasePath ?? ''
  const urlChunkParam = searchParams.get('chunk')
  const requestedChunkIndex =
@@ -692,6 +762,7 @@ export default function PatternTacticTrainer({
  } | null>(null)
  const [legalTargets, setLegalTargets] = useState<string[]>([])
  const [displayTurn, setDisplayTurn] = useState<'w' | 'b'>('w')
+ const puzzleLearnerSideRef = useRef<'w' | 'b'>('w')
  const [boardOrientation, setBoardOrientation] = useState<'white' | 'black'>(
  'white'
  )
@@ -717,6 +788,7 @@ export default function PatternTacticTrainer({
  const [correctSquare, setCorrectSquare] = useState<string | null>(null)
 
  const [chunkProgress, setChunkProgress] = useState<PuzzleMastery[]>([])
+ const [restartingProgression, setRestartingProgression] = useState(false)
 
  const currentChunkFileName = chunkFiles[currentChunkIndex] || ''
  const completionOverlayResult = debugCompletionOverlayOpen
@@ -919,8 +991,10 @@ export default function PatternTacticTrainer({
  }
  }
 
- function startChunkMasterySave(masteredCount: number) {
- if (!currentUserId || !chunkCanBeCompletedRef.current) {
+function startChunkMasterySave(masteredCount: number) {
+ const activityKey = `${currentUserId}:${progressTrainerKey}:${currentChunkIndex}`
+ if (!chunkCompletionGateRef.current.canCommit(activityKey, chunkProgressRef.current.map(item => item.fastSolves), FAST_SOLVES_TO_MASTER)) return Promise.resolve(true)
+ if (!currentUserId || !chunkCanBeCompletedRef.current || progressionResetRef.current.isResetting) {
  return Promise.resolve(true)
  }
 
@@ -933,11 +1007,12 @@ export default function PatternTacticTrainer({
  }
 
  chunkMasterySaveKeyRef.current = saveKey
- const promise = markChunkMastered(
+ const promise = progressionResetRef.current.track(() => markChunkMastered(
  currentUserId,
  currentChunkIndex,
  masteredCount
- ).then((success) => {
+ )).then((success) => {
+ success = success === true
  if (success) {
  chunkCanBeCompletedRef.current = false
  } else {
@@ -962,6 +1037,7 @@ export default function PatternTacticTrainer({
  nextChunkProgress: PuzzleMastery[],
  fileNameOverride?: string
  ) {
+ if (progressionResetRef.current.isResetting) return
  const saved = getSavedState(storageKey)
  const fileName = fileNameOverride || currentChunkFileName
  if (!fileName) return
@@ -980,16 +1056,16 @@ export default function PatternTacticTrainer({
  }
 
  function swapToPuzzlePosition(nextGame: Chess) {
- setTransitionCover({ fen: boardFen, orientation: boardOrientation })
+ setTransitionCover(null)
  setDisableBoardAnimation(true)
  setGameAndBoardFen(nextGame)
 
- window.setTimeout(() => {
+ requestAnimationFrame(() => {
  requestAnimationFrame(() => {
  setDisableBoardAnimation(false)
  setTransitionCover(null)
  })
- }, 260)
+ })
  }
 
  async function loadChunkByIndex(
@@ -997,6 +1073,8 @@ export default function PatternTacticTrainer({
  filesOverride?: string[],
  puzzleIndexOverride?: number
  ) {
+ const loadToken = chunkCompletionGateRef.current.begin()
+ chunkCanBeCompletedRef.current = false
  const files = filesOverride ?? chunkFiles
  const fileName = files[chunkIndex]
 
@@ -1012,10 +1090,13 @@ export default function PatternTacticTrainer({
  setLoadError('')
 
  try {
- const sourceFiles = isMixedPatternTactic ? files : [fileName]
+ // Mixed curricula are already deterministically chunked. Loading only the
+ // selected chunk preserves the historical bounded-memory/lazy-load contract.
+ const sourceFiles = [fileName]
  const sourceLists = await Promise.all(sourceFiles.map(async (sourceFile) => {
+  if (config.dataSource) return config.dataSource.loadChunk(sourceFile)
   const sourceUrl = resolvePatternTacticPublicAssetUrl(activeDataBasePath, sourceFile)
-  const data = await fetchPatternTacticJson<LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[]; exercises?: LichessChunkPuzzle[] }>(sourceUrl, `tactic chunk ${sourceFile}`)
+  const data = await fetchPatternTacticJson<PatternTacticSourcePuzzle[] | { puzzles?: PatternTacticSourcePuzzle[]; exercises?: PatternTacticSourcePuzzle[] }>(sourceUrl, `tactic chunk ${sourceFile}`)
   return Array.isArray(data) ? data : data.puzzles || data.exercises || []
  }))
  const rawList = sourceLists.flat()
@@ -1058,7 +1139,7 @@ export default function PatternTacticTrainer({
   })
   : undefined,
  recentlySeenCanonicalIdentities: getRecentMixedCanonicalIdentities(mixedSessionId),
- sessionSize: MIXED_SESSION_SIZE,
+ sessionSize: normalized.length,
  })
  setMixedSessionThemes(Object.keys(plan.themeCounts))
  if (mixedSessionIdRef.current !== mixedSessionId) {
@@ -1085,6 +1166,9 @@ export default function PatternTacticTrainer({
  }
  }
 
+ // Admit validated content before reopening legacy review progress. The quota
+ // must see its saved unlock evidence, not the review's reset state.
+ if (!await admitAutoChunk({ course: 'pattern', trainerKey: progressTrainerKey, unitKey: String(chunkIndex + 1) })) return
  let chunkReviewDue = false
  let chunkCanBeCompleted = true
 
@@ -1100,6 +1184,7 @@ export default function PatternTacticTrainer({
 
  if (chunkRowError) {
  console.error('Could not load tactic chunk review state', chunkRowError)
+ throw new Error('Could not verify chunk review state')
  } else if (chunkRow) {
  const hasDueDate = Boolean(chunkRow.next_review_at)
  const reviewIsDue =
@@ -1112,22 +1197,8 @@ export default function PatternTacticTrainer({
  chunkRow.is_mastered === true &&
  (reviewIsDue || legacyMasteryWithoutDate)
  ) {
- const { error: reopenError } = await supabase
- .from('user_chunk_progress')
- .update({
- is_mastered: false,
- updated_at: new Date().toISOString(),
- })
- .eq('user_id', currentUserId)
- .eq('trainer_key', progressTrainerKey)
- .eq('chunk_index', chunkNumber)
-
- if (reopenError) {
- console.error('Could not reopen due tactic chunk', reopenError)
- chunkCanBeCompleted = false
- } else {
+ // Hydrating a due review is read-only; completion needs learner evidence.
  chunkReviewDue = true
- }
  } else if (
  chunkRow.is_mastered === false &&
  Number(chunkRow.review_stage ?? 0) > 0 &&
@@ -1161,6 +1232,7 @@ export default function PatternTacticTrainer({
  }))
  }
 
+ if (!chunkCompletionGateRef.current.ready(loadToken, `${currentUserId}:${progressTrainerKey}:${chunkIndex}`, chunkReviewDue)) return
  chunkCanBeCompletedRef.current = chunkCanBeCompleted
  chunkMasterySaveKeyRef.current = null
  chunkMasteryPromiseRef.current = null
@@ -1237,40 +1309,57 @@ export default function PatternTacticTrainer({
  }
 
  async function restartWholeProgression() {
+ const started = await progressionResetRef.current.startReset()
+ if (!started) return
+ setRestartingProgression(true)
  clearTimers()
- localStorage.removeItem(storageKey)
+ cancelCorrectAutoAdvance()
+ cancelWrongMoveReset()
+ setBoardLocked(true)
+ setMessage('Restarting progression...')
 
- if (currentUserId) {
- if (config.studyCourse && config.studyTheme) {
- const { error } = await supabase
- .from('training_progress')
- .delete()
- .eq('user_id', currentUserId)
- .eq('course', config.studyCourse)
- .eq('theme', config.studyTheme)
-
- if (error) {
- console.error('Failed to restart mate progression:', error)
- }
- }
-
- const { error: chunkError } = await supabase
- .from('user_chunk_progress')
- .delete()
- .eq('user_id', currentUserId)
- .eq('trainer_key', progressTrainerKey)
-
- if (chunkError) {
- console.error('Failed to restart mate chunk progression:', chunkError)
- }
-
- await ensureChunkExists(currentUserId, 1)
- }
-
- setMessage('Progression restarted.')
+ try {
+ const relatedTrainerKeys = tacticLearnerCurriculum
+  ? uniqueProgressTrainerKeys([
+   config.trainerKey,
+   getPatternTacticPriorLearnerProgressTrainerKey(tacticLearnerCurriculum),
+  ])
+  : []
+ await resetCourseProgressPersistence({
+  client: supabase,
+  userId: currentUserId,
+  activeTrainerKey: progressTrainerKey,
+  relatedTrainerKeys,
+  storage: localStorage,
+  storageKey,
+  studyCourse: config.studyCourse,
+  studyTheme: config.studyTheme,
+ })
+ chunkMasterySaveKeyRef.current = null
+ chunkMasteryPromiseRef.current = null
+ curriculumCompletionInFlightRef.current = false
+ setCurriculumCompletionCard(null)
+ setCompletionOverlayDismissed(false)
+ const resetUrl = buildNextActiveLearnerChunkUrl(
+  window.location.pathname,
+  window.location.search,
+  0,
+  learnerCurriculumVersion,
+ )
+ window.history.replaceState(window.history.state, '', resetUrl)
  await loadChunkByIndex(0, chunkFiles, 0)
+ setMessage('Progression restarted.')
+ } catch (error) {
+ console.error('Failed to restart tactic progression:', error)
+ setMessage('Could not restart progression. Please try again.')
+ } finally {
+ progressionResetRef.current.finishReset()
+ setRestartingProgression(false)
+ }
  }
  useEffect(() => {
+ let bootstrapCancelled = false
+ chunkCompletionGateRef.current.begin()
  async function bootstrap() {
  try {
  setLoading(true)
@@ -1294,7 +1383,9 @@ export default function PatternTacticTrainer({
   return
  }
 
- const manifest = await fetchPatternTacticJson<ManifestFile>(manifestFetchPath, 'tactic manifest')
+ const manifest = config.dataSource
+  ? await config.dataSource.loadManifest()
+  : await fetchPatternTacticJson<PatternTacticManifestFile>(manifestFetchPath, 'tactic manifest')
  const files = manifest.files && manifest.files.length > 0
   ? manifest.files
   : manifest.chunks?.map((chunk) => chunk.file).filter(Boolean) ?? []
@@ -1310,7 +1401,7 @@ export default function PatternTacticTrainer({
    ? manifest.sourceThemes
    : (await Promise.all(files.map(async (sourceFile) => {
     const sourceUrl = resolvePatternTacticPublicAssetUrl(activeDataBasePath, sourceFile)
-    const data = await fetchPatternTacticJson<LichessChunkPuzzle[] | { puzzles?: LichessChunkPuzzle[]; exercises?: LichessChunkPuzzle[] }>(sourceUrl, `tactic chunk ${sourceFile}`)
+    const data = await fetchPatternTacticJson<PatternTacticSourcePuzzle[] | { puzzles?: PatternTacticSourcePuzzle[]; exercises?: PatternTacticSourcePuzzle[] }>(sourceUrl, `tactic chunk ${sourceFile}`)
     const items = Array.isArray(data) ? data : data.puzzles || data.exercises || []
     return items.flatMap((item) => item.sourceThemeKeys ?? item.sourceThemes ?? [item.sourceTheme ?? item.theme ?? "other"])
    }))).flat()
@@ -1335,13 +1426,14 @@ export default function PatternTacticTrainer({
    console.error("Could not read legacy tactic completion credit", legacyError)
   } else {
    const legacyCredit = getPatternTacticLegacyCompletionCredit((legacyRows ?? []).filter((row) => row.trainer_key === config.trainerKey), tacticLearnerCurriculum).completedActiveChunks
-   const priorLearnerCompleted = (tacticLearnerCurriculum.version.includes("semantic-v") || tacticLearnerCurriculum.version.includes("verified-final"))
+   const priorLearnerChunkCount = getPatternTacticPriorLearnerActiveChunkCount(tacticLearnerCurriculum)
+   const priorLearnerCompleted = priorLearnerChunkCount > 0
     ? new Set((legacyRows ?? []).filter((row) => row.trainer_key === priorLearnerKey && row.is_mastered === true)
       .map((row) => Number(row.chunk_index))
-      .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= (tacticDistance === 1 ? 5 : 8))).size
+      .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= priorLearnerChunkCount)).size
     : 0
-   const priorLearnerCredit = (tacticLearnerCurriculum.version.includes("semantic-v") || tacticLearnerCurriculum.version.includes("verified-final"))
-    ? Math.min(tacticLearnerCurriculum.activeChunkCount, Math.floor((priorLearnerCompleted * tacticLearnerCurriculum.activeChunkCount) / (tacticDistance === 1 ? 5 : 8)))
+   const priorLearnerCredit = priorLearnerChunkCount > 0
+    ? Math.min(tacticLearnerCurriculum.activeChunkCount, Math.floor((priorLearnerCompleted * tacticLearnerCurriculum.activeChunkCount) / priorLearnerChunkCount))
     : 0
    compatibilityCredit = Math.max(legacyCredit, priorLearnerCredit)
    if (compatibilityCredit > 0) {
@@ -1370,7 +1462,17 @@ export default function PatternTacticTrainer({
  } else {
  startChunkIndex = Math.max(
  0,
- Math.min(files.length - 1, Math.max(saved.currentChunkIndex ?? 0, compatibilityCredit))
+ Math.min(
+  files.length - 1,
+  Math.max(
+   resolvePatternTacticLearnerFacingChunkIndex(
+    saved.currentChunkIndex ?? 0,
+    tacticLearnerCurriculum,
+    tacticLearnerCurriculum !== null,
+   ),
+   compatibilityCredit,
+  ),
+ )
  )
 
  if (currentUserId) {
@@ -1394,6 +1496,7 @@ export default function PatternTacticTrainer({
  }
  }
 
+ if (bootstrapCancelled) return
  await loadChunkByIndex(
  startChunkIndex,
  files,
@@ -1409,6 +1512,8 @@ export default function PatternTacticTrainer({
  bootstrap()
 
  return () => {
+ bootstrapCancelled = true
+ chunkCompletionGateRef.current.begin()
  clearTimers()
  }
  }, [
@@ -1524,12 +1629,13 @@ export default function PatternTacticTrainer({
  }
 
  function incrementFastSolve(puzzleIndex: number) {
+ if (!chunkCompletionGateRef.current.qualifiedSolve(`${currentUserId}:${progressTrainerKey}:${currentChunkIndex}`)) return
  setChunkProgress((prev) => {
  const next = prev.map((item, i) =>
  i === puzzleIndex
  ? {
  ...item,
- fastSolves: Math.min(item.fastSolves + 1, FAST_SOLVES_TO_MASTER),
+ fastSolves: nextPerfectSolveCount(item.fastSolves, FAST_SOLVES_TO_MASTER, true),
  }
  : item
  )
@@ -1538,14 +1644,34 @@ export default function PatternTacticTrainer({
  })
  }
 
+ function activatePerfectionTurn(
+ puzzle: PatternTacticPuzzle,
+ solvedUserMoveCount: number
+ ) {
+ perfectionTrackerRef.current.activateLearnerPosition(
+  performance.now(),
+  getAcceptedUserMoves(puzzle, solvedUserMoveCount),
+ )
+ }
+
  function loadPuzzleImmediate(
  puzzle: PatternTacticPuzzle,
  index: number,
  nextChunkProgressArg?: PuzzleMastery[],
  nextChunkIndexArg?: number,
- fileNameOverride?: string
+ fileNameOverride?: string,
+ readyTransition = false,
  ) {
+ let preparedStart: Chess | undefined
+ if (readyTransition) {
+  try { preparedStart = preparePuzzleStartPosition(puzzle) }
+  catch (error) {
+   setLoadError(`Could not prepare next puzzle: ${error instanceof Error ? error.message : String(error)}`)
+   return
+  }
+ }
  clearTimers()
+ perfectionTrackerRef.current.resetAttempt(timedMasteryEnabledRef.current)
  // Focused trainers retain their normal ordering; this lightweight history
  // record only helps a later mixed session avoid an immediate source repeat.
  const servedSessionId = mixedSessionIdRef.current ?? `${config.trainerKey}:${fileNameOverride ?? currentChunkFileName}`
@@ -1560,7 +1686,7 @@ export default function PatternTacticTrainer({
 
  advanceUserMoveIndex(0)
 
- const startChess = new Chess(puzzle.fen)
+ const startChess = preparedStart ?? new Chess(puzzle.fen)
 
  clearReplyEffects()
  setLastMoveHighlight(null)
@@ -1575,7 +1701,7 @@ export default function PatternTacticTrainer({
     const afterPreMoveForOrientation = new Chess(puzzle.fen)
     let userTurn: 'w' | 'b' = startChess.turn()
 
-    if (puzzle.preMove) {
+    if (puzzle.preMove && !readyTransition) {
       try {
         afterPreMoveForOrientation.move(parseUci(puzzle.preMove!))
         userTurn = afterPreMoveForOrientation.turn()
@@ -1584,11 +1710,12 @@ export default function PatternTacticTrainer({
       }
     }
 
+    puzzleLearnerSideRef.current = userTurn
     setBoardOrientation(userTurn === 'b' ? 'black' : 'white')
     swapToPuzzlePosition(startChess)
     setDisplayTurn(userTurn)
 
- if (puzzle.preMove) {
+ if (puzzle.preMove && !readyTransition) {
  setBoardLocked(true)
  solveStartedAtRef.current = null
  setMessage('Opponent move...')
@@ -1627,6 +1754,7 @@ export default function PatternTacticTrainer({
   setSolved(false)
   setPhase('solving')
   solveStartedAtRef.current = performance.now()
+  activatePerfectionTurn(puzzle, completion.completedLearnerMoves)
   preMoveTimerRef.current = null
   setBoardLocked(completion.boardLocked)
   setMessage(`Find the tactic in ${getUserMoveCount(puzzle)}`)
@@ -1645,6 +1773,7 @@ export default function PatternTacticTrainer({
 
  setBoardLocked(false)
  solveStartedAtRef.current = performance.now()
+ activatePerfectionTurn(puzzle, 0)
  setMessage(`Find the tactic in ${getUserMoveCount(puzzle)}`)
  }
 
@@ -1658,12 +1787,23 @@ export default function PatternTacticTrainer({
 
  function goToPreviousChunk() {
  if (loading || currentChunkIndex <= 0) return
- void loadChunkByIndex(currentChunkIndex - 1, undefined, 0)
+ navigateToChunk(currentChunkIndex - 1)
  }
 
  function goToNextChunkManual() {
  if (loading || currentChunkIndex >= chunkFiles.length - 1) return
- void loadChunkByIndex(currentChunkIndex + 1, undefined, 0)
+ navigateToChunk(currentChunkIndex + 1)
+ }
+
+ function navigateToChunk(targetIndex: number) {
+ const nextUrl = buildNextActiveLearnerChunkUrl(
+  window.location.pathname,
+  window.location.search,
+  targetIndex,
+  learnerCurriculumVersion,
+ )
+ window.history.replaceState(window.history.state, '', nextUrl)
+ void loadChunkByIndex(targetIndex, undefined, 0)
  }
 
  function jumpToChunk() {
@@ -1679,10 +1819,11 @@ export default function PatternTacticTrainer({
  0,
  Math.min(chunkFiles.length - 1, Math.floor(parsed) - 1)
  )
- void loadChunkByIndex(targetIndex, undefined, 0)
+ navigateToChunk(targetIndex)
  }
 
 async function completeChunk() {
+ if (progressionResetRef.current.isResetting) return
  if (curriculumCompletionInFlightRef.current) return
  curriculumCompletionInFlightRef.current = true
  const latestProgress = chunkProgressRef.current
@@ -1694,6 +1835,10 @@ async function completeChunk() {
 
  if (chunkIsMastered) {
  await startChunkMasterySave(latestProgress.length)
+ if (progressionResetRef.current.isResetting) {
+  curriculumCompletionInFlightRef.current = false
+  return
+ }
  }
 
  if (isMixedPatternTactic) {
@@ -1730,7 +1875,7 @@ async function completeChunk() {
  setCompletionOverlayDismissed(false)
  setCurriculumCompletionCard(card)
  try {
-  const result = await recordNormalizedCurriculumCompletion({
+  const result = await progressionResetRef.current.track(() => recordNormalizedCurriculumCompletion({
    userId: currentUserId,
    area: "tactics",
    stageOrder: stage,
@@ -1750,8 +1895,9 @@ async function completeChunk() {
    averageSolveMs: attempts ? Math.round(sessionEvidence.solveMsTotal / attempts) : null,
    mixedScope,
    mixedPhase,
-  })
-  setCurriculumCompletionCard({ ...card, masteryIncreased: result.masteryIncreased, reinforcementActivated: result.reinforcementActivated })
+   }))
+   if (!result) return
+   setCurriculumCompletionCard({ ...card, masteryIncreased: result.masteryIncreased, reinforcementActivated: result.reinforcementActivated })
  } catch (error) {
   console.error("Could not persist curriculum completion", error)
  }
@@ -1776,7 +1922,7 @@ async function completeChunk() {
  if ((nextChunkProgress[i]?.fastSolves ?? 0) < FAST_SOLVES_TO_MASTER) {
  const nextPuzzle = puzzles[i]
  if (!nextPuzzle) return
- loadPuzzleImmediate(nextPuzzle, i)
+ loadPuzzleImmediate(nextPuzzle, i, undefined, undefined, undefined, true)
  return
  }
  }
@@ -1785,7 +1931,7 @@ async function completeChunk() {
  if ((nextChunkProgress[i]?.fastSolves ?? 0) < FAST_SOLVES_TO_MASTER) {
  const nextPuzzle = puzzles[i]
  if (!nextPuzzle) return
- loadPuzzleImmediate(nextPuzzle, i)
+ loadPuzzleImmediate(nextPuzzle, i, undefined, undefined, undefined, true)
  return
  }
  }
@@ -1806,18 +1952,17 @@ async function completeChunk() {
  ? null
  : (performance.now() - solveStartedAtRef.current) / 1000
 
- const fastThreshold =
- getUserMoveCount(currentPuzzle) * FAST_SOLVE_SECONDS_PER_MOVE
- const wasFast = solvedInSeconds !== null && solvedInSeconds <= fastThreshold
+ const wasPerfect = perfectionTrackerRef.current.isPerfectSolve()
 
  setGameAndBoardFen(solvedGame)
- setDisplayTurn(solvedGame.turn())
+ // Completion belongs to the learner, not Chess.turn() after their final move.
+ setDisplayTurn(puzzleLearnerSideRef.current)
  setSolved(true)
  const curriculumEvidence = curriculumSessionEvidenceRef.current
  if (!curriculumEvidence.recordedPuzzleIds.has(currentPuzzle.id)) {
   curriculumEvidence.recordedPuzzleIds.add(currentPuzzle.id)
   curriculumEvidence.attempts += 1
-  if (!mixedPuzzleNeededHelpRef.current) curriculumEvidence.correct += 1
+  if (wasPerfect) curriculumEvidence.correct += 1
   if (solvedInSeconds !== null) curriculumEvidence.solveMsTotal += Math.round(solvedInSeconds * 1000)
  }
  if (isMixedPatternTactic) {
@@ -1826,7 +1971,7 @@ async function completeChunk() {
   if (!evidence.recordedPuzzleIds.has(currentPuzzle.id)) {
    evidence.recordedPuzzleIds.add(currentPuzzle.id)
    evidence.attempts += 1
-   if (!mixedPuzzleNeededHelpRef.current) evidence.correct += 1
+    if (wasPerfect) evidence.correct += 1
    evidence.themes.add(normaliseMixedThemeKey(currentPuzzle.sourceTheme ?? currentPuzzle.theme, "tactics"))
   }
  }
@@ -1837,33 +1982,27 @@ async function completeChunk() {
  setLastMoveHighlight(playedUci)
  setCorrectSquare(moveToSquare)
 
- if (wasFast) {
+ if (wasPerfect) {
  incrementFastSolve(currentIndex)
 
  const currentFastSolves = chunkProgress[currentIndex]?.fastSolves ?? 0
- const nextValue = Math.min(currentFastSolves + 1, FAST_SOLVES_TO_MASTER)
+ const nextValue = nextPerfectSolveCount(currentFastSolves, FAST_SOLVES_TO_MASTER, wasPerfect)
 
  if (config.studyCourse && config.studyTheme) {
- void saveTrainingProgress({
+ void progressionResetRef.current.track(() => saveTrainingProgress({
  course: config.studyCourse,
  theme: config.studyTheme,
  itemId: currentPuzzle?.id ?? '',
  mastery: nextValue,
- })
+ }))
  }
 
  setMessage(
- `Correct - fast solve (${formatSeconds(
- solvedInSeconds!
- )}s - ${nextValue}/${FAST_SOLVES_TO_MASTER})`
+  'Correct'
  )
  } else {
  setMessage(
- solvedInSeconds === null
- ? 'Correct'
- : `Correct - not fast (${formatSeconds(
- solvedInSeconds
- )}s) - need <= ${fastThreshold}s`
+  puzzleSuccessFeedback(perfectionTrackerRef.current.snapshot())
  )
  }
 
@@ -1884,15 +2023,13 @@ async function completeChunk() {
 
  config.onPuzzleSolved?.({
  puzzleId: currentPuzzle?.id ?? '',
- wasFast,
+  wasFast: wasPerfect,
  solvedInSeconds,
  course: config.studyCourse,
  theme: config.studyTheme,
  })
 
- // The Production trainer kept the correct move visible for 1.5 seconds.
- // Verified data must use that same interaction timing.
- scheduleCorrectAutoAdvance(goToNextPuzzle, 1_500)
+ scheduleCorrectAutoAdvance(goToNextPuzzle)
  }
 
  function completeCorrectMove(
@@ -1903,6 +2040,8 @@ async function completeChunk() {
  const solvedUserMoveCountBefore = currentUserMoveIndexRef.current
  const solvedUserMoveCountAfter = solvedUserMoveCountBefore + 1
  const totalUserMoves = getUserMoveCount(currentPuzzle)
+
+ perfectionTrackerRef.current.suspendLearnerPosition()
 
  setSelectedSquare(null)
  setLegalTargets([])
@@ -1927,6 +2066,7 @@ async function completeChunk() {
  }
 
  setBoardLocked(false)
+ activatePerfectionTurn(currentPuzzle, solvedUserMoveCountAfter)
  setCorrectSquare(null)
  setMessage(`Find move ${solvedUserMoveCountAfter + 1} of ${totalUserMoves}`)
  return
@@ -1954,6 +2094,7 @@ async function completeChunk() {
  }
 
  setBoardLocked(false)
+ activatePerfectionTurn(currentPuzzle, solvedUserMoveCountAfter)
  setCorrectSquare(null)
  setMessage(`Find move ${solvedUserMoveCountAfter + 1} of ${totalUserMoves}`)
  },
@@ -2006,6 +2147,97 @@ async function completeChunk() {
   )
  }
 
+ function handleSilentError() {
+ perfectionTrackerRef.current.markSilentError()
+ setMessage(SILENT_ERROR_FEEDBACK)
+ }
+
+ function registerIncorrectAnswer(
+ originalPuzzleFen: string,
+ expectedUci: string,
+ wrongMove?: { position: Chess; uci: string; san: string },
+ allowWrongMoveToShow = false,
+ ) {
+ if (solved || boardLocked || !currentPuzzle || phase !== 'solving') return false
+ const testGame = wrongMove?.position
+ const playedUci = wrongMove?.uci
+ perfectionTrackerRef.current.markSubmittedWrongMove()
+ perfectionTrackerRef.current.suspendLearnerPosition()
+
+ setSelectedSquare(null)
+ setLegalTargets([])
+ setCorrectSquare(null)
+ clearReplyEffects()
+ clearReplyTimer()
+
+ if (wrongMove) try {
+ showCoachMistake({
+ fenBefore: game.fen(),
+ userMoveSan: wrongMove.san,
+ userMoveUci: wrongMove.uci,
+ bestMoveUci: expectedUci,
+ evalLossCp: 180,
+ phase: 'middlegame',
+ source: 'trainer',
+ })
+ } catch {
+ // Coach popup should never block trainer play.
+ }
+
+ setPhase('wrong')
+ const wrongEvidence = curriculumSessionEvidenceRef.current
+ if (!wrongEvidence.recordedPuzzleIds.has(currentPuzzle.id)) {
+  wrongEvidence.recordedPuzzleIds.add(currentPuzzle.id)
+  wrongEvidence.attempts += 1
+  if (solveStartedAtRef.current != null) wrongEvidence.solveMsTotal += Math.round(performance.now() - solveStartedAtRef.current)
+ }
+ mixedPuzzleNeededHelpRef.current = true
+ if (isMixedPatternTactic) {
+  setBlindThemeRevealed(true)
+ }
+ setMessage(WRONG_MOVE_FEEDBACK)
+
+ if (currentUserId && solveStartedAtRef.current != null) {
+ const timeMs = performance.now() - solveStartedAtRef.current
+ updateCategoryStats({
+ userId: currentUserId,
+ category: 'tactics',
+ wasCorrect: false,
+ timeMs,
+ })
+ }
+
+ if (!wrongMove || allowWrongMoveToShow) {
+  // This is the established live interaction: show a legal wrong move for
+  // two seconds, then restore the exact displayed puzzle position.
+ if (testGame && playedUci) {
+  setLastMoveHighlight(playedUci)
+  setGameAndBoardFen(testGame)
+  setDisplayTurn(testGame.turn())
+ } else {
+  setLastMoveHighlight(null)
+ }
+  setBoardLocked(true)
+  scheduleWrongMoveReset(() => {
+   const restoredGame = new Chess(originalPuzzleFen)
+   setGameAndBoardFen(restoredGame)
+   setDisplayTurn(restoredGame.turn())
+   setLastMoveHighlight(null)
+   setPhase('solving')
+   activatePerfectionTurn(currentPuzzle, currentUserMoveIndexRef.current)
+   setBoardLocked(false)
+   setMessage(WRONG_MOVE_FEEDBACK)
+   })
+   return true
+ }
+
+ scheduleWrongMoveReset(() => {
+  setPhase((previous) => previous === 'wrong' ? 'solving' : previous)
+  // Unlock promptly, but keep feedback readable until the next learner action.
+ }, 700)
+ return false
+ }
+
  function attemptUserMove(
  sourceSquare: string,
  targetSquare: string,
@@ -2040,82 +2272,61 @@ async function completeChunk() {
  if (!move) return false
 
  const playedUci = `${move.from}${move.to}${move.promotion ?? ''}`.toLowerCase()
+ perfectionTrackerRef.current.recordCommittedMove(playedUci, performance.now())
+ const verifiedEquivalentMoves = currentPuzzle.acceptedEquivalentMovesByUserMove?.[
+  currentUserMoveIndexRef.current
+ ] ?? []
+ const isVerifiedEquivalent = verifiedEquivalentMoves.some(
+  (candidate) => candidate.toLowerCase() === playedUci,
+ )
 
- if (playedUci !== expectedUci.toLowerCase()) {
+ if (playedUci !== expectedUci.toLowerCase() && !isVerifiedEquivalent) {
 
- setSelectedSquare(null)
- setLegalTargets([])
- setCorrectSquare(null)
- clearReplyEffects()
- clearReplyTimer()
-
- try {
- showCoachMistake({
- fenBefore: game.fen(),
- userMoveSan: move.san,
- userMoveUci: playedUci,
- bestMoveUci: expectedUci,
- evalLossCp: 180,
- phase: 'middlegame',
- source: 'trainer',
- })
- } catch {
- // Coach popup should never block trainer play.
+ return registerIncorrectAnswer(originalPuzzleFen, expectedUci, { position: testGame, uci: playedUci, san: move.san }, options?.allowWrongMoveToShow)
  }
 
- setPhase('wrong')
- const wrongEvidence = curriculumSessionEvidenceRef.current
- if (!wrongEvidence.recordedPuzzleIds.has(currentPuzzle.id)) {
-  wrongEvidence.recordedPuzzleIds.add(currentPuzzle.id)
-  wrongEvidence.attempts += 1
-  if (solveStartedAtRef.current != null) wrongEvidence.solveMsTotal += Math.round(performance.now() - solveStartedAtRef.current)
- }
- mixedPuzzleNeededHelpRef.current = true
- if (isMixedPatternTactic) {
-  setBlindThemeRevealed(true)
- }
- setMessage('Wrong move')
+ if (isVerifiedEquivalent && playedUci !== expectedUci.toLowerCase()) {
+  const solvedUserMoveCountAfter = currentUserMoveIndexRef.current + 1
+  if (solvedUserMoveCountAfter >= getUserMoveCount(currentPuzzle)) {
+   advanceUserMoveIndex(solvedUserMoveCountAfter)
+   finishSolvedPuzzle(testGame, playedUci, move.to)
+   return true
+  }
 
- if (currentUserId && solveStartedAtRef.current != null) {
- const timeMs = performance.now() - solveStartedAtRef.current
- updateCategoryStats({
- userId: currentUserId,
- category: 'tactics',
- wasCorrect: false,
- timeMs,
- })
- }
-
- if (options?.allowWrongMoveToShow) {
-  // This is the established live interaction: show a legal wrong move for
-  // two seconds, then restore the exact displayed puzzle position.
-  setLastMoveHighlight(playedUci)
-  setGameAndBoardFen(testGame)
-  setDisplayTurn(testGame.turn())
-  setBoardLocked(true)
-  scheduleWrongMoveReset(() => {
-   const restoredGame = new Chess(originalPuzzleFen)
-   setGameAndBoardFen(restoredGame)
-   setDisplayTurn(restoredGame.turn())
-   setLastMoveHighlight(null)
-   setPhase('solving')
-   setBoardLocked(false)
-   setMessage(`Find the tactic in ${getUserMoveCount(currentPuzzle)}`)
-  })
+  // Persisted equivalent evidence validates the learner's move, but does not
+  // include a separate continuation tree. Rejoin the persisted verified main
+  // line for the remaining learner decisions instead of attempting an
+  // opponent reply that may be illegal in the equivalent branch.
+  const canonicalGame = new Chess(originalPuzzleFen)
+  canonicalGame.move(expected)
+  setMessage('Correct equivalent — continuing the verified main line')
+  completeCorrectMove(canonicalGame, playedUci, move.to)
   return true
- }
-
- scheduleWrongMoveReset(() => {
-  setPhase((previous) => previous === 'wrong' ? 'solving' : previous)
-  setMessage((previous) => previous === 'Wrong move'
-   ? `Find the tactic in ${getUserMoveCount(currentPuzzle)}`
-   : previous)
- }, 700)
- return false
  }
 
  completeCorrectMove(testGame, playedUci, move.to)
  return true
+ }
+
+ function beginPieceIntent(square: string, mode: 'click' | 'drag') {
+  if (!mouseEnabled) return
+  // Drag callbacks may outlive a render; the tracker owns live turn activation.
+  if (!perfectionTrackerRef.current.snapshot().active) return
+  const piece = game.get(square as Square)
+  if (!piece || piece.color !== game.turn()) return
+  const intent = perfectionTrackerRef.current.beginSource(square, performance.now(), mode)
+  if (intent.recorded && !intent.sourceAccepted) {
+   setMessage(SILENT_ERROR_FEEDBACK)
+  }
+ }
+
+ function recordMoveIntent(source: string, target: string, promotion?: string) {
+  const tracker = perfectionTrackerRef.current
+  const accepted = tracker.recordDestination(source, target, performance.now(), promotion)
+  if (tracker.snapshot().active && !accepted && source !== target && /^[a-h][1-8]$/.test(target)) {
+   setMessage(SILENT_ERROR_FEEDBACK)
+  }
+  return accepted
  }
 
  function getLegalTargets(fromSquare: string) {
@@ -2133,7 +2344,11 @@ async function completeChunk() {
  sourceSquare: string,
  targetSquare: string
 ) {
- // Returning false lets react-chessboard open its
+ if (sourceSquare === targetSquare || !/^[a-h][1-8]$/.test(targetSquare)) {
+  perfectionTrackerRef.current.cancelIntent(sourceSquare)
+  return false
+ }
+ // A real promotion attempt opens its
  // queen/rook/bishop/knight promotion selector.
  if (
   isTacticPromotionAttempt(
@@ -2141,12 +2356,19 @@ async function completeChunk() {
    targetSquare
   )
  ) {
+  perfectionTrackerRef.current.markPromotionPending(
+   sourceSquare,
+   targetSquare,
+   performance.now(),
+  )
   return false
  }
 
  // Keep the newly created promotion coach notice alive.
   // Only clear the previous notice for an ordinary move.
   hideCoachMistake()
+
+  recordMoveIntent(sourceSquare, targetSquare)
 
   return attemptUserMove(
   sourceSquare,
@@ -2165,6 +2387,9 @@ function onSquareClick(square: string) {
 
  if (!selectedSquare) {
  if (clickedPiece && clickedPiece.color === sideToMove) {
+  beginPieceIntent(square, 'click')
+ }
+ if (clickedPiece && clickedPiece.color === sideToMove) {
  const targets = getLegalTargets(square)
  setSelectedSquare(square)
  setLegalTargets(targets)
@@ -2173,9 +2398,18 @@ function onSquareClick(square: string) {
  }
 
  if (selectedSquare === square) {
+ perfectionTrackerRef.current.cancelIntent(selectedSquare)
  setSelectedSquare(null)
  setLegalTargets([])
  return
+ }
+
+ // Clicking another learner piece selects it; it is not a destination attempt.
+ if (clickedPiece && clickedPiece.color === sideToMove) {
+  beginPieceIntent(square, 'click')
+  setSelectedSquare(square)
+  setLegalTargets(getLegalTargets(square))
+  return
  }
 
  if (
@@ -2184,6 +2418,11 @@ function onSquareClick(square: string) {
    square
   )
  ) {
+  perfectionTrackerRef.current.markPromotionPending(
+   selectedSquare,
+   square,
+   performance.now(),
+  )
   const pawn = game.get(selectedSquare as Square)
   if (pawn) {
    setPendingPromotion({
@@ -2196,6 +2435,7 @@ function onSquareClick(square: string) {
   setLegalTargets([])
   return
  } else {
+  recordMoveIntent(selectedSquare, square)
   const moveWorked =
    attemptUserMove(
     selectedSquare,
@@ -2206,6 +2446,7 @@ function onSquareClick(square: string) {
  }
 
  if (clickedPiece && clickedPiece.color === sideToMove) {
+ beginPieceIntent(square, 'click')
  const targets = getLegalTargets(square)
  setSelectedSquare(square)
  setLegalTargets(targets)
@@ -2242,9 +2483,6 @@ function onSquareClick(square: string) {
  : displayTurn === 'w'
  ? '#ffffff'
  : '#111111'
-
- const fastThresholdForCurrentPuzzle =
- getUserMoveCount(currentPuzzle) * FAST_SOLVE_SECONDS_PER_MOVE
 
  const customSquareStyles = {
  ...getMoveHighlightStyles(lastMoveHighlight),
@@ -2356,7 +2594,7 @@ function onSquareClick(square: string) {
    : "No focused themes are unlocked yet"
   const allLabel = mixedAvailableThemes.map(formatMixedThemeName).join(", ")
   return (
-   <main style={{ minHeight: "100dvh", background: "#161512", color: "#f3f3f3", padding: "max(24px, 6vh) 20px 120px", fontFamily: "Arial, sans-serif" }}>
+   <div style={{ minHeight: "100dvh", background: "#161512", color: "#f3f3f3", padding: "max(24px, 6vh) 20px 120px", fontFamily: "Arial, sans-serif" }}>
     <section style={{ maxWidth: 620, margin: "0 auto", background: "#292622", border: "1px solid #514b43", borderRadius: 14, padding: 24 }}>
      <h1 style={{ marginTop: 0 }}>{config.trainerTitle}</h1>
      <p style={{ lineHeight: 1.5 }}>Choose a theme scope and difficulty phase. Theme rotation and canonical-puzzle deduplication apply in both modes.</p>
@@ -2377,7 +2615,7 @@ function onSquareClick(square: string) {
      </div>
      <p style={{ marginBottom: 0, color: "#c7c0b5", fontSize: 14 }}>All-theme practice is non-curriculum review: it does not unlock focused themes, raise a difficulty ceiling, or award focused-theme mastery.</p>
     </section>
-   </main>
+   </div>
   )
  }
 
@@ -2403,7 +2641,7 @@ function onSquareClick(square: string) {
 
  if (loadError && puzzles.length === 0) {
  return (
- <main
+ <div
  data-testid="pattern-tactic-load-error"
  style={{
  minHeight: '100vh',
@@ -2416,7 +2654,7 @@ function onSquareClick(square: string) {
  <h1>{config.trainerTitle}</h1>
  <p>Training data is unavailable. The board has been disabled.</p>
  <p style={{ color: '#ffd6d3' }}>{loadError}</p>
- </main>
+ </div>
  )
  }
 
@@ -2438,14 +2676,20 @@ function onSquareClick(square: string) {
  )
  }
 
+ const boardPlayerLabels = config.renderBoardPlayerLabels?.(currentPuzzle, boardOrientation)
+
  return (
  <TrainerShell
  title={config.trainerTitle}
+ onBack={config.backHref ? () => backToParent(config.backHref) : undefined}
  subtitle={isMixedPatternTactic && mixedPhase === "blind"
   ? `${mixedScope === "unlocked" ? "Unlocked" : "All-theme"} blind mixed review`
   : isMixedPatternTactic && mixedSessionThemes.length
   ? `${mixedScope === "unlocked" ? "Unlocked review" : "All-theme practice"}: ${mixedSessionThemes.map(formatMixedThemeName).join(", ")}`
   : currentChunkFileName || 'chunk'}
+ sidePanelWidth={610}
+ maxWidth={1720}
+ preventPageScroll
  boardSize={boardSize}
  isDragging={isDragging}
  isHandleHovered={isHandleHovered}
@@ -2454,6 +2698,44 @@ function onSquareClick(square: string) {
  containerRef={containerRef}
  footerLeft={config.trainerTitle}
  footerRight={`${boardSize}px`}
+ boardTop={boardPlayerLabels?.top}
+ boardBottom={boardPlayerLabels?.bottom}
+ boardControls={
+  <>
+  <VoiceMoveInput
+   fen={boardFen}
+   positionKey={`${currentPuzzle?.id ?? 'loading'}:${currentUserMoveIndexRef.current}:${boardFen}`}
+   disabled={solved || boardLocked || phase !== 'solving'}
+   mode={inputMode}
+   setMode={setInputMode}
+   onAiReady={setAiReady}
+   getPositionShownAt={() => {
+    const snapshot = perfectionTrackerRef.current.snapshot()
+    return snapshot.active ? snapshot.positionActiveAt : null
+   }}
+   onMove={(move, timing) => {
+    if (solved || boardLocked || !currentPuzzle || phase !== 'solving') return false
+    hideCoachMistake()
+    setSelectedSquare(null)
+    setLegalTargets([])
+    return submitVoiceMove(game.fen(), move, timing, perfectionTrackerRef.current, attemptUserMove)
+   }}
+   onIllegalAnswer={(command, timing) => {
+    if (solved || boardLocked || !currentPuzzle || phase !== 'solving') return false
+    return submitIllegalVoiceAnswer(game.fen(), command, timing, perfectionTrackerRef.current,
+     handleSilentError)
+   }}
+  />
+  <AccessibleMoveInput
+   key={`${currentPuzzle?.id ?? "loading"}:${currentUserMoveIndexRef.current}`}
+   resetKey={`${currentPuzzle?.id ?? "loading"}:${currentUserMoveIndexRef.current}`}
+   orientation={boardOrientation}
+   timedMasteryEnabled={timedMasteryEnabled}
+   disabled={!mouseEnabled || solved || boardLocked || phase !== "solving"}
+   onSquareClick={onSquareClick}
+  />
+  </>
+ }
  board={
  <div
  style={{
@@ -2462,33 +2744,62 @@ function onSquareClick(square: string) {
  height: boardSize,
  }}
  >
- <ThemedChessboard
+<ThemedChessboard
  id={`${config.trainerKey}-board`}
  position={boardFen}
  boardOrientation={boardOrientation}
- onPieceDrop={onDrop}
+ accessibilityTitle={config.trainerTitle}
+ accessibilitySelectedSquare={selectedSquare}
+ accessibilityInteraction="Use Keyboard move controls below the board, or select a source and destination square by click or drag."
+ onPieceDragBegin={(_piece, sourceSquare) => {
+  beginPieceIntent(sourceSquare, 'drag')
+ }}
+ onPieceDragEnd={(_piece, sourceSquare) => {
+  queueMicrotask(() => {
+   perfectionTrackerRef.current.finishUnresolvedDrag(sourceSquare)
+  })
+ }}
+ onPieceDropOffBoard={(sourceSquare) => {
+  perfectionTrackerRef.current.cancelIntent(sourceSquare)
+ }}
+ onPieceDrop={(source, target) => mouseEnabled ? onDrop(source, target) : false}
  onPromotionCheck={(
   sourceSquare,
   targetSquare
- ) =>
-  isTacticPromotionAttempt(
+ ) => {
+  const isPromotion = isTacticPromotionAttempt(
    sourceSquare,
    targetSquare
   )
+  if (isPromotion) {
+   perfectionTrackerRef.current.markPromotionPending(
+    sourceSquare,
+    targetSquare,
+    performance.now(),
+   )
+  }
+  return isPromotion
+ }
  }
  onPromotionPieceSelect={(
-  piece,
-  sourceSquare,
-  targetSquare
+ piece,
+ sourceSquare,
+ targetSquare
  ) => {
   if (!sourceSquare || !targetSquare) {
+   perfectionTrackerRef.current.cancelIntent()
    return false
   }
 
   const promotion =
    tacticPromotionCode(piece)
 
-  if (!promotion) return false
+  if (!promotion) {
+   perfectionTrackerRef.current.cancelIntent(sourceSquare)
+   return false
+  }
+
+  recordMoveIntent(sourceSquare, targetSquare, promotion)
 
   hideCoachMistake()
 
@@ -2501,8 +2812,8 @@ function onSquareClick(square: string) {
    }
   )
  }}
- onSquareClick={onSquareClick}
- arePiecesDraggable={!solved && !boardLocked && phase === 'solving'}
+ onSquareClick={(square) => { if (mouseEnabled) onSquareClick(square) }}
+ arePiecesDraggable={mouseEnabled && !solved && !boardLocked && phase === 'solving'}
  boardWidth={boardSize}
 
  customSquareStyles={customSquareStyles}
@@ -2521,10 +2832,14 @@ function onSquareClick(square: string) {
  {pendingPromotion ? (
   <PromotionChooser
    color={pendingPromotion.color}
-   onCancel={() => setPendingPromotion(null)}
+   onCancel={() => {
+    perfectionTrackerRef.current.cancelIntent(pendingPromotion.sourceSquare)
+    setPendingPromotion(null)
+   }}
    onSelect={(promotion: PromotionPiece) => {
     const pending = pendingPromotion
     setPendingPromotion(null)
+    recordMoveIntent(pending.sourceSquare, pending.targetSquare, promotion)
     hideCoachMistake()
     attemptUserMove(pending.sourceSquare, pending.targetSquare, {
      allowWrongMoveToShow: true,
@@ -2570,7 +2885,7 @@ function onSquareClick(square: string) {
    chunkNumber={showingDebugCompletionOverlay ? 1 : currentChunkIndex + 1}
    chunkCount={showingDebugCompletionOverlay ? 5 : chunkFiles.length}
    hasNextChunk={getNextActiveLearnerChunkIndex(currentChunkIndex, chunkFiles.length) !== null}
-   onContinueAuto={() => window.location.assign('/auto')}
+   onContinueAuto={() => window.location.assign('/auto?continue=1')}
    onNextChunk={goToNextActiveLearnerChunk}
    onDismiss={() => {
     if (showingDebugCompletionOverlay) setDebugCompletionOverlayOpen(false)
@@ -2581,15 +2896,11 @@ function onSquareClick(square: string) {
  </div>
  }
  sidePanel={
- <div
- style={{
- display: 'flex',
- flexDirection: 'column',
- gap: 16,
- minHeight: boardSize,
- }}
+ <PuzzleTrainerPanel
+ boardSize={boardSize}
+ explanation={trainerExplanation && <SiteExplanationBox explanation={trainerExplanation} />}
+ provenance={config.renderPuzzleInfo?.(currentPuzzle, solved)}
  >
- {trainerExplanation && <SiteExplanationBox explanation={trainerExplanation} />}
 
  <PanelCard style={{ padding: '14px 12px' }}>
  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -2729,11 +3040,15 @@ function onSquareClick(square: string) {
  }}
  >
  <div>{currentPuzzleFastSolves} / {FAST_SOLVES_TO_MASTER} fast solves</div>
- <div>Fast under {fastThresholdForCurrentPuzzle}s</div>
+ <div>
+  {timedMasteryEnabled
+   ? `Perfect: start under ${PUZZLE_RECOGNITION_LIMIT_MS / 1000}s; every move under ${PUZZLE_MOVE_LIMIT_MS / 1000}s`
+   : 'Perfect: recognition timing disabled'}
+ </div>
  </div>
  </PanelCard>
 
- <BigMessage streak={`Fast ${totalFastSolves}`} message={message} />
+ <BigMessage message={message} />
 
  <PanelCard>
  <div
@@ -2838,14 +3153,16 @@ function onSquareClick(square: string) {
  </div>
  </PanelCard>
 
- <div style={{ marginTop: 'auto', display: 'flex', gap: 10 }}>
+ <div className="trainer-shell-puzzle-actions" style={{ marginTop: 'auto', display: 'flex', gap: 10 }}>
  {!solved && phase !== 'finished' && (
  <HintButton
+ showFloatingControl={false}
  getHintMove={() => {
  const uci = getExpectedUserMove(currentPuzzle, currentUserMoveIndexRef.current)
  return uci ? { from: uci.slice(0, 2), to: uci.slice(2, 4) } : null
  }}
  onHintStage={(move, stage) => {
+ perfectionTrackerRef.current.markHintUsed()
  mixedPuzzleNeededHelpRef.current = true
  curriculumSessionEvidenceRef.current.hints += 1
  if (isMixedPatternTactic) {
@@ -2870,12 +3187,24 @@ function onSquareClick(square: string) {
  </HintButton>
  )}
 
+ {!solved && phase !== 'finished' && (
+ <SecondaryButton
+ onClick={handleSilentError}
+ disabled={boardLocked}
+ fullWidth={false}
+ style={{ padding: '10px 12px' }}
+ title="Record that the position was misunderstood even if the move is correct"
+ >
+ Silent error
+ </SecondaryButton>
+ )}
+
  <div style={{ display: 'contents' }}>
  <PrimaryButton
  onClick={() => {
  cancelCorrectAutoAdvance()
  if (curriculumCompletionCard) {
-  window.location.assign('/auto')
+  window.location.assign('/auto?continue=1')
   return
  }
  if (allPuzzlesMastered()) {
@@ -2889,8 +3218,8 @@ function onSquareClick(square: string) {
  </PrimaryButton>
  </div>
 
- <SecondaryButton onClick={() => void restartWholeProgression()}>
-  Restart progression
+ <SecondaryButton disabled={restartingProgression} onClick={() => void restartWholeProgression()}>
+  {restartingProgression ? 'Restarting progression...' : 'Restart progression'}
  </SecondaryButton>
  {debugChunkCompleteAllowed && (
   <SecondaryButton onClick={() => {
@@ -2912,7 +3241,7 @@ function onSquareClick(square: string) {
   <div>{curriculumCompletionCard.masteryIncreased ? 'Mastery increased. ' : ''}{curriculumCompletionCard.reinforcementActivated ? 'Temporary reinforcement is active. ' : ''}Continue Auto for your next recommended training.</div>
  </PanelCard>
  )}
- </div>
+ </PuzzleTrainerPanel>
  }
  />
  )

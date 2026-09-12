@@ -8,11 +8,14 @@ import {
 import { useSubscription } from "./context/SubscriptionContext"
 import { supabase } from "./lib/supabase"
 import { trackAnalyticsEvent } from "./lib/analytics"
+import DataCollectionNotice from "./compliance/DataCollectionNotice"
+import { affiliateApi } from './affiliate/client'
 
 type BillingPeriod = "monthly" | "yearly"
 type PayPalMode = "sandbox" | "live"
 
 type PriceProfile = {
+  affiliateCheckout?: boolean
   mode: PayPalMode
   currency: string
   monthlyPrice: string
@@ -30,32 +33,45 @@ function PayPalSubscriptionButton({
   planId,
   period,
   onApproved,
+  onRetry,
 }: {
   userId: string
   planId: string
   period: BillingPeriod
   onApproved: (subscriptionId: string) => Promise<void>
+  onRetry: (manual: boolean) => void
 }) {
   const [{ isPending, isRejected }] = usePayPalScriptReducer()
   const [message, setMessage] = useState("")
   const [approving, setApproving] = useState(false)
   const checkoutTracked = useRef(false)
   const activationTracked = useRef(false)
+  const autoRetryScheduled = useRef(false)
+
+  useEffect(() => {
+    if (!isRejected || autoRetryScheduled.current) return
+    autoRetryScheduled.current = true
+    const timer = window.setTimeout(() => onRetry(false), 600)
+    return () => window.clearTimeout(timer)
+  }, [isRejected, onRetry])
 
   if (isRejected) {
     return (
       <div style={checkoutErrorStyle}>
-        PayPal failed to load. Refresh the page and try again.
+        PayPal couldn't load.
+        <button type="button" onClick={() => onRetry(true)} style={retryButtonStyle}>Retry PayPal</button>
       </div>
     )
   }
 
+  // Buttons are not mounted until the SDK reducer has reported readiness.
+  // This avoids a first-navigation race with the asynchronous script insert.
+  if (isPending || typeof window === "undefined" || !window.paypal) {
+    return <div style={checkoutStatusStyle}>Loading PayPal...</div>
+  }
+
   return (
     <div style={{ marginTop: 18 }}>
-      {isPending && (
-        <div style={checkoutStatusStyle}>Loading PayPal...</div>
-      )}
-
       <PayPalButtons
         key={planId}
         forceReRender={[planId, userId, period]}
@@ -67,12 +83,25 @@ function PayPalSubscriptionButton({
           label: "subscribe",
           height: 48,
         }}
-        createSubscription={(_data, actions) => {
+        createSubscription={async (_data, actions) => {
           if (!checkoutTracked.current) {
             checkoutTracked.current = true
             trackAnalyticsEvent("checkout_started", { billing_period: period })
           }
 
+          // Only the server can authorize the introductory plan and attribution.
+          const profileResponse = await fetch('/api/price-profile')
+          if (!profileResponse.ok) throw new Error('Could not verify current checkout configuration')
+          const currentProfile = await profileResponse.json()
+          if (currentProfile.affiliateCheckout) {
+            try {
+              const checkout = await affiliateApi('checkout', { period })
+              return checkout.id
+            } catch(error) {
+              if(error instanceof Error && error.message.startsWith('AFFILIATE_ELIGIBILITY_UNAVAILABLE')) setMessage(error.message)
+              throw error
+            }
+          }
           return actions.subscription.create({
             plan_id: planId,
             custom_id: `${userId}|${period}`,
@@ -111,12 +140,15 @@ function PayPalSubscriptionButton({
         }}
         onError={(error) => {
           console.error("PayPal subscription error", error)
-          setMessage("PayPal checkout failed. Please try again.")
+          setMessage(previous=>previous.startsWith('AFFILIATE_ELIGIBILITY_UNAVAILABLE')?previous:"PayPal checkout failed. Please try again.")
         }}
       />
 
       {message && (
         <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
           style={
             message === "Premium is active."
               ? checkoutSuccessStyle
@@ -135,7 +167,8 @@ function CheckoutButton({
   userId,
   planId,
   period,
-  onApproved,
+      onApproved,
+      onRetry,
   onLogin,
 }: {
   userLoaded: boolean
@@ -143,6 +176,7 @@ function CheckoutButton({
   planId: string
   period: BillingPeriod
   onApproved: (subscriptionId: string) => Promise<void>
+  onRetry: (manual: boolean) => void
   onLogin: () => void
 }) {
   if (!userLoaded) {
@@ -171,7 +205,73 @@ function CheckoutButton({
       planId={planId}
       period={period}
       onApproved={onApproved}
+      onRetry={onRetry}
     />
+  )
+}
+
+function PayPalCheckout({ currency, children }: { currency: string; children: (onRetry: (manual: boolean) => void) => React.ReactNode }) {
+ const [attempt, setAttempt] = useState(0)
+ const retry = (manual: boolean) => {
+  setAttempt((current) => manual ? current + 1 : Math.max(current, 1))
+ }
+
+ return (
+  <PayPalScriptProvider
+   key={attempt}
+   options={{ clientId: paypalClientId, components: "buttons", currency, intent: "subscription", vault: true }}
+  >
+   {children(retry)}
+  </PayPalScriptProvider>
+ )
+}
+
+function PricingPlans({priceProfile,yearlySavings,renderCheckout}:{priceProfile:PriceProfile|null;yearlySavings:string;renderCheckout:(period:BillingPeriod)=>React.ReactNode}) {
+  return (
+                <div style={plansStyle} data-pricing-plans="">
+                  <div style={planCardStyle}>
+                    <div style={planNameStyle}>Monthly</div>
+                    <div style={priceStyle}>
+                      {priceProfile?.monthlyPrice ?? '…'}
+                    </div>
+                    <div style={periodStyle}>per month</div>
+
+                    <ul style={featureListStyle}>
+                      <li>Unlimited puzzles, openings and master games</li>
+                      <li>Unlimited endgame and board-vision training</li>
+                      <li>Full Auto Study and spaced repetition</li>
+                      <li>30 AI Coach explanations each month</li>
+                      <li>Complete progress tracking</li>
+                      <li>Cancel renewal from your account</li>
+                    </ul>
+
+                    {renderCheckout('monthly')}
+                  </div>
+
+                  <div
+                    style={{
+                      ...planCardStyle,
+                      ...recommendedCardStyle,
+                    }}
+                  >
+                    <div style={badgeStyle}>Best value</div>
+                    <div style={planNameStyle}>Yearly</div>
+                    <div style={priceStyle}>
+                      {priceProfile?.yearlyPrice ?? '…'}
+                    </div>
+                    <div style={periodStyle}>per year</div>
+
+                    <ul style={featureListStyle}>
+                      <li>Everything in Premium</li>
+                      <li>{yearlySavings}</li>
+                      <li>Full personalized study plan</li>
+                      <li>Unlimited training and progress history</li>
+                      <li>One annual payment</li>
+                    </ul>
+
+                    {renderCheckout('yearly')}
+                  </div>
+                </div>
   )
 }
 
@@ -367,11 +467,11 @@ export default function PricingPage() {
         </p>
 
         {activationMessage && (
-          <div style={approvedStyle}>{activationMessage}</div>
+          <div role="status" aria-live="polite" aria-atomic="true" style={approvedStyle}>{activationMessage}</div>
         )}
 
         {subscriptionLoading ? (
-          <div style={statusStyle}>Loading membership...</div>
+          <div role="status" aria-live="polite" style={statusStyle}>Loading membership...</div>
         ) : isPremium ? (
           <div style={premiumStyle}>
             <div style={{ fontSize: 24, fontWeight: 800 }}>
@@ -399,87 +499,31 @@ export default function PricingPage() {
         ) : (
           <>
             {priceProfileError ? (
-              <div style={checkoutErrorStyle}>
+              <div role="alert" style={checkoutErrorStyle}>
                 {priceProfileError}
               </div>
             ) : !priceProfile ? (
-              <div style={statusStyle}>Loading secure prices...</div>
+              <div aria-busy="true"><PricingPlans priceProfile={null} yearlySavings={yearlySavings} renderCheckout={() => <button type="button" disabled style={primaryButtonStyle}>Loading secure prices…</button>} /></div>
             ) : !paypalClientId ? (
-              <div style={checkoutErrorStyle}>
+              <div role="alert" style={checkoutErrorStyle}>
                 PayPal Client ID is missing from the site environment.
               </div>
             ) : (
-              <PayPalScriptProvider
-                options={{
-                  clientId: paypalClientId,
-                  components: "buttons",
-                  currency: priceProfile.currency,
-                  intent: "subscription",
-                  vault: true,
-                }}
-              >
-                <div style={plansStyle}>
-                  <div style={planCardStyle}>
-                    <div style={planNameStyle}>Monthly</div>
-                    <div style={priceStyle}>
-                      {priceProfile.monthlyPrice}
-                    </div>
-                    <div style={periodStyle}>per month</div>
-
-                    <ul style={featureListStyle}>
-                      <li>Unlimited puzzles, openings and master games</li>
-                      <li>Unlimited endgame and board-vision training</li>
-                      <li>Full Auto Study and spaced repetition</li>
-                      <li>30 AI Coach explanations each month</li>
-                      <li>Complete progress tracking</li>
-                      <li>Cancel renewal from your account</li>
-                    </ul>
-
-                    <CheckoutButton
-                      userLoaded={userLoaded}
-                      userId={userId}
-                      planId={priceProfile.monthlyPlanId}
-                      period="monthly"
-                      onApproved={verifyApprovedSubscription}
-                      onLogin={() => navigate("/auth")}
-                    />
-                  </div>
-
-                  <div
-                    style={{
-                      ...planCardStyle,
-                      ...recommendedCardStyle,
-                    }}
-                  >
-                    <div style={badgeStyle}>Best value</div>
-                    <div style={planNameStyle}>Yearly</div>
-                    <div style={priceStyle}>
-                      {priceProfile.yearlyPrice}
-                    </div>
-                    <div style={periodStyle}>per year</div>
-
-                    <ul style={featureListStyle}>
-                      <li>Everything in Premium</li>
-                      <li>{yearlySavings}</li>
-                      <li>Full personalized study plan</li>
-                      <li>Unlimited training and progress history</li>
-                      <li>One annual payment</li>
-                    </ul>
-
-                    <CheckoutButton
-                      userLoaded={userLoaded}
-                      userId={userId}
-                      planId={priceProfile.yearlyPlanId}
-                      period="yearly"
-                      onApproved={verifyApprovedSubscription}
-                      onLogin={() => navigate("/auth")}
-                    />
-                  </div>
-                </div>
-              </PayPalScriptProvider>
+              <PayPalCheckout currency={priceProfile.currency}>
+                {(onRetry) => (
+                <PricingPlans priceProfile={priceProfile} yearlySavings={yearlySavings} renderCheckout={(period) => (
+                  <CheckoutButton userLoaded={userLoaded} userId={userId}
+                    planId={period === 'monthly' ? priceProfile.monthlyPlanId : priceProfile.yearlyPlanId}
+                    period={period} onApproved={verifyApprovedSubscription}
+                    onRetry={onRetry} onLogin={() => navigate("/auth")} />
+                )} />
+                )}
+              </PayPalCheckout>
             )}
           </>
         )}
+
+        {!isPremium && <DataCollectionNotice context="payment" />}
 
         <div style={billingNoteStyle}>
           Subscriptions renew automatically until cancelled. Cancelling
@@ -675,6 +719,11 @@ const checkoutSuccessStyle: React.CSSProperties = {
   background: "rgba(129,182,76,0.14)",
   border: "1px solid rgba(129,182,76,0.4)",
   color: "#dff3c5",
+}
+
+const retryButtonStyle: React.CSSProperties = {
+  display: "block", marginTop: 8, border: "none", borderRadius: 8,
+  padding: "7px 10px", background: "#81b64c", color: "#fff", fontWeight: 800, cursor: "pointer",
 }
 
 const statusStyle: React.CSSProperties = {

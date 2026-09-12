@@ -1,4 +1,5 @@
 import { Chess } from 'chess.js'
+import { captureMaterialLoss } from '../lib/chess/captureMaterial'
 import type { Move, PieceSymbol, Square } from 'chess.js'
 import { supabase } from '../lib/supabase'
 import { TRAINER_CATALOG } from './trainerCatalog'
@@ -669,9 +670,12 @@ function moveMatchesTarget(before: Chess, move: Move, target: TransferTarget) {
  }
 
  if (key === 'hanging-piece') {
-  const capturedValue = applied.captured ? PIECE_VALUE[applied.captured] : 0
-  return capturedValue >= 300
-   ? { score: 520 + capturedValue / 10, description: 'A hanging piece can be won.' }
+  const { loss: materialGain } = captureMaterialLoss(
+   before.fen(), `${applied.from}${applied.to}${applied.promotion || ''}`,
+   opposite(applied.color), PIECE_VALUE,
+  )
+  return materialGain >= 300
+   ? { score: 520 + materialGain / 10, description: 'A hanging piece can be won.' }
    : { score: 0, description: '' }
  }
 

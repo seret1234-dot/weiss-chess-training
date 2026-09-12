@@ -96,6 +96,7 @@ type HintButtonProps = ButtonBaseProps & {
  getHintMove: HintActionOptions['getHintMove']
  onHintStage?: HintActionOptions['onHintStage']
  onHintReset?: HintActionOptions['onHintReset']
+ showFloatingControl?: boolean
  hintResetKey?: unknown
 }
 
@@ -107,6 +108,7 @@ export function HintButton({
  onHintStage,
  onHintReset,
  hintResetKey,
+ showFloatingControl,
  className,
  style,
  onClick: _onClick,
@@ -118,6 +120,7 @@ export function HintButton({
  onHintReset,
  disabled: Boolean(disabled),
  resetKey: hintResetKey,
+ showFloatingControl,
  })
 
  return (
@@ -155,6 +158,10 @@ export function ProgressBar({
 
  return (
  <div
+ role="progressbar"
+ aria-valuemin={0}
+ aria-valuemax={100}
+ aria-valuenow={Math.round(clamped)}
  style={{
  height: 10,
  background: 'var(--theme-panel-input)',
@@ -185,18 +192,21 @@ export function BigMessage({
  streak,
  message,
 }: {
- streak: ReactNode
+ streak?: ReactNode
  message: ReactNode
 }) {
  return (
  <div
+ role="status"
+ aria-live="polite"
+ aria-atomic="true"
  style={{
  marginBottom: 4,
  textAlign: 'center',
  padding: '4px 0 2px',
  }}
  >
- <div
+ {streak != null && streak !== '' && <div
  style={{
  fontSize: 28,
  fontWeight: 800,
@@ -205,7 +215,7 @@ export function BigMessage({
  }}
  >
  {streak}
- </div>
+ </div>}
 
  <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 2 }}>{message}</div>
  </div>

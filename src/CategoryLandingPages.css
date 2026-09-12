@@ -8,7 +8,60 @@
   box-sizing: border-box;
 }
 
+.catalog-page--home .home-how {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+}
+
+.catalog-page--home .home-how--with-affiliate {
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.4fr);
+}
+
+.catalog-page--home .home-how__content,
+.catalog-page--home .home-how__affiliate {
+  min-width: 0;
+}
+
+.catalog-page--home .home-how__affiliate {
+  align-self: center;
+  border-left: 1px solid var(--theme-border);
+  padding-left: 24px;
+}
+
+.catalog-page--home .home-how__affiliate h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.catalog-page--home .home-how__affiliate p {
+  margin: 0 0 16px;
+  color: var(--theme-muted);
+  line-height: 1.6;
+}
+
+.catalog-page--home .home-how__affiliate button {
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-button-bg);
+  color: var(--theme-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 @media (max-width: 768px) {
+  .catalog-page--home .home-how--with-affiliate {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .catalog-page--home .home-how__affiliate {
+    border-left: 0;
+    border-top: 1px solid var(--theme-border);
+    padding: 20px 0 0;
+  }
+
   .catalog-page {
     width: 100%;
     max-width: 100%;

@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom'
+import { useEffect, useId, useRef, type KeyboardEvent } from 'react'
 
 export type PromotionPiece = 'q' | 'r' | 'b' | 'n'
 
@@ -22,15 +23,59 @@ const glyphs: Record<'w' | 'b', Record<PromotionPiece, string>> = {
 
 /** Explicit choice UI for tap/click board controls. */
 export default function PromotionChooser({ color, onSelect, onCancel }: PromotionChooserProps) {
+  const titleId = useId()
+  const instructionsId = useId()
+  const dialogRef = useRef<HTMLDivElement | null>(null)
+  const firstChoiceRef = useRef<HTMLButtonElement | null>(null)
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    previouslyFocusedRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null
+    const frame = window.requestAnimationFrame(() => firstChoiceRef.current?.focus())
+    return () => {
+      window.cancelAnimationFrame(frame)
+      const returnFocusTo = previouslyFocusedRef.current
+      window.requestAnimationFrame(() => returnFocusTo?.focus())
+    }
+  }, [])
+
   if (typeof document === 'undefined') return null
+
+  function handleDialogKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      onCancel()
+      return
+    }
+    if (event.key !== 'Tab') return
+
+    const controls = dialogRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )
+    if (!controls?.length) return
+    const first = controls[0]
+    const last = controls[controls.length - 1]
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
 
   return createPortal(
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Choose promotion piece"
+      aria-labelledby={titleId}
+      aria-describedby={instructionsId}
       data-testid="promotion-chooser"
       onClick={onCancel}
+      onKeyDown={handleDialogKeyDown}
       style={{
         position: 'fixed',
         inset: 0,
@@ -53,11 +98,13 @@ export default function PromotionChooser({ color, onSelect, onCancel }: Promotio
           boxShadow: '0 18px 44px rgba(0, 0, 0, 0.45)',
         }}
       >
-        <div style={{ marginBottom: 12, fontWeight: 850, fontSize: 18 }}>Promote pawn to</div>
+        <div id={titleId} style={{ marginBottom: 6, fontWeight: 850, fontSize: 18 }}>Promote pawn to</div>
+        <p id={instructionsId} style={{ margin: '0 0 12px', fontSize: 14 }}>Choose Queen, Rook, Bishop, or Knight. Press Escape to cancel.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8 }}>
-          {labels.map(({ piece, name }) => (
+          {labels.map(({ piece, name }, index) => (
             <button
               key={piece}
+              ref={index === 0 ? firstChoiceRef : undefined}
               type="button"
               aria-label={`Promote to ${name}`}
               onClick={() => onSelect(piece)}
@@ -73,7 +120,7 @@ export default function PromotionChooser({ color, onSelect, onCancel }: Promotio
                 touchAction: 'manipulation',
               }}
             >
-              {glyphs[color][piece]}
+              <span aria-hidden="true">{glyphs[color][piece]}</span>
             </button>
           ))}
         </div>

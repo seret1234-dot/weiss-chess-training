@@ -26,7 +26,7 @@ type MasterCanonicalPuzzle = {
 
 type MasterCanonicalChunk = { puzzles: MasterCanonicalPuzzle[] }
 type CourseGroup = { fileName: string; refs: MasterTacticRef[] }
-const MASTER_TACTIC_CHUNK_SIZE = 30
+export const MASTER_TACTIC_CHUNK_SIZE = 30
 
 export function masterTacticDistanceLabel(distance: MasterTacticDistance) {
  return `Tactic in ${distance === 4 ? '4+' : distance}`

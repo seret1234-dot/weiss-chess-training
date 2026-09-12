@@ -1,3 +1,4 @@
+import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -921,6 +922,7 @@ function buildCourseChunks(): Chunk[] {
 const COURSE_CHUNKS = buildCourseChunks()
 
 export default function BoardVisionPage() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const [searchParams] = useSearchParams()
  const isAutoStudyLaunch = searchParams.get('auto') === '1'
  const fullBoardReviewSide: SideMode | null =
@@ -1257,9 +1259,7 @@ export default function BoardVisionPage() {
   setSelectedSquare(null)
   setLastSolveSeconds(null)
   setChunkIndex(safeForcedChunkIndex)
-  setTargetSquare(forcedTarget)
-  setSolveStartedAt(performance.now())
-  setIsStarted(true)
+  void beginChunk(safeForcedChunkIndex, `AUTO review: ${forcedChunk.label}`)
   setTargetVisible(true)
   setStatus('idle')
   setStatusText(
@@ -1328,12 +1328,7 @@ export default function BoardVisionPage() {
  }
 
  const nextChunk = visibleChunks[firstIncomplete]
- const nextTarget = pickRandomSquare(nextChunk.squares)
-
- setChunkIndex(firstIncomplete)
- setTargetSquare(nextTarget)
- setSolveStartedAt(performance.now())
- setIsStarted(true)
+ void beginChunk(firstIncomplete, `Resumed: ${nextChunk.label}`)
  setTargetVisible(true)
  setStatus('idle')
  setStatusText(
@@ -1494,13 +1489,16 @@ export default function BoardVisionPage() {
  })
  }
 
- function beginChunk(index: number, text?: string) {
+ async function beginChunk(index: number, text?: string) {
  clearFlashTimer()
  clearTargetTimers()
 
  const nextIndex = Math.max(0, Math.min(index, visibleChunks.length - 1))
  const nextChunk = visibleChunks[nextIndex]
-
+ if (!nextChunk || nextChunk.squares.length === 0) return
+ setIsStarted(false)
+ if (!await admitAutoChunk({ course: 'vision', trainerKey: getSupabaseTheme(trainerMode, sideMode), unitKey: nextChunk.id,
+   itemIds: nextChunk.squares.map(square => getProgressKey(trainerMode, sideMode, nextChunk.id, square)) })) return
  setChunkIndex(nextIndex)
  setIsStarted(true)
  setTargetVisible(true)
@@ -2054,6 +2052,12 @@ export default function BoardVisionPage() {
  {currentChunk?.phase ?? '-'}
  </div>
  </div>
+
+ <div
+ id="trainer-completion-actions"
+ data-testid="trainer-completion-actions"
+ className="trainer-completion-actions board-vision-completion-actions"
+ />
 
  <div className="board-vision-board" style={{ width: '100%', maxWidth: 900, margin: '0 auto' }}>
  <ThemedChessboard

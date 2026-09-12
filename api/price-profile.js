@@ -2,6 +2,7 @@ import {
   configuredPlans,
   getPayPalMode,
 } from "../server/paypal-subscription-core.mjs"
+import { affiliateTaxConfig } from "../server/affiliate-tax-config.mjs"
 
 function displayPrice(name, fallback) {
   const raw = String(process.env[name] || "").trim()
@@ -22,6 +23,8 @@ export default function handler(req, res) {
   }
 
   try {
+    // Do not advertise working checkout when its financial configuration is invalid.
+    if (process.env.AFFILIATE_PROGRAM_ENABLED === 'true') affiliateTaxConfig()
     const rawLocation = req.headers["x-vercel-ip-country"]
     const locationCode = String(
       Array.isArray(rawLocation)
@@ -49,6 +52,7 @@ export default function handler(req, res) {
 
     res.status(200).json({
       mode: getPayPalMode(),
+      affiliateCheckout: process.env.AFFILIATE_PROGRAM_ENABLED === 'true',
       currency: "USD",
       monthlyPrice: useTaxedPlans
         ? displayPrice("PAYPAL_PRICE_MONTHLY_TAXED", "$10.61")
@@ -60,6 +64,10 @@ export default function handler(req, res) {
       yearlyPlanId,
     })
   } catch (error) {
+    if (error.code === 'AFFILIATE_TAX_CONFIG_INVALID') {
+      console.error('Affiliate tax configuration invalid', error.reason)
+      return res.status(503).json({ error: 'AFFILIATE_TAX_CONFIG_INVALID' })
+    }
     console.error("Price profile failed", error)
     res.status(500).json({
       error: "Prices are not configured",

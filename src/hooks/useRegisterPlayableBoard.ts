@@ -27,6 +27,7 @@ export function useRegisterPlayableBoard({
  () => ({
  isAvailable: !!fen,
  fen,
+ orientation,
  suggestedColor: suggestedColor ?? orientation,
  canFlip: canFlip && !!setOrientation,
  onFlip: setOrientation ? handleFlip : undefined,

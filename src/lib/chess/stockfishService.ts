@@ -424,4 +424,12 @@ export class StockfishService {
   }
 }
 
-export const stockfishService = new StockfishService()
+// Interactive play needs an engine it can restart without interrupting a
+// long-running imported-game analysis. Keep the original export as an alias
+// so existing interactive callers retain their current contract.
+export const interactiveStockfishService = new StockfishService()
+export const stockfishService = interactiveStockfishService
+
+// Imported-game analysis runs independently from the interactive board. Each
+// service owns its Worker, UCI configuration, and pending-search state.
+export const backgroundAnalysisStockfishService = new StockfishService()

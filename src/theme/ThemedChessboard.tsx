@@ -1,12 +1,24 @@
-import React from "react"
+import React, { useEffect, useId, useRef, useState } from "react"
 import { Chessboard } from "react-chessboard"
+import { buildBoardAccessibilityDescription, isDecorativeTransitionBoard } from "../components/chess/boardAccessibility.mjs"
 import { useSiteTheme } from "./ThemeContext"
 
 type ChessboardProps = React.ComponentProps<typeof Chessboard>
 type PromotionPiece = "q" | "r" | "b" | "n"
 
-export default function ThemedChessboard(props: ChessboardProps) {
-  const { theme, config, pieces } = useSiteTheme()
+type BoardAccessibilityProps = {
+  accessibilityTitle?: string
+  accessibilityInteraction?: string
+  accessibilitySelectedSquare?: string | null
+  accessibilityCurrentMove?: string | null
+  accessibilityStatus?: string | null
+}
+
+export default function ThemedChessboard(props: ChessboardProps & BoardAccessibilityProps) {
+  const descriptionId = useId()
+  const { theme, config, pieces, showCoordinates } = useSiteTheme()
+  const previousOrientationRef = useRef(props.boardOrientation)
+  const [orientationAnnouncement, setOrientationAnnouncement] = useState("")
   const {
     customPieces: _pagePieces,
     customDarkSquareStyle,
@@ -14,8 +26,22 @@ export default function ThemedChessboard(props: ChessboardProps) {
     customBoardStyle,
     onPromotionPieceSelect,
     onPieceDrop,
+    showBoardNotation: pageShowBoardNotation,
+    accessibilityTitle,
+    accessibilityInteraction,
+    accessibilitySelectedSquare,
+    accessibilityCurrentMove,
+    accessibilityStatus,
     ...boardProps
   } = props
+
+  useEffect(() => {
+    if (previousOrientationRef.current === props.boardOrientation) return
+    previousOrientationRef.current = props.boardOrientation
+    setOrientationAnnouncement(
+      `Board orientation: ${props.boardOrientation === "black" ? "Black" : "White"} at bottom.`,
+    )
+  }, [props.boardOrientation])
 
   const boardRadius = theme === "weiss3d" ? "6px" : "8px"
   const boardShadow =
@@ -25,7 +51,20 @@ export default function ThemedChessboard(props: ChessboardProps) {
         ? "0 18px 48px rgba(0,0,0,0.34)"
         : "0 0 0 1px rgba(255,255,255,0.08), 0 18px 42px rgba(0,0,0,0.34)"
 
-  return (
+  const decorative = isDecorativeTransitionBoard(props.id)
+  const accessibility = buildBoardAccessibilityDescription({
+    id: props.id,
+    title: accessibilityTitle,
+    position: props.position,
+    orientation: props.boardOrientation,
+    showCoordinates: showCoordinates && pageShowBoardNotation !== false,
+    interactionDescription: accessibilityInteraction,
+    selectedSquare: accessibilitySelectedSquare,
+    currentMove: accessibilityCurrentMove,
+    status: accessibilityStatus,
+  })
+
+  const board = (
     <Chessboard
       key={`${String(props.id ?? "chessboard")}-${theme}`}
       {...boardProps}
@@ -52,6 +91,7 @@ export default function ThemedChessboard(props: ChessboardProps) {
         })
       }
       animationDuration={boardProps.animationDuration ?? 220}
+      showBoardNotation={showCoordinates && pageShowBoardNotation !== false}
       customPieces={pieces}
       customDarkSquareStyle={{
         ...(customDarkSquareStyle ?? {}),
@@ -67,5 +107,24 @@ export default function ThemedChessboard(props: ChessboardProps) {
         ...(customBoardStyle ?? {}),
       }}
     />
+  )
+
+  return (
+    <div
+      className="accessible-chessboard"
+      role={decorative ? undefined : "group"}
+      aria-label={decorative ? undefined : accessibility.label}
+      aria-describedby={decorative ? undefined : descriptionId}
+      aria-hidden={decorative || undefined}
+      style={{ width: typeof props.boardWidth === "number" ? props.boardWidth : "100%", maxWidth: "100%" }}
+    >
+      {!decorative && <span id={descriptionId} className="sr-only">{accessibility.description}</span>}
+      {!decorative && (
+        <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {orientationAnnouncement}
+        </span>
+      )}
+      {board}
+    </div>
   )
 }

@@ -199,7 +199,7 @@ try {
   }
 
   const canonicalM1Themes = Object.keys(m1Curriculum.PATTERN_MATE_M1_CANONICAL_THEMES)
-  assert.equal(canonicalM1Themes.length, 9, "Mixed Mate M1 exposes exactly nine canonical source themes")
+  assert.equal(canonicalM1Themes.length, 11, "Mixed Mate M1 exposes the split Kill Box subpatterns as independent canonical source themes")
   const invalidM1ThemeNames = new Set(["endgame", "master", "mate", "hangingpiece", "discoveredcheck", "advancedpawn", "bishopendgame", "kingsideattack"])
   const mixedMateCandidates = (await Promise.all(m1Curriculum.PATTERN_MATE_M1_LEARNER_CURRICULA.map(async (definition) => {
     const manifest = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/manifest.json`), "utf8"))
@@ -226,9 +226,9 @@ try {
   assertRotation(allMatePlan, availableMateThemes.length)
 
   const extensionThemes = m1Curriculum.PATTERN_MATE_M1_LEARNER_CURRICULA.filter((definition) =>
-    ["kill-box", "dovetail", "double-bishop"].includes(definition.theme),
+    ["kill-box-adjacent-rook", "kill-box-rook-rail", "kill-box-queen-fence", "dovetail", "double-bishop"].includes(definition.theme),
   )
-  assert.equal(extensionThemes.length, 3, "all three extended M1 themes are in the learner curriculum")
+  assert.equal(extensionThemes.length, 5, "the three Kill Box subpatterns and the other extended M1 themes are in the learner curriculum")
   assert.match(patternMateTrainerSource, /const mixedLearnerCurricula = mixedMateDistance === 1/, "Mixed M1 retains the shared learner-pool loader")
   assert.match(patternMateTrainerSource, /PATTERN_MATE_M1_LEARNER_CURRICULA/, "Mixed M1 loads the versioned learner pools rather than the generated source pool")
   assert.match(patternMateTrainerSource, /canonicalThemeKey: definition\.theme/, "trainer attributes each learner record to its catalog-owned canonical theme")
@@ -245,7 +245,7 @@ try {
     return chunks.flat()
   }))).flat()
   const curatedPlan = selector.planMixedSession(curatedCandidates, { sessionId: "curated-m1-extension", sessionSize: 20 })
-  assertRotation(curatedPlan, 3)
+  assertRotation(curatedPlan, 5)
   const curatedFamilies = curatedPlan.orderedCandidates.map((entry) => entry.pedagogicalFamily)
   for (let index = 1; index < curatedFamilies.length; index += 1) {
     const alternatives = curatedFamilies.slice(index).some((family) => family && family !== curatedFamilies[index - 1])

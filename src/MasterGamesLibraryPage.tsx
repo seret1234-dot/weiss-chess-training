@@ -1,6 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { authRouterState, rememberTrainingReturnTarget } from './auth/trainingReturnTarget.mjs'
 import { supabase } from './lib/supabase'
+import {
+ MASTER_GAME_LIBRARY_CHANGED_EVENT,
+ getSavedMasterGameCount,
+} from './masterGames/libraryData'
+import {
+ buildMasterGameSearchRpcArgs,
+ MASTER_GAME_PLAYER_SUGGESTIONS_RPC,
+ MASTER_GAMES_FLEXIBLE_SEARCH_RPC,
+ normalizeMasterGameSearchText,
+} from './masterGamesFlexibleSearch.mjs'
 
 type MasterGameItem = {
  id: number
@@ -39,10 +50,6 @@ function pageCountFrom(total: number) {
  return Math.max(1, Math.ceil(total / PAGE_SIZE))
 }
 
-function normalizeSearchValue(value: string) {
- return value.trim().toLowerCase()
-}
-
 async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
  return await Promise.race([
  promise,
@@ -53,10 +60,12 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 export default function MasterGamesLibraryPage() {
+ const navigate = useNavigate()
  const location = useLocation()
  const requestedOpening = new URLSearchParams(location.search).get('opening')?.trim() ?? ''
  const [query, setQuery] = useState('')
- const [player, setPlayer] = useState('')
+ const [player1, setPlayer1] = useState('')
+ const [player2, setPlayer2] = useState('')
  const [opening, setOpening] = useState(requestedOpening)
  const [event, setEvent] = useState('')
  const [result, setResult] = useState('')
@@ -77,6 +86,7 @@ export default function MasterGamesLibraryPage() {
  const [progressMap, setProgressMap] = useState<Record<string, GameProgressState>>({})
  const [progressLoading, setProgressLoading] = useState(false)
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+ const [savedGamesCount, setSavedGamesCount] = useState<number | null>(null)
 
  const [playerSuggestions, setPlayerSuggestions] = useState<string[]>([])
  const [suggestionsLoading, setSuggestionsLoading] = useState(false)
@@ -88,9 +98,10 @@ export default function MasterGamesLibraryPage() {
  const playerInputWrapRef = useRef<HTMLDivElement | null>(null)
 
  const debouncedFilters = useDebouncedValue(
- {
- query: query.trim(),
- player: player.trim(),
+  {
+  query: query.trim(),
+  player1: player1.trim(),
+  player2: player2.trim(),
  opening: opening.trim(),
  event: event.trim(),
  result,
@@ -102,11 +113,11 @@ export default function MasterGamesLibraryPage() {
  SEARCH_DEBOUNCE_MS,
  )
 
- const debouncedPlayerSuggestionQuery = useDebouncedValue(player.trim(), 150)
+ const debouncedPlayerSuggestionQuery = useDebouncedValue(player1.trim(), 150)
 
  const effectiveFilters = useMemo(() => {
- const normalizedQuery = normalizeSearchValue(debouncedFilters.query)
- const normalizedPlayer = normalizeSearchValue(debouncedFilters.player)
+  const normalizedQuery = normalizeMasterGameSearchText(debouncedFilters.query)
+  const normalizedPlayer = normalizeMasterGameSearchText(debouncedFilters.player1)
 
  const sameQueryAndPlayer =
  normalizedQuery !== '' &&
@@ -125,7 +136,7 @@ export default function MasterGamesLibraryPage() {
  return {
  ...debouncedFilters,
  query: operaSearch ? 'duke' : sameQueryAndPlayer ? '' : debouncedFilters.query,
- player: operaSearch ? '' : morphyAlias ? 'Morphy' : debouncedFilters.player,
+  player1: operaSearch ? '' : morphyAlias ? 'Morphy' : debouncedFilters.player1,
  yearFrom: operaSearch ? '1858' : debouncedFilters.yearFrom,
  yearTo: operaSearch ? '1858' : debouncedFilters.yearTo,
  }
@@ -133,8 +144,9 @@ export default function MasterGamesLibraryPage() {
 
  const hasActiveSearch = useMemo(() => {
  return Boolean(
- effectiveFilters.query ||
- effectiveFilters.player ||
+  effectiveFilters.query ||
+  effectiveFilters.player1 ||
+  effectiveFilters.player2 ||
  effectiveFilters.opening ||
  effectiveFilters.event ||
  effectiveFilters.result ||
@@ -146,8 +158,9 @@ export default function MasterGamesLibraryPage() {
 
  const searchIsTooShort = useMemo(() => {
  const values = [
- effectiveFilters.query,
- effectiveFilters.player,
+  effectiveFilters.query,
+  effectiveFilters.player1,
+  effectiveFilters.player2,
  effectiveFilters.opening,
  effectiveFilters.event,
  ]
@@ -171,7 +184,8 @@ export default function MasterGamesLibraryPage() {
  setPage(1)
  }, [
  effectiveFilters.query,
- effectiveFilters.player,
+  effectiveFilters.player1,
+  effectiveFilters.player2,
  effectiveFilters.opening,
  effectiveFilters.event,
  effectiveFilters.result,
@@ -183,16 +197,19 @@ export default function MasterGamesLibraryPage() {
 
  useEffect(() => {
  let active = true
+ let authRevision = 0
 
- async function loadUser() {
+ async function loadUser(expectedAuthRevision: number) {
  const { data } = await supabase.auth.getUser()
- if (!active) return
+ if (!active || expectedAuthRevision !== authRevision) return
  setCurrentUserId(data.user?.id ?? null)
  }
 
- void loadUser()
+ void loadUser(authRevision)
 
  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+ if (!active) return
+ authRevision += 1
  setCurrentUserId(session?.user?.id ?? null)
  })
 
@@ -201,6 +218,34 @@ export default function MasterGamesLibraryPage() {
  listener.subscription.unsubscribe()
  }
  }, [])
+
+ useEffect(() => {
+ let active = true
+
+ async function loadSavedCount() {
+ if (!currentUserId) {
+ setSavedGamesCount(null)
+ return
+ }
+
+ try {
+ const count = await getSavedMasterGameCount(supabase, currentUserId)
+ if (active) setSavedGamesCount(count)
+ } catch (error) {
+ console.error('Failed to load My Library count:', error)
+ if (active) setSavedGamesCount(null)
+ }
+ }
+
+ const refresh = () => void loadSavedCount()
+ void loadSavedCount()
+ window.addEventListener(MASTER_GAME_LIBRARY_CHANGED_EVENT, refresh)
+
+ return () => {
+ active = false
+ window.removeEventListener(MASTER_GAME_LIBRARY_CHANGED_EVENT, refresh)
+ }
+ }, [currentUserId])
 
  useEffect(() => {
  function handleDocumentClick(event: MouseEvent) {
@@ -235,7 +280,7 @@ export default function MasterGamesLibraryPage() {
 
  try {
  const { data, error } = await withTimeout(
- supabase.rpc('master_game_player_suggestions', {
+  supabase.rpc(MASTER_GAME_PLAYER_SUGGESTIONS_RPC, {
  p_query: q,
  p_limit: PLAYER_SUGGESTION_LIMIT,
  }),
@@ -307,47 +352,16 @@ export default function MasterGamesLibraryPage() {
 
  let rows: MasterGameItem[] = []
 
- const playerOnlySearch =
- effectiveFilters.player &&
- !effectiveFilters.query &&
- !effectiveFilters.opening &&
- !effectiveFilters.event &&
- !effectiveFilters.result &&
- !effectiveFilters.yearFrom &&
- !effectiveFilters.yearTo
-
- if (playerOnlySearch) {
- const { data, error } = await withTimeout(
- supabase.rpc('search_master_games_by_player', {
- p_player: effectiveFilters.player,
- p_color: effectiveFilters.colorFilter,
- p_page_num: page,
- p_page_size: PAGE_SIZE,
- }),
- REQUEST_TIMEOUT_MS,
- )
-
- if (!active || requestId !== latestRequestIdRef.current) return
- if (error) throw error
-
- rows = (data ?? []) as MasterGameItem[]
- } else if (hasActiveSearch) {
- const { data, error } = await withTimeout(
- supabase.rpc('search_master_games', {
- p_q: effectiveFilters.query,
- p_player: effectiveFilters.player,
- p_opening: effectiveFilters.opening,
- p_event: effectiveFilters.event,
- p_result: effectiveFilters.result,
- p_color: effectiveFilters.colorFilter,
- p_year_from: yearFromNum,
- p_year_to: yearToNum,
- p_sort: effectiveFilters.sortBy,
- p_page_num: page,
- p_page_size: PAGE_SIZE,
- }),
- REQUEST_TIMEOUT_MS,
- )
+  if (hasActiveSearch) {
+  const rpcArgs = buildMasterGameSearchRpcArgs({
+  ...effectiveFilters,
+  page,
+  pageSize: PAGE_SIZE,
+  })
+  const { data, error } = await withTimeout(
+  supabase.rpc(MASTER_GAMES_FLEXIBLE_SEARCH_RPC, rpcArgs),
+  REQUEST_TIMEOUT_MS,
+  )
 
  if (!active || requestId !== latestRequestIdRef.current) return
  if (error) throw error
@@ -500,11 +514,12 @@ export default function MasterGamesLibraryPage() {
  const canGoPrev = page > 1
  const canGoNext = page < totalPages
  const shouldShowPlayerSuggestions =
- showPlayerSuggestions && player.trim().length >= 2 && (playerSuggestions.length > 0 || suggestionsLoading)
+  showPlayerSuggestions && player1.trim().length >= 2 && (playerSuggestions.length > 0 || suggestionsLoading)
 
  function clearFilters() {
  setQuery('')
- setPlayer('')
+ setPlayer1('')
+ setPlayer2('')
  setOpening('')
  setEvent('')
  setResult('')
@@ -517,9 +532,20 @@ export default function MasterGamesLibraryPage() {
  setActiveSuggestionIndex(-1)
  }
 
+ function openMyLibrary() {
+ if (currentUserId) {
+ navigate('/master-games/my-library')
+ return
+ }
+
+ const record = rememberTrainingReturnTarget('/master-games/my-library')
+ navigate('/auth?resumeTraining=1', { state: authRouterState(record) })
+ }
+
  function quickPlayer(name: string) {
  setQuery('')
- setPlayer(name)
+ setPlayer1(name)
+ setPlayer2('')
  setColorFilter('all')
  setPage(1)
  setShowPlayerSuggestions(false)
@@ -527,7 +553,7 @@ export default function MasterGamesLibraryPage() {
  }
 
  function applyPlayerSuggestion(name: string) {
- setPlayer(name)
+ setPlayer1(name)
  setPage(1)
  setShowPlayerSuggestions(false)
  setActiveSuggestionIndex(-1)
@@ -612,6 +638,9 @@ export default function MasterGamesLibraryPage() {
  </p>
 
  <div style={styles.quickButtonsRow}>
+ <button style={styles.myLibraryButton} onClick={openMyLibrary}>
+ {savedGamesCount === null ? 'My Library' : `My Library (${savedGamesCount.toLocaleString()})`}
+ </button>
  <button style={styles.quickButton} onClick={() => quickPlayer('Fischer')}>
  Fischer
  </button>
@@ -669,8 +698,9 @@ export default function MasterGamesLibraryPage() {
  <div style={styles.filtersPanel}>
  <div style={styles.filtersGrid}>
  <div style={styles.field}>
- <label style={styles.label}>Search anything</label>
+ <label htmlFor="master-games-search-anything" style={styles.label}>Search anything</label>
  <input
+ id="master-games-search-anything"
  style={styles.input}
  value={query}
  onChange={(e) => setQuery(e.target.value)}
@@ -679,18 +709,19 @@ export default function MasterGamesLibraryPage() {
  </div>
 
  <div style={styles.field}>
- <label style={styles.label}>Player</label>
+ <label htmlFor="master-games-player-1" style={styles.label}>Player 1</label>
  <div style={styles.inputWrap} ref={playerInputWrapRef}>
  <input
+ id="master-games-player-1"
  style={styles.input}
- value={player}
+ value={player1}
  onChange={(e) => {
- setPlayer(e.target.value)
+ setPlayer1(e.target.value)
  setShowPlayerSuggestions(true)
  setActiveSuggestionIndex(-1)
  }}
  onFocus={() => {
- if (player.trim().length >= 2) {
+ if (player1.trim().length >= 2) {
  setShowPlayerSuggestions(true)
  }
  }}
@@ -730,8 +761,21 @@ export default function MasterGamesLibraryPage() {
  </div>
 
  <div style={styles.field}>
- <label style={styles.label}>Opening</label>
+ <label htmlFor="master-games-player-2" style={styles.label}>Player 2 (optional)</label>
  <input
+ id="master-games-player-2"
+ style={styles.input}
+ value={player2}
+ onChange={(e) => setPlayer2(e.target.value)}
+ placeholder="Opponent, either color"
+ autoComplete="off"
+ />
+ </div>
+
+ <div style={styles.field}>
+ <label htmlFor="master-games-opening" style={styles.label}>Opening</label>
+ <input
+ id="master-games-opening"
  style={styles.input}
  value={opening}
  onChange={(e) => setOpening(e.target.value)}
@@ -760,8 +804,9 @@ export default function MasterGamesLibraryPage() {
  </div>
 
  <div style={styles.field}>
- <label style={styles.label}>Player color</label>
+ <label htmlFor="master-games-player-1-color" style={styles.label}>Player 1 color</label>
  <select
+ id="master-games-player-1-color"
  style={styles.select}
  value={colorFilter}
  onChange={(e) => setColorFilter(e.target.value as 'all' | 'white' | 'black')}
@@ -1006,6 +1051,15 @@ const styles: Record<string, React.CSSProperties> = {
  padding: '10px 14px',
  cursor: 'pointer',
  fontWeight: 700,
+ },
+ myLibraryButton: {
+ background: '#4d7c4d',
+ color: '#fff',
+ border: '1px solid rgba(255,255,255,0.1)',
+ borderRadius: 10,
+ padding: '10px 14px',
+ cursor: 'pointer',
+ fontWeight: 800,
  },
  continueReviewLink: {
  textDecoration: 'none',

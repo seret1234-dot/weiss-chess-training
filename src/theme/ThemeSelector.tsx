@@ -1,17 +1,15 @@
 import React from "react"
-import { siteThemes, useSiteTheme, type SiteTheme } from "./ThemeContext"
-
-const themeOrder: SiteTheme[] = ["nobleStandard", "weiss3d", "classic", "qwertyxp2000"]
+import { siteThemeOrder, siteThemes, useSiteTheme } from "./ThemeContext"
 
 export default function ThemeSelector({ compact = false }: { compact?: boolean }) {
-  const { theme, setTheme } = useSiteTheme()
+  const { theme, setTheme, showCoordinates, setShowCoordinates } = useSiteTheme()
 
   if (compact) {
     return (
       <button
         type="button"
         className="theme-quick-toggle"
-        onClick={() => setTheme(themeOrder[(themeOrder.indexOf(theme) + 1) % themeOrder.length])}
+        onClick={() => setTheme(siteThemeOrder[(siteThemeOrder.indexOf(theme) + 1) % siteThemeOrder.length])}
         title="Change the chess piece style"
       >
         <span aria-hidden="true">♜</span>
@@ -31,7 +29,7 @@ export default function ThemeSelector({ compact = false }: { compact?: boolean }
       </div>
 
       <div className="theme-option-grid">
-        {themeOrder.map((themeId) => {
+        {siteThemeOrder.map((themeId) => {
           const option = siteThemes[themeId]
           const selected = theme === themeId
 
@@ -58,6 +56,19 @@ export default function ThemeSelector({ compact = false }: { compact?: boolean }
           )
         })}
       </div>
+
+      <label className="board-coordinate-setting">
+        <span className="board-coordinate-setting-copy">
+          <strong>Show coordinates</strong>
+          <span>Display file and rank labels on chessboards.</span>
+        </span>
+        <input
+          type="checkbox"
+          checked={showCoordinates}
+          onChange={(event) => setShowCoordinates(event.target.checked)}
+          aria-label="Show coordinates"
+        />
+      </label>
     </section>
   )
 }

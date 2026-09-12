@@ -9,13 +9,13 @@ export default function TacticTrainerRoutePage() {
 
  if (!config) {
  return (
- <main style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
+ <div style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
  <h1>This tactic course is unavailable</h1>
  <p>Not enough reviewed material is available for this course yet.</p>
  <Link to="/tactics">Back to Tactics</Link>
- </main>
+ </div>
  )
  }
 
- return <PatternTacticTrainer config={config} />
+ return <PatternTacticTrainer config={{ ...config, trainerTitle: config.trainerTitle ?? config.title }} />
 }

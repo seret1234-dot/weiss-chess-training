@@ -1,3 +1,5 @@
+import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
+import { useEndgameInput } from './trainers/endgame/useEndgameInput'
 import {
  BigMessage,
  HintButton,
@@ -20,7 +22,7 @@ import {
   buildEndgameProgressRows,
   getEndgameReviewMastery,
 } from './training/endgameReview'
-import TrainerShell from './components/trainer/TrainerShell'
+import TrainerShell from './trainers/endgame/EndgameTrainerShell'
 import { showCoachMistake } from './services/coach/coachPopup'
 
 import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
@@ -802,6 +804,7 @@ function phaseTitle(mode: Mode, currentChunk: Phase1TrainerChunk | null) {
 }
 
 export default function TwoBishopsFinalTrainer() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const phase1Chunks = useMemo(() => buildPhase1TrainerChunks(), [])
  const phase2 = useMemo(() => buildFreeplaySet(phase2Data as FreeplayFile), [])
  const phase3 = useMemo(() => buildFreeplaySet(phase3Data as FreeplayFile), [])
@@ -859,6 +862,13 @@ export default function TwoBishopsFinalTrainer() {
  currentFreeplaySet && currentFreeplayFen ? `${currentFreeplaySet.id}::${currentFreeplayFen}` : ''
 
  const currentPuzzleId = mode.kind === 'phase1' ? currentPuzzle?.id ?? '' : currentFreeplayId
+ const endgameInput = useEndgameInput({
+  fen: game.fen(), attemptKey: currentPuzzleId,
+  active: (!locked && !allComplete) && !!currentPuzzleId && !justSolved && game.turn() === 'w',
+  moveStartedAt: moveStartedAtRef.current, onDrop,
+  onSilentError: () => { setStatus('Wrong, silent error'); setMessage(''); },
+ });
+
  const currentProgress = currentPuzzleId ? getPuzzleProgress(progressMap, currentPuzzleId) : null
 
  useEffect(() => {
@@ -891,7 +901,7 @@ export default function TwoBishopsFinalTrainer() {
  useEffect(() => {
  const interval = window.setInterval(() => {
  if (locked) return
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current)
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current))
  }, 100)
  return () => window.clearInterval(interval)
  }, [locked])
@@ -1046,10 +1056,13 @@ export default function TwoBishopsFinalTrainer() {
  return
  }
 
+ setLocked(true)
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: 'kbbk', unitKey: chunk.id, itemIds: chunk.puzzles.map(p => p.id) })) return
  const reviewPuzzle = chunk.puzzles[0]
 
  setOrder(reviewOrder)
  setQueueIndex(0)
+ endgameInput.attempt.begin(reviewPuzzle.id);
  setGame(new Chess(reviewPuzzle.fen))
  setStepIndex(0)
  setActiveSteps(reviewPuzzle.steps)
@@ -1073,9 +1086,12 @@ export default function TwoBishopsFinalTrainer() {
  return
  }
 
+ setLocked(true)
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: 'kbbk', unitKey: chunk.id, itemIds: chunk.puzzles.map(p => p.id) })) return
  const puzzle = chunk.puzzles[nextOrder[nextQueueIndex]]
  setOrder(nextOrder)
  setQueueIndex(nextQueueIndex)
+ endgameInput.attempt.begin(puzzle.id);
  setGame(new Chess(puzzle.fen))
  setStepIndex(0)
  setActiveSteps(puzzle.steps)
@@ -1124,8 +1140,11 @@ export default function TwoBishopsFinalTrainer() {
  }
 
  const fen = setData.positions[nextOrder[0]]
+ setLocked(true)
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: 'kbbk', unitKey: setData.id, itemIds: setData.positions.map(fen => `${setData.id}::${fen}`) })) return
  setOrder(nextOrder)
  setQueueIndex(0)
+ endgameInput.attempt.begin(`${setData.id}::${fen}`);
  setGame(new Chess(fen))
  setStepIndex(0)
  setActiveSteps([])
@@ -1230,6 +1249,7 @@ export default function TwoBishopsFinalTrainer() {
 
  if (mode.kind === 'phase1') {
  if (!currentChunk || !currentPuzzle) return
+ endgameInput.attempt.begin(currentPuzzle.id);
  setGame(new Chess(currentPuzzle.fen))
  setStepIndex(0)
  setActiveSteps(currentPuzzle.steps)
@@ -1331,7 +1351,7 @@ export default function TwoBishopsFinalTrainer() {
  typeof finalMoveElapsedMs === 'number' ? [...moveTimesMs, finalMoveElapsedMs] : moveTimesMs
 
  const wasFast =
- solveTimes.length > 0 && solveTimes.every((ms) => ms <= MAX_SECONDS_PER_MOVE * 1000)
+ endgameInput.attempt.qualify(solveTimes.length > 0 && solveTimes.every((ms) => ms <= MAX_SECONDS_PER_MOVE * 1000))
 
  const nextFastSolves = wasFast
  ? Math.min(FAST_SOLVES_TO_MASTER, oldStats.fastSolves + 1)
@@ -1375,7 +1395,7 @@ export default function TwoBishopsFinalTrainer() {
  setMessage(
  wasFast
  ? `Fast solve ${nextStats?.fastSolves ?? 0}/${FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Solved, but one or more moves were slower than ${MAX_SECONDS_PER_MOVE} seconds.`,
+ : endgameInput.attempt.nonQualifyingMessage(`Solved, but one or more moves were slower than ${MAX_SECONDS_PER_MOVE} seconds.`),
  )
 
  await sleep(CORRECT_DELAY_MS)
@@ -1446,6 +1466,7 @@ export default function TwoBishopsFinalTrainer() {
  nextStatus: string,
  nextMessage: string,
  ) {
+ endgameInput.attempt.wrongMove();
 
   // Reliable piece-mate coach: two-bishops
   try {
@@ -1567,7 +1588,7 @@ export default function TwoBishopsFinalTrainer() {
  clearHighlights()
 
  if (result === 'success') {
- await finishSuccess(mode.kind === 'phase2' ? 'Success - king reached 8th rank!' : 'CHECKMATE!')
+ await finishSuccess(mode.kind === 'phase2' ? 'Success — king reached 8th rank!' : 'CHECKMATE!')
  return
  }
 
@@ -1580,7 +1601,7 @@ export default function TwoBishopsFinalTrainer() {
  promotion: blackMove.promotion,
  },
  'Failed',
- mode.kind === 'phase2' ? 'Failed - draw or stalemate' : 'Failed - king escaped the net',
+ mode.kind === 'phase2' ? 'Failed — draw or stalemate' : 'Failed — king escaped the net',
  )
  return
  }
@@ -1637,7 +1658,7 @@ export default function TwoBishopsFinalTrainer() {
 
  if (stepsToUse !== activeSteps) setActiveSteps(stepsToUse)
 
- const elapsed = Date.now() - moveStartedAtRef.current
+ const elapsed = endgameInput.elapsed(moveStartedAtRef.current)
  setMoveTimesMs((prev) => [...prev, elapsed])
  setGame(nextGame)
  setLastMove({ from: moveObj.from, to: moveObj.to })
@@ -1675,7 +1696,7 @@ export default function TwoBishopsFinalTrainer() {
  setMessage(
  currentChunk.isFullLines
  ? `Move ${nextWhiteIndex + 1} of ${stepsToUse.length}`
- : `Continue - play ${stepsToUse[nextWhiteIndex].whiteSan}`,
+ : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`,
  )
  beginMoveTimer()
  await setEngineForCurrentPosition(replyGame.fen())
@@ -1708,7 +1729,7 @@ export default function TwoBishopsFinalTrainer() {
  setMessage(
  currentChunk.isFullLines
  ? `Move ${nextWhiteIndex + 1} of ${stepsToUse.length}`
- : `Continue - play ${stepsToUse[nextWhiteIndex].whiteSan}`,
+ : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`,
  )
  beginMoveTimer()
  await setEngineForCurrentPosition(replyGame.fen())
@@ -1726,7 +1747,7 @@ export default function TwoBishopsFinalTrainer() {
  setMessage(
  currentChunk.isFullLines
  ? `Move ${nextWhiteIndex + 1} of ${stepsToUse.length}`
- : `Continue - play ${stepsToUse[nextWhiteIndex].whiteSan}`,
+ : `Continue — play ${stepsToUse[nextWhiteIndex].whiteSan}`,
  )
  beginMoveTimer()
  await setEngineForCurrentPosition(acceptedStep.nextFen)
@@ -1750,7 +1771,7 @@ export default function TwoBishopsFinalTrainer() {
 
  if (!whiteMove) return false
 
- const elapsed = Date.now() - moveStartedAtRef.current
+ const elapsed = endgameInput.elapsed(moveStartedAtRef.current)
  setMoveTimesMs((prev) => [...prev, elapsed])
  setGame(nextGame)
  setLastMove({ from: whiteMove.from, to: whiteMove.to })
@@ -1769,7 +1790,7 @@ export default function TwoBishopsFinalTrainer() {
 
  if (whiteResult === 'success') {
  await finishSuccess(
- mode.kind === 'phase2' ? 'Success - king reached 8th rank!' : 'CHECKMATE!',
+ mode.kind === 'phase2' ? 'Success — king reached 8th rank!' : 'CHECKMATE!',
  elapsed,
  )
  return
@@ -1780,7 +1801,7 @@ export default function TwoBishopsFinalTrainer() {
  nextGame,
  { from: whiteMove.from, to: whiteMove.to, promotion: whiteMove.promotion },
  'Failed',
- mode.kind === 'phase2' ? 'Failed - draw or stalemate' : 'Failed - king escaped the net',
+ mode.kind === 'phase2' ? 'Failed — draw or stalemate' : 'Failed — king escaped the net',
  )
  return
  }
@@ -1921,11 +1942,12 @@ export default function TwoBishopsFinalTrainer() {
  footerRight={`${boardWidth}px`}
  boardId="TwoBishopsTrainerBoard"
  fen={game.fen()}
- onPieceDrop={onDrop}
+ onPieceDrop={endgameInput.onDrop}
+ boardControls={endgameInput.controls}
  getLegalTargets={getLegalTargets}
  boardOrientation={boardOrientation}
  customSquareStyles={getCustomSquareStyles(lastMove, markedSquares, hintSquares, correctSquares)}
- arePiecesDraggable={!locked && !allComplete}
+ arePiecesDraggable={(!locked && !allComplete) && endgameInput.mouseEnabled}
  boardLeft={boardLeft}
  boardOverlay={boardOverlay}
  sidePanel={
@@ -2036,7 +2058,7 @@ export default function TwoBishopsFinalTrainer() {
  }}
  >
  <div>{currentProgress?.fastSolves ?? 0} / {FAST_SOLVES_TO_MASTER} fast solves</div>
- <div>Fast = every move - {MAX_SECONDS_PER_MOVE}s</div>
+ <div>Fast = every move ≤ {MAX_SECONDS_PER_MOVE}s</div>
  </div>
  </PanelCard>
 
@@ -2125,6 +2147,7 @@ export default function TwoBishopsFinalTrainer() {
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: 'grid', gap: 8 }}>
+ {endgameInput.silentButton}
  <HintButton
  getHintMove={getHintMoveForAction}
  onHintStage={(move, stage) => {

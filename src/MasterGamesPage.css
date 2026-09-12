@@ -10,6 +10,43 @@
   box-sizing: border-box;
 }
 
+.master-games-trainer-move-button {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 5px 7px;
+  background: transparent;
+  color: #f0f0f0;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.master-games-trainer-move-button:hover,
+.master-games-trainer-move-button:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  outline: none;
+}
+
+.master-games-trainer-move-button.is-active {
+  background: rgba(95, 168, 255, 0.24);
+  border-color: rgba(95, 168, 255, 0.72);
+}
+
+.master-games-trainer-return-button {
+  border: 1px solid rgba(242, 193, 78, 0.45);
+  border-radius: 8px;
+  padding: 6px 10px;
+  background: rgba(109, 90, 44, 0.55);
+  color: #fff4cf;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .master-games-trainer-content,
 .master-games-trainer-workspace,
 .master-games-trainer-panel {
@@ -127,6 +164,12 @@
     max-height: none !important;
     overflow: visible !important;
     padding-right: 0 !important;
+  }
+
+  .master-games-trainer-move-list--full {
+    max-height: min(48dvh, 360px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
   }
 
   .master-games-trainer-move-list > div {

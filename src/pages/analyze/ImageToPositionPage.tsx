@@ -586,10 +586,14 @@ export default function ImageToPositionPage() {
  marginTop: 12,
  }}
  >
- <ThemedChessboard
- position={boardFen}
- boardOrientation={orientation}
- boardWidth={boardSize}
+<ThemedChessboard
+id="image-to-position-board"
+position={boardFen}
+boardOrientation={orientation}
+accessibilityTitle="Detected image position"
+accessibilityStatus={message}
+accessibilityInteraction="This board presents the detected position. Use the FEN and image controls to correct or load it for analysis."
+boardWidth={boardSize}
  arePiecesDraggable={false}
  customDarkSquareStyle={{ backgroundColor: "#769656" }}
  customLightSquareStyle={{ backgroundColor: "#eeeed2" }}

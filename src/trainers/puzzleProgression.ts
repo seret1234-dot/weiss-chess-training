@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef } from "react"
 
-export const CORRECT_PUZZLE_AUTO_ADVANCE_MS = 1_000
+export const CORRECT_PUZZLE_AUTO_ADVANCE_MS = 2_000
 export const WRONG_MOVE_RESET_MS = 2_000
+export const WRONG_MOVE_FEEDBACK = "Wrong move — try again."
+export const SILENT_ERROR_FEEDBACK = "Wrong, silent error"
 
 export type PuzzleProgressionSnapshot = {
   currentPuzzleIndex: number

@@ -1,90 +1,25 @@
 {
   "puzzles": [
     {
-      "id": "hook-mate-in-1-0LSuK",
-      "puzzleId": "0LSuK",
-      "fen": "8/4kR2/p3p1p1/3pN1p1/3P2P1/Prr4P/6K1/8 b - - 6 40",
-      "initialFen": "8/4kR2/p3p1p1/3pN1p1/3P2P1/Prr4P/6K1/8 b - - 6 40",
-      "preMove": "e7d6",
+      "id": "hook-mate-in-1-iFrHl",
+      "puzzleId": "iFrHl",
+      "fen": "r1b2bnr/pp4p1/2k2p1p/1Np1p3/1nP1P2N/6B1/1P3PPP/1K1R1B1R b - - 3 14",
+      "initialFen": "r1b2bnr/pp4p1/2k2p1p/1Np1p3/1nP1P2N/6B1/1P3PPP/1K1R1B1R b - - 3 14",
+      "preMove": "g8e7",
       "solutionLine": [
-        "f7d7"
+        "d1d6"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 609,
+      "rating": 942,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
-      "ratingDeviation": 92,
+      "ratingDeviation": 78,
       "popularity": 100,
-      "nbPlays": 364,
-      "themes": [
-        "endgame",
-        "hookMate",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/p8otm3j2/black#80",
-      "openingTags": "",
-      "chunkNumber": 3,
-      "chunkIndex": 19
-    },
-    {
-      "id": "hook-mate-in-1-DkK2y",
-      "puzzleId": "DkK2y",
-      "fen": "3r4/pbp2kR1/1p1p1p2/4pN2/1b2P3/1P6/P4PPP/6K1 b - - 8 32",
-      "initialFen": "3r4/pbp2kR1/1p1p1p2/4pN2/1b2P3/1P6/P4PPP/6K1 b - - 8 32",
-      "preMove": "f7e6",
-      "solutionLine": [
-        "g7e7"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 774,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 85,
-      "popularity": 77,
-      "nbPlays": 184,
-      "themes": [
-        "endgame",
-        "epauletteMate",
-        "hookMate",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/8H5bfYXN/black#64",
-      "openingTags": "",
-      "chunkNumber": 17,
-      "chunkIndex": 3
-    },
-    {
-      "id": "hook-mate-in-1-MvT5z",
-      "puzzleId": "MvT5z",
-      "fen": "3r1r2/4R1k1/pq4p1/1p3pNp/2p2Pn1/2P2b2/PPB3PP/5R1K b - - 0 29",
-      "initialFen": "3r1r2/4R1k1/pq4p1/1p3pNp/2p2Pn1/2P2b2/PPB3PP/5R1K b - - 0 29",
-      "preMove": "g7h6",
-      "solutionLine": [
-        "e7h7"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 811,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 94,
-      "popularity": 92,
-      "nbPlays": 570,
+      "nbPlays": 565,
       "themes": [
         "hookMate",
         "mate",
@@ -92,129 +27,102 @@
         "middlegame",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/Ity26lbx/black#58",
-      "openingTags": "",
-      "chunkNumber": 22,
-      "chunkIndex": 16
+      "gameUrl": "https://lichess.org/NYzs7Er7/black#28",
+      "openingTags": "English_Opening English_Opening_Agincourt_Defense",
+      "chunkNumber": 47,
+      "chunkIndex": 19,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 46,
+        "sourcePuzzleIndex": 19,
+        "canonicalIdentity": "r1b2b1r/pp2n1p1/2k2p1p/1Np1p3/1nP1P2N/6B1/1P3PPP/1K1R1B1R w - -|mate-in-1|d1d6|iFrHl",
+        "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AN@1,-1,AP@-2,-2,AP@0,-2,AR@-1,0,DB@-3,2,DB@0,2,DN@-2,1,DN@1,-2,DP@-2,-1,DP@0,-1,DP@1,1,DP@2,1,DR@2,2",
+        "symmetry": "mirror-files",
+        "diversityTags": [
+          "mating-side:white",
+          "mating-piece:R",
+          "mating-destination:d6",
+          "king-region:queenside-high",
+          "defender-blockers:9",
+          "controlled-escapes:5",
+          "solution:Rd6#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AN@1,-1,AP@-2,-2,AP@0,-2,AR@-1,0,DB@-3,2,DB@0,2,DN@-2,1,DN@1,-2,DP@-2,-1,DP@0,-1,DP@1,1,DP@2,1,DR@2,2"
     },
     {
-      "id": "hook-mate-in-1-3AFtZ",
-      "puzzleId": "3AFtZ",
-      "fen": "8/2p1P3/1p5R/1k4p1/4Nn2/P4P1P/1r5K/8 w - - 3 40",
-      "initialFen": "8/2p1P3/1p5R/1k4p1/4Nn2/P4P1P/1r5K/8 w - - 3 40",
-      "preMove": "h2g3",
+      "id": "hook-mate-in-1-cvtVm",
+      "puzzleId": "cvtVm",
+      "fen": "r7/1pp1kp2/1p1p4/3Pp3/4PnP1/2P1KR2/PPQNq2r/5B2 w - - 9 30",
+      "initialFen": "r7/1pp1kp2/1p1p4/3Pp3/4PnP1/2P1KR2/PPQNq2r/5B2 w - - 9 30",
+      "preMove": "f1e2",
       "solutionLine": [
-        "b2g2"
+        "h2e2"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 879,
+      "rating": 946,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
-      "ratingDeviation": 80,
-      "popularity": 98,
-      "nbPlays": 1496,
+      "ratingDeviation": 93,
+      "popularity": 94,
+      "nbPlays": 1449,
       "themes": [
-        "endgame",
-        "epauletteMate",
-        "hookMate",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/qtdKpsgs#79",
-      "openingTags": "",
-      "chunkNumber": 34,
-      "chunkIndex": 0
-    },
-    {
-      "id": "hook-mate-in-1-emOjj",
-      "puzzleId": "emOjj",
-      "fen": "8/8/8/pR4k1/P1n3p1/4r1N1/7P/6K1 b - - 1 37",
-      "initialFen": "8/8/8/pR4k1/P1n3p1/4r1N1/7P/6K1 b - - 1 37",
-      "preMove": "g5f4",
-      "solutionLine": [
-        "b5f5"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 952,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 82,
-      "popularity": 95,
-      "nbPlays": 191,
-      "themes": [
-        "endgame",
-        "hookMate",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/USXBYyK3/black#74",
-      "openingTags": "",
-      "chunkNumber": 50,
-      "chunkIndex": 7
-    },
-    {
-      "id": "hook-mate-in-1-Cvut7",
-      "puzzleId": "Cvut7",
-      "fen": "5r2/p5p1/7p/1nR5/3pk3/1P3NP1/3K2P1/8 b - - 7 37",
-      "initialFen": "5r2/p5p1/7p/1nR5/3pk3/1P3NP1/3K2P1/8 b - - 7 37",
-      "preMove": "a7a6",
-      "solutionLine": [
-        "c5e5"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 658,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 89,
-      "popularity": 97,
-      "nbPlays": 1686,
-      "themes": [
-        "endgame",
         "hookMate",
         "master",
         "mate",
         "mateIn1",
+        "middlegame",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/U3J7uz7H/black#74",
+      "gameUrl": "https://lichess.org/aEJf8WOu#59",
       "openingTags": "",
-      "chunkNumber": 5,
-      "chunkIndex": 10
+      "chunkNumber": 48,
+      "chunkIndex": 18,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 47,
+        "sourcePuzzleIndex": 18,
+        "canonicalIdentity": "r7/1pp1kp2/1p1p4/3Pp3/4PnP1/2P1KR2/PPQNB2r/8 b - -|mate-in-1|h2e2|cvtVm",
+        "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:DN:controlled,0,-1:DR:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@2,0,AR@-1,0,DN@-1,1,DP@0,2,DP@1,-2,DP@1,0,DP@2,1,DQ@-1,2,DR@0,-1",
+        "symmetry": "anti-transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:e2",
+          "king-region:center-low",
+          "defender-blockers:7",
+          "controlled-escapes:6",
+          "solution:Rxe2#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:DN:controlled,0,-1:DR:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@2,0,AR@-1,0,DN@-1,1,DP@0,2,DP@1,-2,DP@1,0,DP@2,1,DQ@-1,2,DR@0,-1"
     },
     {
-      "id": "hook-mate-in-1-QzEIx",
-      "puzzleId": "QzEIx",
-      "fen": "5r2/7p/8/8/p1Pkp1PP/R2n4/4K3/2R5 w - - 1 46",
-      "initialFen": "5r2/7p/8/8/p1Pkp1PP/R2n4/4K3/2R5 w - - 1 46",
-      "preMove": "c1d1",
+      "id": "hook-mate-in-1-jXa5g",
+      "puzzleId": "jXa5g",
+      "fen": "1r4k1/p5p1/2pN3p/2P1p3/3nP3/P1KP4/5rP1/R3R3 w - - 7 38",
+      "initialFen": "1r4k1/p5p1/2pN3p/2P1p3/3nP3/P1KP4/5rP1/R3R3 w - - 7 38",
+      "preMove": "d6c4",
       "solutionLine": [
-        "f8f2"
+        "b8b3"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 754,
+      "rating": 951,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
-      "ratingDeviation": 86,
-      "popularity": 100,
-      "nbPlays": 493,
+      "ratingDeviation": 98,
+      "popularity": 95,
+      "nbPlays": 1191,
       "themes": [
         "endgame",
         "hookMate",
@@ -222,31 +130,101 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/TCkwuQWe#91",
+      "gameUrl": "https://lichess.org/CP698tLT#75",
       "openingTags": "",
-      "chunkNumber": 14,
-      "chunkIndex": 17
+      "chunkNumber": 50,
+      "chunkIndex": 0,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 49,
+        "sourcePuzzleIndex": 0,
+        "canonicalIdentity": "1r4k1/p5p1/2p4p/2P1p3/2NnP3/P1KP4/5rP1/R3R3 b - -|mate-in-1|b8b3|jXa5g",
+        "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@2,-2,AR@-1,0,AR@3,1,DN@0,-1,DP@-2,0,DP@0,-2,DP@1,0,DP@2,-1,DR@-2,2,DR@2,2",
+        "symmetry": "mirror-ranks",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:b3",
+          "king-region:queenside-low",
+          "defender-blockers:7",
+          "controlled-escapes:6",
+          "solution:Rb3#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@2,-2,AR@-1,0,AR@3,1,DN@0,-1,DP@-2,0,DP@0,-2,DP@1,0,DP@2,-1,DR@-2,2,DR@2,2"
     },
     {
-      "id": "hook-mate-in-1-T6ez8",
-      "puzzleId": "T6ez8",
-      "fen": "r5k1/p1N4p/5ppP/1pP2P2/2n5/2P5/P1Kr4/6RR w - - 1 31",
-      "initialFen": "r5k1/p1N4p/5ppP/1pP2P2/2n5/2P5/P1Kr4/6RR w - - 1 31",
-      "preMove": "c2b3",
+      "id": "hook-mate-in-1-5FcIu",
+      "puzzleId": "5FcIu",
+      "fen": "7r/6Rp/3kBp2/2r5/3p1P2/3PnP2/P1PK3P/4R3 w - - 1 28",
+      "initialFen": "7r/6Rp/3kBp2/2r5/3p1P2/3PnP2/P1PK3P/4R3 w - - 1 28",
+      "preMove": "f4f5",
       "solutionLine": [
-        "d2b2"
+        "c5c2"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 848,
+      "rating": 938,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 83,
+      "popularity": 76,
+      "nbPlays": 122,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "mate",
+        "mateIn1",
+        "oneMove"
+      ],
+      "gameUrl": "https://lichess.org/9ktCmxdj#55",
+      "openingTags": "",
+      "chunkNumber": 46,
+      "chunkIndex": 14,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 45,
+        "sourcePuzzleIndex": 14,
+        "canonicalIdentity": "7r/6Rp/3kBp2/2r2P2/3p4/3PnP2/P1PK3P/4R3 b - -|mate-in-1|c5c2|5FcIu",
+        "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DR:free|blockers:AN@1,-1,AP@0,-2,AR@-1,0,DP@0,-1,DP@2,-1,DR@1,1",
+        "symmetry": "mirror-ranks",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:c2",
+          "king-region:center-low",
+          "defender-blockers:3",
+          "controlled-escapes:5",
+          "solution:Rxc2#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DR:free|blockers:AN@1,-1,AP@0,-2,AR@-1,0,DP@0,-1,DP@2,-1,DR@1,1"
+    },
+    {
+      "id": "hook-mate-in-1-Bwihw",
+      "puzzleId": "Bwihw",
+      "fen": "r7/4k3/4p3/1p4p1/1Nn2p1p/P4P1P/K1P1R1P1/8 w - - 11 49",
+      "initialFen": "r7/4k3/4p3/1p4p1/1Nn2p1p/P4P1P/K1P1R1P1/8 w - - 11 49",
+      "preMove": "a2b3",
+      "solutionLine": [
+        "a8a3"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 949,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
       "ratingDeviation": 80,
-      "popularity": 82,
-      "nbPlays": 135,
+      "popularity": 79,
+      "nbPlays": 102,
       "themes": [
         "endgame",
         "hookMate",
@@ -254,129 +232,50 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/R4J568Tm#61",
+      "gameUrl": "https://lichess.org/qse9Sos4#97",
       "openingTags": "",
-      "chunkNumber": 29,
-      "chunkIndex": 21
+      "chunkNumber": 49,
+      "chunkIndex": 11,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 48,
+        "sourcePuzzleIndex": 11,
+        "canonicalIdentity": "r7/4k3/4p3/1p4p1/1Nn2p1p/PK3P1P/2P1R1P1/8 b - -|mate-in-1|a8a3|Bwihw",
+        "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AN@1,-1,AP@0,-2,AR@-1,0,DN@0,-1,DP@1,1,DR@3,1",
+        "symmetry": "mirror-ranks",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:a3",
+          "king-region:queenside-low",
+          "defender-blockers:3",
+          "controlled-escapes:5",
+          "solution:Rxa3#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AN@1,-1,AP@0,-2,AR@-1,0,DN@0,-1,DP@1,1,DR@3,1"
     },
     {
-      "id": "hook-mate-in-1-vwhv5",
-      "puzzleId": "vwhv5",
-      "fen": "7R/pppk2B1/8/5p2/6nP/P1P2KP1/7r/8 w - - 0 35",
-      "initialFen": "7R/pppk2B1/8/5p2/6nP/P1P2KP1/7r/8 w - - 0 35",
-      "preMove": "h8h7",
+      "id": "hook-mate-in-1-K2em7",
+      "puzzleId": "K2em7",
+      "fen": "6k1/p4ppp/p3p3/3p1P2/P1nP1P1N/2PK4/r2r2PP/3R3R w - - 1 28",
+      "initialFen": "6k1/p4ppp/p3p3/3p1P2/P1nP1P1N/2PK4/r2r2PP/3R3R w - - 1 28",
+      "preMove": "d1d2",
       "solutionLine": [
-        "h2f2"
+        "a2d2"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 911,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 77,
-      "popularity": 100,
-      "nbPlays": 501,
-      "themes": [
-        "endgame",
-        "hookMate",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/vbNUO1uC#69",
-      "openingTags": "",
-      "chunkNumber": 40,
-      "chunkIndex": 16
-    },
-    {
-      "id": "hook-mate-in-1-ZYkQU",
-      "puzzleId": "ZYkQU",
-      "fen": "8/pR6/3P2kp/4p3/5n2/5P2/1PP2Kr1/3R4 w - - 0 40",
-      "initialFen": "8/pR6/3P2kp/4p3/5n2/5P2/1PP2Kr1/3R4 w - - 0 40",
-      "preMove": "f2e3",
-      "solutionLine": [
-        "g2e2"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 948,
+      "rating": 919,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
       "ratingDeviation": 79,
       "popularity": 100,
-      "nbPlays": 209,
-      "themes": [
-        "endgame",
-        "hookMate",
-        "master",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/NWRWK4rN#79",
-      "openingTags": "",
-      "chunkNumber": 49,
-      "chunkIndex": 8
-    },
-    {
-      "id": "hook-mate-in-1-Eac2B",
-      "puzzleId": "Eac2B",
-      "fen": "1r6/p6p/2r5/3k4/P1N1p3/1PKR4/4R2P/8 b - - 0 40",
-      "initialFen": "1r6/p6p/2r5/3k4/P1N1p3/1PKR4/4R2P/8 b - - 0 40",
-      "preMove": "e4d3",
-      "solutionLine": [
-        "e2e5"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 570,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 90,
-      "popularity": 85,
-      "nbPlays": 346,
-      "themes": [
-        "endgame",
-        "hookMate",
-        "master",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/2vFYpzB4/black#80",
-      "openingTags": "",
-      "chunkNumber": 2,
-      "chunkIndex": 23
-    },
-    {
-      "id": "hook-mate-in-1-plKT6",
-      "puzzleId": "plKT6",
-      "fen": "8/4R3/1NR1p3/p1Pp4/3Pn1k1/P3P3/4Kr2/5r2 w - - 3 48",
-      "initialFen": "8/4R3/1NR1p3/p1Pp4/3Pn1k1/P3P3/4Kr2/5r2 w - - 3 48",
-      "preMove": "e2d3",
-      "solutionLine": [
-        "f2d2"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 766,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 103,
-      "popularity": 91,
-      "nbPlays": 762,
+      "nbPlays": 226,
       "themes": [
         "endgame",
         "hookMate",
@@ -384,130 +283,153 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/TKuQxfhs#95",
+      "gameUrl": "https://lichess.org/5ZgB00Ic#55",
       "openingTags": "",
-      "chunkNumber": 16,
-      "chunkIndex": 1
+      "chunkNumber": 42,
+      "chunkIndex": 2,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 41,
+        "sourcePuzzleIndex": 2,
+        "canonicalIdentity": "6k1/p4ppp/p3p3/3p1P2/P1nP1P1N/2PK4/r2R2PP/7R b - -|mate-in-1|a2d2|K2em7",
+        "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@2,0,AR@-1,0,DP@0,-1,DP@1,0,DP@1,2,DP@2,2",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:d2",
+          "king-region:center-low",
+          "defender-blockers:4",
+          "controlled-escapes:6",
+          "solution:Rxd2#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@2,0,AR@-1,0,DP@0,-1,DP@1,0,DP@1,2,DP@2,2"
     },
     {
-      "id": "hook-mate-in-1-XCfI7",
-      "puzzleId": "XCfI7",
-      "fen": "5b2/2R2p2/4pkp1/1r1pN2p/1N1P3P/1P6/4KP2/8 b - - 1 32",
-      "initialFen": "5b2/2R2p2/4pkp1/1r1pN2p/1N1P3P/1P6/4KP2/8 b - - 1 32",
-      "preMove": "f8b4",
+      "id": "hook-mate-in-1-1DOB2",
+      "puzzleId": "1DOB2",
+      "fen": "8/p6p/4p2p/3p1k2/3PnP2/4PK2/r4r2/3NR2R w - - 2 43",
+      "initialFen": "8/p6p/4p2p/3p1k2/3PnP2/4PK2/r4r2/3NR2R w - - 2 43",
+      "preMove": "d1f2",
       "solutionLine": [
-        "c7f7"
+        "a2f2"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 833,
+      "rating": 937,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
-      "ratingDeviation": 91,
-      "popularity": 95,
-      "nbPlays": 932,
+      "ratingDeviation": 96,
+      "popularity": 94,
+      "nbPlays": 1905,
       "themes": [
         "endgame",
-        "epauletteMate",
         "hookMate",
         "mate",
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/HLunPFw2/black#64",
+      "gameUrl": "https://lichess.org/7F5VbyO4#85",
       "openingTags": "",
-      "chunkNumber": 27,
-      "chunkIndex": 8
+      "chunkNumber": 46,
+      "chunkIndex": 1,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 45,
+        "sourcePuzzleIndex": 1,
+        "canonicalIdentity": "8/p6p/4p2p/3p1k2/3PnP2/4PK2/r4N2/4R2R b - -|mate-in-1|a2f2|1DOB2",
+        "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:controlled,1,1:empty:controlled|blockers:AK@2,0,AN@1,-1,AP@2,-2,AR@-1,0,DP@0,-1,DP@1,-2,DP@1,0,DR@-2,-1,DR@-2,2",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:f2",
+          "king-region:kingside-low",
+          "defender-blockers:5",
+          "controlled-escapes:7",
+          "solution:Rxf2#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:controlled,1,1:empty:controlled|blockers:AK@2,0,AN@1,-1,AP@2,-2,AR@-1,0,DP@0,-1,DP@1,-2,DP@1,0,DR@-2,-1,DR@-2,2"
     },
     {
-      "id": "hook-mate-in-1-8f44W",
-      "puzzleId": "8f44W",
-      "fen": "r7/p3R3/1kp5/2N5/1Pp5/r7/P3K3/8 b - - 0 45",
-      "initialFen": "r7/p3R3/1kp5/2N5/1Pp5/r7/P3K3/8 b - - 0 45",
-      "preMove": "a8d8",
+      "id": "hook-mate-in-1-4dQW2",
+      "puzzleId": "4dQW2",
+      "fen": "8/pp2r2p/n1Rkb3/3pN1p1/1P1Ppp2/P7/3K1PPP/2R5 b - - 2 28",
+      "initialFen": "8/pp2r2p/n1Rkb3/3pN1p1/1P1Ppp2/P7/3K1PPP/2R5 b - - 2 28",
+      "preMove": "b7c6",
       "solutionLine": [
-        "e7b7"
+        "c1c6"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 880,
+      "rating": 923,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
-      "ratingDeviation": 81,
-      "popularity": 91,
-      "nbPlays": 109,
-      "themes": [
-        "endgame",
-        "hookMate",
-        "master",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/yvTkkhlh/black#90",
-      "openingTags": "",
-      "chunkNumber": 34,
-      "chunkIndex": 6
-    },
-    {
-      "id": "hook-mate-in-1-qnYp6",
-      "puzzleId": "qnYp6",
-      "fen": "8/5k2/1R3p2/2B3nP/P1P2KP1/1P5r/8/8 w - - 1 55",
-      "initialFen": "8/5k2/1R3p2/2B3nP/P1P2KP1/1P5r/8/8 w - - 1 55",
-      "preMove": "c5b4",
-      "solutionLine": [
-        "h3f3"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 933,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 87,
-      "popularity": 95,
-      "nbPlays": 732,
-      "themes": [
-        "endgame",
-        "hookMate",
-        "master",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/73jEGdQJ#109",
-      "openingTags": "",
-      "chunkNumber": 45,
-      "chunkIndex": 9
-    },
-    {
-      "id": "hook-mate-in-1-yr1JA",
-      "puzzleId": "yr1JA",
-      "fen": "8/2R3p1/kp2pp2/1N5p/P2K4/1r4P1/4r3/8 b - - 5 36",
-      "initialFen": "8/2R3p1/kp2pp2/1N5p/P2K4/1r4P1/4r3/8 b - - 5 36",
-      "preMove": "b3g3",
-      "solutionLine": [
-        "c7a7"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 548,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 94,
+      "ratingDeviation": 80,
       "popularity": 96,
-      "nbPlays": 290,
+      "nbPlays": 158,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "master",
+        "mate",
+        "mateIn1",
+        "oneMove"
+      ],
+      "gameUrl": "https://lichess.org/ZpYEhG1q/black#56",
+      "openingTags": "",
+      "chunkNumber": 42,
+      "chunkIndex": 21,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 41,
+        "sourcePuzzleIndex": 21,
+        "canonicalIdentity": "8/p3r2p/n1pkb3/3pN1p1/1P1Ppp2/P7/3K1PPP/2R5 w - -|mate-in-1|c1c6|4dQW2",
+        "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DB:free,1,1:DR:free|blockers:AN@1,-1,AP@-2,-2,AP@0,-2,AR@-1,0,DB@1,0,DN@-3,0,DP@0,-1,DP@1,-2,DP@2,-2,DR@1,1",
+        "symmetry": "identity",
+        "diversityTags": [
+          "mating-side:white",
+          "mating-piece:R",
+          "mating-destination:c6",
+          "king-region:center-high",
+          "defender-blockers:6",
+          "controlled-escapes:5",
+          "solution:Rxc6#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DB:free,1,1:DR:free|blockers:AN@1,-1,AP@-2,-2,AP@0,-2,AR@-1,0,DB@1,0,DN@-3,0,DP@0,-1,DP@1,-2,DP@2,-2,DR@1,1"
+    },
+    {
+      "id": "hook-mate-in-1-oNpX6",
+      "puzzleId": "oNpX6",
+      "fen": "6k1/2p2rpp/2p5/1rNnRP2/1P4P1/2KP3P/5P2/7R w - - 1 26",
+      "initialFen": "6k1/2p2rpp/2p5/1rNnRP2/1P4P1/2KP3P/5P2/7R w - - 1 26",
+      "preMove": "c3c4",
+      "solutionLine": [
+        "b5b4"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 945,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 76,
+      "popularity": 80,
+      "nbPlays": 186,
       "themes": [
         "endgame",
         "hookMate",
@@ -515,31 +437,102 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/zCtVCi4v/black#72",
+      "gameUrl": "https://lichess.org/ZH0tbWCB#51",
       "openingTags": "",
-      "chunkNumber": 2,
-      "chunkIndex": 6
+      "chunkNumber": 48,
+      "chunkIndex": 15,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 47,
+        "sourcePuzzleIndex": 15,
+        "canonicalIdentity": "6k1/2p2rpp/2p5/1rNnRP2/1PK3P1/3P3P/5P2/7R b - -|mate-in-1|b5b4|oNpX6",
+        "pedagogicalFamily": "mate:R|move:-1,-1>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AN@1,-1,AP@0,-2,AR@-1,0,AR@3,-3,DN@0,-1,DP@1,1,DR@2,-1",
+        "symmetry": "mirror-ranks",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:b4",
+          "king-region:queenside-middle",
+          "defender-blockers:3",
+          "controlled-escapes:5",
+          "solution:Rxb4#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-1>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AN@1,-1,AP@0,-2,AR@-1,0,AR@3,-3,DN@0,-1,DP@1,1,DR@2,-1"
     },
     {
-      "id": "hook-mate-in-1-YYYCp",
-      "puzzleId": "YYYCp",
-      "fen": "8/p2P2pk/2p5/2P2p2/7p/P5nP/6PK/2r5 w - - 1 33",
-      "initialFen": "8/p2P2pk/2p5/2P2p2/7p/P5nP/6PK/2r5 w - - 1 33",
-      "preMove": "d7d8q",
+      "id": "hook-mate-in-1-CuEEU",
+      "puzzleId": "CuEEU",
+      "fen": "R7/4k2p/2N3r1/1P2BK2/5P2/8/8/3q2b1 b - - 5 51",
+      "initialFen": "R7/4k2p/2N3r1/1P2BK2/5P2/8/8/3q2b1 b - - 5 51",
+      "preMove": "e7d7",
       "solutionLine": [
-        "c1h1"
+        "a8d8"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 766,
+      "rating": 915,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
       "ratingDeviation": 80,
       "popularity": 100,
-      "nbPlays": 409,
+      "nbPlays": 194,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "mate",
+        "mateIn1",
+        "oneMove",
+        "pillsburysMate"
+      ],
+      "gameUrl": "https://lichess.org/WlMjQUbM/black#102",
+      "openingTags": "",
+      "chunkNumber": 41,
+      "chunkIndex": 2,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 40,
+        "sourcePuzzleIndex": 2,
+        "canonicalIdentity": "R7/3k3p/2N3r1/1P2BK2/5P2/8/8/3q2b1 w - -|mate-in-1|a8d8|CuEEU",
+        "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:controlled,1,1:empty:controlled|blockers:AB@2,1,AK@2,2,AN@1,-1,AP@2,-2,AR@-1,0,DR@1,3",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "mating-side:white",
+          "mating-piece:R",
+          "mating-destination:d8",
+          "king-region:center-high",
+          "defender-blockers:1",
+          "controlled-escapes:8",
+          "solution:Rd8#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:controlled,1,1:empty:controlled|blockers:AB@2,1,AK@2,2,AN@1,-1,AP@2,-2,AR@-1,0,DR@1,3"
+    },
+    {
+      "id": "hook-mate-in-1-AmO8u",
+      "puzzleId": "AmO8u",
+      "fen": "8/2p2k2/4p1pp/1BPpPp2/1pnP1P2/1n1K1P2/r4N1P/1R6 w - - 8 37",
+      "initialFen": "8/2p2k2/4p1pp/1BPpPp2/1pnP1P2/1n1K1P2/r4N1P/1R6 w - - 8 37",
+      "preMove": "b1b3",
+      "solutionLine": [
+        "a2d2"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 945,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 137,
+      "popularity": 58,
+      "nbPlays": 42,
       "themes": [
         "endgame",
         "hookMate",
@@ -547,31 +540,50 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/QIP3nsoL#65",
+      "gameUrl": "https://lichess.org/UuxlnTCs#73",
       "openingTags": "",
-      "chunkNumber": 16,
-      "chunkIndex": 2
+      "chunkNumber": 48,
+      "chunkIndex": 9,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 47,
+        "sourcePuzzleIndex": 9,
+        "canonicalIdentity": "8/2p2k2/4p1pp/1BPpPp2/1pnP1P2/1R1K1P2/r4N1P/8 b - -|mate-in-1|a2d2|AmO8u",
+        "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@1,-2,AP@2,0,AP@2,2,AR@-1,0,DB@2,-2,DN@-1,2,DP@0,2,DP@1,0,DP@1,2,DP@2,-1,DP@2,1,DR@0,-2",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:d2",
+          "king-region:center-low",
+          "defender-blockers:8",
+          "controlled-escapes:7",
+          "solution:Rd2#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@1,-2,AP@2,0,AP@2,2,AR@-1,0,DB@2,-2,DN@-1,2,DP@0,2,DP@1,0,DP@1,2,DP@2,-1,DP@2,1,DR@0,-2"
     },
     {
-      "id": "hook-mate-in-1-GeqCM",
-      "puzzleId": "GeqCM",
-      "fen": "3r3r/2k4p/2p3p1/p3p3/PnN1P3/5P2/1PK3PP/R3R3 w - - 1 23",
-      "initialFen": "3r3r/2k4p/2p3p1/p3p3/PnN1P3/5P2/1PK3PP/R3R3 w - - 1 23",
-      "preMove": "c2c3",
+      "id": "hook-mate-in-1-r6W7D",
+      "puzzleId": "r6W7D",
+      "fen": "5k2/p6p/2R3n1/6PK/2B1r3/8/PP6/8 w - - 0 36",
+      "initialFen": "5k2/p6p/2R3n1/6PK/2B1r3/8/PP6/8 w - - 0 36",
+      "preMove": "c4d3",
       "solutionLine": [
-        "d8d3"
+        "e4h4"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 818,
+      "rating": 925,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
-      "ratingDeviation": 76,
-      "popularity": 90,
-      "nbPlays": 361,
+      "ratingDeviation": 88,
+      "popularity": 87,
+      "nbPlays": 522,
       "themes": [
         "endgame",
         "hookMate",
@@ -580,51 +592,38 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/dKzb1n26#45",
+      "gameUrl": "https://lichess.org/0rIjnzuW#71",
       "openingTags": "",
-      "chunkNumber": 24,
-      "chunkIndex": 6
+      "chunkNumber": 43,
+      "chunkIndex": 10,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 42,
+        "sourcePuzzleIndex": 10,
+        "canonicalIdentity": "5k2/p6p/2R3n1/6PK/4r3/3B4/PP6/8 b - -|mate-in-1|e4h4|r6W7D",
+        "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DP:free,0,1:edge,1,-1:AN:controlled,1,0:empty:free,1,1:edge|blockers:AK@3,-2,AN@1,-1,AP@2,0,AR@-1,0,DP@0,-1",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:h4",
+          "king-region:kingside-middle",
+          "defender-blockers:1",
+          "controlled-escapes:3",
+          "solution:Rh4#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DP:free,0,1:edge,1,-1:AN:controlled,1,0:empty:free,1,1:edge|blockers:AK@3,-2,AN@1,-1,AP@2,0,AR@-1,0,DP@0,-1"
     },
     {
-      "id": "hook-mate-in-1-3U3bP",
-      "puzzleId": "3U3bP",
-      "fen": "3r4/pBR2pkp/1p4p1/4Pn2/3PK2b/P4P1P/1P6/6R1 w - - 11 32",
-      "initialFen": "3r4/pBR2pkp/1p4p1/4Pn2/3PK2b/P4P1P/1P6/6R1 w - - 11 32",
-      "preMove": "b7a6",
+      "id": "hook-mate-in-1-3ktYQ",
+      "puzzleId": "3ktYQ",
+      "fen": "8/8/8/2Q5/5p2/1p1k2n1/6PK/5rB1 w - - 5 55",
+      "initialFen": "8/8/8/2Q5/5p2/1p1k2n1/6PK/5rB1 w - - 5 55",
+      "preMove": "g1d4",
       "solutionLine": [
-        "d8d4"
-      ],
-      "userMoveIndexes": [
-        0
-      ],
-      "mateDistance": 1,
-      "solutionMoveCount": 1,
-      "rating": 896,
-      "label": "Hook Mate in 1",
-      "theme": "hookMate",
-      "ratingDeviation": 81,
-      "popularity": 92,
-      "nbPlays": 118,
-      "themes": [
-        "endgame",
-        "hookMate",
-        "mate",
-        "mateIn1",
-        "oneMove"
-      ],
-      "gameUrl": "https://lichess.org/2Ae8Vbbs#63",
-      "openingTags": "",
-      "chunkNumber": 37,
-      "chunkIndex": 8
-    },
-    {
-      "id": "hook-mate-in-1-SHo3t",
-      "puzzleId": "SHo3t",
-      "fen": "2k5/ppp5/8/3p1p2/5Bp1/1N1P1nP1/PPP2R2/5K1r w - - 4 27",
-      "initialFen": "2k5/ppp5/8/3p1p2/5Bp1/1N1P1nP1/PPP2R2/5K1r w - - 4 27",
-      "preMove": "f1e2",
-      "solutionLine": [
-        "h1e1"
+        "f1h1"
       ],
       "userMoveIndexes": [
         0
@@ -635,40 +634,60 @@
       "label": "Hook Mate in 1",
       "theme": "hookMate",
       "ratingDeviation": 80,
-      "popularity": 95,
-      "nbPlays": 702,
+      "popularity": 55,
+      "nbPlays": 112,
       "themes": [
         "endgame",
         "hookMate",
+        "master",
         "mate",
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/NSe2cSda#53",
+      "gameUrl": "https://lichess.org/rGuoWMS3#109",
       "openingTags": "",
       "chunkNumber": 43,
-      "chunkIndex": 23
+      "chunkIndex": 17,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 42,
+        "sourcePuzzleIndex": 17,
+        "canonicalIdentity": "8/8/8/2Q5/3B1p2/1p1k2n1/6PK/5r2 b - -|mate-in-1|f1h1|3ktYQ",
+        "pedagogicalFamily": "mate:R|move:-1,-2>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DP:free,0,1:edge,1,-1:AN:controlled,1,0:empty:free,1,1:edge|blockers:AN@1,-1,AP@2,-2,AR@-1,0,DP@0,-1",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:h1",
+          "king-region:kingside-low",
+          "defender-blockers:1",
+          "controlled-escapes:3",
+          "solution:Rh1#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-2>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DP:free,0,1:edge,1,-1:AN:controlled,1,0:empty:free,1,1:edge|blockers:AN@1,-1,AP@2,-2,AR@-1,0,DP@0,-1"
     },
     {
-      "id": "hook-mate-in-1-DusFv",
-      "puzzleId": "DusFv",
-      "fen": "3r4/4kp2/3Np3/p1p1P1Pp/Pp3R1P/8/1P2KP2/R6r b - - 5 31",
-      "initialFen": "3r4/4kp2/3Np3/p1p1P1Pp/Pp3R1P/8/1P2KP2/R6r b - - 5 31",
-      "preMove": "h1a1",
+      "id": "hook-mate-in-1-1cJlb",
+      "puzzleId": "1cJlb",
+      "fen": "8/2p1kp1R/1p1p2p1/p2P4/PnP5/KP4P1/6r1/1B6 w - - 2 34",
+      "initialFen": "8/2p1kp1R/1p1p2p1/p2P4/PnP5/KP4P1/6r1/1B6 w - - 2 34",
+      "preMove": "b1g6",
       "solutionLine": [
-        "f4f7"
+        "g2a2"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 678,
+      "rating": 928,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
-      "ratingDeviation": 95,
-      "popularity": 86,
-      "nbPlays": 444,
+      "ratingDeviation": 81,
+      "popularity": 96,
+      "nbPlays": 571,
       "themes": [
         "endgame",
         "hookMate",
@@ -676,63 +695,101 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/K5oswmXy/black#62",
+      "gameUrl": "https://lichess.org/pqukOZnh#67",
       "openingTags": "",
-      "chunkNumber": 6,
-      "chunkIndex": 21
+      "chunkNumber": 43,
+      "chunkIndex": 25,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 42,
+        "sourcePuzzleIndex": 25,
+        "canonicalIdentity": "8/2p1kp1R/1p1p2B1/p2P4/PnP5/KP4P1/6r1/8 b - -|mate-in-1|g2a2|1cJlb",
+        "pedagogicalFamily": "mate:R|move:-1,-6>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DP:free,0,1:edge,1,-1:AN:controlled,1,0:DP:free,1,1:edge|blockers:AN@1,-1,AP@2,0,AR@-1,0,DP@0,-1,DP@1,-2,DP@1,0",
+        "symmetry": "anti-transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:a2",
+          "king-region:queenside-low",
+          "defender-blockers:3",
+          "controlled-escapes:3",
+          "solution:Ra2#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-6>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DP:free,0,1:edge,1,-1:AN:controlled,1,0:DP:free,1,1:edge|blockers:AN@1,-1,AP@2,0,AR@-1,0,DP@0,-1,DP@1,-2,DP@1,0"
     },
     {
-      "id": "hook-mate-in-1-AwXfX",
-      "puzzleId": "AwXfX",
-      "fen": "1k6/p1p5/1p6/5p2/2B1nP1R/4P3/P2rK1PP/8 w - - 1 40",
-      "initialFen": "1k6/p1p5/1p6/5p2/2B1nP1R/4P3/P2rK1PP/8 w - - 1 40",
-      "preMove": "e2f3",
+      "id": "hook-mate-in-1-sOxx3",
+      "puzzleId": "sOxx3",
+      "fen": "3r1rk1/pp3pb1/2p3p1/4p1Rp/1P2Pn1P/PBBqKP2/2QP1P2/7R w - - 3 20",
+      "initialFen": "3r1rk1/pp3pb1/2p3p1/4p1Rp/1P2Pn1P/PBBqKP2/2QP1P2/7R w - - 3 20",
+      "preMove": "c2d3",
       "solutionLine": [
-        "d2f2"
+        "d8d3"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 749,
+      "rating": 951,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
-      "ratingDeviation": 104,
-      "popularity": 97,
-      "nbPlays": 514,
+      "ratingDeviation": 96,
+      "popularity": 92,
+      "nbPlays": 1697,
       "themes": [
-        "endgame",
         "hookMate",
         "mate",
         "mateIn1",
+        "middlegame",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/v0ieVOs7#79",
+      "gameUrl": "https://lichess.org/3eLMKM7D#39",
       "openingTags": "",
-      "chunkNumber": 13,
-      "chunkIndex": 24
+      "chunkNumber": 50,
+      "chunkIndex": 4,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 49,
+        "sourcePuzzleIndex": 4,
+        "canonicalIdentity": "3r1rk1/pp3pb1/2p3p1/4p1Rp/1P2Pn1P/PBBQKP2/3P1P2/7R b - -|mate-in-1|d8d3|sOxx3",
+        "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:DP:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:DP:free|blockers:AN@1,-1,AP@0,-2,AR@-1,0,DB@-2,0,DB@-3,0,DP@-1,1,DP@0,-1,DP@1,0,DP@1,1,DR@2,-2,DR@3,2",
+        "symmetry": "mirror-ranks",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:d3",
+          "king-region:center-low",
+          "defender-blockers:8",
+          "controlled-escapes:5",
+          "solution:Rxd3#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:DP:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:DP:free|blockers:AN@1,-1,AP@0,-2,AR@-1,0,DB@-2,0,DB@-3,0,DP@-1,1,DP@0,-1,DP@1,0,DP@1,1,DR@2,-2,DR@3,2"
     },
     {
-      "id": "hook-mate-in-1-w01Q6",
-      "puzzleId": "w01Q6",
-      "fen": "7r/1kp5/7p/3prpp1/6n1/5K2/PPPN2PP/R6R w - - 0 22",
-      "initialFen": "7r/1kp5/7p/3prpp1/6n1/5K2/PPPN2PP/R6R w - - 0 22",
-      "preMove": "h2h3",
+      "id": "hook-mate-in-1-APcRc",
+      "puzzleId": "APcRc",
+      "fen": "3R4/6pk/5pNp/7P/4p3/3n2P1/2r2PK1/8 b - - 3 38",
+      "initialFen": "3R4/6pk/5pNp/7P/4p3/3n2P1/2r2PK1/8 b - - 3 38",
+      "preMove": "d3e5",
       "solutionLine": [
-        "e5e3"
+        "d8h8"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 809,
+      "rating": 927,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
       "ratingDeviation": 102,
-      "popularity": 83,
-      "nbPlays": 124,
+      "popularity": 94,
+      "nbPlays": 1006,
       "themes": [
         "endgame",
         "hookMate",
@@ -740,31 +797,357 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/3d4GyUTG#43",
+      "gameUrl": "https://lichess.org/ZiJwKxww/black#76",
       "openingTags": "",
-      "chunkNumber": 22,
-      "chunkIndex": 9
+      "chunkNumber": 43,
+      "chunkIndex": 19,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 42,
+        "sourcePuzzleIndex": 19,
+        "canonicalIdentity": "3R4/6pk/5pNp/4n2P/4p3/6P1/2r2PK1/8 w - -|mate-in-1|d8h8|APcRc",
+        "pedagogicalFamily": "mate:R|move:-1,-4>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DP:free,0,1:edge,1,-1:AN:controlled,1,0:DP:free,1,1:edge|blockers:AN@1,-1,AP@2,0,AR@-1,0,DN@2,-3,DP@0,-1,DP@1,-2,DP@1,0",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "mating-side:white",
+          "mating-piece:R",
+          "mating-destination:h8",
+          "king-region:kingside-high",
+          "defender-blockers:4",
+          "controlled-escapes:3",
+          "solution:Rh8#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-4>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DP:free,0,1:edge,1,-1:AN:controlled,1,0:DP:free,1,1:edge|blockers:AN@1,-1,AP@2,0,AR@-1,0,DN@2,-3,DP@0,-1,DP@1,-2,DP@1,0"
     },
     {
-      "id": "hook-mate-in-1-SnYMa",
-      "puzzleId": "SnYMa",
-      "fen": "2r2k2/R7/7p/3N2p1/2P4n/1P3p1P/P4r1K/R7 w - - 0 37",
-      "initialFen": "2r2k2/R7/7p/3N2p1/2P4n/1P3p1P/P4r1K/R7 w - - 0 37",
-      "preMove": "h2g3",
+      "id": "hook-mate-in-1-io5Qd",
+      "puzzleId": "io5Qd",
+      "fen": "2R5/5kpp/8/5p2/3PpP2/2pnB1PP/5P2/r4K2 w - - 2 38",
+      "initialFen": "2R5/5kpp/8/5p2/3PpP2/2pnB1PP/5P2/r4K2 w - - 2 38",
+      "preMove": "f1e2",
       "solutionLine": [
-        "f2g2"
+        "a1e1"
       ],
       "userMoveIndexes": [
         0
       ],
       "mateDistance": 1,
       "solutionMoveCount": 1,
-      "rating": 913,
+      "rating": 930,
       "label": "Hook Mate in 1",
       "theme": "hookMate",
       "ratingDeviation": 79,
-      "popularity": 95,
-      "nbPlays": 198,
+      "popularity": 98,
+      "nbPlays": 4291,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "mate",
+        "mateIn1",
+        "oneMove"
+      ],
+      "gameUrl": "https://lichess.org/fVvGrgfc#75",
+      "openingTags": "",
+      "chunkNumber": 44,
+      "chunkIndex": 12,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 43,
+        "sourcePuzzleIndex": 12,
+        "canonicalIdentity": "2R5/5kpp/8/5p2/3PpP2/2pnB1PP/4KP2/r7 b - -|mate-in-1|a1e1|io5Qd",
+        "pedagogicalFamily": "mate:R|move:-1,-4>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:DP:controlled,1,-1:AN:controlled,1,0:DB:free,1,1:empty:controlled|blockers:AN@1,-1,AP@1,-2,AP@2,0,AR@-1,0,DB@1,0,DP@0,1,DP@1,2,DP@2,-1,DP@2,1",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:e1",
+          "king-region:center-low",
+          "defender-blockers:5",
+          "controlled-escapes:7",
+          "solution:Re1#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-4>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:empty:controlled,0,1:DP:controlled,1,-1:AN:controlled,1,0:DB:free,1,1:empty:controlled|blockers:AN@1,-1,AP@1,-2,AP@2,0,AR@-1,0,DB@1,0,DP@0,1,DP@1,2,DP@2,-1,DP@2,1"
+    },
+    {
+      "id": "hook-mate-in-1-Cw9dc",
+      "puzzleId": "Cw9dc",
+      "fen": "2r1k3/3Nr1pp/ppP1p3/1P1p2P1/P2Pn2P/5R2/6K1/8 b - - 1 43",
+      "initialFen": "2r1k3/3Nr1pp/ppP1p3/1P1p2P1/P2Pn2P/5R2/6K1/8 b - - 1 43",
+      "preMove": "a6b5",
+      "solutionLine": [
+        "f3f8"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 918,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 82,
+      "popularity": 86,
+      "nbPlays": 297,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "mate",
+        "mateIn1",
+        "oneMove"
+      ],
+      "gameUrl": "https://lichess.org/gOgaUKif/black#86",
+      "openingTags": "",
+      "chunkNumber": 41,
+      "chunkIndex": 21,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 40,
+        "sourcePuzzleIndex": 21,
+        "canonicalIdentity": "2r1k3/3Nr1pp/1pP1p3/1p1p2P1/P2Pn2P/5R2/6K1/8 w - -|mate-in-1|f3f8|Cw9dc",
+        "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DR:free,0,1:edge,1,-1:AN:controlled,1,0:empty:free,1,1:edge|blockers:AN@1,-1,AP@2,-2,AR@-1,0,DP@-2,-1,DP@0,-2,DR@0,-1,DR@2,0",
+        "symmetry": "mirror-files",
+        "diversityTags": [
+          "mating-side:white",
+          "mating-piece:R",
+          "mating-destination:f8",
+          "king-region:center-high",
+          "defender-blockers:4",
+          "controlled-escapes:3",
+          "solution:Rf8#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-5>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DR:free,0,1:edge,1,-1:AN:controlled,1,0:empty:free,1,1:edge|blockers:AN@1,-1,AP@2,-2,AR@-1,0,DP@-2,-1,DP@0,-2,DR@0,-1,DR@2,0"
+    },
+    {
+      "id": "hook-mate-in-1-afLjg",
+      "puzzleId": "afLjg",
+      "fen": "8/pk5p/4R3/4N3/4p1P1/PP1nP2P/3P4/3K1r2 w - - 2 35",
+      "initialFen": "8/pk5p/4R3/4N3/4p1P1/PP1nP2P/3P4/3K1r2 w - - 2 35",
+      "preMove": "d1c2",
+      "solutionLine": [
+        "f1c1"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 936,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 78,
+      "popularity": 98,
+      "nbPlays": 2121,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "mate",
+        "mateIn1",
+        "oneMove"
+      ],
+      "gameUrl": "https://lichess.org/deLZyt2g#69",
+      "openingTags": "",
+      "chunkNumber": 45,
+      "chunkIndex": 23,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 44,
+        "sourcePuzzleIndex": 23,
+        "canonicalIdentity": "8/pk5p/4R3/4N3/4p1P1/PP1nP2P/2KP4/5r2 b - -|mate-in-1|f1c1|afLjg",
+        "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AN@1,-1,AP@2,-2,AR@-1,0,DN@3,-2,DP@0,-1,DP@1,-2,DP@1,1,DP@1,2",
+        "symmetry": "anti-transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:c1",
+          "king-region:queenside-low",
+          "defender-blockers:5",
+          "controlled-escapes:5",
+          "solution:Rc1#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AN@1,-1,AP@2,-2,AR@-1,0,DN@3,-2,DP@0,-1,DP@1,-2,DP@1,1,DP@1,2"
+    },
+    {
+      "id": "hook-mate-in-1-IxUFK",
+      "puzzleId": "IxUFK",
+      "fen": "1k2R3/1rb4r/1N6/P1p2ppp/8/2P3P1/1P3K2/4R3 b - - 4 39",
+      "initialFen": "1k2R3/1rb4r/1N6/P1p2ppp/8/2P3P1/1P3K2/4R3 b - - 4 39",
+      "preMove": "b8a7",
+      "solutionLine": [
+        "e8a8"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 915,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 83,
+      "popularity": 91,
+      "nbPlays": 466,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "mate",
+        "mateIn1",
+        "oneMove"
+      ],
+      "gameUrl": "https://lichess.org/mIuyBJoz/black#78",
+      "openingTags": "",
+      "chunkNumber": 41,
+      "chunkIndex": 4,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 40,
+        "sourcePuzzleIndex": 4,
+        "canonicalIdentity": "4R3/krb4r/1N6/P1p2ppp/8/2P3P1/1P3K2/4R3 w - -|mate-in-1|e8a8|IxUFK",
+        "pedagogicalFamily": "mate:R|move:-1,-4>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DR:free,0,1:edge,1,-1:AN:controlled,1,0:empty:free,1,1:edge|blockers:AN@1,-1,AP@2,0,AR@-1,0,DB@0,-2,DP@2,-2,DR@0,-1",
+        "symmetry": "anti-transpose-mirror",
+        "diversityTags": [
+          "mating-side:white",
+          "mating-piece:R",
+          "mating-destination:a8",
+          "king-region:queenside-high",
+          "defender-blockers:3",
+          "controlled-escapes:3",
+          "solution:Ra8#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-4>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:edge,0,-1:DR:free,0,1:edge,1,-1:AN:controlled,1,0:empty:free,1,1:edge|blockers:AN@1,-1,AP@2,0,AR@-1,0,DB@0,-2,DP@2,-2,DR@0,-1"
+    },
+    {
+      "id": "hook-mate-in-1-cRyv0",
+      "puzzleId": "cRyv0",
+      "fen": "3R1k2/1p3p2/p3pN2/4P3/5B2/5p1r/PP3q1P/7K b - - 0 27",
+      "initialFen": "3R1k2/1p3p2/p3pN2/4P3/5B2/5p1r/PP3q1P/7K b - - 0 27",
+      "preMove": "f8g7",
+      "solutionLine": [
+        "d8g8"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 917,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 75,
+      "popularity": 100,
+      "nbPlays": 237,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "mate",
+        "mateIn1",
+        "oneMove",
+        "pillsburysMate"
+      ],
+      "gameUrl": "https://lichess.org/6AAQrg4v/black#54",
+      "openingTags": "",
+      "chunkNumber": 41,
+      "chunkIndex": 15,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 40,
+        "sourcePuzzleIndex": 15,
+        "canonicalIdentity": "3R4/1p3pk1/p3pN2/4P3/5B2/5p1r/PP3q1P/7K w - -|mate-in-1|d8g8|cRyv0",
+        "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:empty:controlled|blockers:AB@3,-1,AN@1,-1,AP@2,-2,AR@-1,0,DP@0,-1,DP@1,-2",
+        "symmetry": "transpose-mirror",
+        "diversityTags": [
+          "mating-side:white",
+          "mating-piece:R",
+          "mating-destination:g8",
+          "king-region:kingside-high",
+          "defender-blockers:2",
+          "controlled-escapes:6",
+          "solution:Rg8#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-3>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DP:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:empty:controlled|blockers:AB@3,-1,AN@1,-1,AP@2,-2,AR@-1,0,DP@0,-1,DP@1,-2"
+    },
+    {
+      "id": "hook-mate-in-1-4j321",
+      "puzzleId": "4j321",
+      "fen": "8/R7/1pk1P3/3p4/P2PnNK1/6r1/8/8 w - - 7 52",
+      "initialFen": "8/R7/1pk1P3/3p4/P2PnNK1/6r1/8/8 w - - 7 52",
+      "preMove": "g4f5",
+      "solutionLine": [
+        "g3g5"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 939,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 77,
+      "popularity": 100,
+      "nbPlays": 370,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "mate",
+        "mateIn1",
+        "oneMove"
+      ],
+      "gameUrl": "https://lichess.org/NhLgK6f2#103",
+      "openingTags": "",
+      "chunkNumber": 46,
+      "chunkIndex": 22,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 45,
+        "sourcePuzzleIndex": 22,
+        "canonicalIdentity": "8/R7/1pk1P3/3p1K2/P2PnN2/6r1/8/8 b - -|mate-in-1|g3g5|4j321",
+        "pedagogicalFamily": "mate:R|move:-1,-2>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AK@3,1,AN@1,-1,AP@2,0,AR@-1,0,DN@0,-1,DP@1,1,DP@2,-1",
+        "symmetry": "mirror-files",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:g5",
+          "king-region:kingside-middle",
+          "defender-blockers:3",
+          "controlled-escapes:5",
+          "solution:Rg5#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-2>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DP:free|blockers:AK@3,1,AN@1,-1,AP@2,0,AR@-1,0,DN@0,-1,DP@1,1,DP@2,-1"
+    },
+    {
+      "id": "hook-mate-in-1-NStIL",
+      "puzzleId": "NStIL",
+      "fen": "6k1/6pp/8/1p2p3/1B3p2/2P1nP2/P3R1PP/3r2K1 w - - 5 31",
+      "initialFen": "6k1/6pp/8/1p2p3/1B3p2/2P1nP2/P3R1PP/3r2K1 w - - 5 31",
+      "preMove": "g1f2",
+      "solutionLine": [
+        "d1f1"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 935,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 84,
+      "popularity": 67,
+      "nbPlays": 47,
       "themes": [
         "endgame",
         "epauletteMate",
@@ -773,10 +1156,81 @@
         "mateIn1",
         "oneMove"
       ],
-      "gameUrl": "https://lichess.org/cAnAqoPw#73",
+      "gameUrl": "https://lichess.org/bHOnSGQs#61",
       "openingTags": "",
-      "chunkNumber": 40,
-      "chunkIndex": 25
+      "chunkNumber": 45,
+      "chunkIndex": 22,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 44,
+        "sourcePuzzleIndex": 22,
+        "canonicalIdentity": "6k1/6pp/8/1p2p3/1B3p2/2P1nP2/P3RKPP/3r4 b - -|mate-in-1|d1f1|NStIL",
+        "pedagogicalFamily": "mate:R|move:-1,-2>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DR:free,0,1:DP:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@2,0,AR@-1,0,DP@0,1,DP@0,2,DP@1,0,DR@0,-1",
+        "symmetry": "transpose",
+        "diversityTags": [
+          "mating-side:black",
+          "mating-piece:R",
+          "mating-destination:f1",
+          "king-region:kingside-low",
+          "defender-blockers:4",
+          "controlled-escapes:6",
+          "solution:Rf1#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-2>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DR:free,0,1:DP:controlled,1,-1:AN:controlled,1,0:DP:free,1,1:empty:controlled|blockers:AN@1,-1,AP@2,0,AR@-1,0,DP@0,1,DP@0,2,DP@1,0,DR@0,-1"
+    },
+    {
+      "id": "hook-mate-in-1-R4No7",
+      "puzzleId": "R4No7",
+      "fen": "8/3r3p/p1k3p1/3N1p2/nRPprP2/5KP1/P2B3P/8 b - - 4 35",
+      "initialFen": "8/3r3p/p1k3p1/3N1p2/nRPprP2/5KP1/P2B3P/8 b - - 4 35",
+      "preMove": "a4c5",
+      "solutionLine": [
+        "b4b6"
+      ],
+      "userMoveIndexes": [
+        0
+      ],
+      "mateDistance": 1,
+      "solutionMoveCount": 1,
+      "rating": 924,
+      "label": "Hook Mate in 1",
+      "theme": "hookMate",
+      "ratingDeviation": 113,
+      "popularity": 86,
+      "nbPlays": 50,
+      "themes": [
+        "endgame",
+        "hookMate",
+        "master",
+        "mate",
+        "mateIn1",
+        "oneMove"
+      ],
+      "gameUrl": "https://lichess.org/7oCcybjw/black#70",
+      "openingTags": "",
+      "chunkNumber": 43,
+      "chunkIndex": 2,
+      "learnerCurriculum": {
+        "version": "m1-v1",
+        "sourceChunkIndex": 42,
+        "sourcePuzzleIndex": 2,
+        "canonicalIdentity": "8/3r3p/p1k3p1/2nN1p2/1RPprP2/5KP1/P2B3P/8 w - -|mate-in-1|b4b6|R4No7",
+        "pedagogicalFamily": "mate:R|move:-1,-2>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DR:free|blockers:AK@3,-3,AN@1,-1,AP@0,-2,AR@-1,0,DN@0,-1,DP@-2,0,DP@1,-2,DR@1,1,DR@2,-2",
+        "symmetry": "identity",
+        "diversityTags": [
+          "mating-side:white",
+          "mating-piece:R",
+          "mating-destination:b6",
+          "king-region:queenside-high",
+          "defender-blockers:5",
+          "controlled-escapes:5",
+          "solution:Rb6#"
+        ],
+        "retainedReason": "Unique pedagogical family selected for structural variety"
+      },
+      "pedagogicalFamily": "mate:R|move:-1,-2>-1,0|escape:-1,-1:empty:controlled,-1,0:AR:controlled,-1,1:empty:controlled,0,-1:DN:free,0,1:empty:controlled,1,-1:AN:controlled,1,0:empty:free,1,1:DR:free|blockers:AK@3,-3,AN@1,-1,AP@0,-2,AR@-1,0,DN@0,-1,DP@-2,0,DP@1,-2,DR@1,1,DR@2,-2"
     }
   ]
 }

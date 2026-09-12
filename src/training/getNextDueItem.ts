@@ -1,11 +1,18 @@
 import { supabase } from '../lib/supabase'
 import { AUTO_TRAINERS } from './trainerCatalog'
+import { autoMixedEligibilityFilter } from './autoMixedEligibility'
+import { activityIdentity, logicalActivityKey, isPatternChunkActivity } from './activityIdentity'
+import { getM1LearnerProgressTrainerKey } from '../trainers/patternMate/m1LearnerCurriculum'
+import { getM2ToM5LearnerProgressTrainerKey } from '../trainers/patternMate/m2toM5LearnerCurriculum'
+import { getPatternTacticLearnerProgressTrainerKey } from '../trainers/patternTactic/m1toM4LearnerCurriculum'
 
 export type DueState = 'overdue' | 'due_today' | 'in_progress' | 'new'
 
 export type NextDueItem = {
  itemType: 'trainer_chunk'
  trainerKey: string
+ progressTrainerKey?: string
+ learnerCurriculumVersion?: string | null
  route: string
  chunkIndex: number | null
  dueState: DueState
@@ -203,7 +210,9 @@ function getDueStateFromRow(
  }
  }
 
- chunkIndex = bestRow.chunk_index ?? null
+ // Pattern persistence is one-based; the mounted trainer URL is zero-based.
+ chunkIndex = bestRow.chunk_index == null ? null : isPatternChunkActivity(bestRow.trainer_key ?? '')
+  ? Math.max(0, bestRow.chunk_index - 1) : bestRow.chunk_index
  nextReviewAt = getEffectiveNextReviewAt(bestRow)
 
  if (!nextReviewAt) {
@@ -230,17 +239,26 @@ function getDueStateFromRow(
 function getBestRowByTrainer(rows: ChunkProgressRow[], tomorrowStart: Date) {
  const bestRowByTrainer = new Map<string, ChunkProgressRow>()
 
+ // The exact current dataset row owns its chunk schedule when it exists.
+ // Older aliases must not resurrect an obsolete due date for that same chunk.
+ const currentKey = (key: string) => getPatternTacticLearnerProgressTrainerKey(
+  getM2ToM5LearnerProgressTrainerKey(getM1LearnerProgressTrainerKey(logicalActivityKey(key))))
+ const currentChunks = new Set(rows.filter(row => row.trainer_key && row.trainer_key === currentKey(row.trainer_key))
+  .map(row => `${logicalActivityKey(row.trainer_key!)}|${Math.max(1, row.chunk_index ?? 1)}`))
+
  for (const row of rows) {
  if (!row.trainer_key) continue
+ const logicalKey = logicalActivityKey(row.trainer_key)
+ if (row.trainer_key !== currentKey(row.trainer_key) && currentChunks.has(`${logicalKey}|${Math.max(1, row.chunk_index ?? 1)}`)) continue
  if (row.is_mastered === true) {
  const due = getEffectiveNextReviewAt(row)
  const dueTime = due ? new Date(due).getTime() : Number.NEGATIVE_INFINITY
  if (Number.isFinite(dueTime) && dueTime >= tomorrowStart.getTime()) continue
  }
 
- const existing = bestRowByTrainer.get(row.trainer_key)
+ const existing = bestRowByTrainer.get(logicalKey)
  if (!existing) {
- bestRowByTrainer.set(row.trainer_key, row)
+ bestRowByTrainer.set(logicalKey, row)
  continue
  }
 
@@ -248,7 +266,7 @@ function getBestRowByTrainer(rows: ChunkProgressRow[], tomorrowStart: Date) {
  const currentDue = getEffectiveNextReviewAt(row)
 
  if (!existingDue && currentDue) {
- bestRowByTrainer.set(row.trainer_key, row)
+ bestRowByTrainer.set(logicalKey, row)
  continue
  }
 
@@ -257,7 +275,7 @@ function getBestRowByTrainer(rows: ChunkProgressRow[], tomorrowStart: Date) {
  const currentTime = new Date(currentDue).getTime()
 
  if (currentTime < existingTime) {
- bestRowByTrainer.set(row.trainer_key, row)
+ bestRowByTrainer.set(logicalKey, row)
  }
  }
  }
@@ -276,7 +294,7 @@ function buildCandidates(
  const candidates: NextDueItem[] = []
 
  for (const trainer of AUTO_TRAINERS) {
- const bestRow = bestRowByTrainer.get(trainer.trainerKey)
+ const bestRow = bestRowByTrainer.get(logicalActivityKey(trainer.trainerKey))
  const planWeight = getPlanWeight(plan, trainer.category)
 
  const { dueState, chunkIndex, nextReviewAt } = getDueStateFromRow(
@@ -289,7 +307,9 @@ function buildCandidates(
 
  candidates.push({
  itemType: 'trainer_chunk',
- trainerKey: trainer.trainerKey,
+    trainerKey: trainer.trainerKey,
+    progressTrainerKey: bestRow?.trainer_key ?? undefined,
+    learnerCurriculumVersion: bestRow?.trainer_key ? activityIdentity(bestRow.trainer_key).revision : null,
  route: trainer.route,
  chunkIndex,
  dueState,
@@ -304,7 +324,8 @@ function buildCandidates(
 }
 
 export async function getNextDueItem(
- userId: string
+ userId: string,
+ eligible: (item: NextDueItem) => Promise<boolean> = autoMixedEligibilityFilter(userId)
 ): Promise<NextDueItem | null> {
  const plan = await getOrCreateStudyPlan(userId)
  if (!plan) return null
@@ -313,20 +334,24 @@ export async function getNextDueItem(
  if (!rows) return null
 
  const candidates = buildCandidates(plan, rows)
- return chooseBestCandidate(candidates)
+ const allowed = await Promise.all(candidates.map(eligible))
+ return chooseBestCandidate(candidates.filter((_, index) => allowed[index]))
 }
 
 /** Due maintenance is a distinct gate; it must not introduce brand-new material. */
 export async function getNextDueReviewItem(
- userId: string
+ userId: string,
+ eligible: (item: NextDueItem) => Promise<boolean> = autoMixedEligibilityFilter(userId)
 ): Promise<NextDueItem | null> {
  const plan = await getOrCreateStudyPlan(userId)
  if (!plan) return null
  const rows = await getChunkRows(userId)
  if (!rows) return null
- return chooseBestCandidate(buildCandidates(plan, rows).filter(
+ const candidates = buildCandidates(plan, rows).filter(
   (item) => item.dueState === 'overdue' || item.dueState === 'due_today'
- ))
+ )
+ const allowed = await Promise.all(candidates.map(eligible))
+ return chooseBestCandidate(candidates.filter((_, index) => allowed[index]))
 }
 
 export async function getDueSummary(
@@ -339,13 +364,15 @@ export async function getDueSummary(
  if (!rows) return null
 
  const candidates = buildCandidates(plan, rows)
+ const allowed = await Promise.all(candidates.map(autoMixedEligibilityFilter(userId)))
+ const eligibleCandidates = candidates.filter((_, index) => allowed[index])
 
- const dueCount = candidates.filter(
+ const dueCount = eligibleCandidates.filter(
  (item) => item.dueState === 'overdue' || item.dueState === 'due_today'
  ).length
 
  return {
- nextItem: chooseBestCandidate(candidates),
+ nextItem: chooseBestCandidate(eligibleCandidates),
  dueCount,
  }
 }

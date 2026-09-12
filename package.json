@@ -26,7 +26,7 @@
     "image-server": "node server/image-to-position-server.cjs",
     "dev:vite": "vite",
     "coach-server": "node server/image-to-position-server.cjs",
-    "postinstall": "node scripts/install-stockfish-assets.cjs && node scripts/soften-react-chessboard-pieces.cjs",
+    "postinstall": "node scripts/install-stockfish-assets.cjs && node scripts/soften-react-chessboard-pieces.cjs && node scripts/patch-react-chessboard-position.cjs",
     "paypal:audit": "node scripts/audit_paypal_launch.mjs",
     "audit:positions": "node scripts/run-position-audit.mjs"
     ,"test:auto-study": "node scripts/test-personal-training-plan.mjs",
@@ -85,6 +85,19 @@
     ,"scan:verified-lichess-b3": "node scripts/scan-verified-lichess-b3-exhaustive.mjs --resume"
     ,"classify:verified-lichess-b3": "node scripts/classify-verified-lichess-b3.mjs --resume"
     ,"test:verified-lichess-b3": "node scripts/test-verified-lichess-b3-relationships.mjs"
+    ,"master-tactics:snapshot": "node scripts/master-tactics/snapshot-source.mjs"
+    ,"master-tactics:sample": "node scripts/master-tactics/sample-games.mjs"
+    ,"master-tactics:pilot": "node scripts/master-tactics/run-pilot.mjs"
+    ,"master-tactics:scan": "node scripts/master-tactics/scan-candidates.mjs"
+    ,"master-tactics:phase2b": "node scripts/master-tactics/calibrate-phase2b.mjs"
+    ,"master-tactics:phase2c": "node scripts/master-tactics/materialize-phase2c.mjs"
+    ,"master-tactics:phase3": "node scripts/master-tactics/run-phase3-pilot.mjs"
+    ,"master-tactics:phase3-native": "node scripts/master-tactics/run-phase3-native-comparison.mjs"
+    ,"master-tactics:phase3-native-full": "node scripts/master-tactics/run-phase3-native-full.mjs"
+    ,"master-tactics:phase2-native-production": "node scripts/master-tactics/run-phase2-native-production.mjs"
+    ,"master-tactics:phase3-native-speedtest": "node scripts/master-tactics/benchmark-phase3-native.mjs --official"
+    ,"master-tactics:phase3-native-benchmark": "node scripts/master-tactics/benchmark-phase3-native.mjs"
+    ,"master-tactics:test": "node --test scripts/master-tactics/test/*.test.mjs"
   },
   "dependencies": {
     "@mliebelt/pgn-parser": "^1.4.19",

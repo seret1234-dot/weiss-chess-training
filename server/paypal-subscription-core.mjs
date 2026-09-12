@@ -193,6 +193,13 @@ export function configuredPlans() {
     )
   }
 
+  if (process.env.AFFILIATE_PROGRAM_ENABLED === 'true') {
+    for (const period of ['MONTHLY', 'YEARLY']) for (const tax of ['STANDARD', 'TAXED']) {
+      const id = String(process.env[`PAYPAL_AFFILIATE_PLAN_${period}_${tax}`] || '').trim()
+      if (id) entries.push([id, period.toLowerCase()])
+    }
+    if (new Set(entries.map(([id]) => id)).size !== entries.length) throw new Error('Affiliate PayPal plans must have distinct IDs')
+  }
   return new Map(entries)
 }
 
@@ -359,6 +366,20 @@ export async function synchronizePayPalSubscription({
   }
 
   const existing = await subscriptionForUser(supabase, userId)
+  if (process.env.AFFILIATE_PROGRAM_ENABLED === 'true' && Object.entries(process.env).some(([key,value]) => key.startsWith('PAYPAL_AFFILIATE_PLAN_') && value === details.plan_id)) {
+    const checkout = await supabase.from('affiliate_checkouts').select('user_id').eq('subscription_id', details.id).maybeSingle()
+    if (checkout.error || checkout.data?.user_id !== userId) throw new Error('Discount subscription has no authorized checkout')
+  }
+
+  // Eligibility-only evidence: retain verified older identities even when the
+  // existing entitlement freshness guard correctly ignores their state update.
+  const history = await supabase.rpc('affiliate_observe_subscription', {
+    p_actor: userId,
+    p_subscription_id: String(details.id),
+    p_plan: plan,
+    p_status: String(details.status || '').toUpperCase(),
+  })
+  if (history.error) throw history.error
 
   if (isExistingNewer(existing, details)) {
     return {

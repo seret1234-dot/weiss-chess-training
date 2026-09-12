@@ -23,11 +23,25 @@ export const trainingCatalog: NavCard[] = [
  path: '/mates',
  },
  {
+ title: 'Master Mates',
+ subtitle: 'Verified mating positions from real master games',
+ icon: '\u2605',
+ accent: 'linear-gradient(135deg, #d1a94a 0%, #9b7a27 100%)',
+ path: '/master-mates',
+ },
+ {
  title: 'Tactics',
  subtitle: 'Core tactical motifs and subthemes',
  icon: '\u2694\uFE0F',
  accent: 'linear-gradient(135deg, #c57b57 0%, #9b5939 100%)',
  path: '/tactics',
+ },
+ {
+ title: 'Master Tactics',
+ subtitle: 'Proven tactical ideas from real master games',
+ icon: '\u2605',
+ accent: 'linear-gradient(135deg, #c57b57 0%, #9b5939 100%)',
+ path: '/master-tactics',
  },
  {
  title: 'Endgames',

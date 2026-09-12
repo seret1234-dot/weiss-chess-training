@@ -1,0 +1,50 @@
+.my-openings-page {
+  min-height: 100vh;
+  padding: 28px 20px 70px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #2b2623 0%, #161512 100%);
+  color: #f3f3f3;
+  font-family: Arial, sans-serif;
+}
+
+.my-openings-page > * { max-width: 1180px; margin-left: auto; margin-right: auto; }
+.my-openings-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; padding: 30px; border-radius: 26px; background: linear-gradient(135deg, rgba(95,168,255,.18), rgba(127,166,80,.12)); border: 1px solid rgba(255,255,255,.07); }
+.my-openings-kicker { color: #9cc8ff; font-size: 12px; font-weight: 900; letter-spacing: .12em; margin: 0 0 8px; }
+.my-openings-hero h1 { margin: 0 0 10px; font-size: clamp(34px, 5vw, 48px); }
+.my-openings-hero p { margin: 0; color: #d7d7d7; line-height: 1.55; max-width: 720px; }
+.my-openings-summary { min-width: 110px; text-align: center; padding: 13px 16px; border-radius: 14px; background: #1f1d1c; }
+.my-openings-summary strong { display: block; font-size: 25px; }
+.my-openings-summary span { color: #bbb; font-size: 12px; }
+.my-openings-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 18px; margin-bottom: 18px; }
+.my-openings-toolbar a, .my-openings-toolbar button, .my-openings-actions a, .my-openings-actions button, .my-openings-empty a, .my-openings-empty button { border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px 14px; background: #302e2b; color: #fff; text-decoration: none; cursor: pointer; font-weight: 800; }
+.my-openings-toolbar .primary { background: #4d7c4d; }
+.my-openings-toolbar button:disabled, .my-openings-actions button:disabled { cursor: wait; opacity: .6; }
+.my-openings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 14px; }
+.my-openings-card { min-width: 0; padding: 18px; border-radius: 16px; background: #1f1d1c; border: 1px solid rgba(255,255,255,.07); box-shadow: 0 10px 24px rgba(0,0,0,.18); }
+.my-openings-card-header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.my-openings-card-title { color: #fff; font-size: 17px; font-weight: 800; text-decoration: none; overflow-wrap: anywhere; }
+.my-openings-progress { flex: 0 0 auto; font-size: 11px; font-weight: 800; padding: 5px 8px; border-radius: 999px; color: #ddd; background: #45413e; }
+.my-openings-progress.is-mastered { color: #dff5ca; background: #3f6137; }
+.my-openings-progress.is-in-progress { color: #ffe5a5; background: #675329; }
+.my-openings-meta { margin: 13px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; }
+.my-openings-meta div { min-width: 0; }
+.my-openings-meta dt { color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.my-openings-meta dd { margin: 3px 0 0; color: #d8d8d8; font-size: 13px; overflow-wrap: anywhere; }
+.my-openings-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.my-openings-actions a:first-child { background: #2f4f73; }
+.my-openings-error { margin: 15px auto; padding: 13px; border-radius: 10px; color: #ffb4b4; background: rgba(190,60,60,.15); }
+.my-openings-empty { margin-top: 24px; padding: 36px 22px; text-align: center; border-radius: 18px; background: #1f1d1c; }
+.my-openings-empty p { color: #cfcfcf; }
+.my-openings-empty-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.my-openings-pagination { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 22px; }
+.my-openings-pagination button { padding: 9px 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 9px; background: #302e2b; color: #fff; cursor: pointer; }
+.my-openings-pagination button:disabled { cursor: not-allowed; opacity: .45; }
+
+@media (max-width: 520px) {
+  .my-openings-page { padding: 16px 12px 92px; }
+  .my-openings-hero { padding: 22px 18px; }
+  .my-openings-grid { grid-template-columns: minmax(0, 1fr); }
+  .my-openings-card-header { display: block; }
+  .my-openings-progress { display: inline-block; margin-top: 9px; }
+  .my-openings-actions > * { flex: 1 1 120px; text-align: center; }
+}

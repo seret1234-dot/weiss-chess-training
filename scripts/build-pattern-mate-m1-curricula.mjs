@@ -14,7 +14,9 @@ const themes = [
   { theme: "boden", source: "public/data/pattern-mates/boden/mate-in-1", chunkSize: 24 },
   { theme: "smothered", source: "public/data/pattern-mates/smothered/mate-in-1", chunkSize: 24 },
   { theme: "hook", source: "public/data/pattern-mates/hook/mate-in-1", chunkSize: 24 },
-  { theme: "kill-box", source: "public/data/pattern-mates/kill-box/mate-in-1", chunkSize: 20 },
+  { theme: "kill-box-adjacent-rook", source: "public/data/pattern-mates/kill-box-adjacent-rook/mate-in-1", chunkSize: 24 },
+  { theme: "kill-box-rook-rail", source: "public/data/pattern-mates/kill-box-rook-rail/mate-in-1", chunkSize: 24 },
+  { theme: "kill-box-queen-fence", source: "public/data/pattern-mates/kill-box-queen-fence/mate-in-1", chunkSize: 24 },
   { theme: "dovetail", source: "public/data/pattern-mates/dovetail/mate-in-1", chunkSize: 20 },
   { theme: "double-bishop", source: "public/data/pattern-mates/double-bishop/mate-in-1", chunkSize: 20 },
 ]

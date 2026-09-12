@@ -1,4 +1,5 @@
 import { Chess } from "chess.js"
+import { captureMaterialLoss } from "../../lib/chess/captureMaterial"
 import type {
   BoardFactResult,
   ChessColor,
@@ -1148,8 +1149,21 @@ export function collectBoardFacts(
         const confidence: EvidenceConfidence = proofIsEngineLine
           ? "high"
           : "medium"
+        const exchange = captureMaterialLoss(
+          afterUserMove.fen(), moveToUci(topCapture), userMove.color || chess.turn(), PIECE_VALUE,
+        )
+        // Material swing starts before the user's move. If that move captures,
+        // a legal opponent recapture can complete the exchange in just two plies.
+        // Require a complete line matching this capture, not a speculative reply.
+        const verifiedContinuation = proofIsEngineLine && playedLine.complete &&
+          playedLine.legalMoves.length >= 2
+        const netLoss = verifiedContinuation
+          ? Math.min(exchange.loss, Math.max(0, -playedLine.materialSwingForUser))
+          : exchange.loss
+        const captureProof = [userMove.san, topCapture.san,
+          ...(exchange.recaptureSan ? [exchange.recaptureSan] : [])]
 
-        if (topCapture.captured === "q") {
+        if (topCapture.captured === "q" && netLoss >= capturedValue) {
           pushUnique(tags, "lost_queen")
           materialAtRisk = "queen"
 
@@ -1165,21 +1179,21 @@ export function collectBoardFacts(
             piece: "queen",
             square: topCapture.to,
           })
-        } else if (capturedValue >= 3) {
+        } else if (capturedValue >= 3 && netLoss > 0) {
           pushUnique(tags, "hung_piece")
           const capturedName = pieceName(topCapture.captured)
           materialAtRisk = capturedName
 
-          const summary =
-            `${topCapture.san} can win the ${capturedName} after ` +
-            `${userMove.san}.`
+          const summary = exchange.recaptureSan || netLoss < capturedValue
+            ? `${topCapture.san} after ${userMove.san} leaves a net material loss, rather than a free ${capturedName}.`
+            : `${topCapture.san} can win the ${capturedName} after ${userMove.san}.`
 
           pushFact(facts, summary)
           addTacticalEvidence(tactical, {
             tag: "hung_piece",
             confidence,
             summary,
-            proofMoves: [userMove.san, topCapture.san],
+            proofMoves: captureProof,
             piece: capturedName,
             square: topCapture.to,
           })
@@ -1234,7 +1248,7 @@ export function collectBoardFacts(
           topCapture.to === userMove.to &&
           !!topCapture.captured
 
-        if (movedPieceCanBeCaptured && capturedValue >= 3) {
+        if (movedPieceCanBeCaptured && capturedValue >= 3 && netLoss > 0) {
           pushUnique(tags, "hung_piece")
           pushFact(
             facts,

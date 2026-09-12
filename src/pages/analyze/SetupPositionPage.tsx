@@ -3,6 +3,7 @@ import { Chess } from "chess.js";
 import { stockfishService } from "../../lib/chess/stockfishService";
 import TrainerShell from "../../components/trainer/TrainerShell";
 import ThemePiece from "../../theme/ThemePiece";
+import { buildBoardAccessibilityDescription, describeBoardSquare } from "../../components/chess/boardAccessibility.mjs";
 import { useGlobalBoard } from "../../hooks/useGlobalBoard";
 import "./AnalyzeSubpages.css";
 import {
@@ -134,6 +135,8 @@ export default function SetupPositionPage() {
  const [message, setMessage] = useState("Build a position, then load it in analysis.");
  const [dragGhost, setDragGhost] = useState<DragGhost | null>(null);
  const [setupEvalText, setSetupEvalText] = useState(" - ");
+ const [keyboardSquare, setKeyboardSquare] = useState("e1");
+ const [orientationAnnouncement, setOrientationAnnouncement] = useState("");
 
  const squareSize = boardSize / 8;
 
@@ -691,13 +694,18 @@ export default function SetupPositionPage() {
 
 
  function flipSetupBoard() {
- setBoardOrientation((current) => (current === "white" ? "black" : "white"));
+ setBoardOrientation((current) => {
+ const next = current === "white" ? "black" : "white";
+ setOrientationAnnouncement(`Board orientation: ${next === "white" ? "White" : "Black"} at bottom.`);
+ return next;
+ });
  }
 
  const setupGlobalBoardState = useMemo(
  () => ({
  isAvailable: true,
  fen,
+ orientation: boardOrientation,
  suggestedColor: boardOrientation,
  canFlip: true,
  onFlip: flipSetupBoard,
@@ -707,9 +715,66 @@ export default function SetupPositionPage() {
 
  useGlobalBoard(setupGlobalBoardState);
 
+ const setupAccessibility = buildBoardAccessibilityDescription({
+ id: "setup-position-board",
+ title: "Setup Position",
+ position: fen,
+ orientation: boardOrientation,
+ showCoordinates: true,
+ selectedSquare: keyboardSquare,
+ interactionDescription: "This setup grid has one Tab stop. Use Arrow keys to choose a square, then Enter or Space to apply the selected piece or Clear tool.",
+ });
+
+ function activateSetupSquare(square: string) {
+ const piece = board[square];
+ if (selectedPiece === "clear") {
+ if (!piece) return;
+ setBoard((current) => {
+ const next = { ...current };
+ delete next[square];
+ return next;
+ });
+ return;
+ }
+ setBoard((current) => ({ ...current, [square]: selectedPiece }));
+ }
+
+ function handleSetupBoardKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+ const fileIndex = FILES.indexOf(keyboardSquare[0] as (typeof FILES)[number]);
+ const rank = Number(keyboardSquare[1]);
+ let nextFile = fileIndex;
+ let nextRank = rank;
+ const horizontal = boardOrientation === "white" ? 1 : -1;
+ const vertical = boardOrientation === "white" ? 1 : -1;
+
+ if (event.key === "ArrowRight") nextFile += horizontal;
+ else if (event.key === "ArrowLeft") nextFile -= horizontal;
+ else if (event.key === "ArrowUp") nextRank += vertical;
+ else if (event.key === "ArrowDown") nextRank -= vertical;
+ else if (event.key === "Enter" || event.key === " ") {
+ event.preventDefault();
+ activateSetupSquare(keyboardSquare);
+ return;
+ } else return;
+
+ event.preventDefault();
+ nextFile = Math.max(0, Math.min(7, nextFile));
+ nextRank = Math.max(1, Math.min(8, nextRank));
+ setKeyboardSquare(`${FILES[nextFile]}${nextRank}`);
+ }
+
  const boardArea = (
+ <div>
+ <span id="setup-position-board-description" className="sr-only">{setupAccessibility.description}</span>
+ <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{orientationAnnouncement}</span>
  <div
  ref={setupBoardWrapRef}
+ role="grid"
+ tabIndex={0}
+ aria-label={setupAccessibility.label}
+ aria-describedby="setup-position-board-description setup-position-board-keyboard-status"
+ aria-activedescendant={`setup-square-${keyboardSquare}`}
+ onKeyDown={handleSetupBoardKeyDown}
  style={{
  width: boardSize,
  height: boardSize,
@@ -736,6 +801,10 @@ export default function SetupPositionPage() {
  return (
  <div
  key={square}
+ id={`setup-square-${square}`}
+ role="gridcell"
+ aria-label={describeBoardSquare(square, board, { selected: keyboardSquare === square })}
+ aria-selected={keyboardSquare === square}
  onPointerDown={(event) => startBoardSquarePointerDown(event, square)}
  style={{
  position: "relative",
@@ -802,6 +871,10 @@ export default function SetupPositionPage() {
  );
  })}
  </div>
+ <span id="setup-position-board-keyboard-status" className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+ {`Current setup square: ${describeBoardSquare(keyboardSquare, board, { selected: true })}. ${selectedPiece === "clear" ? "Clear tool selected." : `${SETUP_PIECES.find((item) => item.code === selectedPiece)?.label ?? "Piece"} selected.`}`}
+ </span>
+ </div>
  );
 
  const sidePanel = (
@@ -817,10 +890,13 @@ export default function SetupPositionPage() {
  <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 8 }}>
  {SETUP_PIECES.map((piece) => (
  <button
+ type="button"
  key={piece.code}
  onClick={() => setSelectedPiece(piece.code)}
  onPointerDown={(event) => startPaletteDrag(event, piece.code)}
  title={piece.label}
+ aria-label={`Select ${piece.label}`}
+ aria-pressed={selectedPiece === piece.code}
  draggable={false}
  style={{
  border:
@@ -860,7 +936,7 @@ export default function SetupPositionPage() {
  </div>
 
  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
- <SecondaryButton onClick={() => setSelectedPiece("clear")}>
+ <SecondaryButton aria-pressed={selectedPiece === "clear"} onClick={() => setSelectedPiece("clear")}>
  Clear Tool{selectedPiece === "clear" ? " *" : ""}
  </SecondaryButton>
  <SecondaryButton onClick={() => loadFenToSetup(START_FEN)}>

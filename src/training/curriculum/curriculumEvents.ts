@@ -35,7 +35,7 @@ export type CurriculumEventAggregate = {
 }
 
 export function isPerfectCurriculumChunk(event: CurriculumSessionEvidence) {
-  return event.attempts > 0
+  return event.eventKind !== "transfer" && event.attempts > 0
     && event.correctAttempts === event.attempts
     && (event.hintCount ?? 0) === 0
 }
@@ -63,6 +63,8 @@ export function validateCurriculumEvent(event: CurriculumSessionEvidence) {
 }
 
 export function aggregateCurriculumEvents(events: CurriculumSessionEvidence[]): CurriculumEventAggregate {
+  // Weekly assessment is reinforcement evidence, never a completed practice chunk.
+  events = events.filter(event => event.eventKind !== "transfer")
   const attempts = events.reduce((sum, event) => sum + event.attempts, 0)
   const correctAttempts = events.reduce((sum, event) => sum + event.correctAttempts, 0)
   const hintCount = events.reduce((sum, event) => sum + (event.hintCount ?? 0), 0)

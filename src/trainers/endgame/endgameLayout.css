@@ -1,0 +1,39 @@
+.endgame-layout .endgame-panel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: start; }
+.endgame-layout .endgame-section { min-width: 0; }
+.endgame-layout .endgame-section > div { padding: 9px !important; }
+.endgame-layout .endgame-section--status,
+.endgame-layout .endgame-section--decision,
+.endgame-layout .endgame-secondary { grid-column: 1 / -1; }
+.endgame-layout .endgame-section--status > div { padding: 2px 4px !important; margin: 0 !important; }
+.endgame-layout .endgame-section--status > div > div { font-size: 18px !important; margin-bottom: 3px !important; }
+.endgame-layout .endgame-section--actions > div > div:last-child { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px !important; }
+.endgame-layout .endgame-section--actions button,
+.endgame-layout .endgame-section--navigation button,
+.endgame-layout .endgame-section--navigation input { min-height: 36px; padding: 8px !important; font-size: 13px !important; white-space: normal; overflow-wrap: normal; min-width: 0; }
+.endgame-layout .endgame-section--actions .site-inline-hint { display: block !important; }
+.endgame-layout .endgame-secondary { border: 1px solid var(--theme-border); border-radius: 10px; padding: 9px; font-size: 13px; }
+.endgame-layout .endgame-secondary summary { cursor: pointer; font-weight: 700; }
+.endgame-layout .endgame-secondary-content { display: grid; gap: 8px; margin-top: 8px; }
+
+@media (min-width: 769px) {
+  .endgame-layout .trainer-shell-page { min-height: 0 !important; padding: 10px 14px 12px !important; }
+  .endgame-layout .trainer-shell-content { width: max-content; max-width: 100% !important; }
+  .endgame-layout .trainer-shell-side { position: static; overflow: visible; max-height: none; scrollbar-gutter: auto; padding: 10px !important; flex-shrink: 0; }
+  .endgame-layout .trainer-shell-board-frame { width: max-content !important; }
+  .endgame-layout .trainer-shell-board-column { min-width: 0; }
+  .endgame-layout .trainer-shell-board-footer { margin-top: 5px !important; }
+  .endgame-layout .trainer-shell-title { margin-left: 72px; }
+  .endgame-layout .trainer-shell-subtitle { font-size: 11px !important; max-width: 45%; overflow-wrap: anywhere; }
+  /* Keep the existing help disclosure out of the below-board Input controls. */
+  body:has(.endgame-layout) .endgame-explanation-overlay { left: auto !important; right: max(220px, 20vw); top: 8px; bottom: auto !important; width: min(360px, 30vw) !important; }
+  body:has(.endgame-layout) .endgame-explanation-toggle { padding: 9px 12px !important; font-size: 13px !important; }
+}
+@media (max-width: 768px) {
+  html:has(.endgame-layout), body:has(.endgame-layout), #root:has(.endgame-layout) { height: auto !important; max-height: none !important; overflow-y: visible !important; }
+  /* The document now scrolls instead of the dock-sized inner pane. Leave room
+     to bring its final disclosure above the fixed menu, Hint and Help bars. */
+  .endgame-layout .site-mobile-dock-scroll.site-mobile-dock-scroll { height: auto !important; max-height: none !important; overflow-y: visible !important; padding-bottom: calc(var(--site-fixed-bottom-clearance, 160px) + 80px) !important; }
+  .endgame-layout .endgame-panel-grid { grid-template-columns: minmax(0, 1fr); }
+  .endgame-layout .trainer-shell-side { overflow: visible; max-height: none; }
+  .endgame-layout .endgame-section--actions button { min-height: 44px; }
+}

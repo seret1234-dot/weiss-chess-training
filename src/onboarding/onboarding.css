@@ -1,0 +1,19 @@
+.registration-onboarding { box-sizing: border-box; width: 100%; padding: max(64px, var(--site-global-back-clearance, 64px)) 20px calc(var(--site-fixed-bottom-clearance, 60px) + 24px); color: var(--theme-text, #f3f3f3); }
+.registration-onboarding__card { box-sizing: border-box; max-width: 680px; margin: 0 auto; padding: clamp(20px, 4vw, 32px); border-radius: 18px; background: #262421; border: 1px solid #4b4847; }
+.registration-onboarding h1 { margin: 0 0 24px; font-size: 2rem; }
+.registration-onboarding fieldset { border: 0; padding: 0; margin: 0 0 24px; min-width: 0; }
+.registration-onboarding legend { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+.registration-onboarding label { display: block; margin: 10px 0 6px; font-size: 1rem; }
+.registration-onboarding input { box-sizing: border-box; width: 100%; min-height: 44px; padding: 10px 12px; font: inherit; color: #fff; background: #1f1d1c; border: 1px solid #777; border-radius: 8px; }
+.registration-onboarding p { line-height: 1.5; }
+.registration-onboarding__help { color: #ccc; margin: 0 0 12px; }
+.registration-onboarding__times { display: flex; flex-wrap: wrap; gap: 8px; }
+.registration-onboarding button { min-height: 44px; padding: 10px 14px; font: inherit; border: 1px solid #777; border-radius: 8px; color: #fff; background: #393633; cursor: pointer; }
+.registration-onboarding button[aria-pressed="true"] { border-color: #a5d875; background: #405531; }
+.registration-onboarding button:disabled { opacity: .65; cursor: wait; }
+.registration-onboarding button:focus-visible, .registration-onboarding input:focus-visible { outline: 3px solid #b7e391; outline-offset: 3px; }
+.registration-onboarding .registration-onboarding__primary { width: 100%; background: #5c852f; font-weight: 700; margin-top: 18px; }
+.registration-onboarding__legal { color: #bbb; font-size: .875rem; }
+.registration-onboarding [role="alert"] { color: #ffb3b3; }
+.registration-introduction__media { display: grid; place-items: center; text-align: center; aspect-ratio: 16 / 9; padding: 16px; box-sizing: border-box; background: #171615; border: 1px dashed #777; border-radius: 12px; }
+.registration-introduction video { width: 100%; display: block; border-radius: 12px; }

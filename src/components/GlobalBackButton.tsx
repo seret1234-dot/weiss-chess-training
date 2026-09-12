@@ -7,6 +7,14 @@ import {
 
 const HISTORY_KEY = "weiss-chess-route-history"
 
+function usesExplicitMateHierarchyBack(pathname: string) {
+  return pathname === "/mates"
+    || /^\/mates\/m[1-8]$/.test(pathname)
+    || /^\/mates\/m[1-5]\/kill-box(?:-(adjacent-rook|rook-rail|queen-fence))?$/.test(pathname)
+    || /^\/master-mates(?:\/.*)?$/.test(pathname)
+    || /^\/master-tactics(?:\/.*)?$/.test(pathname)
+}
+
 function readRouteHistory(): string[] {
   try {
     const stored = sessionStorage.getItem(HISTORY_KEY)
@@ -58,7 +66,7 @@ export default function GlobalBackButton() {
     saveRouteHistory(history)
   }, [currentPath, navigationType])
 
-  if (location.pathname === "/") return null
+  if (location.pathname === "/" || usesExplicitMateHierarchyBack(location.pathname)) return null
 
   function goBack() {
     const history = readRouteHistory()

@@ -1,4 +1,5 @@
 import { CURRICULUM_AREAS, CURRICULUM_CATALOG } from "./curriculumCatalog"
+import { logicalActivityKey } from '../activityIdentity'
 import { getCategoryWeights, getInitialCurrentStage, getInitialDifficultyCeiling } from "./curriculumPlacement"
 import type { CurriculumArea, CurriculumState } from "./curriculumTypes"
 import { getBoardVisionPlacement } from "../learningPlanRules"
@@ -109,7 +110,7 @@ export function mapUnambiguousHistoricalProgress(rows: LegacyChunkProgress[]): M
   const evidence: MappedHistoricalEvidence[] = []
   for (const row of rows) {
     if (!row.trainer_key || row.is_mastered !== true) continue
-    const item = CURRICULUM_CATALOG.find((candidate) => candidate.available && candidate.trainerKey === row.trainer_key)
+    const item = CURRICULUM_CATALOG.find((candidate) => candidate.available && candidate.trainerKey === logicalActivityKey(row.trainer_key!))
     if (!item) continue
     const key = `${item.area}:${item.stageOrder}:${item.theme ?? ""}:${item.trainerKey}`
     if (seen.has(key)) continue

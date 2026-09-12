@@ -42,7 +42,7 @@ export type MasterCanonicalPuzzle = {
 type MasterCanonicalChunk = { puzzles: MasterCanonicalPuzzle[] }
 type CourseGroup = { fileName: string; refs: MasterMateRef[] }
 
-const MASTER_MATE_CHUNK_SIZE = 30
+export const MASTER_MATE_CHUNK_SIZE = 30
 
 export function masterMateThemeIndexFile(distance: MasterMateDistance, theme: MasterMateTheme) {
  return `indexes/mates-theme-${distance}-${theme}.json`

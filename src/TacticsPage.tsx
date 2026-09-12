@@ -1,36 +1,75 @@
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { tacticDistanceLabels } from "./tacticThemeCatalog"
+import { createHierarchyNavigationState } from "./navigation/hierarchicalBack.mjs"
+import { useHierarchicalNavigation } from './navigation/useHierarchicalNavigation'
 
-const levels = [
+export type TacticsLevelCard = {
+ id: string
+ icon: string
+ title: string
+ subtitle: string
+ description: string
+ href: string
+}
+
+const regularLevels: TacticsLevelCard[] = [
  {
  id: "m1",
  icon: "1",
+ title: tacticDistanceLabels.m1,
  subtitle: "One move tactics",
  description: "Fast tactical recognition and simple shots.",
+ href: "/tactics/m1",
  },
  {
  id: "m2",
  icon: "2",
+ title: tacticDistanceLabels.m2,
  subtitle: "Two move tactics",
  description: "Find the forcing first move and follow-up.",
+ href: "/tactics/m2",
  },
  {
  id: "m3",
  icon: "3",
+ title: tacticDistanceLabels.m3,
  subtitle: "Three move tactics",
  description: "Longer forcing lines with replies.",
+ href: "/tactics/m3",
  },
  {
  id: "m4",
  icon: "4+",
+ title: tacticDistanceLabels.m4,
  subtitle: "Four moves and longer",
  description: "Deeper tactical calculation sequences.",
+ href: "/tactics/m4",
  },
-] as const
+] 
 
-export default function TacticsPage() {
+export type TacticsLandingPageProps = {
+ title?: string
+ description?: string
+ levels?: TacticsLevelCard[]
+ showAutoTraining?: boolean
+ showRegularIntroduction?: boolean
+ stats?: [string, string][]
+ parentHref?: string
+}
+
+export function TacticsLandingPage({
+ title = "Tactics",
+ description = "Train tactical motifs by solution length. Puzzles are ordered easy to hard and split into focused subthemes.",
+ levels = regularLevels,
+ showAutoTraining = true,
+ showRegularIntroduction = true,
+ stats = [["300", "Puzzles per theme"], ["600", "Mixed pools"], ["30", "Puzzles per chunk"], ["Easy", "Sorted by rating"]],
+ parentHref,
+}: TacticsLandingPageProps) {
+ const location = useLocation()
+ const { backToParent } = useHierarchicalNavigation()
  return (
- <main
+ <div
  style={{
  minHeight: "100vh",
  padding: "34px 22px 90px",
@@ -40,6 +79,7 @@ export default function TacticsPage() {
  }}
  >
  <section style={{ maxWidth: 1040, margin: "0 auto" }}>
+ {parentHref ? <button onClick={() => backToParent(parentHref)} style={{ marginBottom: 16, color: 'rgba(244,244,240,0.78)', background: 'transparent', border: 0, padding: 0, cursor: 'pointer', font: 'inherit', fontWeight: 800 }}>Back to Home</button> : null}
  <div style={{ marginBottom: 20 }}>
  <div
  style={{
@@ -71,7 +111,7 @@ export default function TacticsPage() {
  letterSpacing: "-0.045em",
  }}
  >
- Tactics
+ {title}
  </h1>
 
  <p
@@ -83,12 +123,12 @@ export default function TacticsPage() {
  fontSize: 18,
  }}
  >
- Train tactical motifs by solution length. Puzzles are ordered easy to hard
- and split into focused subthemes.
+ {description}
  </p>
 
+ {showAutoTraining ? (
  <Link
- to="/auto"
+ to="/auto?continue=1"
  style={{
  display: "inline-flex",
  alignItems: "center",
@@ -104,9 +144,11 @@ export default function TacticsPage() {
  >
  Start Auto Training
  </Link>
+ ) : null}
  </div>
  </div>
 
+ {showRegularIntroduction ? (
  <section style={{ margin: "0 0 18px", maxWidth: 820 }}>
  <h2 style={{ margin: "0 0 10px", fontSize: 26, letterSpacing: "-0.025em" }}>
  Train tactical motifs with progression
@@ -115,6 +157,7 @@ export default function TacticsPage() {
  Random puzzle solving can be enjoyable, but it can make repeated tactical ideas hard to notice. This trainer organizes practice by motif and difficulty so you can work on a recognizable pattern before moving to longer or less obvious positions. Start with a focused level, identify the tactical idea, and build calculation gradually as the sequences become more demanding. Repeated practice helps connect recognition with the move you choose on the board. Work through <Link to="/tactics/m1" style={{ color: "#f5c33b" }}>Tactics level 1</Link>, add focused <Link to="/mates" style={{ color: "#f5c33b" }}>Mate training</Link>, or use <Link to="/auto" style={{ color: "#f5c33b" }}>Auto Training</Link> when you want a recommended next task.
  </p>
  </section>
+ ) : null}
 
  <div
  style={{
@@ -126,7 +169,8 @@ export default function TacticsPage() {
  {levels.map((level) => (
  <Link
  key={level.id}
- to={`/tactics/${level.id}`}
+ to={level.href}
+ state={createHierarchyNavigationState(location.pathname)}
  style={{
  textDecoration: "none",
  color: "inherit",
@@ -156,7 +200,7 @@ export default function TacticsPage() {
  </div>
 
  <div style={{ fontSize: 28, fontWeight: 950, letterSpacing: "-0.02em" }}>
- {tacticDistanceLabels[level.id]}
+ {level.title}
  </div>
 
  <div
@@ -192,12 +236,7 @@ export default function TacticsPage() {
  marginTop: 18,
  }}
  >
- {[
- ["300", "Puzzles per theme"],
- ["600", "Mixed pools"],
- ["30", "Puzzles per chunk"],
- ["Easy", "Sorted by rating"],
- ].map(([value, label]) => (
+ {stats.map(([value, label]) => (
  <div
  key={label}
  style={{
@@ -218,6 +257,10 @@ export default function TacticsPage() {
  ))}
  </div>
  </section>
- </main>
+ </div>
  )
+}
+
+export default function TacticsPage() {
+ return <TacticsLandingPage />
 }

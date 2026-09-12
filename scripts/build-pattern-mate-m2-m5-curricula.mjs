@@ -9,7 +9,7 @@ const MAX_CHUNKS = 8
 const files = "abcdefgh"
 const labels = {
   "back-rank": "Back Rank", anastasia: "Anastasia", arabian: "Arabian", boden: "Boden",
-  smothered: "Smothered", hook: "Hook", "kill-box": "Kill Box", dovetail: "Dovetail", "double-bishop": "Double Bishop",
+  smothered: "Smothered", hook: "Hook", "kill-box-adjacent-rook": "Kill Box — Adjacent Rook", "kill-box-rook-rail": "Kill Box — Rook Rail", "kill-box-queen-fence": "Kill Box — Queen Fence", dovetail: "Dovetail", "double-bishop": "Double Bishop",
 }
 const asUci = (value) => String(value ?? "").trim().toLowerCase().replace(/\s+/g, "")
 const stableHash = (value) => {
@@ -28,7 +28,9 @@ const definitions = [
   definition({ trainerKey: "boden-mate-2", theme: "boden", mateDistance: 2, source: sourcePath("boden", 2) }),
   definition({ trainerKey: "smothered-mate-2", theme: "smothered", mateDistance: 2, source: sourcePath("smothered", 2) }),
   definition({ trainerKey: "hook-mate-2", theme: "hook", mateDistance: 2, source: sourcePath("hook", 2) }),
-  definition({ trainerKey: "kill-box-mate-2", theme: "kill-box", mateDistance: 2, source: sourcePath("kill-box", 2) }),
+  definition({ trainerKey: "kill-box-adjacent-rook-mate-2", theme: "kill-box-adjacent-rook", mateDistance: 2, source: sourcePath("kill-box-adjacent-rook", 2) }),
+  definition({ trainerKey: "kill-box-rook-rail-mate-2", theme: "kill-box-rook-rail", mateDistance: 2, source: sourcePath("kill-box-rook-rail", 2) }),
+  definition({ trainerKey: "kill-box-queen-fence-mate-2", theme: "kill-box-queen-fence", mateDistance: 2, source: sourcePath("kill-box-queen-fence", 2) }),
   definition({ trainerKey: "dovetail-mate-2", theme: "dovetail", mateDistance: 2, source: sourcePath("dovetail", 2) }),
   definition({ trainerKey: "double-bishop-mate-2", theme: "double-bishop", mateDistance: 2, source: sourcePath("double-bishop", 2) }),
   definition({ trainerKey: "anastasia-mate-in-3", theme: "anastasia", mateDistance: 3, source: "/data/lichess/mate_in_3/anastasia" }),
@@ -37,7 +39,9 @@ const definitions = [
   definition({ trainerKey: "boden-mate-3", theme: "boden", mateDistance: 3, source: sourcePath("boden", 3) }),
   definition({ trainerKey: "smothered-mate-3", theme: "smothered", mateDistance: 3, source: sourcePath("smothered", 3) }),
   definition({ trainerKey: "hook-mate-3", theme: "hook", mateDistance: 3, source: sourcePath("hook", 3) }),
-  definition({ trainerKey: "kill-box-mate-3", theme: "kill-box", mateDistance: 3, source: sourcePath("kill-box", 3) }),
+  definition({ trainerKey: "kill-box-adjacent-rook-mate-3", theme: "kill-box-adjacent-rook", mateDistance: 3, source: sourcePath("kill-box-adjacent-rook", 3) }),
+  definition({ trainerKey: "kill-box-rook-rail-mate-3", theme: "kill-box-rook-rail", mateDistance: 3, source: sourcePath("kill-box-rook-rail", 3) }),
+  definition({ trainerKey: "kill-box-queen-fence-mate-3", theme: "kill-box-queen-fence", mateDistance: 3, source: sourcePath("kill-box-queen-fence", 3) }),
   definition({ trainerKey: "dovetail-mate-3", theme: "dovetail", mateDistance: 3, source: sourcePath("dovetail", 3) }),
   definition({ trainerKey: "double-bishop-mate-3-plus", theme: "double-bishop", mateDistance: 3, source: sourcePath("double-bishop", 3) }),
   definition({ trainerKey: "anastasia-mate-in-4", theme: "anastasia", mateDistance: 4, source: "/data/lichess/mate_in_4/anastasia" }),
@@ -45,17 +49,29 @@ const definitions = [
   definition({ trainerKey: "arabian-mate-4", theme: "arabian", mateDistance: 4, source: sourcePath("arabian", 4) }),
   definition({ trainerKey: "smothered-mate-4", theme: "smothered", mateDistance: 4, source: sourcePath("smothered", 4) }),
   definition({ trainerKey: "hook-mate-4", theme: "hook", mateDistance: 4, source: sourcePath("hook", 4) }),
-  definition({ trainerKey: "kill-box-mate-4", theme: "kill-box", mateDistance: 4, source: sourcePath("kill-box", 4) }),
+  definition({ trainerKey: "kill-box-adjacent-rook-mate-4", theme: "kill-box-adjacent-rook", mateDistance: 4, source: sourcePath("kill-box-adjacent-rook", 4) }),
+  definition({ trainerKey: "kill-box-rook-rail-mate-4", theme: "kill-box-rook-rail", mateDistance: 4, source: sourcePath("kill-box-rook-rail", 4) }),
+  definition({ trainerKey: "kill-box-queen-fence-mate-4", theme: "kill-box-queen-fence", mateDistance: 4, source: sourcePath("kill-box-queen-fence", 4) }),
   definition({ trainerKey: "dovetail-mate-4", theme: "dovetail", mateDistance: 4, source: sourcePath("dovetail", 4) }),
   definition({ trainerKey: "anastasia-mate-in-5", theme: "anastasia", mateDistance: 5, source: "/data/lichess/mate_in_5/anastasia" }),
   definition({ trainerKey: "back-rank-mate-5", theme: "back-rank", mateDistance: 5, source: sourcePath("back-rank", 5) }),
   definition({ trainerKey: "arabian-mate-5", theme: "arabian", mateDistance: 5, source: sourcePath("arabian", 5) }),
   definition({ trainerKey: "hook-mate-5", theme: "hook", mateDistance: 5, source: sourcePath("hook", 5) }),
-  definition({ trainerKey: "kill-box-mate-5", theme: "kill-box", mateDistance: 5, source: sourcePath("kill-box", 5) }),
+  definition({ trainerKey: "kill-box-adjacent-rook-mate-5", theme: "kill-box-adjacent-rook", mateDistance: 5, source: sourcePath("kill-box-adjacent-rook", 5) }),
+  definition({ trainerKey: "kill-box-rook-rail-mate-5", theme: "kill-box-rook-rail", mateDistance: 5, source: sourcePath("kill-box-rook-rail", 5) }),
+  definition({ trainerKey: "kill-box-queen-fence-mate-5", theme: "kill-box-queen-fence", mateDistance: 5, source: sourcePath("kill-box-queen-fence", 5) }),
   definition({ trainerKey: "dovetail-mate-5", theme: "dovetail", mateDistance: 5, source: sourcePath("dovetail", 5) }),
 ]
 const requested = process.argv.find((value) => value.startsWith("--stages="))?.slice(9)?.split(",").map(Number)
-const selectedDefinitions = requested?.length ? definitions.filter((entry) => requested.includes(entry.mateDistance)) : definitions
+const requestedThemes = process.argv.find((value) => value.startsWith("--themes="))?.slice(9)?.split(",").map((value) => value.trim()).filter(Boolean)
+const selectedDefinitions = definitions.filter((entry) =>
+  (!requested?.length || requested.includes(entry.mateDistance))
+  && (!requestedThemes?.length || requestedThemes.includes(entry.theme)),
+)
+
+if (requestedThemes?.some((theme) => !labels[theme])) {
+  throw new Error(`Unknown Pattern Mate curriculum theme: ${requestedThemes.join(", ")}`)
+}
 
 function lineFor(raw) {
   if (Array.isArray(raw.solutionLine)) return raw.solutionLine.map(asUci).filter(Boolean)

@@ -6,9 +6,12 @@
  * relationship is deliberately data-only: legacy URLs, rows, and puzzle IDs
  * stay valid while new sessions use five curated sets.
  */
-export const M1_LEARNER_CHUNK_COUNT = 5
-export const M1_LEARNER_CHUNK_SIZE = 24
-export const M1_LEARNER_CURRICULUM_VERSION = "m1-v1"
+import { FULL_PATTERN_MATE_COURSES } from "../fullChunkCurriculumCatalog"
+import { logicalActivityKey } from '../../training/activityIdentity'
+
+export const M1_LEARNER_CHUNK_COUNT = 50
+export const M1_LEARNER_CHUNK_SIZE = 30
+export const M1_LEARNER_CURRICULUM_VERSION = "full-precut-v1"
 
 /**
  * Focused collection identity is deliberately independent from generator
@@ -21,7 +24,9 @@ export const PATTERN_MATE_M1_CANONICAL_THEMES = {
   boden: "Boden",
   smothered: "Smothered",
   hook: "Hook",
-  "kill-box": "Kill Box",
+  "kill-box-adjacent-rook": "Kill Box — Adjacent Rook",
+  "kill-box-rook-rail": "Kill Box — Rook Rail",
+  "kill-box-queen-fence": "Kill Box — Queen Fence",
   dovetail: "Dovetail",
   "double-bishop": "Double Bishop",
 } as const
@@ -48,11 +53,12 @@ export type PatternMateM1LearnerCurriculum = {
   sourceDataBasePath: string
   learnerDataBasePath: string
   legacyChunkCount: number
-  activeChunkCount: typeof M1_LEARNER_CHUNK_COUNT
+  activeChunkCount: number
   activeChunkSize: number
+  reducedActiveChunkCount?: number
 }
 
-const curriculum = [
+const reducedCurriculum = [
   {
     trainerKey: "back-rank-mate-1",
     theme: "back-rank",
@@ -108,13 +114,31 @@ const curriculum = [
     activeChunkSize: M1_LEARNER_CHUNK_SIZE,
   },
   {
-    trainerKey: "kill-box-mate-1",
-    theme: "kill-box",
-    sourceDataBasePath: "/data/pattern-mates/kill-box/mate-in-1",
-    learnerDataBasePath: "/data/learner-curricula/pattern-mates/kill-box-m1-v1",
-    legacyChunkCount: 50,
+    trainerKey: "kill-box-adjacent-rook-mate-1",
+    theme: "kill-box-adjacent-rook",
+    sourceDataBasePath: "/data/pattern-mates/kill-box-adjacent-rook/mate-in-1",
+    learnerDataBasePath: "/data/learner-curricula/pattern-mates/kill-box-adjacent-rook-m1-v1",
+    legacyChunkCount: 30,
     activeChunkCount: M1_LEARNER_CHUNK_COUNT,
-    activeChunkSize: 20,
+    activeChunkSize: M1_LEARNER_CHUNK_SIZE,
+  },
+  {
+    trainerKey: "kill-box-rook-rail-mate-1",
+    theme: "kill-box-rook-rail",
+    sourceDataBasePath: "/data/pattern-mates/kill-box-rook-rail/mate-in-1",
+    learnerDataBasePath: "/data/learner-curricula/pattern-mates/kill-box-rook-rail-m1-v1",
+    legacyChunkCount: 10,
+    activeChunkCount: M1_LEARNER_CHUNK_COUNT,
+    activeChunkSize: M1_LEARNER_CHUNK_SIZE,
+  },
+  {
+    trainerKey: "kill-box-queen-fence-mate-1",
+    theme: "kill-box-queen-fence",
+    sourceDataBasePath: "/data/pattern-mates/kill-box-queen-fence/mate-in-1",
+    learnerDataBasePath: "/data/learner-curricula/pattern-mates/kill-box-queen-fence-m1-v1",
+    legacyChunkCount: 7,
+    activeChunkCount: M1_LEARNER_CHUNK_COUNT,
+    activeChunkSize: M1_LEARNER_CHUNK_SIZE,
   },
   {
     trainerKey: "dovetail-mate-1",
@@ -136,10 +160,23 @@ const curriculum = [
   },
 ] as const satisfies readonly PatternMateM1LearnerCurriculum[]
 
+const curriculum = reducedCurriculum.map((entry) => {
+  const full = FULL_PATTERN_MATE_COURSES.find((course) => course.theme === entry.theme && course.mateDistance === 1)
+  if (!full) throw new Error(`Missing restored Mate in 1 curriculum for ${entry.theme}`)
+  return {
+    ...entry,
+    learnerDataBasePath: full.dataBasePath,
+    legacyChunkCount: full.chunkCount,
+    activeChunkCount: full.chunkCount,
+    activeChunkSize: full.chunkSize,
+    reducedActiveChunkCount: entry.activeChunkCount,
+  }
+}) satisfies readonly PatternMateM1LearnerCurriculum[]
+
 export const PATTERN_MATE_M1_LEARNER_CURRICULA = curriculum
 
 export function getPatternMateM1LearnerCurriculum(trainerKey: string) {
-  return curriculum.find((entry) => entry.trainerKey === trainerKey) ?? null
+  return curriculum.find((entry) => entry.trainerKey === logicalActivityKey(trainerKey)) ?? null
 }
 
 export function getPatternMateM1LearnerCurriculumByTheme(theme: string) {
@@ -153,7 +190,7 @@ export function getPatternMateM1LearnerCurriculumByTheme(theme: string) {
  */
 export function getM1LearnerProgressTrainerKey(trainerKey: string) {
   return getPatternMateM1LearnerCurriculum(trainerKey)
-    ? `${trainerKey}:${M1_LEARNER_CURRICULUM_VERSION}`
+    ? `${logicalActivityKey(trainerKey)}:${M1_LEARNER_CURRICULUM_VERSION}`
     : trainerKey
 }
 
@@ -226,7 +263,11 @@ export function getM1LearnerCompletionByTrainer(
         .map((row) => Number(row.chunk_index))
         .filter((chunk) => Number.isInteger(chunk) && chunk >= 1 && chunk <= definition.activeChunkCount),
     ).size
-    const completedActiveChunks = Math.max(legacy.completedActiveChunks, activeCompletedChunks)
+    const reducedCredit = getLegacyCompletionCredit(
+      rows.filter((row) => row.trainer_key === `${definition.trainerKey}:m1-v1`),
+      { ...definition, legacyChunkCount: definition.reducedActiveChunkCount ?? 5 },
+    ).completedActiveChunks
+    const completedActiveChunks = Math.max(legacy.completedActiveChunks, activeCompletedChunks, reducedCredit)
     return [definition.trainerKey, {
       ...legacy,
       completedActiveChunks,

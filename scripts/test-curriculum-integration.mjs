@@ -29,20 +29,20 @@ try {
   assert(tenTacticSelections.every((decision) => decision.difficultyCeiling === 2))
   assert(tenTacticSelections.every((decision) => !decision.stage.includes("stage-3")))
 
-  // Mixed motifs remain locked until exactly 80% of focused themes are mastered.
+  // Mixed motifs remain locked until all required focused themes are mastered.
   const mateThemes = catalog.getStageThemes("mates", 1)
-  const requiredForMixed = Math.ceil(mateThemes.length * 0.8)
-  const masteryAt79 = Object.fromEntries(
+  const requiredForMixed = mateThemes.length
+  const masteryMissingOne = Object.fromEntries(
     mateThemes.slice(0, requiredForMixed - 1).map((theme) => [theme, { mastered: true }]),
   )
-  const masteryAt80 = Object.fromEntries(
+  const masteryComplete = Object.fromEntries(
     mateThemes.slice(0, requiredForMixed).map((theme) => [theme, { mastered: true }]),
   )
   const mixedMate = catalog.CURRICULUM_CATALOG.find((item) =>
     item.area === "mates" && item.stageOrder === 1 && item.isMixed,
   )
-  assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, baseState({ themeMastery: { mates: masteryAt79 } })), false)
-  assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, baseState({ themeMastery: { mates: masteryAt80 } })), true)
+  assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, baseState({ themeMastery: { mates: masteryMissingOne } })), false)
+  assert.equal(selector.isDueItemAllowedByCurriculum(mixedMate, baseState({ themeMastery: { mates: masteryComplete } })), true)
 
   // Piece mates keep the required order and only preview the immediate successor.
   const pieceRoute = (pieceMateMastery = {}) => selector.selectCurriculumItem({

@@ -206,10 +206,12 @@ export default function AnalyzeReviewPage() {
 
  const board = (
  <div className="analyze-review-board">
- <ThemedChessboard
- id="AnalyzeReviewBoard"
- position={START_FEN}
- boardWidth={boardSize}
+<ThemedChessboard
+id="AnalyzeReviewBoard"
+position={START_FEN}
+accessibilityTitle="Game review preview"
+accessibilityInteraction="This is a preview board. Use the labeled PGN and review controls to load a game."
+boardWidth={boardSize}
 
  arePiecesDraggable={false}
  showBoardNotation={true}

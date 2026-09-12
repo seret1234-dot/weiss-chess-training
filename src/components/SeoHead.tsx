@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import routeMetadata from '../seo/routeMetadata.json';
+import { seoDetails, structuredData } from '../seo/routePolicy';
 
 const SITE_URL = routeMetadata.site.url;
 const SITE_NAME = routeMetadata.site.name;
@@ -35,52 +36,8 @@ type SeoDetails = {
   canonicalPath?: string;
 };
 
-const STATIC_PAGES = routeMetadata.routes as Record<string, SeoDetails>;
-
-function titleFromSlug(slug: string): string {
-  return decodeURIComponent(slug)
-    .split('-')
-    .filter(Boolean)
-    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join(' ');
-}
-
-function readableRouteName(pathname: string): string {
-  const parts = pathname.split('/').filter(Boolean).map(titleFromSlug);
-  return parts.join(' · ') || 'Home';
-}
-
 function pageDetails(pathname: string): SeoDetails {
-  const staticPage = STATIC_PAGES[pathname];
-  if (staticPage) return staticPage;
-
-  const openingFamily = pathname.match(/^\/openings\/family\/([^/]+)$/);
-  if (openingFamily) {
-    const family = titleFromSlug(openingFamily[1]);
-    return {
-      title: `${family} Chess Openings | ${SITE_NAME}`,
-      description: `Explore ${family} opening lines and begin interactive opening training.`,
-      indexable: true,
-    };
-  }
-
-  const legacyAlias = pathname.match(/^\/(board-vision|book-trainer|play-computer)\/[^/]+$/);
-  if (legacyAlias) {
-    const canonicalPath = `/${legacyAlias[1]}`;
-    return {
-      title: `${readableRouteName(canonicalPath)} | ${SITE_NAME}`,
-      description: DEFAULT_DESCRIPTION,
-      indexable: false,
-      canonicalPath,
-    };
-  }
-
-  return {
-    title: `${readableRouteName(pathname)} | ${SITE_NAME}`,
-    description: DEFAULT_DESCRIPTION,
-    indexable: false,
-    canonicalPath: pathname,
-  };
+  return seoDetails(pathname);
 }
 
 function upsertMeta(attribute: 'name' | 'property', key: string, content: string): void {
@@ -106,32 +63,12 @@ function upsertCanonical(href: string): void {
 function upsertStructuredData(indexable: boolean): void {
   const id = 'weiss-site-structured-data';
   document.getElementById(id)?.remove();
-  if (!indexable || window.location.pathname !== '/') return;
+  if (!indexable) return;
 
-  const schema = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'WebSite',
-        '@id': `${SITE_URL}/#website`,
-        url: `${SITE_URL}/`,
-        name: SITE_NAME,
-        description: DEFAULT_DESCRIPTION,
-      },
-      {
-        '@type': 'SoftwareApplication',
-        name: SITE_NAME,
-        applicationCategory: 'EducationalApplication',
-        operatingSystem: 'Web',
-        url: `${SITE_URL}/`,
-        description: DEFAULT_DESCRIPTION,
-      },
-    ],
-  };
   const script = document.createElement('script');
   script.id = id;
   script.type = 'application/ld+json';
-  script.text = JSON.stringify(schema);
+  script.text = JSON.stringify(structuredData(window.location.pathname));
   document.head.appendChild(script);
 }
 
@@ -153,6 +90,10 @@ export default function SeoHead() {
   useEffect(() => {
     const details = pageDetails(pathname);
     const canonicalUrl = `${SITE_URL}${details.canonicalPath ?? pathname}`;
+    const isHebrewLegalPage = /^\/(privacy|accessibility)\/he$/.test(pathname);
+
+    document.documentElement.lang = isHebrewLegalPage ? 'he' : 'en';
+    document.documentElement.dir = isHebrewLegalPage ? 'rtl' : 'ltr';
 
     document.title = details.title;
     upsertMeta('name', 'description', details.description);

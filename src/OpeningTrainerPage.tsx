@@ -1,11 +1,21 @@
+import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
+import { carryAutoTraining } from './training/autoChunkAllowance'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Chess, Move } from 'chess.js'
 import ThemedChessboard from "./theme/ThemedChessboard"
 import { supabase } from './lib/supabase'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
 import { saveTrainingProgress } from './lib/trainingProgress'
 import { HintButton } from './components/trainer/ui'
+import { getViewportConstrainedBoardSize } from './components/trainer/boardViewport'
+import { authRouterState, rememberTrainingReturnTarget } from './auth/trainingReturnTarget.mjs'
+import {
+ addOpeningToLibrary,
+ getNextSavedOpening,
+ isOpeningSaved,
+ removeOpeningFromLibrary,
+} from './openings/libraryData'
 import './OpeningTrainerPage.css'
 
 import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
@@ -600,12 +610,25 @@ async function fetchOpeningByRouteParam(rawOpeningId: string): Promise<OpeningLi
  return line
 }
 
+/** Read-only Auto entry check using the same stages and due-review interpretation as bootProgress. */
+export async function canAutoTrainOpening(slug: string) {
+ const line = await fetchOpeningByRouteParam(slug)
+ const parsed = parseOpeningLine(line)
+ if (!parsed.hasValidLine) return false
+ const stages = buildStages(parsed.totalFullMoves, parsed.positionsBeforeEachPly)
+ const progress = await loadOpeningProgress(`opening:${line.slug || line.id}`)
+ return stages.some(stage => (progress[stage.id] ?? 0) < REQUIRED_FAST_RUNS)
+}
+
 export default function OpeningTrainerPage() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const { openingId } = useParams()
  const navigate = useNavigate()
+ const location = useLocation()
  const [searchParams] = useSearchParams()
  const familySlug = searchParams.get('family')
  const sideOverride = parseSideParam(searchParams.get('side'))
+ const libraryPracticeMode = searchParams.get('libraryPractice') === '1'
 
  const [openingRecord, setOpeningRecord] = useState<OpeningLine | null>(null)
  const [openingLoading, setOpeningLoading] = useState(true)
@@ -617,6 +640,9 @@ export default function OpeningTrainerPage() {
     useState(false)
   const [personalLibraryBusy, setPersonalLibraryBusy] =
     useState(false)
+  const [personalLibraryAuthReady, setPersonalLibraryAuthReady] = useState(false)
+  const [personalLibraryError, setPersonalLibraryError] = useState('')
+  const [personalLibraryStatus, setPersonalLibraryStatus] = useState('')
 
 
  const containerRef = useRef<HTMLDivElement | null>(null)
@@ -808,58 +834,52 @@ export default function OpeningTrainerPage() {
  }
  }, [openingId])
 
-   useEffect(() => {
-    let cancelled = false
+ useEffect(() => {
+  let active = true
+  let authRevision = 0
 
-    async function loadPersonalLibraryState() {
-      const openingSlug = openingRecord?.slug?.trim()
+  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+   if (!active) return
+   authRevision += 1
+   setPersonalLibraryUserId(session?.user?.id ?? null)
+   setPersonalLibraryAuthReady(true)
+   if (!session?.user) setInPersonalLibrary(false)
+  })
 
-      if (!openingSlug) {
-        setPersonalLibraryUserId(null)
-        setInPersonalLibrary(false)
-        return
-      }
+  const initialRevision = authRevision
+  void supabase.auth.getUser().then(({ data }) => {
+   if (!active || authRevision !== initialRevision) return
+   setPersonalLibraryUserId(data.user?.id ?? null)
+   setPersonalLibraryAuthReady(true)
+  })
 
-      const { data: authData, error: authError } =
-        await supabase.auth.getUser()
+  return () => {
+   active = false
+   listener.subscription.unsubscribe()
+  }
+ }, [])
 
-      if (cancelled) return
+ useEffect(() => {
+  let active = true
+  setPersonalLibraryError('')
+  setInPersonalLibrary(false)
 
-      if (authError || !authData.user) {
-        setPersonalLibraryUserId(null)
-        setInPersonalLibrary(false)
-        return
-      }
+  if (!personalLibraryUserId || !openingRecord?.id) {
+   return () => { active = false }
+  }
 
-      setPersonalLibraryUserId(authData.user.id)
-
-      const { data, error } = await supabase
-        .from('user_opening_library')
-        .select('opening_slug')
-        .eq('user_id', authData.user.id)
-        .eq('opening_slug', openingSlug)
-        .maybeSingle()
-
-      if (cancelled) return
-
-      if (error) {
-        console.error(
-          'Failed to load My Openings state:',
-          error,
-        )
-        setInPersonalLibrary(false)
-        return
-      }
-
-      setInPersonalLibrary(Boolean(data))
+  void isOpeningSaved(supabase, personalLibraryUserId, openingRecord.id)
+   .then((saved) => { if (active) setInPersonalLibrary(saved) })
+   .catch((cause) => {
+    console.error('Failed to load My Openings state:', cause)
+    if (active) {
+     setInPersonalLibrary(false)
+     setPersonalLibraryError('My Openings status could not be loaded.')
     }
+   })
 
-    void loadPersonalLibraryState()
-
-    return () => {
-      cancelled = true
-    }
-  }, [openingRecord?.slug])
+  return () => { active = false }
+ }, [openingRecord?.id, personalLibraryUserId])
 
 useEffect(() => {
  if (!openingRecord) return
@@ -908,17 +928,28 @@ useEffect(() => {
  useEffect(() => {
  function setInitialBoardSize() {
  const width = window.innerWidth
+ const height = window.visualViewport?.height ?? window.innerHeight
  if (width <= 768) {
- setBoardSize(Math.max(0, Math.floor(width - 16)))
+ setBoardSize(getViewportConstrainedBoardSize({
+ viewportWidth: width,
+ viewportHeight: height,
+ horizontalReserved: 16,
+ verticalReserved: 360,
+ maxBoardSize: 820,
+ }))
  return
  }
- const height = window.innerHeight
  const rightPanelWidth = 340
  const pagePadding = 80
- const availableWidth = width - rightPanelWidth - pagePadding
- const availableHeight = height - 80
- const size = Math.max(320, Math.min(820, availableWidth, availableHeight))
- setBoardSize(size)
+ setBoardSize(getViewportConstrainedBoardSize({
+ viewportWidth: width,
+ viewportHeight: height,
+ horizontalReserved: rightPanelWidth + pagePadding,
+ // Header, player bars, frame, and the bottom safe area all live outside
+ // the playable board. Keep the whole board visible at 100% browser zoom.
+ verticalReserved: 360,
+ maxBoardSize: 820,
+ }))
  }
 
  setInitialBoardSize()
@@ -939,11 +970,14 @@ useEffect(() => {
  const leftPadding = 16
  const rightPanelWidth = 340
  const dividerWidth = 18
- const minBoard = 320
- const maxBoard = Math.min(
- 950,
- rect.width - rightPanelWidth - dividerWidth - leftPadding
- )
+ const maxBoard = getViewportConstrainedBoardSize({
+ viewportWidth: rect.width,
+ viewportHeight: window.visualViewport?.height ?? window.innerHeight,
+ horizontalReserved: rightPanelWidth + dividerWidth + leftPadding,
+ verticalReserved: 360,
+ maxBoardSize: 950,
+ })
+ const minBoard = Math.min(320, maxBoard)
 
  const nextSize = e.clientX - rect.left - leftPadding
  const clamped = Math.max(minBoard, Math.min(maxBoard, nextSize))
@@ -1086,10 +1120,12 @@ useEffect(() => {
  if (allMastered) {
  setOpeningMastered(true)
  setFlash('mastered')
- setStatus(familySlug ? 'Loading next opening...' : 'opening mastered')
+ setStatus(libraryPracticeMode ? 'Loading next saved opening...' : familySlug ? 'Loading next opening...' : 'opening mastered')
  setProgressReady(true)
 
- if (familySlug) {
+ if (libraryPracticeMode) {
+  void goToNextSavedOpening()
+ } else if (familySlug) {
  await prefetchNextOpeningInFamily()
  void goToNextOpeningInFamily()
  }
@@ -1110,6 +1146,8 @@ useEffect(() => {
  )
 
  setStageIndex(resumeIndex)
+ // Valid stage data and saved progress are ready; admit before starting its timer.
+ if (!await admitAutoChunk({ course: 'openings', trainerKey: openingTheme, unitKey: resumeStage.id, itemIds: [resumeStage.id] }) || cancelled) return
  setPosition(resumeStage.startFen)
  setCurrentPly(resumeStage.startPly)
  setRunStartAt(null)
@@ -1131,7 +1169,7 @@ useEffect(() => {
  cancelled = true
  clearTimers()
  }
- }, [openingTheme])
+ }, [openingTheme, libraryPracticeMode])
 
  function clearTimers() {
  if (resetTimeoutRef.current) {
@@ -1229,7 +1267,7 @@ useEffect(() => {
 
  await prefetchOpeningBySlug(previousLine.slug)
  const familyParam = familySlug ? `?family=${encodeURIComponent(familySlug)}` : ''
- navigate(`/openings/${previousLine.slug}${familyParam}`)
+ navigate(carryAutoTraining(`/openings/${previousLine.slug}${familyParam}`))
  }
 
  async function manualGoToNextOpening() {
@@ -1280,7 +1318,7 @@ useEffect(() => {
 
  await prefetchOpeningBySlug(nextLine.slug)
  const familyParam = familySlug ? `?family=${encodeURIComponent(familySlug)}` : ''
- navigate(`/openings/${nextLine.slug}${familyParam}`)
+ navigate(carryAutoTraining(`/openings/${nextLine.slug}${familyParam}`))
  }
 
  async function prefetchNextOpeningInFamily() {
@@ -1365,7 +1403,7 @@ useEffect(() => {
 
  if (nextDueOpening?.slug) {
  await prefetchOpeningBySlug(nextDueOpening.slug)
- navigate(`/openings/${nextDueOpening.slug}?family=${familySlug}`)
+ navigate(carryAutoTraining(`/openings/${nextDueOpening.slug}?family=${familySlug}`))
  return
  }
 
@@ -1393,15 +1431,16 @@ useEffect(() => {
  }
 
  await prefetchOpeningBySlug(nextSlug)
- navigate(`/openings/${nextSlug}?family=${familySlug}`)
+ navigate(carryAutoTraining(`/openings/${nextSlug}?family=${familySlug}`))
  }
 
- function moveToNextStage() {
+ async function moveToNextStage() {
  clearTimers()
 
  const isLastStage = safeStageIndex >= stages.length - 1
  if (isLastStage) {
- void goToNextOpeningInFamily()
+ if (libraryPracticeMode) void goToNextSavedOpening()
+ else void goToNextOpeningInFamily()
  return
  }
 
@@ -1412,6 +1451,9 @@ useEffect(() => {
  Math.min(REQUIRED_FAST_RUNS, stageProgressMap[nextStage.id] ?? 0),
  )
 
+ setProgressReady(false)
+ if (!await admitAutoChunk({ course: 'openings', trainerKey: openingTheme, unitKey: nextStage.id, itemIds: [nextStage.id] })) return
+ setProgressReady(true)
  setStageIndex(nextIndex)
  setFastSuccesses(savedMastery)
  setNotationHidden(savedMastery > 0)
@@ -1590,58 +1632,71 @@ useEffect(() => {
  canFlip: true,
  })
 
-  async function togglePersonalLibrary() {
-    const openingSlug = openingRecord?.slug?.trim()
-
-    if (
-      !openingSlug ||
-      !personalLibraryUserId ||
-      personalLibraryBusy
-    ) {
-      return
-    }
-
-    setPersonalLibraryBusy(true)
-
-    try {
-      if (inPersonalLibrary) {
-        const { error } = await supabase
-          .from('user_opening_library')
-          .delete()
-          .eq('user_id', personalLibraryUserId)
-          .eq('opening_slug', openingSlug)
-
-        if (error) throw error
-
-        setInPersonalLibrary(false)
-      } else {
-        const { error } = await supabase
-          .from('user_opening_library')
-          .upsert(
-            {
-              user_id: personalLibraryUserId,
-              opening_slug: openingSlug,
-              source: 'manual',
-              is_favorite: true,
-            },
-            {
-              onConflict: 'user_id,opening_slug',
-            },
-          )
-
-        if (error) throw error
-
-        setInPersonalLibrary(true)
-      }
-    } catch (error) {
-      console.error(
-        'Failed to update My Openings:',
-        error,
-      )
-    } finally {
-      setPersonalLibraryBusy(false)
-    }
+ async function addToPersonalLibrary() {
+  if (!openingRecord?.id || personalLibraryBusy) return
+  if (!personalLibraryUserId) {
+   const target = `${location.pathname}${location.search}${location.hash}`
+   const record = rememberTrainingReturnTarget(target)
+   navigate('/auth?resumeTraining=1', { state: authRouterState(record) })
+   return
   }
+
+  setPersonalLibraryBusy(true)
+  setPersonalLibraryError('')
+  setPersonalLibraryStatus('')
+  try {
+   await addOpeningToLibrary(supabase, personalLibraryUserId, openingRecord.id)
+   setInPersonalLibrary(true)
+   setPersonalLibraryStatus('Saved to My Openings.')
+  } catch (cause) {
+   console.error('Failed to add My Opening:', cause)
+   setPersonalLibraryError(cause instanceof Error ? cause.message : 'The opening could not be saved.')
+  } finally {
+   setPersonalLibraryBusy(false)
+  }
+ }
+
+ async function removeFromPersonalLibrary() {
+  if (!openingRecord?.id || !personalLibraryUserId || personalLibraryBusy) return
+  setPersonalLibraryBusy(true)
+  setPersonalLibraryError('')
+  setPersonalLibraryStatus('')
+  try {
+   await removeOpeningFromLibrary(supabase, personalLibraryUserId, openingRecord.id)
+   setInPersonalLibrary(false)
+   setPersonalLibraryStatus('Removed from My Openings.')
+  } catch (cause) {
+   console.error('Failed to remove My Opening:', cause)
+   setPersonalLibraryError(cause instanceof Error ? cause.message : 'The opening could not be removed.')
+  } finally {
+   setPersonalLibraryBusy(false)
+  }
+ }
+
+ async function goToNextSavedOpening() {
+  if (!openingRecord?.id) return
+  setStatus('Loading next saved opening...')
+  try {
+   let next = await getNextSavedOpening(supabase, openingRecord.id)
+   if (!next) next = await getNextSavedOpening(supabase)
+   if (!next || next.id === openingRecord.id) {
+    setOpeningMastered(true)
+    setFlash('mastered')
+    setStatus('My Openings practice complete.')
+    return
+   }
+   await prefetchOpeningBySlug(next.slug)
+   navigate(carryAutoTraining(`/openings/${encodeURIComponent(next.slug)}?libraryPractice=1`), {
+    replace: true,
+    state: { fromMyOpenings: true },
+   })
+  } catch (cause) {
+   console.error('Failed to load next saved opening:', cause)
+   setOpeningMastered(true)
+   setFlash('bad')
+   setStatus('The next saved opening could not be loaded.')
+  }
+ }
 
  if (openingLoading) {
  return (
@@ -1808,7 +1863,7 @@ useEffect(() => {
     </div>
    </div>
 
-  {personalLibraryUserId ? (
+  {personalLibraryAuthReady ? (
     <div
       className="opening-trainer-library-actions"
       style={{
@@ -1816,13 +1871,12 @@ useEffect(() => {
         justifyContent: 'flex-end',
         gap: 10,
         marginBottom: 10,
+        flexWrap: 'wrap',
       }}
     >
-      <button
+      {personalLibraryUserId ? <button
         type="button"
-        onClick={() => {
-          window.location.href = '/openings#my-library'
-        }}
+        onClick={() => navigate('/openings/my-openings')}
         style={{
           border:
             '1px solid rgba(255,255,255,0.12)',
@@ -1834,13 +1888,13 @@ useEffect(() => {
           fontWeight: 800,
         }}
       >
-        Go to My Library
-      </button>
+        Go to My Openings
+      </button> : null}
 
       <button
         type="button"
         disabled={personalLibraryBusy}
-        onClick={() => void togglePersonalLibrary()}
+        onClick={() => inPersonalLibrary ? void removeFromPersonalLibrary() : void addToPersonalLibrary()}
         style={{
           border:
             '1px solid rgba(255,255,255,0.12)',
@@ -1860,11 +1914,15 @@ useEffect(() => {
         {personalLibraryBusy
           ? 'Saving...'
           : inPersonalLibrary
-            ? '✓ In My Library'
-            : '+ Add to My Library'}
+            ? 'Remove from My Openings'
+            : 'Add to My Openings'}
       </button>
+      {inPersonalLibrary ? <span style={{ borderRadius: 10, padding: '9px 14px', background: '#4d7c4d', color: '#fff', fontWeight: 800 }}>✓ In My Openings</span> : null}
+      <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{personalLibraryStatus}</span>
+      {libraryPracticeMode ? <button type="button" onClick={() => void goToNextSavedOpening()} style={{ border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '9px 14px', background: '#2f4f73', color: '#fff', cursor: 'pointer', fontWeight: 800 }}>Next saved opening</button> : null}
     </div>
   ) : null}
+  {personalLibraryError ? <div role="alert" style={{ color: '#ffb4b4', textAlign: 'right', marginBottom: 10, fontSize: 13 }}>{personalLibraryError}</div> : null}
 
  <div
  className="opening-trainer-header"
@@ -1969,11 +2027,15 @@ useEffect(() => {
 
  <div style={{ height: 8 }} />
 
- <ThemedChessboard
- className="opening-trainer-board"
- id="opening-trainer-board"
- position={position}
- onPieceDrop={onPieceDrop}
+<ThemedChessboard
+className="opening-trainer-board"
+id="opening-trainer-board"
+position={position}
+accessibilityTitle="Opening practice"
+accessibilitySelectedSquare={selectedSquare}
+accessibilityCurrentMove={`Ply ${currentPly} of ${parsed.moves.length}`}
+accessibilityInteraction="Review the named move list with the keyboard. To practice a move on the board, select its source and destination squares by click or drag."
+onPieceDrop={onPieceDrop}
  onSquareClick={onSquareClick}
  boardWidth={boardSize}
  boardOrientation={boardOrientation}
@@ -2074,6 +2136,11 @@ useEffect(() => {
  boxSizing: 'border-box',
  }}
  >
+ <div
+ id="trainer-completion-actions"
+ data-testid="trainer-completion-actions"
+ className="trainer-completion-actions opening-trainer-completion-actions"
+ />
  <div
  className="opening-trainer-replay-card"
  style={{
@@ -2259,6 +2326,9 @@ useEffect(() => {
 
  <div
  className="opening-trainer-status"
+ role="status"
+ aria-live="polite"
+ aria-atomic="true"
  style={{
  ...panelCardStyle(),
  marginBottom: 12,
@@ -2339,6 +2409,8 @@ useEffect(() => {
  {showMoveList ? (
  <div
  className="opening-trainer-move-list"
+ role="list"
+ aria-label={fullLineVisible ? 'Full opening line' : 'Current opening training stage'}
  style={{
  maxHeight: 255,
  overflowY: 'auto',
@@ -2348,6 +2420,8 @@ useEffect(() => {
  {visibleMoveRows.map((row) => (
  <div
  key={row.moveNumber}
+ role="listitem"
+ aria-label={`Move ${row.moveNumber}. White: ${row.white ?? 'not present'}. Black: ${row.black ?? 'not present'}.`}
  style={{
  display: 'grid',
  gridTemplateColumns: '40px 1fr 1fr',

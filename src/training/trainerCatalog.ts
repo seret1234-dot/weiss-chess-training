@@ -1,4 +1,5 @@
 import { patternTacticConfigByRoute } from "../trainers/patternTactic/pageConfigs"
+import { logicalActivityKey } from './activityIdentity'
 import { VERIFIED_FINAL_TACTIC_COURSES } from "../trainers/patternTactic/generatedFinalVerifiedTaxonomy"
 
 export type StudyType = "chunk" | "line" | "game" | "vision"
@@ -2373,5 +2374,6 @@ export const TRAINER_BY_KEY = Object.fromEntries(
 export function getTrainerByKey(
  trainerKey: string
 ): TrainerCatalogEntry | undefined {
- return TRAINER_BY_KEY[trainerKey]
+ const key = logicalActivityKey(trainerKey)
+ return TRAINER_BY_KEY[key] ?? TRAINER_CATALOG.find(item => logicalActivityKey(item.trainerKey) === key)
 }

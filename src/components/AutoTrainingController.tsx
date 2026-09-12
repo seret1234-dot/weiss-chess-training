@@ -1,11 +1,30 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { useLocation, useNavigate } from "react-router-dom"
 import { AUTO_TRAINING_COMPLETE_EVENT } from "../training/autoTrainingRoute"
+import { AUTO_ALLOWANCE_STOP } from '../training/autoChunkAllowance'
 
 export default function AutoTrainingController({ user }: { user: any }) {
  const location = useLocation()
  const navigate = useNavigate()
- const [moving, setMoving] = useState(false)
+ // This controller survives navigation. A pending Continue belongs only to the
+ // history entry that initiated it, never to the next trainer or quota screen.
+ const routeEntry = `${user?.id ?? ''}:${location.key}`
+ const [movingFrom, setMovingFrom] = useState<string | null>(null)
+ const movingFromRef = useRef<string | null>(null)
+ const moving = movingFrom === routeEntry
+ useEffect(() => {
+  movingFromRef.current = null
+  setMovingFrom(null)
+ }, [routeEntry])
+ const [allowanceStoppedRoute, setAllowanceStoppedRoute] = useState('')
+ useEffect(() => { setAllowanceStoppedRoute('') }, [location.pathname, location.search])
+ useEffect(() => {
+  const onStop = (event: Event) => setAllowanceStoppedRoute((event as CustomEvent).detail.route)
+  window.addEventListener(AUTO_ALLOWANCE_STOP, onStop)
+  return () => window.removeEventListener(AUTO_ALLOWANCE_STOP, onStop)
+ }, [])
+ const [completionHost, setCompletionHost] = useState<HTMLElement | null>(null)
 
  const params = useMemo(
   () => new URLSearchParams(location.search),
@@ -20,10 +39,12 @@ export default function AutoTrainingController({ user }: { user: any }) {
   location.pathname !== "/auth"
 
  const continueCourse = useCallback(() => {
-  if (moving) return
-  setMoving(true)
+  // Completion events and a click can arrive before React commits an update.
+  if (movingFromRef.current === routeEntry) return
+  movingFromRef.current = routeEntry
+  setMovingFrom(routeEntry)
   navigate("/auto?continue=1", { replace: true })
- }, [moving, navigate])
+ }, [routeEntry, navigate])
 
  useEffect(() => {
   if (!active) return
@@ -38,12 +59,27 @@ export default function AutoTrainingController({ user }: { user: any }) {
   }
  }, [active, continueCourse])
 
- if (!active) return null
+ useEffect(() => {
+  if (!active) {
+   setCompletionHost(null)
+   return
+  }
 
- return (
+  setCompletionHost(document.getElementById("trainer-completion-actions"))
+ }, [active, location.pathname])
+
+ // Weekly tests have their own game/review controls; retain automatic completion
+ // handling above, but do not show the generic manual drill action here.
+ if (!active || allowanceStoppedRoute === location.pathname + location.search || (
+  (location.pathname === "/play-computer" || location.pathname === "/play-vs-computer") &&
+  params.get("weekly") === "1"
+ )) return null
+
+ const control = (
   <button
    type="button"
    className="auto-training-controller"
+   data-testid="finish-drill-continue"
    onClick={continueCourse}
    disabled={moving}
    title="Finish this drill and open the next item in your personal course"
@@ -63,4 +99,6 @@ export default function AutoTrainingController({ user }: { user: any }) {
    {moving ? "Opening next item..." : "Finish drill & continue"}
   </button>
  )
+
+ return completionHost ? createPortal(control, completionHost) : control
 }

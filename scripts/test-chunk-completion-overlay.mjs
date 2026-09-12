@@ -75,10 +75,10 @@ try {
     'legacy chunk URLs transition to the versioned active learner curriculum instead of reusing source numbering',
   )
 
-  const variableLengthMate = m2ToM5.getPatternMateM2ToM5LearnerCurriculum('kill-box-mate-4')
-  assert.equal(variableLengthMate?.activeChunkCount, 7, 'variable-length M2–M5 mate curricula retain their active learner count')
+  const variableLengthMate = m2ToM5.getPatternMateM2ToM5LearnerCurriculum('kill-box-adjacent-rook-mate-4')
+  assert.equal(variableLengthMate?.activeChunkCount, 4, 'variable-length M2–M5 mate curricula retain their active learner count')
   assert.equal(
-    navigation.getNextActiveLearnerChunkIndex(6, variableLengthMate.activeChunkCount),
+    navigation.getNextActiveLearnerChunkIndex(3, variableLengthMate.activeChunkCount),
     null,
     'the final variable-length M2–M5 mate chunk has no extra successor',
   )

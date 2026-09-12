@@ -1,11 +1,24 @@
+import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
+import { carryAutoTraining } from './training/autoChunkAllowance'
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Chess, Move } from 'chess.js'
 import ThemedChessboard from "./theme/ThemedChessboard"
 import { supabase, getMasterGamePgnUrl } from './lib/supabase'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
 import { saveTrainingProgress } from './lib/trainingProgress'
 import { HintButton } from './components/trainer/ui'
+import MasterGamePlayerBar from './components/chess/MasterGamePlayerBar'
+import { orientMasterGamePlayers } from './components/chess/masterGamePlayerLabels.mjs'
+import { buildMovePositions, keepMoveVisible } from './components/chess/masterGameMoveNavigation'
+import { authRouterState, rememberTrainingReturnTarget } from './auth/trainingReturnTarget.mjs'
+import {
+ addMasterGameToLibrary,
+ getNextSavedMasterGame,
+ isMasterGameSaved,
+ masterGameLibraryRoute,
+ removeMasterGameFromLibrary,
+} from './masterGames/libraryData'
 import './MasterGamesPage.css'
 
 import { reportTrainingItemCompleted } from "./lib/trainingQuotaEvents"
@@ -31,6 +44,14 @@ type MasterGame = {
 
 type ParsedMove = Move & {
  san: string
+}
+
+type MasterGameMoveRow = {
+ moveNumber: number
+ white?: string
+ black?: string
+ whitePly?: number
+ blackPly?: number
 }
 
 type Stage = {
@@ -133,14 +154,8 @@ function parseGame(game: MasterGame) {
  }
  }
 
- const replay = new Chess()
  const history = base.history({ verbose: true }) as ParsedMove[]
-
- const positionsBeforeEachPly: string[] = [replay.fen()]
- for (const mv of history) {
- replay.move(mv)
- positionsBeforeEachPly.push(replay.fen())
- }
+ const positionsBeforeEachPly = buildMovePositions(new Chess().fen(), history)
 
  const totalPlies = history.length
  const totalFullMoves = Math.ceil(totalPlies / 2)
@@ -230,8 +245,8 @@ function getStageMoveRows(
  allMoves: ParsedMove[],
  startPly: number,
  endPly: number,
-): Array<{ moveNumber: number; white?: string; black?: string }> {
- const rows: Array<{ moveNumber: number; white?: string; black?: string }> = []
+): MasterGameMoveRow[] {
+ const rows: MasterGameMoveRow[] = []
 
  if (endPly < startPly) return rows
 
@@ -244,6 +259,8 @@ function getStageMoveRows(
  moveNumber,
  white: whiteMove?.san,
  black: blackMove?.san,
+ whitePly: whiteMove ? ply : undefined,
+ blackPly: blackMove ? ply + 1 : undefined,
  })
  }
 
@@ -256,19 +273,6 @@ function panelCardStyle(): CSSProperties {
  borderRadius: 10,
  padding: 12,
  border: '1px solid rgba(255,255,255,0.05)',
- }
-}
-
-function playerBarStyle(): CSSProperties {
- return {
- background: '#1f1d1c',
- borderRadius: 12,
- padding: '10px 14px',
- border: '1px solid rgba(255,255,255,0.06)',
- display: 'flex',
- alignItems: 'center',
- justifyContent: 'space-between',
- gap: 12,
  }
 }
 
@@ -532,8 +536,22 @@ async function fetchGameByRouteParam(rawGameId: string): Promise<MasterGame> {
  return loadedGame
 }
 
+/** Read-only Auto entry check; reuse the trainer's own parser, stages and review progress. */
+export async function canAutoTrainMasterGame(id: string, maxFullMoves?: number) {
+ const game = await fetchGameByRouteParam(id)
+ const parsed = parseGame(game)
+ if (!parsed.hasValidPgn || (maxFullMoves && parsed.totalFullMoves > maxFullMoves)) return false
+ const stages = buildStages(parsed.totalFullMoves, parsed.positionsBeforeEachPly)
+ const progress = await loadGameProgress(String(game.id))
+ return stages.some(stage => (progress[stage.id] ?? 0) < REQUIRED_FAST_RUNS)
+}
+
 export default function MasterGamesPage() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const { gameId } = useParams()
+ const location = useLocation()
+ const navigate = useNavigate()
+ const isLibraryPractice = new URLSearchParams(location.search).get('libraryPractice') === '1'
 
  const [gameRecord, setGameRecord] = useState<MasterGame | null>(null)
  const [gameLoading, setGameLoading] = useState(true)
@@ -544,8 +562,13 @@ export default function MasterGamesPage() {
   useState(false)
  const [personalLibraryBusy, setPersonalLibraryBusy] =
   useState(false)
+ const [personalLibraryError, setPersonalLibraryError] = useState('')
+ const [personalLibraryStatus, setPersonalLibraryStatus] = useState('')
+ const [libraryPracticeBusy, setLibraryPracticeBusy] = useState(false)
+ const [libraryPracticeMessage, setLibraryPracticeMessage] = useState('')
 
  const containerRef = useRef<HTMLDivElement | null>(null)
+ const moveListRef = useRef<HTMLDivElement | null>(null)
  const resetTimeoutRef = useRef<number | null>(null)
  const nextStageTimeoutRef = useRef<number | null>(null)
 
@@ -590,6 +613,7 @@ export default function MasterGamesPage() {
  const [stageIndex, setStageIndex] = useState(0)
  const [position, setPosition] = useState(stages[0]?.startFen ?? new Chess().fen())
  const [currentPly, setCurrentPly] = useState(stages[0]?.startPly ?? 0)
+ const [previewPly, setPreviewPly] = useState<number | null>(null)
  const [boardOrientation, setBoardOrientation] = useState<'white' | 'black'>('white')
  const [runStartAt, setRunStartAt] = useState<number | null>(null)
  const [elapsedMs, setElapsedMs] = useState(0)
@@ -612,6 +636,7 @@ export default function MasterGamesPage() {
  if (!parsed.hasValidPgn) return []
  if (!progressReady) return []
  if (gameMastered) return []
+ if (previewPly !== null) return []
  if (currentPly > stage.endPly) return []
 
  const working = new Chess(position)
@@ -651,6 +676,7 @@ export default function MasterGamesPage() {
  if (!parsed.hasValidPgn) return
  if (!progressReady) return
  if (gameMastered) return
+ if (previewPly !== null) return
  if (currentPly > stage.endPly) return
 
  const working = new Chess(position)
@@ -727,51 +753,59 @@ export default function MasterGamesPage() {
 
  useEffect(() => {
   let cancelled = false
+  let authRevision = 0
 
-  async function loadPersonalLibraryState() {
+  async function loadPersonalLibraryState(
+   userId?: string | null,
+   expectedAuthRevision = authRevision,
+  ) {
    if (!gameRecord) {
     setInPersonalLibrary(false)
     return
    }
 
-   const { data: authData, error: authError } =
-    await supabase.auth.getUser()
+   let resolvedUserId = userId
+   if (resolvedUserId === undefined) {
+    const { data: authData, error: authError } = await supabase.auth.getUser()
+    if (authError) console.error('Failed to load My Library user:', authError)
+    resolvedUserId = authData.user?.id ?? null
+   }
 
-   if (cancelled) return
+   if (cancelled || expectedAuthRevision !== authRevision) return
 
-   if (authError || !authData.user) {
+   if (!resolvedUserId) {
     setPersonalLibraryUserId(null)
     setInPersonalLibrary(false)
+    setPersonalLibraryError('')
     return
    }
 
-   setPersonalLibraryUserId(authData.user.id)
+   setPersonalLibraryUserId(resolvedUserId)
 
-   const { data, error } = await supabase
-    .from('user_master_games')
-    .select('game_id')
-    .eq('user_id', authData.user.id)
-    .eq('game_id', gameRecord.id)
-    .maybeSingle()
-
-   if (cancelled) return
-
-   if (error) {
-    console.error(
-     'Failed to load My Library state:',
-     error,
-    )
+   try {
+    const saved = await isMasterGameSaved(supabase, resolvedUserId, gameRecord.id)
+    if (cancelled || expectedAuthRevision !== authRevision) return
+    setInPersonalLibrary(saved)
+    setPersonalLibraryError('')
+   } catch (error) {
+    console.error('Failed to load My Library state:', error)
+    if (cancelled || expectedAuthRevision !== authRevision) return
     setInPersonalLibrary(false)
-    return
+    setPersonalLibraryError('My Library status could not be loaded.')
    }
-
-   setInPersonalLibrary(Boolean(data))
   }
 
-  void loadPersonalLibraryState()
+  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+   if (cancelled) return
+   authRevision += 1
+   void loadPersonalLibraryState(session?.user?.id ?? null, authRevision)
+  })
+
+  void loadPersonalLibraryState(undefined, authRevision)
 
   return () => {
    cancelled = true
+   listener.subscription.unsubscribe()
   }
  }, [gameRecord?.id])
 
@@ -855,6 +889,10 @@ export default function MasterGamesPage() {
  const gameTheme = gameRecord ? String(gameRecord.id) : ''
 
  const currentExpected = parsed.moves[currentPly]
+ const selectedMovePly = previewPly ?? currentPly - 1
+ const displayedPosition = previewPly === null
+  ? position
+  : parsed.positionsBeforeEachPly[previewPly + 1] ?? position
  const positionTurn = (() => {
  try {
  return new Chess(position).turn()
@@ -863,6 +901,7 @@ export default function MasterGamesPage() {
  }
  })()
  const canRequestHint = Boolean(
+ previewPly === null &&
  currentExpected &&
  progressReady &&
  !gameMastered &&
@@ -875,31 +914,34 @@ export default function MasterGamesPage() {
  if (!canRequestHint) setMasterGameHintArrow(null)
  }, [canRequestHint])
 
- const topPlayer =
- boardOrientation === 'white'
- ? {
- name: gameRecord?.black ?? '',
- side: 'Black',
- meta: gameRecord?.site || ' - ',
- }
- : {
- name: gameRecord?.white ?? '',
- side: 'White',
- meta: gameRecord?.year || ' - ',
- }
+ useEffect(() => {
+  const list = moveListRef.current
+  if (!list) return
 
- const bottomPlayer =
- boardOrientation === 'white'
- ? {
- name: gameRecord?.white ?? '',
- side: 'White',
- meta: gameRecord?.year || ' - ',
- }
- : {
- name: gameRecord?.black ?? '',
- side: 'Black',
- meta: gameRecord?.site || ' - ',
- }
+  const frame = window.requestAnimationFrame(() => {
+   if (selectedMovePly < 0) {
+    list.scrollTop = 0
+    return
+   }
+
+   const activeMove = list.querySelector<HTMLElement>(
+    `[data-master-game-ply="${selectedMovePly}"]`,
+   )
+   if (!activeMove) return
+
+   keepMoveVisible(list, activeMove)
+  })
+
+  return () => window.cancelAnimationFrame(frame)
+ }, [selectedMovePly, fullLineVisible, stage.id])
+
+ const { topPlayer, bottomPlayer } = orientMasterGamePlayers({
+  white: gameRecord?.white ?? '',
+  black: gameRecord?.black ?? '',
+  orientation: boardOrientation,
+  whiteMeta: gameRecord?.year || ' - ',
+  blackMeta: gameRecord?.site || ' - ',
+ })
 
  useEffect(() => {
  return () => {
@@ -927,6 +969,7 @@ export default function MasterGamesPage() {
  setStageIndex(0)
  setPosition(firstStage?.startFen ?? new Chess().fen())
  setCurrentPly(firstStage?.startPly ?? 0)
+ setPreviewPly(null)
  setRunStartAt(null)
  setElapsedMs(0)
  setFastSuccesses(0)
@@ -991,6 +1034,8 @@ export default function MasterGamesPage() {
  )
 
  setStageIndex(resumeIndex)
+ // Valid stage data and saved progress are ready; admit before starting its timer.
+ if (!await admitAutoChunk({ course: 'master_games', trainerKey: gameTheme, unitKey: resumeStage.id, itemIds: [resumeStage.id] }) || cancelled) return
  setPosition(resumeStage.startFen)
  setCurrentPly(resumeStage.startPly)
  setRunStartAt(null)
@@ -1028,6 +1073,7 @@ export default function MasterGamesPage() {
  clearTimers()
  setPosition(stage.startFen)
  setCurrentPly(stage.startPly)
+ setPreviewPly(null)
  setRunStartAt(null)
  setElapsedMs(0)
  setHintVisible(false)
@@ -1035,6 +1081,20 @@ export default function MasterGamesPage() {
  setSelectedSquare(null)
  setStatus(parsed.hasValidPgn ? 'Play the game moves exactly.' : 'PGN missing for this game.')
  setFlash('idle')
+ }
+
+ function previewFullLineMove(ply: number) {
+  if (!Number.isInteger(ply) || ply < 0 || ply >= parsed.moves.length) return
+  setPreviewPly(ply)
+  setSelectedSquare(null)
+  setHintVisible(false)
+  setMasterGameHintArrow(null)
+ }
+
+ function returnToTrainingPosition() {
+  setPreviewPly(null)
+  setSelectedSquare(null)
+  setMasterGameHintArrow(null)
  }
 
  function resetWholeStageProgress() {
@@ -1056,7 +1116,7 @@ export default function MasterGamesPage() {
  beginStageRun()
  }
 
- function moveToNextStage() {
+ async function moveToNextStage() {
  clearTimers()
 
  const isLastStage = safeStageIndex >= stages.length - 1
@@ -1074,6 +1134,9 @@ export default function MasterGamesPage() {
  Math.min(REQUIRED_FAST_RUNS, stageProgressMap[nextStage.id] ?? 0),
  )
 
+ setProgressReady(false)
+ if (!await admitAutoChunk({ course: 'master_games', trainerKey: gameTheme, unitKey: nextStage.id, itemIds: [nextStage.id] })) return
+ setProgressReady(true)
  setStageIndex(nextIndex)
  setFastSuccesses(savedMastery)
  setNotationHidden(savedMastery > 0)
@@ -1083,6 +1146,7 @@ export default function MasterGamesPage() {
  setSelectedSquare(null)
  setPosition(nextStage.startFen)
  setCurrentPly(nextStage.startPly)
+ setPreviewPly(null)
  setRunStartAt(null)
  setElapsedMs(0)
  setFlash('idle')
@@ -1166,6 +1230,7 @@ export default function MasterGamesPage() {
  if (!parsed.hasValidPgn) return false
  if (!progressReady) return false
  if (gameMastered) return false
+ if (previewPly !== null) return false
  if (currentPly > stage.endPly) return false
 
  const expected = parsed.moves[currentPly]
@@ -1231,61 +1296,73 @@ export default function MasterGamesPage() {
  }, [safeStageIndex, progressReady, gameMastered])
 
  useRegisterPlayableBoard({
- fen: position,
+ fen: displayedPosition,
  orientation: boardOrientation,
  setOrientation: setBoardOrientation,
  suggestedColor: boardOrientation,
  canFlip: true,
  })
 
-  async function togglePersonalLibrary() {
-  if (
-   !gameRecord ||
-   !personalLibraryUserId ||
-   personalLibraryBusy
-  ) {
+ function beginLibraryLogin() {
+  const target = `${location.pathname}${location.search}${location.hash}`
+  const record = rememberTrainingReturnTarget(target)
+  navigate('/auth?resumeTraining=1', { state: authRouterState(record) })
+ }
+
+ async function togglePersonalLibrary() {
+  if (!gameRecord || personalLibraryBusy) return
+  if (!personalLibraryUserId) {
+   beginLibraryLogin()
    return
   }
 
   setPersonalLibraryBusy(true)
+  setPersonalLibraryError('')
+  setPersonalLibraryStatus('')
 
   try {
    if (inPersonalLibrary) {
-    const { error } = await supabase
-     .from('user_master_games')
-     .delete()
-     .eq('user_id', personalLibraryUserId)
-     .eq('game_id', gameRecord.id)
-
-    if (error) throw error
-
+    await removeMasterGameFromLibrary(supabase, personalLibraryUserId, gameRecord.id)
     setInPersonalLibrary(false)
+    setPersonalLibraryStatus('Removed from My Library.')
    } else {
-    const { error } = await supabase
-     .from('user_master_games')
-     .upsert(
-      {
-       user_id: personalLibraryUserId,
-       game_id: gameRecord.id,
-       source: 'manual',
-       is_favorite: true,
-      },
-      {
-       onConflict: 'user_id,game_id',
-      },
-     )
-
-    if (error) throw error
-
+    await addMasterGameToLibrary(supabase, personalLibraryUserId, gameRecord.id)
     setInPersonalLibrary(true)
+    setPersonalLibraryStatus('Saved to My Library.')
    }
   } catch (error) {
-   console.error(
-    'Failed to update My Library:',
-    error,
+   console.error('Failed to update My Library:', error)
+   setPersonalLibraryError(
+    error instanceof Error ? error.message : 'My Library could not be updated.',
    )
   } finally {
    setPersonalLibraryBusy(false)
+  }
+ }
+
+ async function openNextLibraryGame() {
+  if (!gameRecord || libraryPracticeBusy) return
+  if (!personalLibraryUserId) {
+   beginLibraryLogin()
+   return
+  }
+
+  setLibraryPracticeBusy(true)
+  setLibraryPracticeMessage('')
+  try {
+   const nextGame = await getNextSavedMasterGame(supabase, gameRecord.id)
+   if (!nextGame) {
+    setLibraryPracticeMessage('Library practice complete.')
+    return
+   }
+   navigate(carryAutoTraining(`${masterGameLibraryRoute(nextGame)}?libraryPractice=1`), {
+    state: { fromMyLibrary: true },
+   })
+  } catch (error) {
+   console.error('Failed to open the next saved Master Game:', error)
+   setLibraryPracticeMessage('The next saved game could not be opened.')
+  } finally {
+   setLibraryPracticeBusy(false)
   }
  }
 
@@ -1447,59 +1524,109 @@ export default function MasterGamesPage() {
     </div>
    </div>
 
-   {personalLibraryUserId ? (
-    <div
+   <div
+    data-testid="master-game-library-actions"
+    style={{
+     display: 'flex',
+     justifyContent: 'flex-end',
+     alignItems: 'center',
+     flexWrap: 'wrap',
+     gap: 10,
+     marginBottom: 10,
+    }}
+   >
+    {location.state?.fromMyLibrary || isLibraryPractice ? (
+     <button
+      type="button"
+      onClick={() => navigate('/master-games/my-library')}
+      style={{
+       border: '1px solid rgba(255,255,255,0.12)',
+       borderRadius: 10,
+       padding: '9px 14px',
+       background: '#2f4f73',
+       color: '#fff',
+       cursor: 'pointer',
+       fontWeight: 800,
+      }}
+     >
+      Back to My Library
+     </button>
+    ) : (
+     <button
+      type="button"
+      onClick={() => navigate('/master-games/my-library')}
+      style={{
+       border: '1px solid rgba(255,255,255,0.12)',
+       borderRadius: 10,
+       padding: '9px 14px',
+       background: '#2f4f73',
+       color: '#fff',
+       cursor: 'pointer',
+       fontWeight: 800,
+      }}
+     >
+      Go to My Library
+     </button>
+    )}
+
+    {inPersonalLibrary && personalLibraryUserId ? (
+     <span style={{ color: '#d9ffe1', fontWeight: 800 }}>✓ In My Library</span>
+    ) : null}
+    <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{personalLibraryStatus}</span>
+
+    <button
+     type="button"
+     disabled={personalLibraryBusy}
+     onClick={() => void togglePersonalLibrary()}
      style={{
-      display: 'flex',
-      justifyContent: 'flex-end',
+      border: '1px solid rgba(255,255,255,0.12)',
+      borderRadius: 10,
+      padding: '9px 14px',
+      background: inPersonalLibrary ? '#4a2926' : '#4d7c4d',
+      color: '#fff',
+      cursor: personalLibraryBusy ? 'wait' : 'pointer',
+      fontWeight: 800,
+      opacity: personalLibraryBusy ? 0.65 : 1,
+     }}
+    >
+     {personalLibraryBusy
+      ? inPersonalLibrary ? 'Removing...' : 'Saving...'
+      : inPersonalLibrary && personalLibraryUserId
+       ? 'Remove from My Library'
+       : '+ Add to My Library'}
+    </button>
+
+    {isLibraryPractice ? (
+     <button
+      type="button"
+      disabled={libraryPracticeBusy}
+      onClick={() => void openNextLibraryGame()}
+      style={{
+       border: '1px solid rgba(255,255,255,0.12)',
+       borderRadius: 10,
+       padding: '9px 14px',
+       background: '#735b22',
+       color: '#fff',
+       cursor: libraryPracticeBusy ? 'wait' : 'pointer',
+       fontWeight: 800,
+      }}
+     >
+      {libraryPracticeBusy ? 'Opening...' : 'Next saved game'}
+     </button>
+    ) : null}
+   </div>
+
+   {personalLibraryError || libraryPracticeMessage ? (
+    <div
+     role={personalLibraryError ? 'alert' : 'status'}
+     style={{
+      color: personalLibraryError ? '#ffb4b4' : '#f3d28e',
+      textAlign: 'right',
+      fontSize: 13,
       marginBottom: 10,
      }}
     >
-     <button
-        type="button"
-        onClick={() => {
-         window.location.href = '/master-games#my-library'
-        }}
-        style={{
-         border: '1px solid rgba(255,255,255,0.12)',
-         borderRadius: 10,
-         padding: '9px 14px',
-         marginRight: 10,
-         background: '#2f4f73',
-         color: '#fff',
-         cursor: 'pointer',
-         fontWeight: 800,
-        }}
-       >
-        Go to My Library
-       </button>
-
-       <button
-      type="button"
-      disabled={personalLibraryBusy}
-      onClick={() => void togglePersonalLibrary()}
-      style={{
-       border:
-        '1px solid rgba(255,255,255,0.12)',
-       borderRadius: 10,
-       padding: '9px 14px',
-       background: inPersonalLibrary
-        ? '#4d7c4d'
-        : '#302e2b',
-       color: '#fff',
-       cursor: personalLibraryBusy
-        ? 'wait'
-        : 'pointer',
-       fontWeight: 800,
-       opacity: personalLibraryBusy ? 0.65 : 1,
-      }}
-     >
-      {personalLibraryBusy
-       ? 'Saving...'
-       : inPersonalLibrary
-        ? '✓ In My Library'
-        : '+ Add to My Library'}
-     </button>
+     {personalLibraryError || libraryPracticeMessage}
     </div>
    ) : null}
  <div
@@ -1521,6 +1648,9 @@ export default function MasterGamesPage() {
  <div className="master-games-trainer-board-column" style={{ flex: '0 0 auto' }}>
  <div
  className="master-games-trainer-board-frame"
+ data-master-game-displayed-fen={displayedPosition}
+ data-master-game-training-ply={currentPly}
+ data-master-game-preview-ply={previewPly ?? ''}
  style={{
  width: boardSize + 16,
  background: '#201d1b',
@@ -1530,50 +1660,19 @@ export default function MasterGamesPage() {
  boxSizing: 'border-box',
  }}
  >
- <div style={playerBarStyle()}>
- <div style={{ minWidth: 0 }}>
- <div
- style={{
- fontSize: 19,
- fontWeight: 800,
- color: '#f3f3f3',
- whiteSpace: 'nowrap',
- overflow: 'hidden',
- textOverflow: 'ellipsis',
- }}
- >
- {topPlayer.name}
- </div>
- <div
- style={{
- fontSize: 12,
- color: '#b8b8b8',
- marginTop: 2,
- }}
- >
- {topPlayer.side}
- </div>
- </div>
-
- <div
- style={{
- flexShrink: 0,
- fontSize: 12,
- color: '#c9c9c9',
- textAlign: 'right',
- }}
- >
- {topPlayer.meta}
- </div>
- </div>
+ <MasterGamePlayerBar player={topPlayer} />
 
  <div style={{ height: 8 }} />
 
- <ThemedChessboard
- className="master-games-trainer-board"
- id="master-games-board"
- position={position}
- onPieceDrop={onPieceDrop}
+<ThemedChessboard
+className="master-games-trainer-board"
+id="master-games-board"
+position={displayedPosition}
+accessibilityTitle="Master Games training"
+accessibilitySelectedSquare={selectedSquare}
+accessibilityCurrentMove={`Ply ${previewPly ?? currentPly} of ${parsed.moves.length}`}
+accessibilityInteraction="Use the named move list and navigation controls to review the game. During training, select a source and destination square by click or drag."
+onPieceDrop={onPieceDrop}
  onSquareClick={onSquareClick}
  boardWidth={boardSize}
  boardOrientation={boardOrientation}
@@ -1582,7 +1681,7 @@ export default function MasterGamesPage() {
  ? [[masterGameHintArrow.from, masterGameHintArrow.to, 'rgba(80, 180, 255, 0.9)']]
  : []
  }
- arePiecesDraggable={!gameMastered && progressReady}
+ arePiecesDraggable={!gameMastered && progressReady && previewPly === null}
  animationDuration={180}
 
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
@@ -1597,42 +1696,7 @@ export default function MasterGamesPage() {
 
  <div style={{ height: 8 }} />
 
- <div style={playerBarStyle()}>
- <div style={{ minWidth: 0 }}>
- <div
- style={{
- fontSize: 19,
- fontWeight: 800,
- color: '#f3f3f3',
- whiteSpace: 'nowrap',
- overflow: 'hidden',
- textOverflow: 'ellipsis',
- }}
- >
- {bottomPlayer.name}
- </div>
- <div
- style={{
- fontSize: 12,
- color: '#b8b8b8',
- marginTop: 2,
- }}
- >
- {bottomPlayer.side}
- </div>
- </div>
-
- <div
- style={{
- flexShrink: 0,
- fontSize: 12,
- color: '#c9c9c9',
- textAlign: 'right',
- }}
- >
- {bottomPlayer.meta}
- </div>
- </div>
+ <MasterGamePlayerBar player={bottomPlayer} />
  </div>
  </div>
 
@@ -1851,6 +1915,9 @@ export default function MasterGamesPage() {
 
  <div
  className="master-games-trainer-status"
+ role="status"
+ aria-live="polite"
+ aria-atomic="true"
  style={{
  ...panelCardStyle(),
  marginBottom: 12,
@@ -1878,6 +1945,15 @@ export default function MasterGamesPage() {
  </div>
 
  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+ {previewPly !== null ? (
+ <button
+  type="button"
+  onClick={returnToTrainingPosition}
+  className="master-games-trainer-return-button"
+ >
+  Return to training
+ </button>
+ ) : null}
  {canRequestHint ? (
  <>
  <HintButton
@@ -1910,7 +1986,12 @@ export default function MasterGamesPage() {
 
  <button
   onClick={() => {
-   setFullLineVisible((prev) => !prev)
+   if (fullLineVisible) {
+    setFullLineVisible(false)
+    returnToTrainingPosition()
+   } else {
+    setFullLineVisible(true)
+   }
    setHintVisible(false)
   }}
   style={{
@@ -1931,6 +2012,10 @@ export default function MasterGamesPage() {
 
  {showMoveList ? (
  <div
+ ref={moveListRef}
+ className={`master-games-trainer-move-list${fullLineVisible ? ' master-games-trainer-move-list--full' : ''}`}
+ role="list"
+ aria-label={fullLineVisible ? 'Full master game move list' : 'Current training-stage move list'}
  style={{
  maxHeight: 255,
  overflowY: 'auto',
@@ -1940,6 +2025,7 @@ export default function MasterGamesPage() {
  {visibleMoveRows.map((row) => (
  <div
  key={row.moveNumber}
+ role="listitem"
  style={{
  display: 'grid',
  gridTemplateColumns: '40px 1fr 1fr',
@@ -1950,8 +2036,32 @@ export default function MasterGamesPage() {
  }}
  >
  <div style={{ color: '#a8a8a8' }}>{row.moveNumber}.</div>
- <div style={{ color: '#f0f0f0', fontWeight: 700 }}>{row.white ?? ''}</div>
- <div style={{ color: '#f0f0f0', fontWeight: 700 }}>{row.black ?? ''}</div>
+ {row.white && row.whitePly !== undefined ? (
+ <button
+  type="button"
+  className={`master-games-trainer-move-button${selectedMovePly === row.whitePly ? ' is-active' : ''}`}
+  data-master-game-ply={row.whitePly}
+  aria-current={selectedMovePly === row.whitePly ? 'step' : undefined}
+  aria-label={`Move ${row.moveNumber}, White: ${row.white}`}
+  title={`Show position after ${row.moveNumber}. ${row.white}`}
+  onClick={() => previewFullLineMove(row.whitePly!)}
+ >
+  {row.white}
+ </button>
+ ) : <span />}
+ {row.black && row.blackPly !== undefined ? (
+ <button
+  type="button"
+  className={`master-games-trainer-move-button${selectedMovePly === row.blackPly ? ' is-active' : ''}`}
+  data-master-game-ply={row.blackPly}
+  aria-current={selectedMovePly === row.blackPly ? 'step' : undefined}
+  aria-label={`Move ${row.moveNumber}, Black: ${row.black}`}
+  title={`Show position after ${row.moveNumber}... ${row.black}`}
+  onClick={() => previewFullLineMove(row.blackPly!)}
+ >
+  {row.black}
+ </button>
+ ) : <span />}
  </div>
  ))}
  </div>
@@ -1992,6 +2102,11 @@ export default function MasterGamesPage() {
  ? currentExpected.san
  : 'Run complete.'}
  </div>
+ {previewPly !== null ? (
+ <div style={{ marginTop: 6, fontSize: 11, color: '#f2c14e' }}>
+  Preview only. Training still expects {currentExpected?.san ?? 'the run completion'}.
+ </div>
+ ) : null}
  </div>
 
  <div className="master-games-trainer-actions" style={{ display: 'flex', gap: 10 }}>

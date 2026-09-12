@@ -9,6 +9,9 @@ dist/
 .vercel/
 
 # Backups and reports
+docs/
+reports/
+generated/
 backups/
 audit-reports/
 audit-backups/
@@ -22,10 +25,24 @@ staging/
 # Local verified-tactics audit output is not a browser runtime asset.
 /public/data/verified-lichess-tactics-v1/reports/
 
+# The active Master Tactics production scan is not a browser runtime input.
+/scripts/master-tactics/
+/generated/master-tactics/
+/reports/master-tactics/
+
+# Master Tactics and Master Mates load the published corpus from Supabase Storage;
+# local historical copies under this tree are not browser runtime inputs.
+/public/data/master-puzzles/
+
+# Local copies/artifacts from earlier preview and verification work are not runtime inputs.
+/.vercel-preview*/
+/.local-verified-lichess-tactics-v1/
+
 # Local generation and maintenance scripts
 scripts/*
 !scripts/install-stockfish-assets.cjs
 !scripts/soften-react-chessboard-pieces.cjs
+!scripts/patch-react-chessboard-position.cjs
 !scripts/generate-route-metadata-shells.mjs
 src/scripts/
 src/generate_kqk_mates_1_to_9.py

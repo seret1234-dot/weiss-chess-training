@@ -39,6 +39,7 @@ type TrainerShellProps = {
  sidePanel: ReactNode
  footerLeft?: ReactNode
  footerRight?: ReactNode
+ onBack?: () => void
  maxWidth?: number
  sidePanelWidth?: number
  sidePanelColumns?: 1 | 2
@@ -57,6 +58,9 @@ type TrainerShellProps = {
  customSquareStyles?: Record<string, CSSProperties>
  arePiecesDraggable?: boolean
  boardLeft?: ReactNode
+ boardTop?: ReactNode
+ boardBottom?: ReactNode
+ boardControls?: ReactNode
  boardOverlay?: ReactNode
  customPieces?: CustomPiecesMap
  kpkBoardOverlay?: ReactNode
@@ -122,6 +126,7 @@ export default function TrainerShell({
  preventPageScroll = false,
  footerLeft,
  footerRight,
+ onBack,
  maxWidth = 1600,
 
  board,
@@ -137,6 +142,9 @@ export default function TrainerShell({
  customSquareStyles,
  arePiecesDraggable = true,
  boardLeft,
+ boardTop,
+ boardBottom,
+ boardControls,
  kpkBoardOverlay,
  boardOverlay,
  customPieces,
@@ -301,10 +309,21 @@ export default function TrainerShell({
  }}
  >
  <div className='trainer-shell-content' style={{ maxWidth, margin: '0 auto' }}>
+ <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: preventPageScroll ? 8 : 12 }}>
+ {onBack && (
+ <button
+ type='button'
+ onClick={onBack}
+ style={{ padding: preventPageScroll ? '7px 11px' : '10px 14px', borderRadius: 14, border: '1px solid var(--theme-border)', background: 'var(--theme-panel-2)', color: 'var(--theme-text)', cursor: 'pointer', fontWeight: 700 }}
+ >
+ ← Back
+ </button>
+ )}
  <div
  className='trainer-shell-title'
+ role='heading'
+ aria-level={1}
  style={{
- marginBottom: preventPageScroll ? 8 : 12,
  display: 'inline-block',
  padding: preventPageScroll ? '7px 13px' : '10px 16px',
  borderRadius: 14,
@@ -316,6 +335,7 @@ export default function TrainerShell({
  }}
  >
  {title}
+ </div>
  </div>
 
  <div
@@ -342,6 +362,7 @@ export default function TrainerShell({
  boxSizing: 'border-box',
  }}
  >
+ {boardTop ? <><div className='trainer-shell-board-top'>{boardTop}</div><div style={{ height: 8 }} /></> : null}
  {useManagedBoard ? (
  <div className='trainer-shell-managed-board-row' style={{ display: 'flex', gap: 10 }}>
  {boardLeft ? <div className='trainer-shell-board-left'>{boardLeft}</div> : null}
@@ -357,6 +378,9 @@ export default function TrainerShell({
  <ThemedChessboard
  id={boardId}
  position={fen}
+ accessibilityTitle={title}
+ accessibilitySelectedSquare={selectedSquare}
+ accessibilityInteraction="Select a source and destination square by click or drag. Use the surrounding named trainer controls for status, hints, and progression."
  onPieceDrop={onPieceDrop}
  onSquareClick={handleSquareClick}
  boardWidth={renderedBoardSize}
@@ -418,7 +442,10 @@ export default function TrainerShell({
  ) : (
  <div className='trainer-shell-custom-board-slot'>{board}</div>
  )}
+ {boardBottom ? <><div style={{ height: 8 }} /><div className='trainer-shell-board-bottom'>{boardBottom}</div></> : null}
  </div>
+
+ {boardControls ? <div className='trainer-shell-board-controls'>{boardControls}</div> : null}
 
  {(footerLeft || footerRight) && (
  <div

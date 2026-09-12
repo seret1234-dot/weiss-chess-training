@@ -1,4 +1,5 @@
 import { getNextDueItem, getNextDueReviewItem, type NextDueItem } from "../getNextDueItem"
+import { activityReadKeys } from '../activityIdentity'
 import { buildAutoTrainingRoute, type AutoTrainingItem } from "../autoTrainingRoute"
 import { supabase } from "../../lib/supabase"
 import {
@@ -72,12 +73,17 @@ async function readM1LearnerCompletion(userId: string) {
       getPatternTacticLearnerProgressTrainerKey(entry),
     ]),
   ]
-  const { data, error } = await supabase
-    .from("user_chunk_progress")
-    .select("trainer_key, chunk_index, is_mastered, mastered_puzzles_count")
-    .eq("user_id", userId)
-    .in("trainer_key", trainerKeys)
-  if (error) throw new Error(`Could not read learner curriculum progress: ${error.message}`)
+  // Do not put every historical revision in an oversized PostgREST query URL.
+  const wanted = new Set(trainerKeys.flatMap(activityReadKeys))
+  const data: any[] = []
+  for (let from = 0; ; from += 1000) {
+    const result = await supabase.from("user_chunk_progress")
+      .select("trainer_key, chunk_index, is_mastered, mastered_puzzles_count")
+      .eq("user_id", userId).order('trainer_key').order('chunk_index').range(from, from + 999)
+    if (result.error) throw new Error(`Could not read learner curriculum progress: ${result.error.message}`)
+    data.push(...(result.data ?? []).filter(row => wanted.has(row.trainer_key)))
+    if (!result.data || result.data.length < 1000) break
+  }
   return {
     ...getM1LearnerCompletionByTrainer(data ?? []),
     ...getM2ToM5LearnerCompletionByTrainer(data ?? []),
@@ -166,6 +172,8 @@ function fallbackDecision(item: NextDueItem, reason: unknown): CurriculumRuntime
     source: "legacy",
     route: item.route,
     trainerKey: item.trainerKey,
+    progressTrainerKey: item.progressTrainerKey,
+    learnerCurriculumVersion: item.learnerCurriculumVersion,
     chunkIndex: item.chunkIndex,
     label: item.trainerKey.replace(/-/g, " "),
     explanation: "Your existing scheduled review is being used while the curriculum decision is unavailable.",

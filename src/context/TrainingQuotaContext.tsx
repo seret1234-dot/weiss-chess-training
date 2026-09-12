@@ -12,10 +12,19 @@ import type { User } from "@supabase/supabase-js"
 import { useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import { useSubscription } from "./SubscriptionContext"
+import { isAutoChunkTraining } from '../training/autoChunkAllowance'
+import { AutoAllowanceBoundary } from '../training/AutoAllowanceBoundary'
 import {
   TRAINING_ITEM_COMPLETED_EVENT,
   type TrainingItemCompletedDetail,
 } from "../lib/trainingQuotaEvents"
+import {
+  authRouterState,
+  consumeTrainingReturnTarget,
+  currentTrainingReturnTarget,
+  isLimitedTrainingPath,
+  rememberTrainingReturnTarget,
+} from "../auth/trainingReturnTarget.mjs"
 
 const GUEST_LIMIT = 10
 const FREE_DAILY_LIMIT = 10
@@ -34,6 +43,7 @@ type TrainingQuotaSnapshot = {
 }
 
 type TrainingQuotaContextValue = TrainingQuotaSnapshot & {
+  accountId: string | null
   refresh: () => Promise<void>
 }
 
@@ -120,41 +130,6 @@ function snapshotFromServer(
           : null,
     error: null,
   }
-}
-
-function limitedTrainingRoute(pathname: string) {
-  const path = pathname.replace(/\/+$/, "") || "/"
-
-  if (path === "/stalemate/underpromotion") return true
-  if (path === "/board-vision" || path.startsWith("/board-vision/")) {
-    return true
-  }
-  if (path.startsWith("/pattern/")) return true
-  if (/^\/tactics\/[^/]+\/[^/]+$/.test(path)) return true
-  if (/^\/mates\/m\d+\/[^/]+$/.test(path)) return true
-  if (
-    path === "/backrank" ||
-    /^\/anastasia(?:-m\d+)?$/.test(path)
-  ) {
-    return true
-  }
-  if (path.startsWith("/endgame/piece-mates/")) return true
-  if (path.startsWith("/endgame-studies/")) return true
-  if (path.startsWith("/free-play/")) return true
-  if (/^\/master-games\/[^/]+$/.test(path)) return true
-  if (
-    /^\/openings\/[^/]+$/.test(path) &&
-    !path.startsWith("/openings/family/")
-  ) {
-    return true
-  }
-
-  return false
-}
-
-function premiumOnlyRoute(pathname: string) {
-  const path = pathname.replace(/\/+$/, "") || "/"
-  return path === "/auto"
 }
 
 export function TrainingQuotaProvider({
@@ -255,11 +230,16 @@ export function TrainingQuotaProvider({
         .detail
 
       if (!detail?.kind || !detail?.eventId) return
+      // Capture the event's route before a completion redirect can run.
+      if (userRef.current && isAutoChunkTraining(window.location)) return
 
       queueRef.current = queueRef.current.then(async () => {
         if (premiumRef.current) return
 
         const currentUser = userRef.current
+        // Signed-in Auto is admitted at existing chunk/stage boundaries, not
+        // charged per puzzle (which would interrupt the admitted chunk).
+        if (currentUser && isAutoChunkTraining(window.location)) return
 
         if (!currentUser) {
           const usedBefore = readGuestUsage()
@@ -317,9 +297,10 @@ export function TrainingQuotaProvider({
   const value = useMemo(
     () => ({
       ...snapshot,
+      accountId: user?.id ?? null,
       refresh,
     }),
-    [snapshot, refresh],
+    [snapshot, refresh, user?.id],
   )
 
   return (
@@ -360,7 +341,21 @@ function AccessPage({
   mode: "quota" | "premium" | "error" | "loading"
 }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const quota = useTrainingQuota()
+
+  function beginLogin() {
+    const target = currentTrainingReturnTarget(location)
+    const record = target ? rememberTrainingReturnTarget(target) : null
+    navigate("/auth?resumeTraining=1", {
+      state: authRouterState(record),
+    })
+  }
+
+  function beginSignup() {
+    consumeTrainingReturnTarget()
+    navigate("/auth?mode=signup")
+  }
 
   if (mode === "loading") {
     return (
@@ -413,13 +408,19 @@ function AccessPage({
           }}
         >
           {isGuest && mode !== "premium" ? (
-            <button style={primaryButton} onClick={() => navigate("/auth")}>
+            <button style={primaryButton} onClick={beginSignup}>
               Create free account
             </button>
           ) : null}
 
+          {isGuest && mode !== "premium" ? (
+            <button style={secondaryButton} onClick={beginLogin}>
+              Log in
+            </button>
+          ) : null}
+
           {mode === "error" ? (
-            <button style={primaryButton} onClick={() => navigate("/auth")}>
+            <button style={primaryButton} onClick={beginLogin}>
               Log in again
             </button>
           ) : null}
@@ -448,20 +449,20 @@ function AccessPage({
 
 export function TrainingQuotaRouteGate({
   children,
+  loadingFallback,
 }: {
   children: ReactNode
+  loadingFallback?: ReactNode
 }) {
   const location = useLocation()
   const quota = useTrainingQuota()
-  const isLimited = limitedTrainingRoute(location.pathname)
-  const isPremiumOnly = premiumOnlyRoute(location.pathname)
-
-  if (!isLimited && !isPremiumOnly) return <>{children}</>
-  if (!quota.ready) return <AccessPage mode="loading" />
-  if (quota.error) return <AccessPage mode="error" />
-  if (isPremiumOnly && quota.tier !== "premium") {
-    return <AccessPage mode="premium" />
+  const isLimited = isLimitedTrainingPath(location.pathname)
+  if (quota.accountId && isAutoChunkTraining(location)) {
+    return <AutoAllowanceBoundary>{children}</AutoAllowanceBoundary>
   }
+  if (!isLimited) return <>{children}</>
+  if (!quota.ready) return loadingFallback ?? <AccessPage mode="loading" />
+  if (quota.error) return <AccessPage mode="error" />
   if (
     isLimited &&
     quota.tier !== "premium" &&

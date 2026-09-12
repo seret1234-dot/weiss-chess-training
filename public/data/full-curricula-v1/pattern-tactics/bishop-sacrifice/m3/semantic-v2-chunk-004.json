@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "puzzles": [
+    {
+      "id": "semantic-v2-bishop-sacrifice-m3-wcTEL-5",
+      "puzzleId": "wcTEL",
+      "fen": "5r1k/pbpq2p1/3b3p/2p5/P3p3/2N1Qp2/1PP2PPP/R1B2RK1 w - - 0 20",
+      "preMove": "c3e4",
+      "solutionLine": [
+        "d6h2",
+        "g1h2",
+        "d7g4",
+        "g2f3",
+        "f8f3"
+      ],
+      "userMoveIndexes": [
+        0,
+        2,
+        4
+      ],
+      "tacticDistance": 3,
+      "rating": 2885,
+      "label": "bishop-sacrifice semantic v2",
+      "theme": "bishop-sacrifice",
+      "sourceThemeKeys": [
+        "advantage",
+        "kingsideAttack",
+        "middlegame",
+        "quietMove",
+        "sacrifice",
+        "veryLong"
+      ],
+      "sourceThemes": [
+        "Quiet Move",
+        "Kingside Attack",
+        "Pawn Sacrifice"
+      ],
+      "derivedFrom": {
+        "inputId": "sacrifice-pawn-first-move-m1-wcTEL",
+        "inputCollection": "pawn-sacrifice/m1",
+        "originalPuzzleId": "wcTEL",
+        "sourceStartPly": 5,
+        "semanticEvidence": "bishop offered at source ply 5 and removed by reply"
+      },
+      "validationLevel": "semantic-v2-approved"
+    }
+  ]
+}

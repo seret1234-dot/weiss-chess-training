@@ -1,6 +1,8 @@
 import type { CurriculumArea, CurriculumState, StageMastery, ThemeMastery } from "./curriculumTypes"
 
-export const MIXED_THEME_MASTERY_THRESHOLD = 0.8
+// Mixed recognition follows mastery of every required focused component.
+// This is a prerequisite fraction, not a change to any component's mastery criteria.
+export const MIXED_THEME_MASTERY_THRESHOLD = 1
 export const CONSECUTIVE_PERFECT_CHUNKS_TO_MASTER = 2
 export const MAJOR_WEAK_THEME_ACCURACY = 0.7
 

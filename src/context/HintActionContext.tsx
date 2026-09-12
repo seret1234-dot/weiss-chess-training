@@ -24,6 +24,7 @@ export type HintActionOptions = {
   onHintStage?: (move: HintMove, stage: HintStage) => void | Promise<void>
   onHintReset?: () => void
   disabled?: boolean
+  showFloatingControl?: boolean
   resetKey?: unknown
 }
 
@@ -181,19 +182,20 @@ export function HintActionProvider({ children }: { children: ReactNode }) {
   const activeRegistration = activeEntry?.[1] ?? null
   const activeOptions = activeRegistration?.getOptions() ?? null
   const isAvailable = Boolean(activeOptions && !activeOptions.disabled)
+  const showFloatingControl = isAvailable && activeOptions?.showFloatingControl !== false
 
   useEffect(() => {
     if (typeof document === 'undefined') return
 
     document.documentElement.classList.toggle(
       'has-active-global-hint',
-      isAvailable,
+      showFloatingControl,
     )
 
     return () => {
       document.documentElement.classList.remove('has-active-global-hint')
     }
-  }, [isAvailable])
+  }, [showFloatingControl])
 
   const resetActive = useCallback(() => {
     if (activeId) reset(activeId)
@@ -274,7 +276,7 @@ export function HintActionProvider({ children }: { children: ReactNode }) {
         ? createPortal(
             <>
               {highlightCss ? <style data-global-hint-highlights>{highlightCss}</style> : null}
-              {activeRegistration && isAvailable ? (
+              {activeRegistration && showFloatingControl ? (
                 <>
                   <div className="global-floating-hint-dock-row" aria-hidden="true" />
                   <button
@@ -316,7 +318,7 @@ export function useHintAction(
   useEffect(() => {
     if (!registry || !hasAction) return
     registry.refresh(registrationId.current)
-  }, [registry, hasAction, options?.disabled])
+  }, [registry, hasAction, options?.disabled, options?.showFloatingControl])
 
   useEffect(() => {
     if (!registry || !hasAction) return

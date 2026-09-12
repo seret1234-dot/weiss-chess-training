@@ -1,20 +1,20 @@
-import { useEffect, useRef, useState } from "react"
 import type { CSSProperties } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { getOrCreateAutoProfile } from "../training/getOrCreateAutoProfile"
 import {
  buildPersonalTrainingPlan,
- selectScheduledSection,
 } from "../training/buildPersonalTrainingPlan"
-import type { PersonalTrainingPlan, TrainingSection } from "../training/buildPersonalTrainingPlan"
+import type { PersonalTrainingPlan } from "../training/buildPersonalTrainingPlan"
 import { addAutoTrainingParams } from "../training/autoTrainingRoute"
 import {
- buildCurriculumAutoTrainingRoute,
  getCurriculumDecisionForUser,
  type CurriculumRuntimeDecision,
 } from "../training/curriculum/curriculumRuntime"
 import {
  getWeeklyTestStatus,
+ getWeeklyPlanMultipliers,
+ weeklySections,
  type WeeklyTestPlanStatus,
 } from "../training/weeklyAdaptiveTest"
 import { recordRecentAutoTrainer } from "../training/targetedSparring"
@@ -23,16 +23,18 @@ import {
  recordRecentEndgameTrainer,
 } from "../training/endgameTransfer"
 import { resolveAutoStartRoute } from "../training/resolveAutoStartRoute"
+import { resolvePlanAutoActivity } from '../training/resolvePlanAutoActivity'
 import { importConnectedAccounts } from "../training/importConnectedAccounts"
-import { analyzeImportedGamesWithStockfish } from "../training/engineAnalyzeImportedGames"
-import { getMasterGameOpeningSearch, selectCalculationDepth } from "../training/learningPlanRules"
+import { analyzeImportedGamesWithStockfish, getRemainingImportedGamesToAnalyze } from "../training/engineAnalyzeImportedGames"
 import { supabase } from "../lib/supabase"
 import "../AccountAutoStudy.css"
+import { autoEntryEnabled } from '../training/autoEntryEnabled'
 
 const AUTO_BOARD_VISION_SESSION_KEY = "weiss-chess-auto-board-vision-done-v1"
 const AUTO_SECTION_OFFSET_KEY = "weiss-chess-auto-section-offset-v1"
 
 async function buildPlanWithMasterGameCadence(autoProfile: any, userId: string) {
+ const weekly = weeklySections(await getWeeklyPlanMultipliers(userId))
  try {
   const { data, error } = await supabase
    .from("training_progress")
@@ -43,12 +45,12 @@ async function buildPlanWithMasterGameCadence(autoProfile: any, userId: string) 
    .limit(1)
    .maybeSingle()
   if (!error && data?.created_at) {
-   return buildPersonalTrainingPlan({ ...autoProfile, master_game_last_introduced_at: data.created_at })
+   return buildPersonalTrainingPlan({ ...autoProfile, master_game_last_introduced_at: data.created_at }, weekly)
   }
  } catch {
   // Cadence metadata is advisory when an older schema lacks created_at.
  }
- return buildPersonalTrainingPlan(autoProfile)
+ return buildPersonalTrainingPlan(autoProfile, weekly)
 }
 
 function boardVisionDoneThisSession(userId: string) {
@@ -79,30 +81,9 @@ function advanceAutoSectionOffset() {
 }
 
 function planAwareDecision(plan: PersonalTrainingPlan, decision: CurriculumRuntimeDecision | null, userId: string) {
- if (!decision || decision.source === "legacy") return decision
  const excluded = boardVisionDoneThisSession(userId) ? ["boardVision" as const] : []
- const completedSelections = (decision.selectionIndex ?? 0) + autoSectionOffset()
- const section = selectScheduledSection(plan, completedSelections, excluded)
- const depth = selectCalculationDepth(plan.currentRating, completedSelections)
- if (section.key === "tactics" && (decision.curriculumArea === "tactics" || decision.curriculumArea === "mates")) return decision
- if (section.key === "endgames" && decision.curriculumArea?.startsWith("endgame")) return decision
- const targets: Partial<Record<TrainingSection["key"], { route: string; trainerKey: string; area: string }>> = {
-  boardVision: { route: section.route, trainerKey: "board-vision-basic", area: "board-vision" },
-  openings: { route: section.route, trainerKey: "openings-repertoire", area: "openings" },
-  tactics: { route: "/tactics", trainerKey: "tactics-course", area: "tactics" },
-  masterTactics: { route: `/master-tactics/${depth}/mixed`, trainerKey: `master-tactics-mixed-${depth}`, area: "master-tactics" },
-  endgames: { route: section.route, trainerKey: "endgame-studies", area: "endgame-studies" },
-  masterMates: { route: `/master-mates/${depth}/mixed`, trainerKey: `master-mates-mixed-${depth}`, area: "master-mates" },
-  masterGames: {
-   route: section.preferredOpeningKeys?.[0]
-    ? `${section.route}?opening=${encodeURIComponent(getMasterGameOpeningSearch(section.preferredOpeningKeys[0]))}`
-    : section.route,
-   trainerKey: "master-games-relevance",
-   area: "master-games",
-  },
- }
- const target = targets[section.key]!
- return { ...decision, ...target, chunkIndex: null, curriculumArea: target.area as any, label: section.label, explanation: section.reason }
+ const completedSelections = (decision?.selectionIndex ?? 0) + autoSectionOffset()
+ return resolvePlanAutoActivity(plan, decision, userId, completedSelections, excluded)
 }
 
 type LoadState =
@@ -153,6 +134,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
  const [refreshingGames, setRefreshingGames] = useState(false)
  const [engineBusy, setEngineBusy] = useState(false)
  const [engineProgress, setEngineProgress] = useState("")
+ const [remainingAnalysisGames, setRemainingAnalysisGames] = useState<number | null>(null)
  const [weeklyStatus, setWeeklyStatus] = useState<WeeklyTestPlanStatus | null>(null)
  const [curriculumDecision, setCurriculumDecision] = useState<CurriculumRuntimeDecision | null>(null)
 
@@ -186,16 +168,21 @@ export default function AutoStudyPage({ user }: { user: any }) {
      return
     }
 
-    const [nextWeeklyStatus, nextCurriculumDecision] = await Promise.all([
+    const [nextWeeklyStatus, nextCurriculumDecision, remainingGames] = await Promise.all([
      getWeeklyTestStatus(user.id),
      getAutoCurriculumDecision(user.id),
+     getRemainingImportedGamesToAnalyze(user.id),
     ])
     const plan = await buildPlanWithMasterGameCadence(autoProfile, user.id)
+    const displayDecision = nextWeeklyStatus.status === 'complete' && !nextWeeklyStatus.reviewRoute
+     ? await planAwareDecision(plan, nextCurriculumDecision, user.id)
+     : nextCurriculumDecision
 
     if (!cancelled) {
      setState({ status: "ready", autoProfile, plan })
      setWeeklyStatus(nextWeeklyStatus)
-     setCurriculumDecision(planAwareDecision(plan, nextCurriculumDecision, user.id))
+     setCurriculumDecision(displayDecision)
+     setRemainingAnalysisGames(remainingGames)
     }
    } catch (error) {
     console.error("AUTO PAGE error:", error)
@@ -208,7 +195,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
   return () => {
    cancelled = true
   }
- }, [navigate, user])
+ }, [location.search, navigate, user])
 
  useEffect(() => {
   if (!user) return
@@ -270,9 +257,10 @@ export default function AutoStudyPage({ user }: { user: any }) {
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
    const plan = await buildPlanWithMasterGameCadence(autoProfile, user.id)
-    setState({ status: "ready", autoProfile, plan })
+   setState({ status: "ready", autoProfile, plan })
    const decision = await getAutoCurriculumDecision(user.id)
-   setCurriculumDecision(planAwareDecision(plan, decision, user.id))
+   setCurriculumDecision(await planAwareDecision(plan, decision, user.id))
+    setRemainingAnalysisGames(await getRemainingImportedGamesToAnalyze(user.id))
    }
   } catch (error) {
    console.error("Refresh connected games failed:", error)
@@ -302,9 +290,10 @@ export default function AutoStudyPage({ user }: { user: any }) {
    const autoProfile = await getOrCreateAutoProfile(user.id)
    if (autoProfile) {
    const plan = await buildPlanWithMasterGameCadence(autoProfile, user.id)
-    setState({ status: "ready", autoProfile, plan })
+   setState({ status: "ready", autoProfile, plan })
    const decision = await getAutoCurriculumDecision(user.id)
-   setCurriculumDecision(planAwareDecision(plan, decision, user.id))
+   setCurriculumDecision(await planAwareDecision(plan, decision, user.id))
+    setRemainingAnalysisGames(await getRemainingImportedGamesToAnalyze(user.id))
    }
 
    setEngineProgress(
@@ -339,14 +328,14 @@ export default function AutoStudyPage({ user }: { user: any }) {
    ])
 
    setWeeklyStatus(latestWeeklyStatus)
-   const currentPlan = state.status === "ready" ? state.plan : null
-   const plannedDecision = currentPlan ? planAwareDecision(currentPlan, nextCurriculumDecision, user.id) : nextCurriculumDecision
-   setCurriculumDecision(plannedDecision)
-
-   if (latestWeeklyStatus.status === "in_progress" || latestWeeklyStatus.status === "due") {
+   if (latestWeeklyStatus.reviewRoute || latestWeeklyStatus.status === "in_progress" || latestWeeklyStatus.status === "due") {
     navigate(resolveAutoStartRoute({ weeklyStatus: latestWeeklyStatus, curriculumDecision: nextCurriculumDecision }), { replace })
     return
    }
+   // Re-read Weekly evidence at launch, including a review completed since hydration.
+   const currentPlan = state.status === "ready" ? await buildPlanWithMasterGameCadence(state.autoProfile, user.id) : null
+   const plannedDecision = currentPlan ? await planAwareDecision(currentPlan, nextCurriculumDecision, user.id) : nextCurriculumDecision
+   setCurriculumDecision(plannedDecision)
 
    const nextItem = plannedDecision
 
@@ -355,7 +344,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
     advanceAutoSectionOffset()
     recordRecentAutoTrainer(nextItem.trainerKey, nextItem.route)
     recordRecentEndgameTrainer(nextItem.trainerKey, nextItem.route)
-    navigate(buildCurriculumAutoTrainingRoute(nextItem), { replace })
+    navigate(resolveAutoStartRoute({ weeklyStatus: latestWeeklyStatus, curriculumDecision: nextItem }), { replace })
     return
    }
 
@@ -368,6 +357,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
    }), { replace })
   } catch (error) {
    console.error("Could not start recommended training:", error)
+   if (autoEntryEnabled) setState({ status: 'error', message: 'Could not open Auto Training. Use Menu to return Home and retry.' })
    alert("Could not open the next course item. Check the console.")
   } finally {
    setStartingTraining(false)
@@ -411,6 +401,12 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
  const { plan, autoProfile } = state
 
+ // Direct entry: keep the course launch automatic, without flashing its
+ // Start/Continue dashboard while the existing async selector opens a trainer.
+ if (new URLSearchParams(location.search).get('continue') === '1') {
+  return <div role="status" style={pageStyle()}>Opening Auto Training…</div>
+ }
+
  return (
   <div className="auto-study-page" style={pageStyle()}>
    <div className="auto-study-page__shell" style={{ maxWidth: 1120, margin: "0 auto" }}>
@@ -442,6 +438,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
       >
        {refreshingGames ? "Refreshing games..." : "Refresh connected games"}
       </button>
+      {remainingAnalysisGames !== null && remainingAnalysisGames > 0 ? (
       <button
       onClick={analyzeGamesWithEngine}
       disabled={engineBusy}
@@ -457,8 +454,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
        cursor: engineBusy ? "wait" : "pointer",
       }}
       >
-       {engineBusy ? "Analyzing..." : "Analyze all remaining games with Stockfish"}
+       {engineBusy ? "Analyzing..." : `Analyze ${remainingAnalysisGames} remaining ${remainingAnalysisGames === 1 ? "game" : "games"} with Stockfish`}
       </button>
+      ) : null}
       </div>
      {engineProgress && (
       <div style={{ marginTop: 10, color: "#d6d6d6", fontSize: 14 }}>
@@ -562,7 +560,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
       alignItems: "start",
      }}
     >
-     <main className="auto-study-page__course-card" style={cardStyle()}>
+     <div className="auto-study-page__course-card" style={cardStyle()}>
       <div
        className="auto-study-page__priority-grid"
        style={{
@@ -628,7 +626,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
         </div>
        ))}
       </div>
-     </main>
+     </div>
 
      <aside className="auto-study-page__sidebar" style={cardStyle()}>
       <div
@@ -674,7 +672,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
         <div style={sectionCardStyle()}>
          <div style={{ color: "#bdbdbd", fontSize: 13 }}>Daily plan capacity</div>
-         <div style={{ fontWeight: 900 }}>{plan.dailyPracticeMinutes} declared min ? {plan.effectiveDailyPracticeMinutes.toFixed(1)} effective min</div>
+         <div style={{ fontWeight: 900 }}>{plan.dailyPracticeMinutes} declared min · {plan.effectiveDailyPracticeMinutes.toFixed(1)} effective min</div>
          <div style={{ color: "#cfcfcf", fontSize: 13 }}>
           {plan.timeframeMonths ? `${plan.timeframeMonths}-month target window` : "Long-term / no deadline"}
          </div>

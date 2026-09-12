@@ -1,6 +1,8 @@
 import { Chess } from 'chess.js'
+import { pendingWeeklyReviewRoute, type WeeklyExplainedReview, type WeeklyAnalysisSnapshot } from './weeklyReviewFlow'
 import { supabase } from '../lib/supabase'
 import type { TransferOpportunity, TransferTarget } from './targetedSparring'
+import { deriveWeeklyAssessment, type WeeklyAssessment, type WeeklyReviewSummary, type WeeklySectionMultipliers } from './weeklyAssessment'
 
 export type WeeklyCategory =
  | 'mates'
@@ -11,6 +13,7 @@ export type WeeklyCategory =
 
 export type WeeklyPlanSignals = {
  version: 1
+ assessment?: WeeklyAssessment
  generatedAt: string
  results: {
   wins: number
@@ -33,6 +36,7 @@ export type WeeklyCloudLoad = {
 }
 
 export type WeeklyTestPlanStatus = {
+ reviewRoute?: string | null
  weekKey: string
  status: 'due' | 'in_progress' | 'complete'
  currentGame: 0 | 1 | 2
@@ -45,6 +49,11 @@ export type WeeklyTestPlanStatus = {
 }
 
 type WeeklyGameLike = {
+ explainedReview?: WeeklyExplainedReview
+ analysisSnapshot?: WeeklyAnalysisSnapshot
+ analysis?: WeeklyReviewSummary
+ transferEvidenceKeys?: string[]
+ unmappedTransferTargets?: string[]
  color?: 'white' | 'black'
  started?: boolean
  completed?: boolean
@@ -57,6 +66,8 @@ type WeeklyGameLike = {
 }
 
 export type WeeklyStateLike = {
+ reviewFlowVersion?: 1
+ reviewFlowCompletedAt?: string
  userId?: string
  weekKey?: string
  engineElo?: number
@@ -130,11 +141,28 @@ function stateTimestamp(state: WeeklyStateLike | null | undefined) {
  )
 }
 
+function hasWeeklyProgress(state: WeeklyStateLike) {
+ // Timestamps, assigned targets and default board/settings are initialization,
+ // not learner progress. Keep the selected snapshot intact (including review).
+ const initialFen = new Chess().fen()
+ return Boolean(state.completedAt || state.reviewFlowCompletedAt ||
+  (state.currentGame ?? 0) > 0 || state.games?.some(game =>
+   game.started || game.completed || game.analysis || game.analysisSnapshot ||
+   game.explainedReview || game.transferOpportunities?.length ||
+   /\d+\.(?:\.\.)?\s*\S/.test(game.pgn ?? '') ||
+   (game.fen && game.fen !== initialFen)))
+}
+
 export function chooseNewestWeeklyTestState<T extends WeeklyStateLike>(
  localState: T,
  cloudState: T | null,
 ): T {
  if (!cloudState) return localState
+ const localProgress = hasWeeklyProgress(localState)
+ const cloudProgress = hasWeeklyProgress(cloudState)
+ if (localProgress !== cloudProgress) return cloudProgress ? cloudState : localState
+ // Only comparable real snapshots compete on freshness. A newly instantiated
+ // empty placeholder must never overwrite an existing game, in either direction.
  return stateTimestamp(cloudState) > stateTimestamp(localState)
   ? cloudState
   : localState
@@ -188,6 +216,7 @@ function statusFromState(
  return {
   weekKey,
   status: complete ? 'complete' : started ? 'in_progress' : 'due',
+  reviewRoute: pendingWeeklyReviewRoute(state),
   currentGame,
   gamesCompleted: completed,
   completedAt: state.completedAt ?? null,
@@ -336,6 +365,8 @@ function userOutcome(
 
 export function buildWeeklyPlanSignals(
  games: Array<{
+  completed?: boolean
+  analysis?: WeeklyReviewSummary
   color: 'white' | 'black'
   result: string
   pgn?: string
@@ -424,6 +455,18 @@ export function buildWeeklyPlanSignals(
   }
  }
 
+ // Preserve the legacy five-category signal; map transfer categories explicitly
+ // in the seven-section input so tactical misses are not counted as mate misses.
+ const sections: WeeklySectionMultipliers = {
+  masterMates: multipliers.mates, endgames: multipliers.endgames,
+  boardVision: multipliers['board-vision'], openings: multipliers.openings,
+  masterGames: multipliers['master-games'], tactics: 1, masterTactics: 1,
+ }
+ for (const category of ['mates', 'tactics'] as const) {
+  const missed = games.flatMap(game => game.transferOpportunities ?? []).filter(op => op.category === category && op.status === 'missed').length
+  const section = category === 'mates' ? 'masterMates' : 'masterTactics'
+  sections[section] = (sections[section] ?? 1) + Math.min(.18, transferMissed * .06) * missed / Math.max(1, transferMissed)
+ }
  if (transferMissed > 0) {
   multipliers.mates += Math.min(0.18, transferMissed * 0.06)
   reasons.push(`${transferMissed} missed transfer opportunit${transferMissed === 1 ? 'y' : 'ies'} add targeted mate/tactics review.`)
@@ -447,6 +490,7 @@ export function buildWeeklyPlanSignals(
 
  return {
   version: 1,
+  assessment: deriveWeeklyAssessment(games, sections),
   generatedAt: new Date().toISOString(),
   results: { wins, draws, losses },
   multipliers,
@@ -460,25 +504,40 @@ export function buildWeeklyPlanSignals(
  }
 }
 
+export type WeeklyPlanMultipliers = Record<WeeklyCategory, number> & { sections?: WeeklySectionMultipliers }
+
+function planMultipliers(signals: WeeklyPlanSignals): WeeklyPlanMultipliers {
+ return { ...signals.multipliers, ...(signals.assessment ? { sections: signals.assessment.sectionMultipliers } : {}) }
+}
+
+export function weeklySections(multipliers: WeeklyPlanMultipliers): WeeklySectionMultipliers {
+ return multipliers.sections ?? {
+  masterMates: multipliers.mates, endgames: multipliers.endgames,
+  boardVision: multipliers['board-vision'], openings: multipliers.openings,
+  masterGames: multipliers['master-games'],
+ }
+}
+
 function localPlanEvidence(
  userId: string,
 ): {
- multipliers: Record<WeeklyCategory, number>
+ multipliers: WeeklyPlanMultipliers
  completedAt: string | null
 } | null {
  const local = readLocalState()
+ if (!local?.completedAt) return null
  if (local?.userId && local.userId !== userId) return null
  if (!local?.planSignals?.multipliers) return null
 
  return {
-  multipliers: local.planSignals.multipliers,
+  multipliers: planMultipliers(local.planSignals),
   completedAt: local.completedAt ?? null,
  }
 }
 
 export async function getWeeklyPlanMultipliers(
  userId: string,
-): Promise<Record<WeeklyCategory, number>> {
+): Promise<WeeklyPlanMultipliers> {
  const { data, error } = await supabase
   .from(TABLE)
   .select('plan_signals, completed_at')
@@ -508,5 +567,5 @@ export async function getWeeklyPlanMultipliers(
   return localEvidence.multipliers
  }
 
- return signals?.multipliers ?? localEvidence?.multipliers ?? neutralMultipliers()
+ return signals?.multipliers ? planMultipliers(signals) : localEvidence?.multipliers ?? neutralMultipliers()
 }

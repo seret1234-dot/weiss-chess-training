@@ -1,5 +1,8 @@
 {
   "functions": {
+    "api/chess-voice-transcribe.js": {
+      "maxDuration": 60
+    },
     "api/coach-explanation.js": {
       "maxDuration": 20
     },
@@ -20,6 +23,14 @@
     }
   },
   "routes": [
+    {
+      "src": "^/$",
+      "dest": "/_route-metadata/home.html",
+      "headers": {
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Embedder-Policy": "require-corp"
+      }
+    },
     {
       "src": "/(auth|reset-password|account|onboarding|auto|sample-training|play-computer|play-vs-computer|book-trainer|analyze|board-vision-old|master-games-old)",
       "headers": {
@@ -65,6 +76,48 @@
     }
   ],
   "rewrites": [
+    {"source":"/affiliate","destination":"/_route-metadata/affiliate.html"},
+    {"source":"/checkmate-patterns","destination":"/_route-metadata/checkmate-patterns.html"},
+    {"source":"/checkmate-patterns/anastasias-mate","destination":"/_route-metadata/checkmate-patterns--anastasias-mate.html"},
+    {"source":"/checkmate-patterns/arabian-mate","destination":"/_route-metadata/checkmate-patterns--arabian-mate.html"},
+    {"source":"/checkmate-patterns/back-rank-mate","destination":"/_route-metadata/checkmate-patterns--back-rank-mate.html"},
+    {"source":"/checkmate-patterns/bodens-mate","destination":"/_route-metadata/checkmate-patterns--bodens-mate.html"},
+    {"source":"/checkmate-patterns/double-bishop-mate","destination":"/_route-metadata/checkmate-patterns--double-bishop-mate.html"},
+    {"source":"/checkmate-patterns/dovetail-mate","destination":"/_route-metadata/checkmate-patterns--dovetail-mate.html"},
+    {"source":"/checkmate-patterns/hook-mate","destination":"/_route-metadata/checkmate-patterns--hook-mate.html"},
+    {"source":"/checkmate-patterns/kill-box-mate","destination":"/_route-metadata/checkmate-patterns--kill-box-mate.html"},
+    {"source":"/checkmate-patterns/smothered-mate","destination":"/_route-metadata/checkmate-patterns--smothered-mate.html"},
+    {"source":"/chess-guides/board-vision","destination":"/_route-metadata/chess-guides--board-vision.html"},
+    {"source":"/chess-guides/learn-openings","destination":"/_route-metadata/chess-guides--learn-openings.html"},
+    {"source":"/chess-guides/study-master-games","destination":"/_route-metadata/chess-guides--study-master-games.html"},
+    {"source":"/chess-tactics","destination":"/_route-metadata/chess-tactics.html"},
+    {"source":"/chess-tactics/bishop-fork","destination":"/_route-metadata/chess-tactics--bishop-fork.html"},
+    {"source":"/chess-tactics/clearance","destination":"/_route-metadata/chess-tactics--clearance.html"},
+    {"source":"/chess-tactics/clearance-sacrifice","destination":"/_route-metadata/chess-tactics--clearance-sacrifice.html"},
+    {"source":"/chess-tactics/deflection","destination":"/_route-metadata/chess-tactics--deflection.html"},
+    {"source":"/chess-tactics/discovered-attack","destination":"/_route-metadata/chess-tactics--discovered-attack.html"},
+    {"source":"/chess-tactics/discovered-check","destination":"/_route-metadata/chess-tactics--discovered-check.html"},
+    {"source":"/chess-tactics/double-check","destination":"/_route-metadata/chess-tactics--double-check.html"},
+    {"source":"/chess-tactics/fork","destination":"/_route-metadata/chess-tactics--fork.html"},
+    {"source":"/chess-tactics/hanging-piece","destination":"/_route-metadata/chess-tactics--hanging-piece.html"},
+    {"source":"/chess-tactics/knight-fork","destination":"/_route-metadata/chess-tactics--knight-fork.html"},
+    {"source":"/chess-tactics/pawn-fork","destination":"/_route-metadata/chess-tactics--pawn-fork.html"},
+    {"source":"/chess-tactics/pin","destination":"/_route-metadata/chess-tactics--pin.html"},
+    {"source":"/chess-tactics/promotion","destination":"/_route-metadata/chess-tactics--promotion.html"},
+    {"source":"/chess-tactics/queen-fork","destination":"/_route-metadata/chess-tactics--queen-fork.html"},
+    {"source":"/chess-tactics/removing-the-defender","destination":"/_route-metadata/chess-tactics--removing-the-defender.html"},
+    {"source":"/chess-tactics/rook-fork","destination":"/_route-metadata/chess-tactics--rook-fork.html"},
+    {"source":"/chess-tactics/skewer","destination":"/_route-metadata/chess-tactics--skewer.html"},
+    {"source":"/chess-tactics/underpromotion","destination":"/_route-metadata/chess-tactics--underpromotion.html"},
+    {"source":"/chess-tactics/zwischencheck","destination":"/_route-metadata/chess-tactics--zwischencheck.html"},
+    {"source":"/chess-tactics/zwischenzug","destination":"/_route-metadata/chess-tactics--zwischenzug.html"},
+    {"source":"/endgame-guides","destination":"/_route-metadata/endgame-guides.html"},
+    {"source":"/endgame-guides/kpk","destination":"/_route-metadata/endgame-guides--kpk.html"},
+    {"source":"/endgame-guides/lucena","destination":"/_route-metadata/endgame-guides--lucena.html"},
+    {"source":"/endgame-guides/philidor","destination":"/_route-metadata/endgame-guides--philidor.html"},
+    {"source":"/master-mates","destination":"/_route-metadata/master-mates.html"},
+    {"source":"/master-tactics","destination":"/_route-metadata/master-tactics.html"},
+    {"source":"/endgames","destination":"/_route-metadata/endgame.html"},
     { "source": "/", "destination": "/_route-metadata/home.html" },
     { "source": "/mates", "destination": "/_route-metadata/mates.html" },
     { "source": "/mates/m1", "destination": "/_route-metadata/mates--m1.html" },
@@ -88,6 +141,10 @@
     { "source": "/board-vision", "destination": "/_route-metadata/board-vision.html" },
     { "source": "/museum", "destination": "/_route-metadata/museum.html" },
     { "source": "/pricing", "destination": "/_route-metadata/pricing.html" },
+    { "source": "/privacy", "destination": "/_route-metadata/privacy.html" },
+    { "source": "/privacy/he", "destination": "/_route-metadata/privacy--he.html" },
+    { "source": "/accessibility", "destination": "/_route-metadata/accessibility.html" },
+    { "source": "/accessibility/he", "destination": "/_route-metadata/accessibility--he.html" },
     { "source": "/auth", "destination": "/_route-metadata/auth.html" },
     { "source": "/reset-password", "destination": "/_route-metadata/reset-password.html" },
     { "source": "/account", "destination": "/_route-metadata/account.html" },
@@ -106,7 +163,7 @@
     { "source": "/master-games-old", "destination": "/_route-metadata/master-games-old.html" },
     {
       "source": "/((?!data(?:/|$)).*)",
-      "destination": "/"
+      "destination": "/index.html"
     }
   ]
 }

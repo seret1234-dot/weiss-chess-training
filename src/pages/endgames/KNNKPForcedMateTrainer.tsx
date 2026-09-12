@@ -1,3 +1,5 @@
+import { useAutoChunkAdmission } from '../../training/useAutoChunkAdmission'
+import { useEndgameInput } from '../../trainers/endgame/useEndgameInput'
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { Chess } from "chess.js";
@@ -6,7 +8,7 @@ import { BNEngine } from "../../lib/bnEngine";
 import type { EngineResult } from "../../lib/bnEngine";
 import { useRegisterPlayableBoard } from "../../hooks/useRegisterPlayableBoard";
 import { supabase } from "../../lib/supabase";
-import TrainerShell from "../../components/trainer/TrainerShell";
+import TrainerShell from "../../trainers/endgame/EndgameTrainerShell";
 import {
  BigMessage,
  HintButton,
@@ -837,8 +839,9 @@ async function findFirstIncompleteChunk(
 }
 
 export default function KNNKPForcedMateTrainer() {
+ const admitAutoChunk = useAutoChunkAdmission()
  const trainerId = "knnkp_forced_mate";
- const title = "KNN vs KP - Forced Mate";
+ const title = "KNN vs KP — Forced Mate";
  const dataPath = "/data/endgames/knnkp/forced-mate";
  const boardId = "KNNKPForcedMateTrainerBoard";
  const safeDataPath = dataPath.replace(/\/+$/, "");
@@ -921,7 +924,7 @@ export default function KNNKPForcedMateTrainer() {
  const interval = window.setInterval(() => {
  if (loadingChunk || inputLocked || allComplete || phase === "classify")
  return;
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current);
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current));
  }, 100);
 
  return () => window.clearInterval(interval);
@@ -1073,6 +1076,14 @@ export default function KNNKPForcedMateTrainer() {
  }, [currentChunkFile, currentThemeProgress, globalChunkLookup, progress]);
 
  const currentPosition = positions[currentIndex] ?? null;
+ const endgameInput = useEndgameInput({
+  fen: game.fen(), attemptKey: currentPosition?.id ?? '',
+  active: (!loadingChunk && !inputLocked && !allComplete && phase === "play") && !!currentPosition && !flashSolvedPositionId && game.turn() === 'w',
+  canAnswer: !loadingChunk && (phase === "classify" || !inputLocked) && !allComplete && !!currentPosition && !flashSolvedPositionId,
+  moveStartedAt: moveStartedAtRef.current, onDrop,
+  onSilentError: () => { setStatus('Wrong, silent error'); setMessage(''); },
+ });
+
  const currentStats = currentPosition
  ? getPositionStats(progress, currentPosition.id)
  : null;
@@ -1111,13 +1122,14 @@ export default function KNNKPForcedMateTrainer() {
  }
 
  function startPositionState(position: TrainingPosition) {
+ endgameInput.attempt.begin(position.id);
  const nextGame = new Chess(position.startFen);
  setGame(nextGame);
 
  if (shouldAskWinDraw(position)) {
  const side = nextGame.turn() === "w" ? "White" : "Black";
  setPhase("classify");
- setStatus(`${side} to move - Win or Draw?`);
+ setStatus(`${side} to move — Win or Draw?`);
  setMessage("Evaluate the position. No moves needed in this section.");
  setInputLocked(true);
  return;
@@ -1526,6 +1538,7 @@ export default function KNNKPForcedMateTrainer() {
  return;
  }
 
+ if (!await admitAutoChunk({ course: 'endgame', trainerKey: trainerId, unitKey: currentChunkFile, itemIds: chunkPositions.map((p: TrainingPosition) => p.id) })) return;
  const nextIndex = chooseRandomUnmasteredIndex(chunkPositions, progress);
  const nextPosition = chunkPositions[nextIndex];
 
@@ -1754,6 +1767,7 @@ export default function KNNKPForcedMateTrainer() {
  nextStatus: string,
  nextMessage: string,
  ) {
+ endgameInput.attempt.wrongMove();
  clearPendingFeedbackTimeout();
 
  try {
@@ -1777,7 +1791,7 @@ export default function KNNKPForcedMateTrainer() {
  setCorrectSquares([]);
  setHintSquares([]);
  setEscapeSquares(escapes);
- setCurrentMoveElapsedMs(Date.now() - moveStartedAtRef.current);
+ setCurrentMoveElapsedMs(endgameInput.elapsed(moveStartedAtRef.current));
  setJustMated(false);
  setStatus(nextStatus);
  setMessage(
@@ -1818,7 +1832,7 @@ export default function KNNKPForcedMateTrainer() {
  clearPendingFeedbackTimeout();
  setFlashSolvedPositionId(currentPosition.id);
 
- const moveElapsedMs = Date.now() - moveStartedAtRef.current;
+ const moveElapsedMs = endgameInput.elapsed(moveStartedAtRef.current);
  setCurrentMoveElapsedMs(moveElapsedMs);
  setJustMated(nextGame.isCheckmate());
 
@@ -1827,7 +1841,7 @@ export default function KNNKPForcedMateTrainer() {
 
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3;
  const maxMsPerMove = maxSecondsPerMove * 1000;
- const wasFast = nextMoveTimes.every((ms) => ms <= maxMsPerMove);
+ const wasFast = endgameInput.attempt.qualify(nextMoveTimes.every((ms) => ms <= maxMsPerMove));
 
  const oldStats = getPositionStats(progress, currentPosition.id);
 
@@ -1869,10 +1883,10 @@ export default function KNNKPForcedMateTrainer() {
  nextGame.isCheckmate()
  ? wasFast
  ? `Checkmate. Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Checkmate, but slower than ${maxSecondsPerMove} seconds.`
+ : endgameInput.attempt.nonQualifyingMessage(`Checkmate, but slower than ${maxSecondsPerMove} seconds.`)
  : wasFast
  ? `Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER} for this puzzle.`
- : `Solved, but slower than ${maxSecondsPerMove} seconds.`,
+ : endgameInput.attempt.nonQualifyingMessage(`Solved, but slower than ${maxSecondsPerMove} seconds.`),
  );
 
  feedbackTimeoutRef.current = window.setTimeout(() => {
@@ -1887,9 +1901,9 @@ export default function KNNKPForcedMateTrainer() {
  clearPendingFeedbackTimeout();
  setFlashSolvedPositionId(currentPosition.id);
 
- const reactionTime = Date.now() - moveStartedAtRef.current;
+ const reactionTime = endgameInput.elapsed(moveStartedAtRef.current);
  const maxSecondsPerMove = currentThemeConfig.maxSecondsPerMove ?? 3;
- const wasFast = reactionTime <= maxSecondsPerMove * 1000;
+ const wasFast = endgameInput.attempt.qualify(reactionTime <= maxSecondsPerMove * 1000);
 
  const oldStats = getPositionStats(progress, currentPosition.id);
 
@@ -1920,13 +1934,13 @@ export default function KNNKPForcedMateTrainer() {
  setProgress(updatedProgress);
  setInputLocked(true);
  setStatus(
- currentPosition.result === "draw" ? "Correct - Draw." : "Correct - Win.",
+ currentPosition.result === "draw" ? "Correct — Draw." : "Correct — Win.",
  );
  setMessage(
  currentPosition.explanation ||
  (wasFast
  ? `Fast solve ${nextFastSolves}/${POSITION_FAST_SOLVES_TO_MASTER}`
- : `Correct, but slower than ${maxSecondsPerMove} seconds`),
+ : endgameInput.attempt.nonQualifyingMessage(`Correct, but slower than ${maxSecondsPerMove} seconds`)),
  );
 
  feedbackTimeoutRef.current = window.setTimeout(() => {
@@ -1949,6 +1963,7 @@ export default function KNNKPForcedMateTrainer() {
 
  if (answer !== correctAnswer) {
  setInputLocked(true);
+ endgameInput.attempt.wrongMove();
  setStatus("Wrong evaluation.");
  setMessage(
  correctAnswer === "win"
@@ -1970,7 +1985,7 @@ export default function KNNKPForcedMateTrainer() {
  setPhase("play");
  setInputLocked(false);
  setStatus(getInstructionText(currentPosition, currentThemeConfig));
- setMessage(currentPosition.explanation || "Correct - now convert the win.");
+ setMessage(currentPosition.explanation || "Correct — now convert the win.");
  setCurrentMoveElapsedMs(0);
  setMoveTimesMs([]);
  moveStartedAtRef.current = Date.now();
@@ -2383,8 +2398,8 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  showWrongAndReset(
  nextGame,
  move,
- "Wrong move - try to reduce mate distance.",
- "Stalemate - avoid this.",
+ "Wrong move — try to reduce mate distance.",
+ "Stalemate — avoid this.",
  );
  return true;
  }
@@ -2430,7 +2445,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  showWrongAndReset(
  nextGame,
  move,
- "Wrong move - try to reduce mate distance.",
+ "Wrong move — try to reduce mate distance.",
  legalAllowedMoves.length > 0
  ? `Route move expected. ${validation.reason}`
  : validation.reason,
@@ -2445,7 +2460,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  setMarkedSquare(parsedBest.from);
  setHintSquares([parsedBest.to]);
  }
- showWrongAndReset(nextGame, move, "Wrong move - try to reduce mate distance.", validation.reason);
+ showWrongAndReset(nextGame, move, "Wrong move — try to reduce mate distance.", validation.reason);
  }
  return;
  }
@@ -2689,7 +2704,8 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  footerRight={`${boardWidth}px`}
  boardId={boardId ?? `${trainerId}TrainerBoard`}
  fen={game.fen()}
- onPieceDrop={onDrop}
+ onPieceDrop={endgameInput.onDrop}
+ boardControls={endgameInput.controls}
  getLegalTargets={getLegalTargets}
  boardOrientation={boardOrientation}
  customDarkSquareStyle={{ backgroundColor: "#769656" }}
@@ -2705,9 +2721,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  escapeSquares,
  hintSquares,
  )}
- arePiecesDraggable={
- !loadingChunk && !inputLocked && !allComplete && phase === "play"
- }
+ arePiecesDraggable={(!loadingChunk && !inputLocked && !allComplete && phase === "play") && endgameInput.mouseEnabled}
  boardLeft={shouldAskWinDraw() ? undefined : boardLeft}
  boardOverlay={boardOverlay}
  sidePanel={
@@ -2849,7 +2863,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  {currentFastSolves} / {POSITION_FAST_SOLVES_TO_MASTER} fast
  solves
  </div>
- <div>Fast = - {maxSecondsPerMove}s</div>
+ <div>Fast = ≤ {maxSecondsPerMove}s</div>
  </div>
  </PanelCard>
 
@@ -2927,7 +2941,7 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  fontWeight: 700,
  }}
  >
- - 
+ ✓ 
  </div>
  );
  })}
@@ -2959,7 +2973,8 @@ if (!currentPosition || !progress || !currentThemeConfig) return false;
  <PanelCard>
  <SectionTitle>Actions</SectionTitle>
  <div style={{ display: "grid", gap: 8 }}>
- <HintButton onClick={() => void showHintAction()}>
+ {endgameInput.silentButton}
+ <HintButton getHintMove={async () => { await showHintAction(); return null }}>
  Hint
  </HintButton>
 

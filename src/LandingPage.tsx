@@ -2,12 +2,16 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import { trainingCatalog } from './trainingCatalog'
+import { useAffiliateDiscovery } from './affiliate/useAffiliateDiscovery'
 import SemiStudyBanner from './components/SemiStudyBanner'
 import { getOrCreateAutoProfile } from './training/getOrCreateAutoProfile'
+import { AUTO_TRAINING_ENTRY_ROUTE } from './training/resolveAutoStartRoute'
+import { createHierarchyNavigationState } from './navigation/hierarchicalBack.mjs'
 import './CategoryLandingPages.css'
 
 type LandingPageProps = {
  onSelectCategory?: (category: string) => void
+ demoHome?: boolean
 }
 
 function CategoryCard({
@@ -106,8 +110,9 @@ function StatCard({ value, label }: { value: string; label: string }) {
  )
 }
 
-export default function LandingPage({ onSelectCategory }: LandingPageProps) {
+export default function LandingPage({ onSelectCategory, demoHome = false }: LandingPageProps) {
  const navigate = useNavigate()
+ const affiliate = useAffiliateDiscovery()
  const [user, setUser] = useState<any>(null)
  const [profile, setProfile] = useState<any>(null)
 
@@ -203,7 +208,10 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
 
  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
  <button
- onClick={() => navigate(user ? '/auto' : '/auth?mode=signup')}
+ onClick={() => {
+  if (demoHome && user) { navigate('/demo-auto'); return }
+  navigate(user ? AUTO_TRAINING_ENTRY_ROUTE : '/auth?mode=signup')
+ }}
  style={{
  padding: '14px 22px',
  borderRadius: 999,
@@ -215,12 +223,23 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  cursor: 'pointer',
  }}
  >
- {user ? 'Start Auto Training' : 'Create Free Account'}
+ {user ? (demoHome ? 'Resume Auto Training' : 'Start Auto Training') : 'Create Free Account'}
  </button>
+ {user && (
+ <button
+ onClick={() => navigate('/auto')}
+ style={{
+ padding: '14px 22px', borderRadius: 999, background: 'var(--theme-button-bg)', color: 'var(--theme-text)', border: '1px solid var(--theme-border)', fontSize: 16, fontWeight: 800, cursor: 'pointer',
+ }}
+ >
+ View My Training Plan
+ </button>
+ )}
  </div>
  </div>
 
  <section
+ className={`home-how${affiliate.visible ? ' home-how--with-affiliate' : ''}`}
  style={{
  background: 'var(--theme-panel)',
  border: '1px solid var(--theme-border)',
@@ -229,10 +248,22 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  marginBottom: 28,
  }}
  >
+ <div className="home-how__content">
  <h2 style={{ fontSize: 26, margin: '0 0 12px' }}>How it works</h2>
- <p style={{ margin: 0, color: 'var(--theme-muted)', fontSize: 16, lineHeight: 1.7 }}>
- Weiss Chess Trainer turns broad chess study into short, repeatable sessions. Instead of presenting unrelated positions, it groups tactical motifs, mating patterns, opening lines, and endgame ideas so you meet each idea in a clear progression. Structured repetition brings useful positions back when they need review, rather than leaving progress to chance. If you connect a Chess.com account, recent games can be analyzed to surface mistakes, openings, tactics, and endgames worth practicing; your personal plan can then recommend a next task. Start with <Link to="/tactics">Tactics</Link>, build reliable <Link to="/openings">Opening</Link> memory, or practice practical <Link to="/endgame">Endgames</Link>.
- </p>
+ <div style={{ display: 'grid', gap: 10, color: 'var(--theme-muted)', fontSize: 16, lineHeight: 1.55 }}>
+ <p style={{ margin: 0 }}>Learn the basic patterns of chess, one idea at a time.</p>
+ <p style={{ margin: 0 }}>Each skill is divided into clear subthemes and trained at distances of 1, 2, 3, and 4+ moves.</p>
+ <p style={{ margin: 0 }}>Repeat exercises until you can solve them fast 5 times, then they return later for reinforcement.</p>
+ <p style={{ margin: 0 }}>Your individual training plan is built from your own games, so you practice what you need most.</p>
+ </div>
+ </div>
+ {affiliate.visible && <aside className="home-how__affiliate" aria-labelledby="home-affiliate-title">
+ <h2 id="home-affiliate-title">Affiliate Program</h2>
+ <p>Earn recurring commissions by referring players.</p>
+ <button type="button" onClick={async () => navigate(await affiliate.resolveHref())}>
+ {affiliate.active ? 'Affiliate Dashboard' : 'Affiliate Program'}
+ </button>
+ </aside>}
  </section>
 
  <div
@@ -253,7 +284,9 @@ export default function LandingPage({ onSelectCategory }: LandingPageProps) {
  accent={item.accent}
  onClick={() => {
  onSelectCategory?.(item.title)
- navigate(item.path)
+ navigate(item.path, item.path === '/mates' || item.path === '/master-mates' || item.path === '/master-tactics'
+  ? { state: createHierarchyNavigationState('/') }
+  : undefined)
  }}
  />
  ))}

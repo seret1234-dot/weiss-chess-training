@@ -34,6 +34,23 @@ app.use(
 
 app.use(express.json({ limit: "256kb" }))
 
+// Same bounded Web Request handler locally and on Vercel; no recordings on disk.
+app.all('/api/chess-voice-transcribe', express.raw({ type: 'audio/wav', limit: '385kb' }), async (req, res) => {
+  const { handleChessVoiceRequest } = await import('./chess-voice-core.mjs')
+  const request = new Request('http://localhost/api/chess-voice-transcribe', {
+    method: req.method, headers: { authorization: req.headers.authorization || '', 'content-type': req.headers['content-type'] || '' },
+    ...(req.method === 'POST' ? { body: Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0) } : {}),
+  })
+  const result = await handleChessVoiceRequest(request)
+  res.status(result.status).set('Cache-Control', 'private, no-store').type('json').send(await result.text())
+})
+
+app.all('/api/affiliate', async (req, res) => {
+  req.headers['x-vercel-ip-country'] = String(process.env.PAYPAL_LOCAL_PRICE_PROFILE || 'taxed').toLowerCase() === 'standard' ? 'US' : 'IL'
+  const { default: handler } = await import('../api/affiliate.js')
+  return handler(req, res)
+})
+
 function normalizeFen(rawFen) {
   let fen = String(rawFen || "").trim()
   fen = fen.replace(/\s+/g, " ")
@@ -108,6 +125,7 @@ app.get("/api/price-profile", async (_req, res) => {
 
     res.json({
       mode: getPayPalMode(),
+      affiliateCheckout: process.env.AFFILIATE_PROGRAM_ENABLED === 'true',
       currency: "USD",
       monthlyPrice: useTaxedPlans
         ? displayPrice("PAYPAL_PRICE_MONTHLY_TAXED", "$10.61")

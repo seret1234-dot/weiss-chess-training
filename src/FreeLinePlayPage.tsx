@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Chess, Move } from 'chess.js'
 import ThemedChessboard from "./theme/ThemedChessboard"
 import PromotionChooser, { type PromotionPiece } from './components/chess/PromotionChooser'
+import { buildMovePositions, keepMoveVisible } from './components/chess/masterGameMoveNavigation'
 import { supabase, getMasterGamePgnUrl } from './lib/supabase'
 import { useRegisterPlayableBoard } from './hooks/useRegisterPlayableBoard'
 import { StockfishService } from './lib/chess/stockfishService'
@@ -394,6 +395,7 @@ export default function FreeLinePlayPage() {
   const evalEngineRef = useRef<StockfishService | null>(null)
   const evalEngineInitRef = useRef<Promise<void> | null>(null)
   const evalQueueRef = useRef<Promise<void>>(Promise.resolve())
+  const moveListRef = useRef<HTMLDivElement | null>(null)
   const [boardSize, setBoardSize] = useState(getFreeLineBoardSize)
   const [isMobileLayout, setIsMobileLayout] = useState(
     () => window.innerWidth <= FREE_LINE_MOBILE_BREAKPOINT,
@@ -604,6 +606,48 @@ const moveRows = useMemo(() => {
 
     return rows
   }, [line])
+
+  const movePositions = useMemo(
+    () => line ? buildMovePositions(line.initialFen, line.moves) : [],
+    [line],
+  )
+
+  useEffect(() => {
+    const list = moveListRef.current
+    if (!list) return
+
+    const frame = window.requestAnimationFrame(() => {
+      if (lastPlayedPly < 0) {
+        list.scrollTop = 0
+        return
+      }
+
+      const activeMove = list.querySelector<HTMLElement>(
+        `[data-free-line-ply="${lastPlayedPly}"]`,
+      )
+      if (activeMove) keepMoveVisible(list, activeMove)
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [lastPlayedPly, showMoves])
+
+  function jumpToMove(selectedPly: number) {
+    if (!line || selectedPly < 0 || selectedPly >= line.moves.length) return
+
+    const selectedPosition = movePositions[selectedPly + 1]
+    if (!selectedPosition) return
+
+    setPosition(selectedPosition)
+    setCurrentPly(selectedPly + 1)
+    setSelectedSquare(null)
+    setPendingPromotion(null)
+    setFlash('idle')
+    setStatus(
+      selectedPly + 1 >= line.moves.length
+        ? 'Viewing the final position. No training progress was changed.'
+        : `Viewing move ${Math.floor(selectedPly / 2) + 1}${selectedPly % 2 === 0 ? '.' : '...'}. Continue from the next move.`,
+    )
+  }
 
   function getLegalTargets(fromSquare: string) {
     if (!line || complete) return []
@@ -900,6 +944,8 @@ const moveRows = useMemo(() => {
         >
           <div
             className="free-line-play-page__board-card"
+            data-free-line-position={position}
+            data-free-line-current-ply={currentPly}
             style={{
               flex: '0 0 auto',
               padding: 8,
@@ -1073,6 +1119,10 @@ const moveRows = useMemo(() => {
               id={`free-play-${line.kind}`}
               position={position}
               boardOrientation={orientation}
+              accessibilityTitle={line.kind === 'opening' ? 'Opening Free Play' : 'Master Games Free Play'}
+              accessibilitySelectedSquare={selectedSquare}
+              accessibilityCurrentMove={`Ply ${currentPly} of ${line.moves.length}`}
+              accessibilityInteraction="Use the named move list to review context. Select a source and destination square by click or drag to continue Free Play."
               boardWidth={boardSize}
               onPieceDrop={onPieceDrop}
               onSquareClick={onSquareClick}
@@ -1190,7 +1240,7 @@ const moveRows = useMemo(() => {
               <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 5 }}>
                 Status
               </div>
-              <div style={{ lineHeight: 1.45 }}>{status}</div>
+              <div role="status" aria-live="polite" aria-atomic="true" style={{ lineHeight: 1.45 }}>{status}</div>
               {!complete && expected ? (
                 <div style={{ color: '#bdbdbd', fontSize: 12, marginTop: 8 }}>
                   Move {Math.floor(currentPly / 2) + 1}
@@ -1238,7 +1288,11 @@ const moveRows = useMemo(() => {
                 <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>
                   Complete line
                 </div>
-                <div style={{ display: 'grid', gap: 5 }}>
+                <div
+                  ref={moveListRef}
+                  className="free-line-play-page__move-list"
+                  style={{ display: 'grid', gap: 5, maxHeight: 320, overflowY: 'auto', paddingRight: 4 }}
+                >
                   {moveRows.map((row) => (
                     <div
                       key={row.moveNumber}
@@ -1251,34 +1305,32 @@ const moveRows = useMemo(() => {
                       }}
                     >
                       <div style={{ color: '#999' }}>{row.moveNumber}.</div>
-                      <div
-                        style={{
-                          borderRadius: 7,
-                          padding: '5px 7px',
-                          background:
-                            lastPlayedPly === row.whitePly
-                              ? 'rgba(95,168,255,0.24)'
-                              : lastPlayedPly > row.whitePly
-                                ? 'rgba(127,166,80,0.12)'
-                                : 'transparent',
-                        }}
-                      >
-                        {row.white || ''}
-                      </div>
-                      <div
-                        style={{
-                          borderRadius: 7,
-                          padding: '5px 7px',
-                          background:
-                            lastPlayedPly === row.blackPly
-                              ? 'rgba(95,168,255,0.24)'
-                              : lastPlayedPly > row.blackPly
-                                ? 'rgba(127,166,80,0.12)'
-                                : 'transparent',
-                        }}
-                      >
-                        {row.black || ''}
-                      </div>
+                      {row.white ? (
+                        <button
+                          type="button"
+                          className={`free-line-play-page__move-button${lastPlayedPly === row.whitePly ? ' is-active' : lastPlayedPly > row.whitePly ? ' is-past' : ''}`}
+                          data-free-line-ply={row.whitePly}
+                          aria-current={lastPlayedPly === row.whitePly ? 'step' : undefined}
+                          aria-label={`Move ${row.moveNumber}. ${row.white}`}
+                          title={`Show position after ${row.moveNumber}. ${row.white}`}
+                          onClick={() => jumpToMove(row.whitePly)}
+                        >
+                          {row.white}
+                        </button>
+                      ) : <span />}
+                      {row.black ? (
+                        <button
+                          type="button"
+                          className={`free-line-play-page__move-button${lastPlayedPly === row.blackPly ? ' is-active' : lastPlayedPly > row.blackPly ? ' is-past' : ''}`}
+                          data-free-line-ply={row.blackPly}
+                          aria-current={lastPlayedPly === row.blackPly ? 'step' : undefined}
+                          aria-label={`Move ${row.moveNumber}... ${row.black}`}
+                          title={`Show position after ${row.moveNumber}... ${row.black}`}
+                          onClick={() => jumpToMove(row.blackPly)}
+                        >
+                          {row.black}
+                        </button>
+                      ) : <span />}
                     </div>
                   ))}
                 </div>

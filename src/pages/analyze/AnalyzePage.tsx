@@ -160,10 +160,12 @@ export default function AnalyzePage() {
  <span>Black</span>
  </div>
 
- <ThemedChessboard
- id="AnalyzeHomeBoard"
- position={START_FEN}
- boardWidth={boardSize}
+<ThemedChessboard
+id="AnalyzeHomeBoard"
+position={START_FEN}
+accessibilityTitle="Analyze preview"
+accessibilityInteraction="This is a preview board. Use the Analyze options and form controls to load a position or game."
+boardWidth={boardSize}
 
  arePiecesDraggable={false}
  showBoardNotation={true}

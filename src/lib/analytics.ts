@@ -1,3 +1,5 @@
+import { analyticsPage, analyticsProperties } from '../analytics/sanitize'
+
 export type AnalyticsEventName =
   | 'landing_page_visited'
   | 'sign_up_started'
@@ -33,12 +35,6 @@ declare global {
   }
 }
 
-function definedProperties(properties: AnalyticsProperties): Record<string, string | number | boolean | null> {
-  return Object.fromEntries(
-    Object.entries(properties).filter(([, value]) => value !== undefined),
-  ) as Record<string, string | number | boolean | null>;
-}
-
 /**
  * Provider-neutral analytics bridge. It deliberately avoids user identifiers and
  * sends events to a dataLayer, an optional integration callback, and a DOM event.
@@ -51,12 +47,14 @@ export function trackAnalyticsEvent(
 
   const payload: AnalyticsPayload = {
     event,
-    page_location: window.location.href,
-    page_path: window.location.pathname,
-    ...definedProperties(properties),
+    ...analyticsPage(window.location.href),
+    ...analyticsProperties(properties),
   };
 
-  window.dataLayer?.push(payload);
+  try {
+    // A provider gets one delivery, not both a custom dataLayer event and gtag.
+    if (window.weissAnalytics?.track) window.weissAnalytics.track(event, payload);
+    else window.dataLayer?.push(payload);
+  } catch { /* Optional analytics must not interrupt any product action. */ }
   window.dispatchEvent(new CustomEvent<AnalyticsPayload>('weiss:analytics', { detail: payload }));
-  window.weissAnalytics?.track?.(event, payload);
 }

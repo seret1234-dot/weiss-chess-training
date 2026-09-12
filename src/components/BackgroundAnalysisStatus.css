@@ -1,0 +1,17 @@
+.background-analysis-status {
+  position: fixed;
+  right: 16px;
+  /* Menu is 38px tall at bottom: 16px. Keep a clear 16px gap above it. */
+  bottom: 70px;
+  z-index: 8999;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+  .background-analysis-status {
+    right: 12px;
+    bottom: calc(var(--site-fixed-bottom-clearance) + 12px);
+    max-width: min(360px, calc(100vw - 24px)) !important;
+  }
+}

@@ -1,10 +1,15 @@
-import StalemateUnderpromotionPage from './pages/StalemateUnderpromotionPage';
-import { useCallback, useEffect, useState } from "react"
+const StalemateUnderpromotionPage = lazy(() => import('./pages/StalemateUnderpromotionPage'))
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom"
 import { supabase } from "./lib/supabase"
 
 import LandingPage from "./LandingPage"
-import SampleTrainingPage from "./SampleTrainingPage"
+const IntroductionPage = lazy(() => import('./pages/IntroductionPage'))
+import { DemoAutoEntry, DemoAutoLocationTracker, DemoManualPractice } from './demo/AutoEntryDemo'
+import { autoEntryEnabled } from './training/autoEntryEnabled'
+import PublicMountFallback from './seo/PublicMountFallback'
+import {publicShellMarkup} from './seo/publicShellSnapshot'
+const SampleTrainingPage = lazy(() => import("./SampleTrainingPage"))
 import MatesPage from "./MatesPage"
 import MateDistancePage from "./MateDistancePage"
 import NavGridPage from "./NavGridPage"
@@ -30,45 +35,51 @@ import AnastasiaMateIn2Page from "./AnastasiaMateIn2Page"
 import AnastasiaMateIn3Page from "./AnastasiaMateIn3Page"
 import AnastasiaMateIn4Page from "./AnastasiaMateIn4Page"
 import AnastasiaMateIn5Page from "./AnastasiaMateIn5Page"
-import BNMateTrainer from "./BNMateTrainer"
-import TwoBishopsFinalTrainer from "./TwoBishopsFinalTrainer"
-import K2RooksTrainer from "./K2RooksTrainer"
-import KQKTrainer from "./KQKTrainer"
-import KRKTrainer from "./KRKTrainer"
-import KQKRTrainer from "./KQKRTrainer"
+const BNMateTrainer = lazy(() => import("./BNMateTrainer"))
+const TwoBishopsFinalTrainer = lazy(() => import("./TwoBishopsFinalTrainer"))
+const K2RooksTrainer = lazy(() => import("./K2RooksTrainer"))
+const KQKTrainer = lazy(() => import("./KQKTrainer"))
+const KRKTrainer = lazy(() => import("./KRKTrainer"))
+const KQKRTrainer = lazy(() => import("./KQKRTrainer"))
 
-import KQKRTrainerPage from "./pages/KQKRTrainerPage"
-import KQKP7Trainer from "./KQKP7Trainer"
-import KRKPTrainer from "./pages/endgames/KRKPTrainer"
-import KNNKPTrainer from "./pages/endgames/KNNKPTrainer"
-import KNNKPForcedMateTrainer from "./pages/endgames/KNNKPForcedMateTrainer"
-import KPKTrainer from "./pages/endgames/KPKTrainer"
-import StalemateTrainer from "./pages/endgames/StalemateTrainer"
-import LucenaTrainer from "./pages/endgames/LucenaTrainer"
-import PhilidorTrainer from "./pages/endgames/PhilidorTrainer"
-import PawnRacesTrainer from "./pages/endgames/PawnRacesTrainer"
-import ZugzwangTrainer from "./pages/endgames/ZugzwangTrainer"
-import ShoulderingTrainer from "./pages/endgames/ShoulderingTrainer"
-import FortressTrainer from "./pages/endgames/FortressTrainer"
+const KQKRTrainerPage = lazy(() => import("./pages/KQKRTrainerPage"))
+const KQKP7Trainer = lazy(() => import("./KQKP7Trainer"))
+const KRKPTrainer = lazy(() => import("./pages/endgames/KRKPTrainer"))
+const KNNKPTrainer = lazy(() => import("./pages/endgames/KNNKPTrainer"))
+const KNNKPForcedMateTrainer = lazy(() => import("./pages/endgames/KNNKPForcedMateTrainer"))
+const KPKTrainer = lazy(() => import("./pages/endgames/KPKTrainer"))
+const StalemateTrainer = lazy(() => import("./pages/endgames/StalemateTrainer"))
+const LucenaTrainer = lazy(() => import("./pages/endgames/LucenaTrainer"))
+const PhilidorTrainer = lazy(() => import("./pages/endgames/PhilidorTrainer"))
+const PawnRacesTrainer = lazy(() => import("./pages/endgames/PawnRacesTrainer"))
+const ZugzwangTrainer = lazy(() => import("./pages/endgames/ZugzwangTrainer"))
+const ShoulderingTrainer = lazy(() => import("./pages/endgames/ShoulderingTrainer"))
+const FortressTrainer = lazy(() => import("./pages/endgames/FortressTrainer"))
 
 import AuthPage from "./AuthPage"
+import AffiliateTracking from './affiliate/AffiliateTracking'
+import { AffiliatePage, AffiliateTerms, AffiliateDashboard, AffiliateAdmin } from './affiliate/AffiliatePages'
 import ResetPasswordPage from "./ResetPasswordPage"
-import MasterGamesPage from "./MasterGamesPage"
+const MasterGamesPage = lazy(() => import("./MasterGamesPage"))
 import MasterGamesLibraryPage from "./MasterGamesLibraryPage"
+import MyMasterGamesLibraryPage from "./masterGames/MyMasterGamesLibraryPage"
+import MasterGamesLibraryPracticePage from "./masterGames/MasterGamesLibraryPracticePage"
 
-import OpeningTrainerPage from "./OpeningTrainerPage"
-import FreeLinePlayPage from "./FreeLinePlayPage"
+const OpeningTrainerPage = lazy(() => import("./OpeningTrainerPage"))
+const FreeLinePlayPage = lazy(() => import("./FreeLinePlayPage"))
 import OpeningsLibraryPage from "./OpeningsLibraryPage"
 import OpeningFamilyPage from "./OpeningFamilyPage"
+import MyOpeningsPage from "./openings/MyOpeningsPage"
+import MyOpeningsPracticePage from "./openings/MyOpeningsPracticePage"
 
 import BoardVisionPage from "./BoardVisionPage"
-import PlayComputerPage from "./pages/PlayComputerPage"
+const PlayComputerPage = lazy(() => import("./pages/PlayComputerPage"))
 import AnalyzePage from "./pages/analyze/AnalyzePage"
 import MuseumPage from "./pages/MuseumPage"
-import AutoStudyPage from "./pages/AutoStudyPage"
+const AutoStudyPage = lazy(() => import("./pages/AutoStudyPage"))
 import OnboardingPage from "./pages/OnboardingPage"
 
-import AccountPage from "./AccountPage"
+const AccountPage = lazy(() => import("./AccountPage"))
 import PricingPage from "./PricingPage"
 
 import GlobalBackButton from "./components/GlobalBackButton"
@@ -81,6 +92,10 @@ import {
  TrainingQuotaProvider,
  TrainingQuotaRouteGate,
 } from "./context/TrainingQuotaContext"
+import { BackgroundAnalysisProvider } from "./context/BackgroundAnalysisContext"
+import BackgroundAnalysisStatus from "./components/BackgroundAnalysisStatus"
+import { AccessibilityPage, PrivacyPage } from "./compliance/LegalPages"
+import { ComplianceFooter, SkipToContent } from "./compliance/ComplianceChrome"
 
 import AnastasiaMateIn1PatternPage from "./pages/pattern/AnastasiaMateIn1PatternPage"
 import SmotheredMateIn1Page from "./SmotheredMateIn1Page"
@@ -92,11 +107,7 @@ import HookMateIn2Page from "./HookMateIn2Page"
 import HookMateIn3Page from "./HookMateIn3Page"
 import HookMateIn4Page from "./HookMateIn4Page"
 import HookMateIn5Page from "./HookMateIn5Page"
-import KillBoxMateIn1Page from "./KillBoxMateIn1Page"
-import KillBoxMateIn2Page from "./KillBoxMateIn2Page"
-import KillBoxMateIn3Page from "./KillBoxMateIn3Page"
-import KillBoxMateIn4Page from "./KillBoxMateIn4Page"
-import KillBoxMateIn5Page from "./KillBoxMateIn5Page"
+import KillBoxSubtypePage from "./KillBoxSubtypePage"
 import DovetailMateIn1Page from "./DovetailMateIn1Page"
 import DovetailMateIn2Page from "./DovetailMateIn2Page"
 import DovetailMateIn3Page from "./DovetailMateIn3Page"
@@ -113,12 +124,15 @@ import MixedMateIn5Page from "./MixedMateIn5Page"
 import TacticsPage from "./TacticsPage"
 import TacticDistancePage from "./TacticDistancePage"
 import TacticTrainerRoutePage from "./TacticTrainerRoutePage"
-import AnalyzeBoardPage from "./pages/analyze/AnalyzeBoardPage";
-import SetupPositionPage from "./pages/analyze/SetupPositionPage";
-import AnalyzeReviewPage from "./pages/analyze/AnalyzeReviewPage";
-import ImageToPositionPage from "./pages/analyze/ImageToPositionPage";
+const MasterTacticsPage = lazy(() => import('./masterTactics/MasterTacticsPage'))
+const MasterMatesPage = lazy(() => import('./masterMates/MasterMatesPage'))
+const AnalyzeBoardPage = lazy(() => import("./pages/analyze/AnalyzeBoardPage"))
+const SetupPositionPage = lazy(() => import("./pages/analyze/SetupPositionPage"))
+const AnalyzeReviewPage = lazy(() => import("./pages/analyze/AnalyzeReviewPage"))
+const ImageToPositionPage = lazy(() => import("./pages/analyze/ImageToPositionPage"))
 import EndgameExplanationOverlay from "./pages/endgames/EndgameExplanationOverlay"
 import NotFoundPage from "./NotFoundPage"
+import PublicContent from './seo/PublicContent'
 
 function EndgameTrainerHelpOverlay() {
  const { pathname } = useLocation()
@@ -134,14 +148,36 @@ function EndgameTrainerHelpOverlay() {
 function LegacyThemeRedirect({ to }: { to: string }) {
  const location = useLocation()
 
- return <Navigate replace to={`${to}${location.search}${location.hash}`} />
+ return <>
+  {location.pathname === '/endgames' && to === '/endgame' && publicShellMarkup(false,true) ? <PublicMountFallback contentOnly /> : null}
+  <Navigate replace to={`${to}${location.search}${location.hash}`} />
+ </>
+}
+
+function SiteMainContent({ children }: { children: React.ReactNode }) {
+ const { pathname } = useLocation()
+ const isFullScreenWorkspace = pathname.startsWith("/analyze/") || pathname === "/play-computer" || pathname === "/play-vs-computer"
+
+ return (
+  <div
+   id="site-main-content"
+   role="main"
+   tabIndex={-1}
+   style={isFullScreenWorkspace ? { height: "100dvh", overflow: "hidden", display: "flow-root" } : { display: "flow-root" }}
+  >
+   {children}
+  </div>
+ )
 }
 
 export default function AppRouter() {
  const [user, setUser] = useState<any>(null)
  const [authReady, setAuthReady] = useState(false)
+ const authStateRevisionRef = useRef(0)
  const handleSignedOut = useCallback(() => {
+  authStateRevisionRef.current += 1
   setUser(null)
+  setAuthReady(true)
  }, [])
 
  useEffect(() => {
@@ -168,12 +204,14 @@ export default function AppRouter() {
 
  const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
  if (cancelled) return
+ authStateRevisionRef.current += 1
  setUser(session?.user ?? null)
  setAuthReady(true)
  })
 
+ const initialRevision = authStateRevisionRef.current
  supabase.auth.getSession().then(({ data }) => {
- if (cancelled) return
+ if (cancelled || authStateRevisionRef.current !== initialRevision) return
  setUser(data.session?.user ?? null)
  setAuthReady(true)
  })
@@ -185,34 +223,58 @@ export default function AppRouter() {
  }, [])
 
  if (!authReady) {
- return <div style={{ color: "#fff", padding: 20 }}>Loading...</div>
+ return <PublicMountFallback />
  }
 
  return (
  <BrowserRouter>
+ <AffiliateTracking />
+ <SkipToContent />
  <HintActionProvider>
  <BoardUiProvider>
   <SubscriptionProvider key={user?.id ?? "guest"} user={user}>
   <TrainingQuotaProvider key={user?.id ?? "guest"} user={user}>
+  <BackgroundAnalysisProvider user={user}>
+ <BackgroundAnalysisStatus />
  <GlobalBackButton />
  <GlobalFloatingPlay
   isLoggedIn={!!user}
+  accountUser={user}
   onSignedOut={handleSignedOut}
  />
  <EndgameTrainerHelpOverlay />
  <AutoTrainingController user={user} />
+ {autoEntryEnabled && <DemoAutoLocationTracker userId={user?.id} />}
 
- <TrainingQuotaRouteGate>
+ <SiteMainContent>
+ <TrainingQuotaRouteGate loadingFallback={publicShellMarkup(false,true)?<PublicMountFallback contentOnly />:undefined}>
+ <Suspense fallback={<PublicMountFallback pageOnly />}>
  <Routes>
+ <Route path="/checkmate-patterns/*" element={<PublicContent educational />} />
+ <Route path="/chess-tactics/*" element={<PublicContent educational />} />
+ <Route path="/chess-guides/*" element={<PublicContent educational />} />
+ <Route path="/endgame-guides/*" element={<PublicContent educational />} />
+ <Route path="/endgames" element={<LegacyThemeRedirect to="/endgame" />} />
  <Route path="/stalemate/underpromotion" element={<StalemateUnderpromotionPage />} />
- <Route path="/" element={<LandingPage onSelectCategory={() => {}} />} />
+ <Route path="/" element={autoEntryEnabled && user ? <DemoAutoEntry userId={user.id} /> : <LandingPage onSelectCategory={() => {}} />} />
+ {autoEntryEnabled && <>
+  <Route path="/home" element={<LandingPage demoHome />} />
+  <Route path="/manual" element={<DemoManualPractice signedIn={!!user} />} />
+  <Route path="/demo-auto" element={<DemoAutoEntry userId={user?.id} />} />
+ </>}
  <Route path="/sample-training" element={<SampleTrainingPage />} />
 
  <Route path="/auth" element={<AuthPage />} />
   <Route path="/reset-password" element={<ResetPasswordPage />} />
  <Route path="/account" element={<AccountPage />} />
+ <Route path="/affiliate" element={<AffiliatePage />} />
+ <Route path="/affiliate/terms" element={<AffiliateTerms />} />
+ <Route path="/affiliate/dashboard" element={<AffiliateDashboard />} />
+ <Route path="/admin/affiliates" element={<AffiliateAdmin />} />
+ <Route path="/r/:code" element={<p>Opening Weiss Chess…</p>} />
   <Route path="/pricing" element={<PricingPage />} />
  <Route path="/onboarding" element={<OnboardingPage />} />
+ <Route path="/onboarding/introduction" element={<IntroductionPage />} />
  <Route path="/auto" element={<AutoStudyPage user={user} />} />
 
  <Route path="/mates" element={<MatesPage />} />
@@ -251,10 +313,14 @@ export default function AppRouter() {
  <Route path="/board-vision" element={<BoardVisionPage />} />
 
  <Route path="/master-games" element={<MasterGamesLibraryPage />} />
+ <Route path="/master-games/my-library" element={<MyMasterGamesLibraryPage />} />
+ <Route path="/master-games/my-library/practice" element={<MasterGamesLibraryPracticePage />} />
  <Route path="/master-games/:gameId" element={<MasterGamesPage />} />
 
  <Route path="/openings" element={<OpeningsLibraryPage />} />
  <Route path="/openings/family/:familySlug" element={<OpeningFamilyPage />} />
+ <Route path="/openings/my-openings" element={<MyOpeningsPage />} />
+ <Route path="/openings/my-openings/practice" element={<MyOpeningsPracticePage />} />
  <Route path="/free-play/:kind/:itemId" element={<FreeLinePlayPage />} />
  <Route path="/openings/:openingId" element={<OpeningTrainerPage />} />
 
@@ -332,11 +398,8 @@ export default function AppRouter() {
  <Route path="/mates/m3/hook" element={<HookMateIn3Page />} />
  <Route path="/mates/m4/hook" element={<HookMateIn4Page />} />
  <Route path="/mates/m5/hook" element={<HookMateIn5Page />} />
- <Route path="/mates/m1/kill-box" element={<KillBoxMateIn1Page />} />
- <Route path="/mates/m2/kill-box" element={<KillBoxMateIn2Page />} />
- <Route path="/mates/m3/kill-box" element={<KillBoxMateIn3Page />} />
- <Route path="/mates/m4/kill-box" element={<KillBoxMateIn4Page />} />
- <Route path="/mates/m5/kill-box" element={<KillBoxMateIn5Page />} />
+ <Route path="/mates/:level/kill-box" element={<KillBoxSubtypePage />} />
+ <Route path="/mates/:level/:subpattern" element={<KillBoxSubtypePage />} />
  <Route path="/mates/m1/dovetail" element={<DovetailMateIn1Page />} />
  <Route path="/mates/m2/dovetail" element={<DovetailMateIn2Page />} />
  <Route path="/mates/m3/dovetail" element={<DovetailMateIn3Page />} />
@@ -353,9 +416,24 @@ export default function AppRouter() {
  <Route path="/tactics" element={<TacticsPage />} />
  <Route path="/tactics/:level" element={<TacticDistancePage />} />
  <Route path="/tactics/:level/:theme" element={<TacticTrainerRoutePage />} />
+ <Route path="/master-tactics" element={<MasterTacticsPage />} />
+ <Route path="/master-tactics/:distance" element={<MasterTacticsPage />} />
+ <Route path="/master-tactics/:distance/:theme" element={<MasterTacticsPage />} />
+ <Route path="/master-mates" element={<MasterMatesPage />} />
+ <Route path="/master-mates/:distance" element={<MasterMatesPage />} />
+ <Route path="/master-mates/:distance/:theme" element={<MasterMatesPage />} />
+ <Route path="/privacy" element={<PrivacyPage />} />
+ <Route path="/privacy/he" element={<PrivacyPage hebrew />} />
+ <Route path="/accessibility" element={<AccessibilityPage />} />
+ <Route path="/accessibility/he" element={<AccessibilityPage hebrew />} />
  <Route path="*" element={<NotFoundPage />} />
  </Routes>
+ </Suspense>
+ <PublicContent />
  </TrainingQuotaRouteGate>
+ </SiteMainContent>
+ <ComplianceFooter />
+ </BackgroundAnalysisProvider>
   </TrainingQuotaProvider>
    </SubscriptionProvider>
  </BoardUiProvider>
@@ -363,23 +441,3 @@ export default function AppRouter() {
  </BrowserRouter>
  )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

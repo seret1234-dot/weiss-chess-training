@@ -185,11 +185,19 @@ function makeSections(profile: any, rating: number, weights: WeightMap, openings
   ]
 }
 
-export function buildPersonalTrainingPlan(autoProfile: any): PersonalTrainingPlan {
+export function buildPersonalTrainingPlan(autoProfile: any, weekly: Partial<Record<TrainingSectionKey, number>> = {}): PersonalTrainingPlan {
   const goals = readTrainingGoals(autoProfile)
   const current = resolveTrainingCurrentRating(autoProfile)
   const feasibility = goals.targetRating ? assessGoalFeasibility({ currentRating: current.rating, targetRating: goals.targetRating, dailyMinutes: goals.dailyMinutes, timeframeMonths: goals.timeframeMonths }) : null
   const analysis = analyze(autoProfile, baseWeights(current.rating))
+  const weighted = { ...analysis.weights }
+  for (const key of PERMANENT_TRAINING_SECTION_ORDER) {
+    const factor = Number(weekly[key] ?? 1)
+    weighted[key] *= Number.isFinite(factor) ? Math.max(1, Math.min(1.35, factor)) : 1
+  }
+  const total = Object.values(weighted).reduce((sum, value) => sum + value, 0)
+  for (const key of PERMANENT_TRAINING_SECTION_ORDER) weighted[key] = weighted[key] * 100 / total
+  const weights = normalized(weighted, analysis.preferred)
   const activeOpeningTracks = buildActiveOpeningTracks(autoProfile?.opening_profile, current.rating)
   return {
     currentRating: current.rating,
@@ -203,7 +211,7 @@ export function buildPersonalTrainingPlan(autoProfile: any): PersonalTrainingPla
     ratingBand: legacyBand(current.rating),
     calculationDepth: selectCalculationDepth(current.rating, Number(autoProfile?.completed_training_selections ?? 0)),
     activeOpeningTracks,
-    sections: makeSections(autoProfile, current.rating, analysis.weights, activeOpeningTracks),
+    sections: makeSections(autoProfile, current.rating, weights, activeOpeningTracks),
     analysisAvailable: analysis.available,
     analysisMessage: analysis.available ? null : NO_ANALYSIS_PLAN_MESSAGE,
     validatedEvidenceKey: analysis.preferred,

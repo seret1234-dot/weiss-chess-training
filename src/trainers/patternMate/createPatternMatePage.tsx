@@ -7,6 +7,7 @@ export type PatternMatePageConfig = {
  progressKey?: string
  explanationKey?: SiteExplanationKey
  allowChunkNavigation?: boolean
+ backHref?: string
 }
 
 function manifestPathToDataBasePath(manifestPath: string) {
@@ -29,6 +30,7 @@ export function createPatternMatePage(config: PatternMatePageConfig) {
  trainerTitle: config.title,
  dataBasePath: manifestPathToDataBasePath(config.manifestPath),
  explanationKey: config.explanationKey,
+ backHref: config.backHref,
  }}
  />
  )

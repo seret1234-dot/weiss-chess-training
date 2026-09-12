@@ -10,6 +10,7 @@ export function useGlobalBoard(state: GlobalBoardState) {
  registerBoard,
  state.isAvailable,
  state.fen,
+ state.orientation,
  state.suggestedColor,
  state.canFlip,
  ])

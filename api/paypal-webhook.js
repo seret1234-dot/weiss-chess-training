@@ -1,6 +1,7 @@
 import { createVerify } from "node:crypto"
 import { createClient } from "@supabase/supabase-js"
 import { synchronizePayPalSubscription } from "../server/paypal-subscription-core.mjs"
+import { processAffiliateEvent } from "../server/affiliate-core.mjs"
 
 const certificateCache = new Map()
 
@@ -72,7 +73,7 @@ async function getCertificate(rawUrl) {
   return certificate
 }
 
-async function verifyPayPalSignature(rawBody, request) {
+export async function verifyPayPalSignature(rawBody, request) {
   const webhookId = requiredEnvironment("PAYPAL_WEBHOOK_ID")
   const transmissionId =
     request.headers.get("paypal-transmission-id") || ""
@@ -328,7 +329,8 @@ export default {
         )
       }
 
-      const subscriptionId = subscriptionIdFromEvent(event)
+      const affiliateResult = await processAffiliateEvent(event, supabase)
+      const subscriptionId = affiliateResult?.subscriptionId || subscriptionIdFromEvent(event)
 
       if (!subscriptionId) {
         throw new Error(
