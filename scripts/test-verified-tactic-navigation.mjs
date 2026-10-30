@@ -17,6 +17,7 @@ try {
   const activeCourses = taxonomy.VERIFIED_FINAL_TACTIC_COURSES
   const expectedRoutes = new Set(activeCourses.map((course) => `/tactics/m${course.stage}/${course.theme}`))
   const expectedRouteKeys = new Set(activeCourses.map((course) => `m${course.stage}/${course.theme}`))
+  const mixedRouteKeys = new Set(["m1/mixed", "m2/mixed", "m3/mixed", "m4/mixed"])
   const visibleRoutes = navigation.tacticThemeCatalog.flatMap((theme) =>
     theme.distances.map((distance) => `/tactics/${distance}/${theme.slug}`),
   )
@@ -25,7 +26,11 @@ try {
   assert.equal(visibleRoutes.length, 76, 'one learner-visible course link per final active course')
   assert.equal(new Set(visibleRoutes).size, visibleRoutes.length, 'learner-visible course links are unique')
   assert.deepEqual(new Set(visibleRoutes), expectedRoutes, 'visible course links exactly match final active taxonomy')
-  assert.deepEqual(new Set(Object.keys(pageConfigs.patternTacticConfigByRoute)), expectedRouteKeys, 'only active routes can mount a tactic board')
+  assert.deepEqual(
+    new Set(Object.keys(pageConfigs.patternTacticConfigByRoute)),
+    new Set([...expectedRouteKeys, ...mixedRouteKeys]),
+    'only active focused routes and verified derived mixed routes can mount a tactic board',
+  )
 
   const stages = Object.fromEntries([1, 2, 3, 4].map((stage) => [
     `M${stage}`,
@@ -45,6 +50,19 @@ try {
     const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'))
     assert.equal(manifest.exerciseCount, course.exerciseCount, `approved manifest count: ${routeKey}`)
     assert.ok(manifest.exerciseCount >= activationMinimum, `approved manifest activation minimum: ${routeKey}`)
+  }
+
+  for (const stage of [1, 2, 3, 4]) {
+    const routeKey = `m${stage}/mixed`
+    const config = pageConfigs.patternTacticConfigByRoute[routeKey]
+    assert.ok(config, `verified mixed route config required: ${routeKey}`)
+    assert.equal(config.trainerKey, `tactic-mixed-m${stage}`, `verified mixed route trainer key: ${routeKey}`)
+    assert.equal(config.manifestPath, `${taxonomy.VERIFIED_FINAL_RUNTIME_PATH}/mixed-m${stage}/manifest.json`, `verified mixed manifest: ${routeKey}`)
+    const manifestFile = path.join(root, 'public', config.manifestPath.replace(/^\//, ''))
+    assert.ok(fs.existsSync(manifestFile), `verified mixed manifest exists: ${routeKey}`)
+    const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'))
+    assert.equal(manifest.corpus, 'verified-lichess-final-runtime-final-v6', `verified mixed provenance: ${routeKey}`)
+    assert.equal(manifest.validation?.primaryThemesOnly, true, `verified mixed source restriction: ${routeKey}`)
   }
 
   const catalogTactics = trainerCatalog.TRAINER_CATALOG.filter((trainer) => trainer.category === 'tactics')

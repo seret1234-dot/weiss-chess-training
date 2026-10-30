@@ -1,4 +1,4 @@
-import { VERIFIED_FINAL_TACTIC_COURSES } from "./generatedFinalVerifiedTaxonomy"
+import { VERIFIED_FINAL_RUNTIME_PATH, VERIFIED_FINAL_TACTIC_COURSES } from "./generatedFinalVerifiedTaxonomy"
 import { resolveTacticExplanationKey } from "../../content/trainerExplanationKeys"
 
 export const patternTacticPageConfigs = {
@@ -1337,6 +1337,32 @@ const generatedVerifiedFinalConfigs = Object.fromEntries(
  }),
 )
 
+// Mixed sessions are derived exclusively from the approved final-v6 corpus.
+// They are intentionally separate from the 76 focused learner-visible courses:
+// each one combines only the active themes for its stage.
+const verifiedFinalMixedConfigs = {
+ "m1/mixed": {
+  ...patternTacticPageConfigs.mixedM1,
+  manifestPath: `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m1/manifest.json`,
+  dataBasePath: `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m1`,
+ },
+ "m2/mixed": {
+  ...patternTacticPageConfigs.mixedM2,
+  manifestPath: `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m2/manifest.json`,
+  dataBasePath: `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m2`,
+ },
+ "m3/mixed": {
+  ...patternTacticPageConfigs.mixedM3,
+  manifestPath: `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m3/manifest.json`,
+  dataBasePath: `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m3`,
+ },
+ "m4/mixed": {
+  ...patternTacticPageConfigs.mixedM4,
+  manifestPath: `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m4/manifest.json`,
+  dataBasePath: `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m4`,
+ },
+}
+
 // The generated final taxonomy is applied last, so every active focused route
 // is derived from the reviewed corpus rather than the historical menu list.
 const legacyPatternTacticConfigByRoute = {
@@ -1533,6 +1559,6 @@ const legacyPatternTacticConfigByRoute = {
 // Only reviewed final-v6 courses may mount a learner board. Historical
 // definitions remain above for progress migration/reference work, never as
 // learner-visible routes.
-export const patternTacticConfigByRoute = generatedVerifiedFinalConfigs
+export const patternTacticConfigByRoute = { ...generatedVerifiedFinalConfigs, ...verifiedFinalMixedConfigs }
 
 export type PatternTacticPageConfigKey = keyof typeof patternTacticPageConfigs
