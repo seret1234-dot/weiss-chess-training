@@ -94,7 +94,7 @@ import {
 } from "./trainingSequence"
 import { FULL_CHUNK_CURRICULUM_VERSION } from "../fullChunkCurriculumCatalog"
 import { VERIFIED_FINAL_RUNTIME_PATH } from "./generatedFinalVerifiedTaxonomy"
-import { createProgressionResetCoordinator } from "../progressionRestart.mjs"
+import { capLegacyCreditAtOpenChunk, createProgressionResetCoordinator, resetCurrentChunkProgressPersistence } from "../progressionRestart.mjs"
 import { createCurrentChunkResetPlan } from "../chunkProgressReset.mjs"
 import { nextPerfectSolveCount, PUZZLE_MOVE_LIMIT_MS, PUZZLE_RECOGNITION_LIMIT_MS, PuzzlePerfectionTracker } from "../puzzlePerfection"
 import { useTimedMastery } from "../../accessibility/TimedMasteryContext"
@@ -308,6 +308,7 @@ type SavedState = {
  currentChunkIndex: number
  currentPuzzleIndex: number
  chunkProgressByFile: Record<string, number[]>
+ resetChunkIndexes?: number[]
 }
 
 const PIECE_URLS: Record<PieceCode, string> = {
@@ -584,6 +585,9 @@ function getSavedState(storageKey: string): SavedState {
  currentChunkIndex: parsed.currentChunkIndex ?? 0,
  currentPuzzleIndex: parsed.currentPuzzleIndex ?? 0,
  chunkProgressByFile: parsed.chunkProgressByFile ?? {},
+ resetChunkIndexes: Array.isArray(parsed.resetChunkIndexes)
+  ? parsed.resetChunkIndexes.filter((index) => Number.isInteger(index) && index >= 0)
+  : [],
  }
  } catch {
  return {
@@ -1321,6 +1325,9 @@ function startChunkMasterySave(masteredCount: number) {
  cancelWrongMoveReset()
  setBoardLocked(true)
  setMessage('Restarting progression...')
+ // Invalidate any pre-reset hydration before it can write stale mastery back
+ // into the visible trainer state.
+ chunkCompletionGateRef.current.begin()
 
  try {
  const plan = createCurrentChunkResetPlan({
@@ -1329,37 +1336,18 @@ function startChunkMasterySave(masteredCount: number) {
   currentChunkIndex,
   puzzleIds: puzzles.map((puzzle) => puzzle.id),
  })
- if (currentUserId) {
-  if (config.studyCourse && config.studyTheme && plan.puzzleIds.length > 0) {
-   const { error } = await supabase
-    .from('training_progress')
-    .delete()
-    .eq('user_id', currentUserId)
-    .eq('course', config.studyCourse)
-    .eq('theme', config.studyTheme)
-    .in('item_id', plan.puzzleIds)
-   if (error) throw error
-  }
-  if (!(await ensureChunkExists(currentUserId, plan.chunkNumber))) {
-   throw new Error('Could not prepare current chunk progress for restart')
-  }
-  const { error } = await supabase
-   .from('user_chunk_progress')
-   .update({
-    mastered_puzzles_count: 0,
-    is_mastered: false,
-    mastered_at: null,
-    review_stage: 0,
-    last_reviewed_at: null,
-    next_review_at: null,
-    updated_at: new Date().toISOString(),
-   })
-   .eq('user_id', currentUserId)
-   .eq('trainer_key', progressTrainerKey)
-   .eq('chunk_index', plan.chunkNumber)
-  if (error) throw error
- }
- saveState(storageKey, plan.savedState)
+ await resetCurrentChunkProgressPersistence({
+  client: supabase,
+  userId: currentUserId,
+  trainerKey: progressTrainerKey,
+  chunkNumber: plan.chunkNumber,
+  puzzleIds: plan.puzzleIds,
+  storage: localStorage,
+  storageKey,
+  savedState: plan.savedState,
+  studyCourse: config.studyCourse,
+  studyTheme: config.studyTheme,
+ })
  const emptyChunkProgress = plan.emptyProgress.map((fastSolves) => ({ fastSolves }))
  chunkProgressRef.current = emptyChunkProgress
  chunkCanBeCompletedRef.current = true
@@ -1444,11 +1432,12 @@ function startChunkMasterySave(masteredCount: number) {
    .from("user_chunk_progress")
    .select("trainer_key, chunk_index, is_mastered, mastered_puzzles_count")
    .eq("user_id", currentUserId)
-   .in("trainer_key", [config.trainerKey, priorLearnerKey])
+ .in("trainer_key", [progressTrainerKey, config.trainerKey, priorLearnerKey])
   if (legacyError) {
    console.error("Could not read legacy tactic completion credit", legacyError)
   } else {
-   const legacyCredit = getPatternTacticLegacyCompletionCredit((legacyRows ?? []).filter((row) => row.trainer_key === config.trainerKey), tacticLearnerCurriculum).completedActiveChunks
+ const activeRows = (legacyRows ?? []).filter((row) => row.trainer_key === progressTrainerKey)
+ const legacyCredit = getPatternTacticLegacyCompletionCredit((legacyRows ?? []).filter((row) => row.trainer_key === config.trainerKey), tacticLearnerCurriculum).completedActiveChunks
    const priorLearnerChunkCount = getPatternTacticPriorLearnerActiveChunkCount(tacticLearnerCurriculum)
    const priorLearnerCompleted = priorLearnerChunkCount > 0
     ? new Set((legacyRows ?? []).filter((row) => row.trainer_key === priorLearnerKey && row.is_mastered === true)
@@ -1458,7 +1447,11 @@ function startChunkMasterySave(masteredCount: number) {
    const priorLearnerCredit = priorLearnerChunkCount > 0
     ? Math.min(tacticLearnerCurriculum.activeChunkCount, Math.floor((priorLearnerCompleted * tacticLearnerCurriculum.activeChunkCount) / priorLearnerChunkCount))
     : 0
-   compatibilityCredit = Math.max(legacyCredit, priorLearnerCredit)
+ compatibilityCredit = capLegacyCreditAtOpenChunk(
+  Math.max(legacyCredit, priorLearnerCredit),
+  activeRows,
+  getSavedState(storageKey).resetChunkIndexes,
+ )
    if (compatibilityCredit > 0) {
     const now = new Date().toISOString()
     await Promise.all(Array.from({ length: compatibilityCredit }, (_, index) => supabase

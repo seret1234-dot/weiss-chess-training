@@ -91,7 +91,7 @@ import {
 } from "./m2toM5LearnerCurriculum"
 import { acceptsPatternMateMove, getLegalMateInOneMoves, isPatternMateInOneTrainer } from "./m1MateValidation"
 import { FULL_CHUNK_CURRICULUM_VERSION, FULL_MIXED_MATE_COURSES } from "../fullChunkCurriculumCatalog"
-import { createProgressionResetCoordinator } from "../progressionRestart.mjs"
+import { capLegacyCreditAtOpenChunk, createProgressionResetCoordinator, resetCurrentChunkProgressPersistence } from "../progressionRestart.mjs"
 import { createCurrentChunkResetPlan } from "../chunkProgressReset.mjs"
 import { nextPerfectSolveCount, PUZZLE_MOVE_LIMIT_MS, PUZZLE_RECOGNITION_LIMIT_MS, PuzzlePerfectionTracker } from "../puzzlePerfection"
 import { useTimedMastery } from "../../accessibility/TimedMasteryContext"
@@ -270,6 +270,7 @@ type SavedState = {
  currentChunkIndex: number
  currentPuzzleIndex: number
  chunkProgressByFile: Record<string, number[]>
+ resetChunkIndexes?: number[]
 }
 
 const PIECE_URLS: Record<PieceCode, string> = {
@@ -519,6 +520,9 @@ function getSavedState(storageKey: string): SavedState {
  currentChunkIndex: parsed.currentChunkIndex ?? 0,
  currentPuzzleIndex: parsed.currentPuzzleIndex ?? 0,
  chunkProgressByFile: parsed.chunkProgressByFile ?? {},
+ resetChunkIndexes: Array.isArray(parsed.resetChunkIndexes)
+  ? parsed.resetChunkIndexes.filter((index) => Number.isInteger(index) && index >= 0)
+  : [],
  }
  } catch {
  return {
@@ -1320,6 +1324,9 @@ function startChunkMasterySave(masteredCount: number) {
  cancelWrongMoveReset()
  setBoardLocked(true)
  setMessage('Restarting progression...')
+ // A prior fetch may still resolve after the click. Fence it before durable
+ // reset work so it cannot repopulate the just-cleared visible chunk.
+ chunkCompletionGateRef.current.begin()
 
  try {
  const plan = createCurrentChunkResetPlan({
@@ -1328,37 +1335,18 @@ function startChunkMasterySave(masteredCount: number) {
   currentChunkIndex,
   puzzleIds: puzzles.map((puzzle) => puzzle.id),
  })
- if (currentUserId) {
-  if (config.studyCourse && config.studyTheme && plan.puzzleIds.length > 0) {
-   const { error } = await supabase
-    .from('training_progress')
-    .delete()
-    .eq('user_id', currentUserId)
-    .eq('course', config.studyCourse)
-    .eq('theme', config.studyTheme)
-    .in('item_id', plan.puzzleIds)
-   if (error) throw error
-  }
-  if (!(await ensureChunkExists(currentUserId, plan.chunkNumber))) {
-   throw new Error('Could not prepare current chunk progress for restart')
-  }
-  const { error } = await supabase
-   .from('user_chunk_progress')
-   .update({
-    mastered_puzzles_count: 0,
-    is_mastered: false,
-    mastered_at: null,
-    review_stage: 0,
-    last_reviewed_at: null,
-    next_review_at: null,
-    updated_at: new Date().toISOString(),
-   })
-   .eq('user_id', currentUserId)
-   .eq('trainer_key', progressTrainerKey)
-   .eq('chunk_index', plan.chunkNumber)
-  if (error) throw error
- }
- saveState(storageKey, plan.savedState)
+ await resetCurrentChunkProgressPersistence({
+  client: supabase,
+  userId: currentUserId,
+  trainerKey: progressTrainerKey,
+  chunkNumber: plan.chunkNumber,
+  puzzleIds: plan.puzzleIds,
+  storage: localStorage,
+  storageKey,
+  savedState: plan.savedState,
+  studyCourse: config.studyCourse,
+  studyTheme: config.studyTheme,
+ })
  const emptyChunkProgress = plan.emptyProgress.map((fastSolves) => ({ fastSolves }))
  chunkProgressRef.current = emptyChunkProgress
  chunkCanBeCompletedRef.current = true
@@ -1423,6 +1411,7 @@ function startChunkMasterySave(masteredCount: number) {
  .select('trainer_key, chunk_index, is_mastered, mastered_puzzles_count')
  .eq('user_id', currentUserId)
  .in('trainer_key', [
+  progressTrainerKey,
   config.trainerKey,
   m1LearnerCurriculum
    ? `${config.trainerKey}:m1-v1`
@@ -1432,15 +1421,20 @@ function startChunkMasterySave(masteredCount: number) {
  if (legacyRowsError) {
  console.error('Could not load legacy Pattern Mate completion credit', legacyRowsError)
  } else {
+ const activeRows = (legacyRows ?? []).filter((row) => row.trainer_key === progressTrainerKey)
  const originalRows = (legacyRows ?? []).filter((row) => row.trainer_key === config.trainerKey)
- const reducedRows = (legacyRows ?? []).filter((row) => row.trainer_key !== config.trainerKey)
+ const reducedRows = (legacyRows ?? []).filter((row) => row.trainer_key !== config.trainerKey && row.trainer_key !== progressTrainerKey)
  const originalCredit = m2ToM5LearnerCurriculum
   ? getM2ToM5LegacyCompletionCredit(originalRows, m2ToM5LearnerCurriculum).completedActiveChunks
   : getLegacyCompletionCredit(originalRows, m1LearnerCurriculum!).completedActiveChunks
  const reducedCredit = m2ToM5LearnerCurriculum
   ? getM2ToM5LegacyCompletionCredit(reducedRows, { ...m2ToM5LearnerCurriculum, legacyChunkCount: m2ToM5LearnerCurriculum.reducedActiveChunkCount ?? 8 }).completedActiveChunks
   : getLegacyCompletionCredit(reducedRows, { ...m1LearnerCurriculum!, legacyChunkCount: m1LearnerCurriculum!.reducedActiveChunkCount ?? 5 }).completedActiveChunks
- compatibilityCredit = Math.max(originalCredit, reducedCredit)
+ compatibilityCredit = capLegacyCreditAtOpenChunk(
+  Math.max(originalCredit, reducedCredit),
+  activeRows,
+  getSavedState(storageKey).resetChunkIndexes,
+ )
  }
  }
  legacyCompletionCreditRef.current = compatibilityCredit

@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import {
+  capLegacyCreditAtOpenChunk,
   createProgressionResetCoordinator,
+  resetCurrentChunkProgressPersistence,
   resetCourseProgressPersistence,
 } from '../src/trainers/progressionRestart.mjs'
 
@@ -180,6 +182,59 @@ for (const family of families) {
 }
 
 {
+  const storageKey = 'pattern_tactic_progress_tactic-fork-m1:final-v6_v1'
+  const savedState = {
+    currentChunkIndex: 1,
+    currentPuzzleIndex: 0,
+    chunkProgressByFile: {
+      'chunk-001.json': [5, 5, 5],
+      'chunk-002.json': [0, 0, 0],
+      'chunk-003.json': [5, 5, 5],
+    },
+  }
+  const storage = new MemoryStorage([[storageKey, JSON.stringify({ ...savedState, currentPuzzleIndex: 2 })]])
+  const client = createSupabaseMock({
+    user_chunk_progress: [
+      ...progressedRows('user-a', ['tactic-fork-m1:final-v6']),
+      ...progressedRows('user-b', ['tactic-fork-m1:final-v6']),
+    ],
+    training_progress: [
+      { user_id: 'user-a', course: 'Tactics', theme: 'Fork', item_id: 'current-1', mastery: 5 },
+      { user_id: 'user-a', course: 'Tactics', theme: 'Fork', item_id: 'current-2', mastery: 5 },
+      { user_id: 'user-a', course: 'Tactics', theme: 'Fork', item_id: 'other-chunk', mastery: 5 },
+      { user_id: 'user-b', course: 'Tactics', theme: 'Fork', item_id: 'current-1', mastery: 5 },
+    ],
+  })
+  await resetCurrentChunkProgressPersistence({
+    client,
+    userId: 'user-a',
+    trainerKey: 'tactic-fork-m1:final-v6',
+    chunkNumber: 2,
+    puzzleIds: ['current-1', 'current-2'],
+    storage,
+    storageKey,
+    savedState,
+    studyCourse: 'Tactics',
+    studyTheme: 'Fork',
+    now: () => '2026-10-30T12:00:00.000Z',
+  })
+  assert.deepEqual(JSON.parse(storage.getItem(storageKey)), savedState, 'current chunk snapshot is immediately durable for reload')
+  assert.deepEqual(
+    client.tables.user_chunk_progress.find((row) => row.user_id === 'user-a' && row.trainer_key === 'tactic-fork-m1:final-v6' && row.chunk_index === 2),
+    { user_id: 'user-a', trainer_key: 'tactic-fork-m1:final-v6', chunk_index: 2, mastered_puzzles_count: 0, is_mastered: false, mastered_at: null, review_stage: 0, last_reviewed_at: null, next_review_at: null, updated_at: '2026-10-30T12:00:00.000Z' },
+    'only the active chunk row is reset',
+  )
+  assert.equal(client.tables.user_chunk_progress.find((row) => row.user_id === 'user-a' && row.trainer_key === 'tactic-fork-m1:final-v6' && row.chunk_index === 1).is_mastered, true, 'earlier chunk remains untouched')
+  assert.equal(client.tables.user_chunk_progress.find((row) => row.user_id === 'user-b' && row.trainer_key === 'tactic-fork-m1:final-v6' && row.chunk_index === 1).is_mastered, true, 'other account remains untouched')
+  assert.deepEqual(client.tables.training_progress, [
+    { user_id: 'user-a', course: 'Tactics', theme: 'Fork', item_id: 'other-chunk', mastery: 5 },
+    { user_id: 'user-b', course: 'Tactics', theme: 'Fork', item_id: 'current-1', mastery: 5 },
+  ], 'only current chunk puzzle mastery is removed')
+  assert.equal(capLegacyCreditAtOpenChunk(5, [{ chunk_index: 2, is_mastered: false }], [1]), 1, 'legacy hydration stops at the durable reset boundary')
+  assert.equal(capLegacyCreditAtOpenChunk(5, [{ chunk_index: 2, is_mastered: false }]), 5, 'ordinary setup rows do not erase valid legacy progress')
+}
+
+{
   const coordinator = createProgressionResetCoordinator()
   let releasePending
   const pendingGate = new Promise((resolve) => { releasePending = resolve })
@@ -221,9 +276,11 @@ for (const family of families) {
   const masterMate = await readFile(new URL('../src/masterMates/MasterMateTrainer.tsx', import.meta.url), 'utf8')
   for (const [name, source] of [['Pattern Tactics', tactic], ['Pattern Mates', mate]]) {
     assert.match(source, /progressionResetRef\.current\.startReset\(\)/, `${name}: reset is coordinated`)
-    assert.match(source, /disabled=\{restartingProgression\}/, `${name}: button is guarded`)
+    assert.match(source, /disabled=\{restartingProgression(?:\s*\|\|[^}]*)?\}/, `${name}: button is guarded`)
     assert.match(source, /progressionResetRef\.current\.track/, `${name}: completion writes are fenced`)
-    assert.match(source, /resetCourseProgressPersistence\(/, `${name}: shared durable reset contract is used`)
+    assert.match(source, /resetCurrentChunkProgressPersistence\(/, `${name}: shared current-chunk durable reset contract is used`)
+    assert.match(source, /chunkCompletionGateRef\.current\.begin\(\)/, `${name}: stale hydration is invalidated before reset`)
+    assert.match(source, /capLegacyCreditAtOpenChunk/, `${name}: legacy compatibility cannot restore an explicitly reset chunk`)
   }
   assert.match(masterTactic, /master-tactics:\$\{distance\}:\$\{theme\}/, 'Master Tactics keeps its independent namespace')
   assert.match(masterMate, /master-mates:\$\{distance\}:\$\{theme\}/, 'Master Mates keeps its independent namespace')

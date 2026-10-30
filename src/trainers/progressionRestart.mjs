@@ -3,6 +3,88 @@ export function uniqueProgressTrainerKeys(keys) {
 }
 
 /**
+ * Resets exactly one loaded chunk. Unlike course restart, this preserves every
+ * sibling chunk and course while keeping the server, account-scoped browser
+ * snapshot, and per-puzzle mastery source in agreement before rehydration.
+ */
+export async function resetCurrentChunkProgressPersistence({
+  client,
+  userId,
+  trainerKey,
+  chunkNumber,
+  puzzleIds,
+  storage,
+  storageKey,
+  savedState,
+  studyCourse,
+  studyTheme,
+  now = () => new Date().toISOString(),
+}) {
+  if (!trainerKey || !Number.isInteger(chunkNumber) || chunkNumber < 1) {
+    throw new Error('A valid trainer chunk is required.')
+  }
+  const currentPuzzleIds = [...new Set((puzzleIds ?? []).filter(Boolean))]
+
+  if (userId) {
+    if (studyCourse && studyTheme && currentPuzzleIds.length > 0) {
+      const trainingResult = await client
+        .from('training_progress')
+        .delete()
+        .eq('user_id', userId)
+        .eq('course', studyCourse)
+        .eq('theme', studyTheme)
+        .in('item_id', currentPuzzleIds)
+      throwQueryError(trainingResult.error, 'Could not reset current puzzle mastery')
+    }
+
+    // Upsert is deliberate: a reset must be durable whether the chunk row was
+    // created by an earlier solve, a review, or has never existed before.
+    const chunkResult = await client
+      .from('user_chunk_progress')
+      .upsert({
+        user_id: userId,
+        trainer_key: trainerKey,
+        chunk_index: chunkNumber,
+        mastered_puzzles_count: 0,
+        is_mastered: false,
+        mastered_at: null,
+        review_stage: 0,
+        last_reviewed_at: null,
+        next_review_at: null,
+        updated_at: now(),
+      }, { onConflict: 'user_id,trainer_key,chunk_index' })
+    throwQueryError(chunkResult.error, 'Could not reset current chunk progression')
+  }
+
+  storage.setItem(storageKey, JSON.stringify(savedState))
+  return { chunkNumber, puzzleIds: currentPuzzleIds }
+}
+
+/**
+ * Imported legacy completion may fill only untouched leading chunks. A reset
+ * writes an account-scoped browser boundary and an unmastered server row; both
+ * must agree before compatibility hydration is allowed to cap legacy credit.
+ *
+ * Merely seeing an open server row is not enough: first-load setup creates
+ * those rows too, and treating them as reset boundaries would discard valid
+ * legacy progress for new users.
+ */
+export function capLegacyCreditAtOpenChunk(legacyCredit, activeRows, resetChunkIndexes = []) {
+  const explicitResetChunks = [...new Set(resetChunkIndexes)]
+    .map((index) => Number(index) + 1)
+    .filter((chunk) => Number.isInteger(chunk) && chunk >= 1)
+
+  const firstOpenChunk = explicitResetChunks
+    .filter((chunk) => (activeRows ?? []).some((row) => (
+      Number(row?.chunk_index) === chunk && row?.is_mastered === false
+    )))
+    .sort((left, right) => left - right)[0]
+  return firstOpenChunk == null
+    ? Math.max(0, legacyCredit)
+    : Math.max(0, Math.min(legacyCredit, firstOpenChunk - 1))
+}
+
+/**
  * Fences course progress writes during an explicit reset. New writes are
  * rejected and already-started writes drain before durable rows are deleted.
  */

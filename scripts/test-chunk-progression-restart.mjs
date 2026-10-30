@@ -76,15 +76,17 @@ assert.deepEqual(persistedTrainingProgress.get('other-chunk-puzzle'), {
 })
 
 // Guard the real handlers, not only the persistence model: both trainers
-// must clear only the active puzzle ids and update only the active chunk row.
+// must delegate the exact active puzzle ids and active chunk row to the
+// shared durable contract.
 for (const trainerPath of [
   'src/trainers/patternMate/PatternMateTrainer.tsx',
   'src/trainers/patternTactic/PatternTacticTrainer.tsx',
 ]) {
   const source = await readFile(path.join(process.cwd(), trainerPath), 'utf8')
-  assert.match(source, /\.in\('item_id', plan\.puzzleIds\)/)
-  assert.match(source, /\.eq\('chunk_index', plan\.chunkNumber\)/)
-  assert.doesNotMatch(source, /localStorage\.removeItem\(storageKey\)/)
+  assert.match(source, /resetCurrentChunkProgressPersistence\(/)
+  assert.match(source, /puzzleIds: plan\.puzzleIds/)
+  assert.match(source, /chunkNumber: plan\.chunkNumber/)
+  assert.match(source, /savedState: plan\.savedState/)
 }
 
 console.log('PASS chunk restart clears persisted current-chunk mastery and leaves other chunks untouched')

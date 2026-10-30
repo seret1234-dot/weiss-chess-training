@@ -22,6 +22,13 @@ export function createCurrentChunkResetPlan({
       ...savedState,
       currentChunkIndex,
       currentPuzzleIndex: 0,
+      // Browser state is account-scoped by the trainer storage key. Keep an
+      // explicit boundary so a later legacy-credit migration cannot mistake
+      // this deliberately reset chunk for an untouched one.
+      resetChunkIndexes: [...new Set([
+        ...(savedState.resetChunkIndexes ?? []),
+        currentChunkIndex,
+      ])].filter((index) => Number.isInteger(index) && index >= 0),
       chunkProgressByFile: {
         ...savedState.chunkProgressByFile,
         [fileName]: emptyProgress,
