@@ -9,6 +9,9 @@ const corpus = path.join(root, 'public', 'data', 'verified-lichess-tactics-v1', 
 const index = JSON.parse(fs.readFileSync(path.join(corpus, 'index.json'), 'utf8'))
 const sourceIds = new Set()
 const exerciseIds = new Set()
+const activeThemeStages = new Set(index.courses
+  .filter(course => course.theme !== 'mixed')
+  .map(course => `${course.theme}:${course.stage}`))
 let replayed = 0
 for (const course of index.courses.filter(course => course.theme !== 'mixed')) {
   const directory = path.join(corpus, `${course.theme}-${course.stage.toLowerCase()}`)
@@ -44,8 +47,12 @@ assert.equal(exerciseIds.size, 9635)
 for (const stage of ['M1', 'M2', 'M3', 'M4']) {
   const mixed = index.courses.find(course => course.theme === 'mixed' && course.stage === stage)
   assert.ok(mixed && mixed.path && mixed.chunkCount === 1, `mixed ${stage} manifest required`)
+  assert.equal(mixed.path, `/data/verified-lichess-tactics-v1/final-v6/mixed-m${stage.slice(1)}`, `mixed ${stage} uses the final verified runtime path`)
   const manifest = JSON.parse(fs.readFileSync(path.join(corpus, `mixed-${stage.toLowerCase()}`, 'manifest.json'), 'utf8'))
+  assert.equal(manifest.corpus, 'verified-lichess-final-runtime-final-v6', `mixed ${stage} has approved final-v6 provenance`)
+  assert.equal(manifest.validation?.primaryThemesOnly, true, `mixed ${stage} rejects non-primary sources`)
   assert.deepEqual([...manifest.sourceThemes].sort(), [...mixed.sources].sort(), `mixed ${stage} active themes`)
+  for (const theme of manifest.sourceThemes) assert.ok(activeThemeStages.has(`${theme}:${stage}`), `mixed ${stage} includes only an active verified theme: ${theme}`)
 }
 const trainerRuntime = fs.readFileSync(path.join(root, 'src', 'trainers', 'patternTactic', 'PatternTacticTrainer.tsx'), 'utf8')
 const vite = await createServer({ server: { middlewareMode: true, hmr: false }, appType: 'custom' })
@@ -59,11 +66,12 @@ try {
   }
   assert.match(trainerRuntime, /VERIFIED_FINAL_RUNTIME_PATH.*mixed-m\$\{tacticDistance\}/s, 'mixed runtime uses the generated final verified corpus')
   assert.doesNotMatch(trainerRuntime, /tacticLearnerCurriculum\?\.learnerDataBasePath \?\? config\.dataBasePath/, 'focused runtime cannot fall back to legacy data')
-  assert.match(trainerRuntime, /scheduleCorrectAutoAdvance\(goToNextPuzzle, 1_500\)/, 'verified tactics retain the Production correct-move timing')
+  assert.match(trainerRuntime, /useCorrectPuzzleAutoAdvance\(\)/, 'verified tactics use the shared correct-move transition controller')
+  assert.match(trainerRuntime, /scheduleCorrectAutoAdvance\(goToNextPuzzle\)/, 'verified tactics retain the shared correct-move transition')
   assert.doesNotMatch(trainerRuntime, /getSemanticDisclosurePresentation/, 'verified data does not add a semantic-disclosure presentation state')
   assert.doesNotMatch(trainerRuntime, /Show Solution/, 'verified data does not add a post-hint solution action')
   assert.doesNotMatch(trainerRuntime, /semanticEvidenceSquares/, 'verified data does not add instructional evidence highlights')
-  assert.match(trainerRuntime, /getOpponentReplyBeforeNextRequiredLearnerMove\(/, 'verified M1â€“M4 puzzles retain only verified learner/opponent sequences')
+  assert.match(trainerRuntime, /getOpponentMovesBeforeNextRequiredLearnerMove\(/, 'verified M1â€“M4 puzzles retain only verified learner/opponent sequences')
   assert.match(trainerRuntime, /createInteractiveTrainingSequence\(/, 'verified runtime separates source continuation from learner-facing progression')
   console.log(JSON.stringify({ passed: true, replayed, sources: sourceIds.size, exercises: exerciseIds.size }, null, 2))
 } finally {

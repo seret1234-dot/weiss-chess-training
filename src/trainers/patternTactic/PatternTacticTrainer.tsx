@@ -92,7 +92,8 @@ import {
  createInteractiveTrainingSequence,
  getOpponentMovesBeforeNextRequiredLearnerMove,
 } from "./trainingSequence"
-import { FULL_CHUNK_CURRICULUM_VERSION, FULL_MIXED_TACTIC_COURSES } from "../fullChunkCurriculumCatalog"
+import { FULL_CHUNK_CURRICULUM_VERSION } from "../fullChunkCurriculumCatalog"
+import { VERIFIED_FINAL_RUNTIME_PATH } from "./generatedFinalVerifiedTaxonomy"
 import { createProgressionResetCoordinator } from "../progressionRestart.mjs"
 import { createCurrentChunkResetPlan } from "../chunkProgressReset.mjs"
 import { nextPerfectSolveCount, PUZZLE_MOVE_LIMIT_MS, PUZZLE_RECOGNITION_LIMIT_MS, PuzzlePerfectionTracker } from "../puzzlePerfection"
@@ -684,9 +685,6 @@ export default function PatternTacticTrainer({
  const mixedLearnerCurricula = isMixedPatternTactic
   ? getPatternTacticLearnerCurriculaForDistance(tacticDistance)
   : []
- const mixedFullCourse = isMixedPatternTactic
-  ? FULL_MIXED_TACTIC_COURSES.find((course) => course.distance === tacticDistance)
-  : null
  const learnerCurriculumVersion = tacticLearnerCurriculum?.version ?? (isMixedPatternTactic ? FULL_CHUNK_CURRICULUM_VERSION : null)
  const isLearnerFacingRequest = requestedLearnerCurriculumVersion === learnerCurriculumVersion
  const progressTrainerKey = tacticLearnerCurriculum
@@ -695,7 +693,7 @@ export default function PatternTacticTrainer({
  const activeDataBasePath = config.dataSource
   ? config.dataBasePath
   : isMixedPatternTactic
-  ? mixedFullCourse?.dataBasePath ?? ''
+  ? `${VERIFIED_FINAL_RUNTIME_PATH}/mixed-m${tacticDistance}`
   : tacticLearnerCurriculum?.learnerDataBasePath ?? ''
  const urlChunkParam = searchParams.get('chunk')
  const requestedChunkIndex =
