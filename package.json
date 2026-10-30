@@ -29,7 +29,8 @@
     "postinstall": "node scripts/install-stockfish-assets.cjs && node scripts/soften-react-chessboard-pieces.cjs && node scripts/patch-react-chessboard-position.cjs",
     "paypal:audit": "node scripts/audit_paypal_launch.mjs",
     "audit:positions": "node scripts/run-position-audit.mjs",
-    "validate:release-candidate": "node scripts/validate-release-candidate.mjs"
+    "validate:release-candidate": "node scripts/validate-release-candidate.mjs && node scripts/test-auto-rating-plan-selection.mjs"
+    ,"test:auto-rating-plan": "node scripts/test-auto-rating-plan-selection.mjs"
     ,"test:auto-study": "node scripts/test-personal-training-plan.mjs",
     "test:curriculum": "node scripts/test-curriculum.mjs",
     "test:curriculum-persistence": "node scripts/test-curriculum-persistence.mjs",

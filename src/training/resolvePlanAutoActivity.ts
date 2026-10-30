@@ -6,8 +6,14 @@ import { MASTER_GAMES_FLEXIBLE_SEARCH_RPC, buildMasterGameSearchRpcArgs } from '
 import { getMasterGameOpeningSearch, selectCalculationDepth, selectPreferredMasterGame } from './learningPlanRules'
 import { selectScheduledSection, type PersonalTrainingPlan, type TrainingSection } from './buildPersonalTrainingPlan'
 import { CURRICULUM_AREAS } from './curriculum/curriculumCatalog'
-import { getCurriculumDecisionForUser, type CurriculumRuntimeDecision } from './curriculum/curriculumRuntime'
+import {
+  buildCurriculumDecision,
+  getCurriculumDecisionForUser,
+  type AutoSelectionDebug,
+  type CurriculumRuntimeDecision,
+} from './curriculum/curriculumRuntime'
 import type { CurriculumArea } from './curriculum/curriculumTypes'
+import { selectCurriculumItem } from './curriculum/selectCurriculumItem'
 import { isPlayableAutoRoute } from './autoPlayableRoute'
 import { mixedAutoRoute, isAutoMixedEligible, masterAutoActivity, autoMixedEligibilityFilter } from './autoMixedEligibility'
 import { getNextDueItem, getNextDueReviewItem } from './getNextDueItem'
@@ -19,6 +25,61 @@ export type AutoActivityDependencies = {
   masterGame: (userId: string, section: TrainingSection) => Promise<ContentActivity | null>
   masterPattern?: typeof masterAutoActivity
   mixedEligible?: typeof isAutoMixedEligible
+}
+
+/** Completed and explicitly skipped assessments both enter the same rating plan.
+ * Due and in-progress assessments retain their existing higher-priority route. */
+export function canUseRatingPlanAfterWeeklyAssessment(
+  status: 'due' | 'in_progress' | 'complete' | 'skipped',
+  reviewRoute?: string | null,
+) {
+  return !reviewRoute && status !== 'due' && status !== 'in_progress'
+}
+
+function isNewLegacyFallback(decision: CurriculumRuntimeDecision | null) {
+  return decision?.source === 'legacy' && decision.legacyDueState === 'new'
+}
+
+function withSelectionDebug(
+  decision: CurriculumRuntimeDecision,
+  plan: PersonalTrainingPlan,
+  section: TrainingSection | null,
+  selectionReason: string,
+) {
+  const debug: AutoSelectionDebug = {
+    trainingRating: plan.currentRating,
+    ratingSource: plan.ratingSource,
+    activePlanSection: section?.key ?? 'due-review',
+    activePlanLabel: section?.label ?? 'Due review',
+    chosenExercise: decision.route,
+    selectionReason,
+  }
+  return { ...decision, autoSelectionDebug: debug }
+}
+
+/**
+ * A persistence outage may leave the legacy scheduler as the only response.
+ * Its first-new-item sort was never rating-aware, so use the existing
+ * curriculum selector with the personal plan's rating rather than letting a
+ * new legacy row bypass the plan. This creates no progress or curriculum rows.
+ */
+function planStarterDecision(
+  plan: PersonalTrainingPlan,
+  areas: readonly CurriculumArea[],
+  selectionIndex: number,
+) {
+  const starterState = {
+    rating: plan.currentRating,
+    activeStages: {},
+    difficultyCeilings: {},
+    themeMastery: {},
+  }
+  const recommendation = selectCurriculumItem({
+    state: starterState,
+    selectionIndex,
+    excludedAreas: CURRICULUM_AREAS.filter((area) => !areas.includes(area)),
+  })
+  return recommendation ? buildCurriculumDecision(recommendation, selectionIndex) : null
 }
 
 // Reuse the personal-library rotation and existing family due/unmastered lookup.
@@ -137,8 +198,24 @@ export async function resolvePlanAutoActivity(
     }
     decision = await verify(await dependencies.curriculum(userId, [mixed.family.includes('tactic') ? 'tactics' : 'mates']))
   }
-  // In particular, never replace an overdue/due-today retention item with a plan slot.
-  if (!decision || (decision.source === 'legacy' && isPlayableAutoRoute(decision.route))) return decision
+  if (!decision) return decision
+  // In particular, never replace a genuine retention review or an in-progress
+  // chunk with a plan slot. A *new* legacy fallback is different: it means the
+  // curriculum persistence lookup was unavailable, not that a review is due.
+  if (decision.source === 'legacy' && !isNewLegacyFallback(decision) && isPlayableAutoRoute(decision.route)) {
+    // Historical callers did not record the due state. Keep their established
+    // retention behavior unchanged; current runtime fallbacks carry it and
+    // receive the richer support explanation below.
+    if (!decision.legacyDueState) return decision
+    return withSelectionDebug(
+      decision,
+      plan,
+      null,
+      decision.legacyDueState === 'in_progress'
+        ? 'Resuming the existing in-progress chunk before selecting new material.'
+        : 'A due retention review takes priority over a new rating-plan exercise.',
+    )
+  }
   // Older scheduler rows can contain a section key rather than a content identity.
   // Resolve that SAME section before considering a new weighted slot.
   const legacyPath = decision.route.split(/[?#]/)[0]
@@ -146,7 +223,7 @@ export async function resolvePlanAutoActivity(
     : legacyPath.startsWith('/openings') ? 'openings'
     : /^\/(mates|tactics)(\/|$)/.test(legacyPath) ? 'tactics'
     : legacyPath.startsWith('/endgame') ? 'endgames' : null
-  const section = decision.source === 'legacy' && legacyKey
+  const section = decision.source === 'legacy' && !isNewLegacyFallback(decision) && legacyKey
     ? plan.sections.find(item => item.key === legacyKey)!
     : selectScheduledSection(plan, completedSelections, excluded)
   const fallback = isPlayableAutoRoute(decision.route) ? decision : null
@@ -155,9 +232,19 @@ export async function resolvePlanAutoActivity(
   }
   const selectedAreas = areas[section.key]
   if (selectedAreas) {
-    if (decision.curriculumArea && selectedAreas.includes(decision.curriculumArea) && fallback) return decision
+    if (decision.curriculumArea && selectedAreas.includes(decision.curriculumArea) && fallback && !isNewLegacyFallback(decision)) {
+      return withSelectionDebug(decision, plan, section, section.reason)
+    }
     const resolved = await dependencies.curriculum(userId, selectedAreas)
-    return resolved && isPlayableAutoRoute(resolved.route) ? (await verify(resolved)) ?? fallback : fallback
+    if (resolved && isPlayableAutoRoute(resolved.route) && !isNewLegacyFallback(resolved)) {
+      const verified = await verify(resolved)
+      if (verified) return withSelectionDebug(verified, plan, section, section.reason)
+    }
+    const starter = planStarterDecision(plan, selectedAreas, completedSelections)
+    if (starter && isPlayableAutoRoute(starter.route)) {
+      return withSelectionDebug(starter, plan, section, `${section.reason} Curriculum persistence is unavailable, so the same rating placement was resolved locally.`)
+    }
+    return isNewLegacyFallback(fallback) ? null : fallback
   }
   const depth = selectCalculationDepth(plan.currentRating, completedSelections)
   let activity: ContentActivity | null = null
@@ -170,8 +257,8 @@ export async function resolvePlanAutoActivity(
   } catch (error) {
     console.warn('Auto activity lookup unavailable; using existing curriculum item.', error)
   }
-  if (!activity || !isPlayableAutoRoute(activity.route)) return fallback
+  if (!activity || !isPlayableAutoRoute(activity.route)) return isNewLegacyFallback(fallback) ? null : fallback
   // Do not attach the previous, unrelated curriculum stage/chunk/evidence identity.
-  return { ...activity, source: decision.source, chunkIndex: activity.chunkIndex ?? null, selectionIndex: decision.selectionIndex,
-    label: section.label, explanation: section.reason }
+  return withSelectionDebug({ ...activity, source: decision.source, chunkIndex: activity.chunkIndex ?? null, selectionIndex: decision.selectionIndex,
+    label: section.label, explanation: section.reason }, plan, section, section.reason)
 }

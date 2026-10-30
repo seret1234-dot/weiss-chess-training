@@ -128,6 +128,24 @@ export function resolveTrainingCurrentRating(profile: Record<string, unknown> | 
   const manual = validTrainingRating(profile?.manual_current_rating)
   if (manual) return { rating: manual, source: "manual rating" }
 
+  // A connected account can provide a known playing rating before the first
+  // engine analysis creates an estimated training rating. This was the
+  // original starter-plan source and must remain usable when onboarding tests
+  // are skipped.
+  const detected = profile?.detected_ratings
+  if (detected && typeof detected === "object") {
+    for (const key of ["rapid", "blitz", "long", "daily"]) {
+      const rating = validTrainingRating((detected as Record<string, unknown>)[key])
+      if (rating) return { rating, source: `connected ${key} rating` }
+    }
+  }
+
+  // Some established accounts predate the canonical manual field. Retain
+  // their stored rating as a final known-rating fallback instead of silently
+  // replacing it with the generic starter value.
+  const legacy = validTrainingRating(profile?.current_rating)
+  if (legacy) return { rating: legacy, source: "saved training rating" }
+
   return { rating: 800, source: "starter rating" }
 }
 

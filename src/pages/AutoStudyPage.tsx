@@ -24,7 +24,7 @@ import {
  recordRecentEndgameTrainer,
 } from "../training/endgameTransfer"
 import { resolveAutoStartRoute } from "../training/resolveAutoStartRoute"
-import { resolvePlanAutoActivity } from '../training/resolvePlanAutoActivity'
+import { canUseRatingPlanAfterWeeklyAssessment, resolvePlanAutoActivity } from '../training/resolvePlanAutoActivity'
 import { importConnectedAccounts } from "../training/importConnectedAccounts"
 import { analyzeImportedGamesWithStockfish, getRemainingImportedGamesToAnalyze } from "../training/engineAnalyzeImportedGames"
 import { supabase } from "../lib/supabase"
@@ -176,7 +176,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
      getRemainingImportedGamesToAnalyze(user.id),
     ])
     const plan = await buildPlanWithMasterGameCadence(autoProfile, user.id)
-    const displayDecision = nextWeeklyStatus.status === 'complete' && !nextWeeklyStatus.reviewRoute
+    const displayDecision = canUseRatingPlanAfterWeeklyAssessment(nextWeeklyStatus.status, nextWeeklyStatus.reviewRoute)
      ? await planAwareDecision(plan, nextCurriculumDecision, user.id)
      : nextCurriculumDecision
 
@@ -330,7 +330,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
    ])
 
    setWeeklyStatus(latestWeeklyStatus)
-   if (latestWeeklyStatus.reviewRoute || latestWeeklyStatus.status === "in_progress" || latestWeeklyStatus.status === "due") {
+   if (!canUseRatingPlanAfterWeeklyAssessment(latestWeeklyStatus.status, latestWeeklyStatus.reviewRoute)) {
     navigate(resolveAutoStartRoute({ weeklyStatus: latestWeeklyStatus, curriculumDecision: nextCurriculumDecision }), { replace })
     return
    }
@@ -402,6 +402,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
  }
 
  const { plan, autoProfile } = state
+  const showAutoDebug = new URLSearchParams(location.search).get('debugAuto') === '1'
 
  // Direct entry: keep the course launch automatic, without flashing its
  // Start/Continue dashboard while the existing async selector opens a trainer.
@@ -525,6 +526,17 @@ export default function AutoStudyPage({ user }: { user: any }) {
          ? "Account sync available"
          : "Saved on this device until the Supabase table is installed"}
        </div>
+      )}
+      {showAutoDebug && curriculumDecision?.autoSelectionDebug && (
+       <details data-testid="auto-selection-debug" style={{ marginTop: 12, color: '#d8d8d8' }}>
+        <summary>Auto selection debug</summary>
+        <dl style={{ margin: '8px 0 0', display: 'grid', gap: 4 }}>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Rating: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.trainingRating} ({curriculumDecision.autoSelectionDebug.ratingSource})</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Active plan: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.activePlanLabel}</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Chosen exercise: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.chosenExercise}</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Selection reason: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.selectionReason}</dd></div>
+        </dl>
+       </details>
       )}
      </div>
 

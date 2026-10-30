@@ -1,4 +1,4 @@
-import { getNextDueItem, getNextDueReviewItem, type NextDueItem } from "../getNextDueItem"
+import { getNextDueItem, getNextDueReviewItem, type DueState, type NextDueItem } from "../getNextDueItem"
 import { activityReadKeys } from '../activityIdentity'
 import { buildAutoTrainingRoute, type AutoTrainingItem } from "../autoTrainingRoute"
 import { supabase } from "../../lib/supabase"
@@ -45,6 +45,18 @@ export type CurriculumRuntimeDecision = AutoTrainingItem & {
   difficultyCeiling?: number
   learnerCurriculumVersion?: string | null
   fallbackReason?: string
+  legacyDueState?: DueState
+  autoSelectionDebug?: AutoSelectionDebug
+}
+
+/** A support-only explanation of the deterministic Auto choice. */
+export type AutoSelectionDebug = {
+  trainingRating: number
+  ratingSource: string
+  activePlanSection: string
+  activePlanLabel: string
+  chosenExercise: string
+  selectionReason: string
 }
 
 type PersistedCurriculum = { curriculum: CurriculumState } | null
@@ -179,6 +191,7 @@ function fallbackDecision(item: NextDueItem, reason: unknown): CurriculumRuntime
     explanation: "Your existing scheduled review is being used while the curriculum decision is unavailable.",
     selectionIndex: null,
     fallbackReason: message,
+    legacyDueState: item.dueState,
   }
 }
 
