@@ -20,6 +20,7 @@ import {
  chooseNewestWeeklyTestState,
  loadWeeklyTestFromCloud,
  saveWeeklyTestToCloud,
+ skipWeeklyAssessment,
 } from '../training/weeklyAdaptiveTest'
 import {
  createTransferOpportunity,
@@ -86,6 +87,12 @@ type WeeklyTestState = {
  updatedAt?: string
  planSignals?: ReturnType<typeof buildWeeklyPlanSignals>
  transferTargets?: TransferTarget[]
+ assessment?: {
+  status: 'skipped'
+  skippedAt: string
+  skippedGameIndexes: Array<0 | 1>
+  completedGames: number
+ }
 }
 
 const WEEKLY_TEST_STORAGE_KEY = 'weiss-weekly-adaptive-test-v1'
@@ -555,6 +562,7 @@ export default function PlayComputerPage() {
  const [weeklyCloudUserId, setWeeklyCloudUserId] = useState<string | null>(null)
  const [weeklyCloudReady, setWeeklyCloudReady] = useState(false)
  const [weeklyCloudAvailable, setWeeklyCloudAvailable] = useState(false)
+ const [skippingWeeklyAssessment, setSkippingWeeklyAssessment] = useState(false)
  const [gameStarted, setGameStarted] = useState(
  isWeeklyTest ? Boolean(initialWeeklyRecord?.started) : normalResume ? normalPlaySessionShouldStart(normalResume) : (initialMode === 'analyze' || initialAutoStart),
  )
@@ -653,6 +661,34 @@ export default function PlayComputerPage() {
  saveWeeklyTestState(next)
  setWeeklyTest(next)
  queueWeeklyCloudSave(next)
+ }
+
+ async function handleSkipWeeklyAssessment() {
+  if (!isWeeklyTest || !weeklyTest || skippingWeeklyAssessment || !weeklyCloudUserId || !weeklyCloudAvailable) return
+  setSkippingWeeklyAssessment(true)
+  setStatusText('Saving your assessment choice…')
+  // A prior board update must finish first, otherwise an older debounced write
+  // could make a skipped assessment look active again after a refresh.
+  if (weeklyCloudSaveTimerRef.current !== null) {
+   window.clearTimeout(weeklyCloudSaveTimerRef.current)
+   weeklyCloudSaveTimerRef.current = null
+  }
+  try {
+   await weeklyCloudSavePendingRef.current.catch(() => false)
+   const latest = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo, accountId)
+   if (!await saveWeeklyTestToCloud(weeklyCloudUserId, latest)) {
+    throw new Error('Your assessment progress could not be saved.')
+   }
+   const skipped = await skipWeeklyAssessment(weeklyCloudUserId, weeklyWeekKey)
+   const next = skipped as WeeklyTestState
+   saveWeeklyTestState(next)
+   setWeeklyTest(next)
+   setGameStarted(false)
+   navigate(AUTO_TRAINING_ENTRY_ROUTE, { replace: true })
+  } catch (error) {
+   setStatusText(error instanceof Error ? error.message : 'Could not skip the assessment. Please try again.')
+   setSkippingWeeklyAssessment(false)
+  }
  }
 
  function applyWeeklyStateToBoard(next: WeeklyTestState) {
@@ -973,6 +1009,11 @@ export default function PlayComputerPage() {
 
  useEffect(() => {
  if (!isWeeklyTest || !weeklyCloudReady || !weeklyTest) return
+
+ if (weeklyTest.assessment?.status === 'skipped') {
+  navigate(AUTO_TRAINING_ENTRY_ROUTE, { replace: true })
+  return
+ }
 
  if (weeklyTest.reviewFlowVersion === 1) {
   if (weeklyTest.reviewFlowCompletedAt) { navigate(AUTO_TRAINING_ENTRY_ROUTE, { replace: true }); return }
@@ -2649,6 +2690,22 @@ boardWidth={boardSize}
  <button onClick={handleFlipBoard} style={btnStyle}>
  Flip Board
  </button>
+ {isWeeklyTest && !weeklySessionComplete ? (
+  <button
+   type="button"
+   data-weekly-skip-assessment="true"
+   onClick={() => void handleSkipWeeklyAssessment()}
+   disabled={!weeklyCloudReady || !weeklyCloudAvailable || skippingWeeklyAssessment}
+   style={{
+    ...btnStyle,
+    border: '1px solid rgba(220,174,104,0.72)',
+    color: '#f2d6a1',
+    opacity: weeklyCloudReady && weeklyCloudAvailable && !skippingWeeklyAssessment ? 1 : 0.58,
+   }}
+  >
+   {skippingWeeklyAssessment ? 'Skipping Test Games…' : 'Skip Test Games'}
+  </button>
+ ) : null}
  {!isAssessment ? (
  <>
  <button onClick={handleSetup} style={btnStyle}>

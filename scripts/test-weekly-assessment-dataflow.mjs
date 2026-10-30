@@ -143,3 +143,34 @@ assert.equal(base.analysisAvailable, false, 'Weekly needs no imported-game minim
 assert.deepEqual(r.buildPersonalTrainingPlan(profile, { endgames: 100 }), r.buildPersonalTrainingPlan(profile, { endgames: 1.35 }))
 for (const plan of [base, matePlan, endPlan]) assert.equal(weights(plan).reduce((a, b) => a + b, 0), 100)
 console.log('PASS D: imported weighting preserved; partial review withheld; bounded multipliers; no imported-game writes')
+
+// An explicit skip is neither a chess result nor an incomplete assessment
+// claim. It preserves any already completed game, records the learner action
+// separately, and never changes a different account's state.
+const emptyGame = color => ({ color, started: false, completed: false, pgn: '', fen: new Chess().fen(), result: '*', updatedAt: '1970-01-01T00:00:00.000Z' })
+const beforeGameOne = { ...stateFor(), currentGame: 0, completedAt: undefined, planSignals: undefined, games: [emptyGame('white'), emptyGame('black')] }
+const beforeClient = database(beforeGameOne)
+beforeClient.tables.weekly_adaptive_tests.push({ user_id: 'bbbbbbbb-bbbb-4ccc-8ddd-eeeeeeeeeeee', week_key: beforeGameOne.weekKey, state: { ...beforeGameOne, userId: 'bbbbbbbb-bbbb-4ccc-8ddd-eeeeeeeeeeee' }, updated_at: beforeGameOne.updatedAt })
+const skippedBeforeGameOne = await r.skipWeeklyAssessment(userId, beforeGameOne.weekKey, beforeClient)
+assert.deepEqual(skippedBeforeGameOne.assessment, { status: 'skipped', skippedAt: skippedBeforeGameOne.assessment.skippedAt, skippedGameIndexes: [0, 1], completedGames: 0 })
+assert.equal(skippedBeforeGameOne.currentGame, 2)
+assert.equal(skippedBeforeGameOne.completedAt, undefined)
+assert.equal(skippedBeforeGameOne.planSignals, undefined, 'skip must not fabricate a rating/plan adjustment')
+assert.equal(beforeClient.tables.weekly_adaptive_tests[1].state.assessment, undefined, 'account isolation keeps another learner untouched')
+
+const afterGameOneSeed = stateFor()
+const afterGameOne = { ...afterGameOneSeed, currentGame: 1, completedAt: undefined, planSignals: undefined, games: [{ ...afterGameOneSeed.games[0], completed: true, result: '1-0' }, emptyGame('black')] }
+const afterClient = database(afterGameOne)
+const skippedAfterGameOne = await r.skipWeeklyAssessment(userId, afterGameOne.weekKey, afterClient)
+assert.deepEqual(skippedAfterGameOne.assessment.skippedGameIndexes, [1])
+assert.equal(skippedAfterGameOne.assessment.completedGames, 1)
+assert.equal(skippedAfterGameOne.games[0].pgn, afterGameOne.games[0].pgn, 'completed Game 1 is preserved')
+assert.equal(skippedAfterGameOne.games[0].result, '1-0')
+assert.equal(skippedAfterGameOne.games[1].result, '*', 'skipping does not invent a Game 2 outcome')
+assert.equal(skippedAfterGameOne.planSignals, undefined)
+assert.deepEqual(await r.skipWeeklyAssessment(userId, afterGameOne.weekKey, afterClient), skippedAfterGameOne, 'retry is idempotent')
+globalThis.__weeklyClient = afterClient
+assert.equal((await r.getWeeklyTestStatus(userId)).status, 'skipped', 'rehydration honors the durable skip marker')
+const followingWeek = new Date(); followingWeek.setDate(followingWeek.getDate() + 7)
+assert.equal((await r.getWeeklyTestStatus(userId, followingWeek)).status, 'due', 'skipping this week leaves the next normal Weekly assessment available')
+console.log('PASS E: skip before Game 1 / after Game 1 persists distinctly, preserves results, adjusts no plan, and isolates accounts')

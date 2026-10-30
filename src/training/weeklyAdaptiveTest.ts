@@ -1,7 +1,7 @@
 import { Chess } from 'chess.js'
 import { pendingWeeklyReviewRoute, type WeeklyExplainedReview, type WeeklyAnalysisSnapshot } from './weeklyReviewFlow'
 import { supabase } from '../lib/supabase'
-import { readOwnedJson } from '../auth/accountBrowserStorage'
+import { readOwnedJson, writeOwnedJson } from '../auth/accountBrowserStorage'
 import type { TransferOpportunity, TransferTarget } from './targetedSparring'
 import { deriveWeeklyAssessment, type WeeklyAssessment, type WeeklyReviewSummary, type WeeklySectionMultipliers } from './weeklyAssessment'
 
@@ -39,7 +39,7 @@ export type WeeklyCloudLoad = {
 export type WeeklyTestPlanStatus = {
  reviewRoute?: string | null
  weekKey: string
- status: 'due' | 'in_progress' | 'complete'
+ status: 'due' | 'in_progress' | 'complete' | 'skipped'
  currentGame: 0 | 1 | 2
  gamesCompleted: number
  completedAt: string | null
@@ -66,6 +66,18 @@ type WeeklyGameLike = {
  transferOpportunities?: TransferOpportunity[]
 }
 
+/**
+ * An explicit learner choice to defer this week's assessment. This is not a
+ * chess result, a failed game, or an abandoned session, so it deliberately
+ * lives outside individual game records.
+ */
+export type WeeklyAssessmentDisposition = {
+ status: 'skipped'
+ skippedAt: string
+ skippedGameIndexes: Array<0 | 1>
+ completedGames: number
+}
+
 export type WeeklyStateLike = {
  reviewFlowVersion?: 1
  reviewFlowCompletedAt?: string
@@ -78,6 +90,7 @@ export type WeeklyStateLike = {
  updatedAt?: string
  planSignals?: WeeklyPlanSignals
  transferTargets?: TransferTarget[]
+ assessment?: WeeklyAssessmentDisposition
 }
 
 const TABLE = 'weekly_adaptive_tests'
@@ -146,7 +159,7 @@ function hasWeeklyProgress(state: WeeklyStateLike) {
  // Timestamps, assigned targets and default board/settings are initialization,
  // not learner progress. Keep the selected snapshot intact (including review).
  const initialFen = new Chess().fen()
- return Boolean(state.completedAt || state.reviewFlowCompletedAt ||
+ return Boolean(state.completedAt || state.reviewFlowCompletedAt || state.assessment?.status === 'skipped' ||
   (state.currentGame ?? 0) > 0 || state.games?.some(game =>
    game.started || game.completed || game.analysis || game.analysisSnapshot ||
    game.explainedReview || game.transferOpportunities?.length ||
@@ -207,6 +220,7 @@ function statusFromState(
  const completed = gamesCompleted(state)
  const currentGame =
   state.currentGame === 1 || state.currentGame === 2 ? state.currentGame : 0
+ const skipped = state.assessment?.status === 'skipped'
  const complete = currentGame === 2 || completed >= 2
  const started =
   currentGame > 0 ||
@@ -214,7 +228,7 @@ function statusFromState(
 
  return {
   weekKey,
-  status: complete ? 'complete' : started ? 'in_progress' : 'due',
+  status: skipped ? 'skipped' : complete ? 'complete' : started ? 'in_progress' : 'due',
   reviewRoute: pendingWeeklyReviewRoute(state),
   currentGame,
   gamesCompleted: completed,
@@ -287,6 +301,68 @@ export async function saveWeeklyTestToCloud(
  }
 
  return true
+}
+
+/**
+ * Defers the outstanding games in the current Weekly assessment. This is a
+ * durable learner decision, not a game result: completed games stay exactly
+ * as recorded and no partial result is used to adjust a training plan.
+ *
+ * The compare-and-swap protects the choice from a late board snapshot, which
+ * otherwise could reopen the assessment after a refresh.
+ */
+export async function skipWeeklyAssessment(
+ userId: string,
+ weekKey: string,
+ client: any = supabase,
+): Promise<WeeklyStateLike> {
+ if (!userId || !weekKey) throw new Error('Invalid Weekly assessment context.')
+
+ for (let retry = 0; retry < 3; retry++) {
+  const { data, error } = await client.from(TABLE).select('state, updated_at')
+   .eq('user_id', userId).eq('week_key', weekKey).maybeSingle()
+  if (error || !data?.state) throw new Error('Weekly assessment could not be loaded for skipping.')
+
+  const state = data.state as WeeklyStateLike
+  if (state.weekKey !== weekKey || (state.userId && state.userId !== userId) || !Array.isArray(state.games)) {
+   throw new Error('Weekly assessment does not belong to this account.')
+  }
+  if (state.assessment?.status === 'skipped') return state
+
+  const skippedGameIndexes = state.games
+   .map((game, index) => game.completed ? null : index as 0 | 1)
+   .filter((index): index is 0 | 1 => index !== null)
+  if (skippedGameIndexes.length === 0) return state
+
+  const now = new Date(Math.max(Date.now(), Date.parse(data.updated_at) + 1)).toISOString()
+  const next: WeeklyStateLike = {
+   ...state,
+   userId,
+   currentGame: 2,
+   assessment: {
+    status: 'skipped',
+    skippedAt: now,
+    skippedGameIndexes,
+    completedGames: gamesCompleted(state),
+   },
+   // Do not synthesize plan signals from one game or a skipped game.
+   updatedAt: now,
+  }
+  const { data: saved, error: saveError } = await client.from(TABLE)
+   .update({ state: next, current_game: 2, updated_at: now })
+   .eq('user_id', userId).eq('week_key', weekKey).eq('updated_at', data.updated_at)
+   .select('state').maybeSingle()
+  if (saveError) throw new Error('Weekly assessment could not be saved.')
+  if (!saved) continue
+
+  if (typeof window !== 'undefined') {
+   try { writeOwnedJson(window.localStorage, LOCAL_STORAGE_KEY, next) }
+   catch { /* Cloud remains authoritative if browser storage is unavailable. */ }
+  }
+  return next
+ }
+
+ throw new Error('Weekly assessment changed while it was being skipped. Please retry.')
 }
 
 export async function getWeeklyTestStatus(
