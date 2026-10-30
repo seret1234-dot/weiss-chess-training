@@ -7,9 +7,29 @@ import DataCollectionNotice from "../compliance/DataCollectionNotice"
 import { validDailyMinutes, validTrainingRating } from "../training/trainingGoals"
 import { AUTO_TRAINING_ENTRY_ROUTE } from "../training/resolveAutoStartRoute"
 import { INTRODUCTION_METADATA_KEY, INTRODUCTION_ROUTE, readIntroduction, type IntroductionState } from "../onboarding/introduction"
+import { fetchChessComCurrentRatings } from "../training/chesscomImport"
+import { getOrCreateCurriculumState } from "../training/curriculum/curriculumPersistence"
 import "../onboarding/onboarding.css"
 
 const dailyChoices = [10, 20, 30, 45, 60]
+const CHESSCOM_RATING_TIMEOUT_MS = 6_000
+
+async function resolveOnboardingChessComRatings(username: string) {
+ if (!username) return {} as Record<string, number>
+ const controller = new AbortController()
+ const timeout = window.setTimeout(() => controller.abort(), CHESSCOM_RATING_TIMEOUT_MS)
+ try {
+  return await fetchChessComCurrentRatings(username, { signal: controller.signal })
+ } catch (error) {
+  // Rating lookup is intentionally bounded. The conservative curriculum seed
+  // below starts at the approved beginner default and can reconcile later.
+  console.warn("Chess.com current rating was unavailable during onboarding", error)
+  return {} as Record<string, number>
+ } finally {
+  window.clearTimeout(timeout)
+ }
+}
+
 export default function OnboardingPage() {
  const navigate = useNavigate()
  const { startAnalysis } = useBackgroundAnalysis()
@@ -70,13 +90,19 @@ export default function OnboardingPage() {
    if (!user) { navigate("/auth"); return }
    // Recheck before writing: revisiting onboarding must never reset a completed user's plan.
    const { data: profile, error: readError } = await supabase.from("user_auto_profile")
-    .select("onboarding_complete").eq("user_id", user.id).maybeSingle()
+    .select("onboarding_complete,detected_ratings").eq("user_id", user.id).maybeSingle()
    if (readError) throw readError
    if (profile?.onboarding_complete) {
     navigate(readIntroduction(user.user_metadata)?.status === "pending" ? INTRODUCTION_ROUTE : AUTO_TRAINING_ENTRY_ROUTE, { replace: true })
     return
    }
    const chesscom = chesscomUsername.trim(), lichess = lichessUsername.trim()
+   // This is deliberately separate from archive import/engine analysis. A
+   // username gives us enough current-rating evidence to seed Auto safely.
+   const currentChessComRatings = await resolveOnboardingChessComRatings(chesscom)
+   const detectedRatings = Object.keys(currentChessComRatings).length
+    ? currentChessComRatings
+    : (profile?.detected_ratings && typeof profile.detected_ratings === "object" ? profile.detected_ratings : {})
    const intro: IntroductionState = { version: 1, status: "pending", startedAt: new Date().toISOString(), requiresAnalysis: !!(chesscom || lichess) }
    const { error: metadataError } = await supabase.auth.updateUser({ data: {
     chessComUsername: chesscom || null, chess_com_username: chesscom || null,
@@ -96,13 +122,21 @@ export default function OnboardingPage() {
     board_vision_weight: 20, openings_weight: 15, master_games_weight: 10,
    })
    if (planError) throw planError
-   // Save completion last. Omitted legacy questionnaire fields are deliberately not overwritten.
-   const { error: autoError } = await supabase.from("user_auto_profile").upsert({
+   // Persist current-rating evidence before creating a curriculum. target_rating
+   // stays a goal only and must never initialize the learner's depth plan.
+   const { error: profileSeedError } = await supabase.from("user_auto_profile").upsert({
     user_id: user.id, target_rating: rating, daily_minutes: minutes,
     chesscom_username: chesscom || null, lichess_username: lichess || null,
-    onboarding_step: 2, onboarding_complete: true,
+    detected_ratings: detectedRatings,
+    onboarding_step: 1, onboarding_complete: false,
    })
-   if (autoError) throw autoError
+   if (profileSeedError) throw profileSeedError
+   await getOrCreateCurriculumState(user.id)
+   // Save completion last. Omitted legacy questionnaire fields are deliberately not overwritten.
+   const { error: completeError } = await supabase.from("user_auto_profile")
+    .update({ onboarding_step: 2, onboarding_complete: true })
+    .eq("user_id", user.id)
+   if (completeError) throw completeError
    if (intro.requiresAnalysis) startAnalysis({ userId: user.id, chesscomUsername: chesscom, lichessUsername: lichess })
    else trackAnalyticsEvent("onboarding_completed")
    navigate(INTRODUCTION_ROUTE, { replace: true })

@@ -37,7 +37,7 @@ export type MappedHistoricalEvidence = {
 export type CurriculumSeed = {
   state: {
     ratingSnapshot: number
-    ratingSource: "estimated" | "detected" | "target" | "default"
+    ratingSource: "estimated" | "detected" | "default"
     importedWeaknessArea: CurriculumArea | null
     categoryWeights: Record<CurriculumArea, number>
     legacyCategoryStats: Record<string, { attempts: number; correct: number; averageSolveMs: number | null }>
@@ -84,8 +84,9 @@ export function resolveSeedRating(profile: any) {
     if (rating) return { rating, source: "detected" as const }
   }
 
-  const target = validRating(profile?.target_rating)
-  if (target) return { rating: target, source: "target" as const }
+  // target_rating is an aspiration, not evidence of current playing strength.
+  // A fresh learner must start from the approved safe beginner default until a
+  // current rating is known, rather than being placed at their target level.
   return { rating: 600, source: "default" as const }
 }
 

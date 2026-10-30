@@ -45,6 +45,41 @@ function cleanUsername(username: string) {
  return username.trim().toLowerCase()
 }
 
+function validCurrentRating(value: unknown) {
+ const rating = Number(value)
+ return Number.isFinite(rating) && rating >= 100 && rating <= 4000 ? Math.round(rating) : null
+}
+
+/**
+ * Reads the current public Chess.com ratings without downloading a game archive.
+ * Onboarding uses this before it creates a curriculum so a learner's target is
+ * never mistaken for their playing strength. Full game import remains a later,
+ * independent background task.
+ */
+export async function fetchChessComCurrentRatings(
+ username: string,
+ { fetchImpl = fetch, signal }: { fetchImpl?: typeof fetch; signal?: AbortSignal } = {},
+) {
+ const clean = cleanUsername(username)
+ if (!clean) return {} as Record<string, number>
+
+ try {
+  const response = await fetchImpl(`https://api.chess.com/pub/player/${clean}/stats`, { signal })
+  if (response.status === 404) throw new ChessComImportError("username_not_found")
+  if (!response.ok) throw new ChessComImportError("temporarily_unavailable")
+  const stats = await response.json()
+  const ratings = {
+   rapid: validCurrentRating(stats?.chess_rapid?.last?.rating),
+   blitz: validCurrentRating(stats?.chess_blitz?.last?.rating),
+   long: validCurrentRating(stats?.chess_daily?.last?.rating),
+  }
+  return Object.fromEntries(Object.entries(ratings).filter(([, value]) => value != null)) as Record<string, number>
+ } catch (error) {
+  if (error instanceof ChessComImportError) throw error
+  throw new ChessComImportError("temporarily_unavailable")
+ }
+}
+
 function gameTimeClass(game: any): "blitz" | "rapid" | "long" | null {
  const tc = String(game?.time_class || "").toLowerCase()
 

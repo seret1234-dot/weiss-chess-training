@@ -1,5 +1,5 @@
 import { supabase } from "../lib/supabase"
-import { extractOpeningKeyFromPgn, fetchChessComGames, normalizeChessComGames } from "./chesscomImport"
+import { extractOpeningKeyFromPgn, fetchChessComCurrentRatings, fetchChessComGames, normalizeChessComGames } from "./chesscomImport"
 import { fetchLichessGames, normalizeLichessGames, pgnFingerprint, type ConnectedImportGame } from "./lichessImport"
 
 type Source = "chess.com" | "lichess"
@@ -317,11 +317,20 @@ export async function importConnectedAccounts({
   white: summarizeOpenings(retainedGames, "white"),
   black: summarizeOpenings(retainedGames, "black"),
  }
+ const importedRatings = detectedRatings(retainedGames)
+ // Archive games describe historical ratings. Prefer the independent current
+ // Chess.com stats snapshot whenever it is available, while keeping import
+ // completion non-blocking if that public endpoint is unavailable.
+ let currentChessComRatings: Record<string, number> = {}
+ if (chesscom) {
+  try { currentChessComRatings = await fetchChessComCurrentRatings(chesscom) }
+  catch (error) { warnings.push(`Chess.com current rating: ${error instanceof Error ? error.message : "Unavailable."}`) }
+ }
  const now = new Date().toISOString()
  const profileUpdate: Record<string, unknown> = {
   user_id: userId,
   opening_profile: openingProfile,
-  detected_ratings: detectedRatings(retainedGames),
+  detected_ratings: Object.keys(currentChessComRatings).length ? currentChessComRatings : importedRatings,
   detected_time_controls: detectedTimeControls(retainedGames),
   imported_games_count: retained.total,
  }
