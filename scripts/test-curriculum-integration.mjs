@@ -80,8 +80,8 @@ try {
   assert.equal(params.get("curriculumDecision"), decision.curriculumDecisionId)
   assert.equal(routeHelpers.buildAutoTrainingRoute(decision), launchedRoute)
 
-  // M2–M5 route provenance selects the versioned learner overlay and a valid
-  // learner chunk rather than one of the deprecated generated chunks.
+  // M2–M5 route provenance selects the authoritative restored full curriculum
+  // rather than the superseded eight-chunk learner overlay.
   const m2 = catalog.CURRICULUM_CATALOG.find((item) => item.trainerKey === "back-rank-mate-2")
   const m2Decision = runtime.buildCurriculumDecision({
     ...m2,
@@ -89,14 +89,14 @@ try {
     explanation: "test",
     difficultyCeiling: 2,
   }, 17)
-  assert.equal(m2Decision.learnerCurriculumVersion, "m2-v1")
-  assert.equal(m2Decision.chunkIndex, 1, "selection index is constrained to the eight M2 learner chunks")
-  assert.match(runtime.buildCurriculumAutoTrainingRoute(m2Decision), /learnerCurriculum=m2-v1/)
+  assert.equal(m2Decision.learnerCurriculumVersion, "full-precut-v1")
+  assert.equal(m2Decision.chunkIndex, 17, "selection index is preserved across the restored full M2 curriculum")
+  assert.match(runtime.buildCurriculumAutoTrainingRoute(m2Decision), /learnerCurriculum=full-precut-v1/)
   const anastasiaM3 = catalog.CURRICULUM_CATALOG.find((item) => item.trainerKey === "anastasia-mate-in-3")
-  assert.equal(runtime.buildCurriculumDecision({ ...anastasiaM3, kind: "current", explanation: "test", difficultyCeiling: 3 }, 1).learnerCurriculumVersion, "m3-v1", "catalog route maps to the page's M3 learner overlay")
+  assert.equal(runtime.buildCurriculumDecision({ ...anastasiaM3, kind: "current", explanation: "test", difficultyCeiling: 3 }, 1).learnerCurriculumVersion, "full-precut-v1", "catalog route maps to the authoritative restored M3 curriculum")
 
   assert.match(autoStudySource, /getCurriculumDecisionForUser/)
-  assert.match(autoStudySource, /buildCurriculumAutoTrainingRoute/)
+  assert.match(autoStudySource, /resolveAutoStartRoute/)
   assert.match(bannerSource, /getCurriculumDecisionForUser/)
   assert.match(redirectSource, /getCurriculumDecisionForUser/)
 

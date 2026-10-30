@@ -235,7 +235,11 @@ try {
   assert.match(patternMateTrainerSource, /mixedLearnerCurricula\.map\(\(definition\) => definition\.theme\)/, "scope chooser exposes only catalog-owned themes at every mixed mate distance")
   const curatedCandidates = (await Promise.all(extensionThemes.map(async (definition) => {
     const manifest = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/manifest.json`), "utf8"))
-    assert.equal(manifest.files.length, 5, `${definition.theme} exposes five learner chunks to mixed practice`)
+    assert.equal(
+      manifest.files.length,
+      definition.activeChunkCount,
+      `${definition.theme} exposes every active restored-runtime chunk to mixed practice`,
+    )
     const chunks = await Promise.all(manifest.files.map(async (file) => {
       const raw = JSON.parse(await readFile(resolve(root, `public${definition.learnerDataBasePath}/${file}`), "utf8"))
       return (raw.puzzles ?? raw).map((record) => {
