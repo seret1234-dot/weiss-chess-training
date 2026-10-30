@@ -8,8 +8,9 @@ const bundle = await build({
       export * from './src/training/buildPersonalTrainingPlan';
       export * from './src/training/resolvePlanAutoActivity';
       export * from './src/training/curriculum/curriculumRuntime';
+      export * from './src/training/curriculum/curriculumPersistence';
       export * from './src/training/curriculum/selectCurriculumItem';
-      export { getDueStateFromRow } from './src/training/getNextDueItem';
+      export { getDueStateFromRow, getChunkRows } from './src/training/getNextDueItem';
     `,
     resolveDir: process.cwd(), loader: 'ts',
   },
@@ -107,6 +108,29 @@ const detected = runtime.buildPersonalTrainingPlan({ detected_ratings: { rapid: 
 assert.equal(detected.currentRating, 600, 'connected rapid rating initializes the starter plan before engine analysis')
 assert.equal(detected.ratingSource, 'connected rapid rating')
 
+// Exact production regression: a default 2000 target seed is created before
+// importing a known 605 rapid rating. The durable curriculum snapshot must
+// switch to the higher-priority verified rating without touching evidence.
+const targetSeed = { rating_snapshot: 2000, rating_source: 'target' }
+const imported605 = { target_rating: 2000, detected_ratings: { rapid: 605 } }
+const ratingReconciliation = runtime.getCurriculumRatingReconciliation(targetSeed, imported605)
+assert.deepEqual(ratingReconciliation, {
+  reconciled: true,
+  previousRating: 2000,
+  previousSource: 'target',
+  effectiveRating: 605,
+  effectiveSource: 'detected',
+}, 'a late Chess.com rapid rating replaces only the target-derived curriculum snapshot')
+assert.equal(
+  runtime.getCurriculumRatingReconciliation({ rating_snapshot: 605, rating_source: 'detected' }, { target_rating: 2000 }).reconciled,
+  false,
+  'a target rating can never overwrite a verified current rating',
+)
+const staleTargetSelection = runtime.selectCurriculumItem({ state: { rating: 2000 }, area: 'tactics', selectionIndex: 0, depthSelectionIndex: 0 })
+const reconciled605Selection = runtime.selectCurriculumItem({ state: { rating: ratingReconciliation.effectiveRating }, area: 'tactics', selectionIndex: 0, depthSelectionIndex: 0 })
+assert.match(staleTargetSelection?.route ?? '', /\/m2\//, 'the stale 2000 seed reproduces the first-slot M2 route')
+assert.match(reconciled605Selection?.route ?? '', /\/m1\//, 'the reconciled 605 seed returns the first new route to M1')
+
 const due = { ...legacyNew(), legacyDueState: 'due_today', route: '/mates/m1/anastasia' }
 const dueResult = await runtime.resolvePlanAutoActivity(runtime.buildPersonalTrainingPlan({ manual_current_rating: 600 }), due, 'fixture-user', 0, [], dependencies)
 assert.equal(dueResult?.route, due.route, 'a genuine due review still takes precedence over new plan material')
@@ -152,6 +176,46 @@ const completedRow = runtime.getDueStateFromRow({
 }, today, tomorrow)
 assert.equal(completedRow.dueState, 'due_today', 'completed chunks retain established review scheduling')
 
+function chunkProgressClient(availableColumns, rows) {
+  const attempts = []
+  return {
+    attempts,
+    from(table) {
+      assert.equal(table, 'user_chunk_progress')
+      return {
+        select(columns) {
+          attempts.push(columns)
+          return {
+            eq() {
+              const missing = columns.split(',').map(value => value.trim()).find(column => !availableColumns.has(column))
+              return Promise.resolve(missing
+                ? { data: null, error: { message: `column ${missing} does not exist` } }
+                : { data: rows, error: null })
+            },
+          }
+        },
+      }
+    },
+  }
+}
+
+const currentProductionSchema = new Set(['trainer_key', 'chunk_index', 'next_review_at', 'is_mastered', 'mastered_puzzles_count'])
+const migratedSchema = new Set([...currentProductionSchema, 'next_due_at', 'started_at'])
+const durableStartedRow = [{
+  trainer_key: 'tactic-bishop-fork-m2:m2-verified-final-v1', chunk_index: 1,
+  is_mastered: false, mastered_puzzles_count: 0, next_review_at: null,
+}]
+const currentSchemaClient = chunkProgressClient(currentProductionSchema, durableStartedRow)
+assert.deepEqual(await runtime.getChunkRows('schema-user', currentSchemaClient), durableStartedRow,
+  'the current schema retries through both absent optional columns and retains progress rows')
+assert.equal(currentSchemaClient.attempts.at(-1), 'trainer_key, chunk_index, next_review_at, is_mastered, mastered_puzzles_count',
+  'both optional columns are removed before the stable current-schema query')
+const migratedSchemaClient = chunkProgressClient(migratedSchema, [{ ...durableStartedRow[0], started_at: '2026-10-30T12:00:00.000Z', next_due_at: null }])
+const migratedRows = await runtime.getChunkRows('schema-user', migratedSchemaClient)
+assert.equal(migratedSchemaClient.attempts.length, 1, 'the migrated schema reads all optional fields in one query')
+assert.equal(runtime.getDueStateFromRow(migratedRows[0], today, tomorrow).dueState, 'in_progress',
+  'a migrated durable started marker remains resumable')
+
 assert.equal(runtime.canUseRatingPlanAfterWeeklyAssessment('complete'), true, 'completed assessment uses the rating plan')
 assert.equal(runtime.canUseRatingPlanAfterWeeklyAssessment('skipped'), true, 'skipped assessment uses the same rating plan')
 assert.equal(runtime.canUseRatingPlanAfterWeeklyAssessment('due'), false)
@@ -162,3 +226,5 @@ console.log('PASS: skipped and completed assessments share the rating-plan path;
 console.log('PASS: Auto selection debug records rating, plan section, chosen route, and reason')
 console.log('PASS: 100 actual runtime calculation selections per Elo band preserve independent approved depth distributions')
 console.log('PASS: blank loader rows cannot override the Elo plan; durable started rows and completed reviews retain their priorities')
+console.log('PASS: late verified ratings reconcile target-derived curriculum snapshots; 2000 target first-slot M2 becomes 605 first-slot M1')
+console.log('PASS: current and migrated optional-column schemas both retain valid progress rows')

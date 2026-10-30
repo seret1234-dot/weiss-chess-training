@@ -92,6 +92,60 @@ try {
   assert.throws(() => events.validateCurriculumEvent({ ...focused("2026-07-08"), correctAttempts: 11 }), /Correct attempts/, "counter constraints are validated before persistence")
   assert.equal(selector.selectCurriculumItem({ state: { rating: 600, importedWeakness: "tactics" }, area: "tactics" }).difficultyCeiling, 2, "the dormant persistence model does not weaken Phase 1 ceilings")
 
+  // Isolated durable-path regression for the real account sequence: the state
+  // exists with a target fallback, then a Chess.com rapid rating arrives.
+  // The profile update may alter only the derived rating fields; curriculum
+  // progress/evidence rows remain untouched.
+  const stateRow = {
+    user_id: 'rating-user', curriculum_version: 1, rating_snapshot: 2000, rating_source: 'target',
+    imported_weakness_area: null, category_weights: {}, legacy_category_stats: {}, seeded_from_existing_progress: true,
+    source_profile_updated_at: '2026-10-30T21:06:40.000Z',
+  }
+  const areaRows = [{ user_id: 'rating-user', area: 'tactics', current_stage: 1, difficulty_ceiling: 4, category_weight: 30 }]
+  const stageRows = [{ user_id: 'rating-user', area: 'tactics', stage_order: 1, attempts: 7, recent_attempts: 7, recent_correct_attempts: 6, mixed_attempts: 0, mixed_correct_attempts: 0, session_days: 2, permanent_mastery: false }]
+  const themeRows = [{ user_id: 'rating-user', area: 'tactics', stage_order: 1, theme_key: 'bishop-fork', attempts: 7, correct_attempts: 6, average_solve_ms: 12000, hint_count: 0, permanent_mastery: false }]
+  const lateImportProfile = { target_rating: 2000, detected_ratings: {}, engine_analysis_summary: {}, engine_analyzed_games_count: 0, updated_at: '2026-10-30T21:06:40.000Z' }
+  let writes = 0
+  const isolatedClient = {
+    from(table) {
+      const builder = {
+        select() { return builder },
+        eq() { return builder },
+        maybeSingle() {
+          const data = table === 'user_curriculum_state' ? stateRow : table === 'user_auto_profile' ? lateImportProfile : null
+          return Promise.resolve({ data, error: null })
+        },
+        update(payload) {
+          if (table === 'user_curriculum_state') { Object.assign(stateRow, payload); writes += 1 }
+          return builder
+        },
+        then(resolve, reject) {
+          const data = table === 'user_curriculum_area_progress' ? areaRows
+            : table === 'user_curriculum_stage_progress' ? stageRows
+              : table === 'user_curriculum_theme_progress' ? themeRows : []
+          return Promise.resolve({ data, error: null }).then(resolve, reject)
+        },
+      }
+      return builder
+    },
+  }
+  const beforeImport = await persistence.getOrCreateCurriculumState('rating-user', isolatedClient)
+  assert.equal(beforeImport.curriculum.rating, 2000, 'the pre-import target seed remains unchanged without verified current-rating evidence')
+  lateImportProfile.detected_ratings = { rapid: 605 }
+  lateImportProfile.updated_at = '2026-10-30T21:07:58.000Z'
+  const afterImport = await persistence.getOrCreateCurriculumState('rating-user', isolatedClient)
+  assert.equal(stateRow.rating_snapshot, 605, 'late rapid import persistently replaces the target-derived snapshot')
+  assert.equal(stateRow.rating_source, 'detected', 'the durable source records verified detected rating')
+  assert.equal(afterImport.curriculum.rating, 605, 'the next Auto decision reads the reconciled beginner rating')
+  assert.equal(afterImport.ratingSource, 'detected', 'refresh/debug reads the persisted verified rating source')
+  assert.equal(afterImport.ratingReconciliation?.reconciled, true, 'the runtime retains an audit flag for this selection')
+  assert.deepEqual(areaRows, [{ user_id: 'rating-user', area: 'tactics', current_stage: 1, difficulty_ceiling: 4, category_weight: 30 }], 'rating reconciliation preserves existing area progress')
+  assert.equal(stageRows[0].attempts, 7, 'rating reconciliation preserves stage evidence')
+  assert.equal(themeRows[0].attempts, 7, 'rating reconciliation preserves theme evidence')
+  assert.equal(writes, 1, 'a stable detected rating is reconciled exactly once')
+  await persistence.getOrCreateCurriculumState('rating-user', isolatedClient)
+  assert.equal(writes, 1, 'refresh/resume does not rewrite a stable reconciled snapshot')
+
   for (const table of [
     "user_curriculum_state", "user_curriculum_area_progress", "user_curriculum_stage_progress",
     "user_curriculum_theme_progress", "user_curriculum_session_evidence",
@@ -110,6 +164,7 @@ try {
 
   console.log("PASS: deterministic curriculum persistence foundation")
   console.log("PASS: conservative seed, mastery, regression, migration contract, and scheduler isolation")
+  console.log("PASS: target-to-detected rating reconciliation persists independently of curriculum progress and is idempotent on refresh")
 } finally {
   await vite.close()
 }

@@ -58,6 +58,9 @@ function withSelectionDebug(
     depthSelectionIndex: decision.depthSelectionIndex ?? decision.selectionIndex,
     importedEvidence: decision.adaptiveState?.importedWeakness ?? 'none',
     reinforcement: decision.adaptiveState?.reinforcement ?? {},
+    curriculumRating: decision.curriculumRating,
+    curriculumRatingSource: decision.curriculumRatingSource,
+    ratingReconciled: decision.ratingReconciliation?.reconciled ?? false,
   }
   return { ...decision, autoSelectionDebug: debug }
 }

@@ -151,51 +151,38 @@ async function getOrCreateStudyPlan(userId: string): Promise<StudyPlanRow | null
  return (newPlan as StudyPlanRow | null) ?? null
 }
 
-async function getChunkRows(userId: string): Promise<ChunkProgressRow[] | null> {
+/**
+ * Read chunk rows across additive-schema rollout windows. Optional scheduling
+ * columns must be removed one at a time because PostgREST reports only the
+ * first unknown column in a select list.
+ */
+export async function getChunkRows(userId: string, client: any = supabase): Promise<ChunkProgressRow[] | null> {
  const coreColumns = 'trainer_key, chunk_index, next_review_at, is_mastered, mastered_puzzles_count'
- const selectWithNextDue = `${coreColumns}, next_due_at, started_at`
+ let optionalColumns = ['next_due_at', 'started_at']
 
- const { data: rowsWithNextDue, error: errorWithNextDue } = await supabase
- .from('user_chunk_progress')
- .select(selectWithNextDue)
- .eq('user_id', userId)
+ while (true) {
+  const selectedColumns = [coreColumns, ...optionalColumns].join(', ')
+  const { data, error } = await client
+   .from('user_chunk_progress')
+   .select(selectedColumns)
+   .eq('user_id', userId)
 
- if (!errorWithNextDue) {
- return (rowsWithNextDue ?? []) as ChunkProgressRow[]
+  if (!error) return (data ?? []) as ChunkProgressRow[]
+
+  const message = error.message || ''
+  const missingColumns = optionalColumns.filter((column) => (
+   message.includes(column) && message.includes('does not exist')
+  ))
+  if (!missingColumns.length) {
+   console.error('Could not load user_chunk_progress', error)
+   return null
+  }
+
+  // A retry may expose another absent optional column. Continue until the
+  // stable core projection succeeds, never treating that schema mismatch as
+  // absent learner progress.
+  optionalColumns = optionalColumns.filter((column) => !missingColumns.includes(column))
  }
-
- const missingColumn = (column: string) => {
-  const message = errorWithNextDue.message || ''
-  return message.includes(column) && message.includes('does not exist')
- }
- const missingNextDue = missingColumn('next_due_at')
- const missingStartedAt = missingColumn('started_at')
-
- if (!missingNextDue && !missingStartedAt) {
- console.error('Could not load user_chunk_progress', errorWithNextDue)
- return null
- }
-
- // Preview and production can briefly run this frontend before the additive
- // migration is applied. In that window blank rows stay "new" rather than
- // regressing to the old in-progress classification.
- const selectFallback = [
-  coreColumns,
-  missingNextDue ? null : 'next_due_at',
-  missingStartedAt ? null : 'started_at',
- ].filter(Boolean).join(', ')
-
- const { data: fallbackRows, error: fallbackError } = await supabase
- .from('user_chunk_progress')
- .select(selectFallback)
- .eq('user_id', userId)
-
- if (fallbackError) {
- console.error('Could not load user_chunk_progress fallback', fallbackError)
- return null
- }
-
- return (fallbackRows ?? []) as ChunkProgressRow[]
 }
 
 export function getDueStateFromRow(

@@ -26,6 +26,7 @@ import {
   getCalculationDepthSelectionIndex,
   getOrCreateCurriculumState,
   reconcileCurriculumState,
+  type CurriculumRatingReconciliation,
 } from "./curriculumPersistence"
 import { selectCurriculumItem } from "./selectCurriculumItem"
 import type {
@@ -53,6 +54,9 @@ export type CurriculumRuntimeDecision = AutoTrainingItem & {
     importedWeakness: string | null
     reinforcement: Record<string, { active: boolean; until: string | null }>
   }
+  curriculumRating?: number
+  curriculumRatingSource?: string
+  ratingReconciliation?: CurriculumRatingReconciliation
 }
 
 /** A support-only explanation of the deterministic Auto choice. */
@@ -70,9 +74,16 @@ export type AutoSelectionDebug = {
   assessmentEvidence?: string
   sectionMultipliers?: Record<string, number>
   reinforcement?: Record<string, { active: boolean; until: string | null }>
+  curriculumRating?: number
+  curriculumRatingSource?: string
+  ratingReconciled?: boolean
 }
 
-type PersistedCurriculum = { curriculum: CurriculumState } | null
+type PersistedCurriculum = {
+  curriculum: CurriculumState
+  ratingSource?: string
+  ratingReconciliation?: CurriculumRatingReconciliation
+} | null
 
 export type CurriculumRuntimeDependencies = {
   getState?: (userId: string) => Promise<PersistedCurriculum>
@@ -164,6 +175,8 @@ export function buildCurriculumDecision(
   selectionIndex: number,
   depthSelectionIndex = selectionIndex,
   state?: CurriculumState,
+  ratingSource?: string,
+  ratingReconciliation?: CurriculumRatingReconciliation,
 ): CurriculumRuntimeDecision {
   const m2ToM5Learner = getPatternMateM2ToM5LearnerCurriculum(recommendation.trainerKey)
   const tacticLearner = getPatternTacticLearnerCurriculum(recommendation.trainerKey)
@@ -199,6 +212,9 @@ export function buildCurriculumDecision(
         until: state.reinforcementUntil?.[area as keyof typeof state.reinforcementUntil] ?? null,
       }])),
     } : undefined,
+    curriculumRating: state?.rating == null ? undefined : Number(state.rating),
+    curriculumRatingSource: ratingReconciliation?.effectiveSource ?? ratingSource,
+    ratingReconciliation,
   }
 }
 
@@ -232,7 +248,8 @@ export async function getCurriculumDecisionForUser(
   const getState = dependencies.getState ?? (async (userId: string) => {
     const seeded = await getOrCreateCurriculumState(userId)
     try {
-      return await reconcileCurriculumState(userId)
+      const reconciled = await reconcileCurriculumState(userId)
+      return reconciled ? { ...reconciled, ratingReconciliation: seeded?.ratingReconciliation } : reconciled
     } catch {
       // A reconciliation outage must not discard a valid durable state or
       // interrupt the existing curriculum/legacy scheduler fallback.
@@ -267,7 +284,14 @@ export async function getCurriculumDecisionForUser(
       throw new Error("No eligible curriculum route is mapped for this user.")
     }
 
-    return buildCurriculumDecision(recommendation, selectionIndex, depthSelectionIndex, persisted.curriculum)
+    return buildCurriculumDecision(
+      recommendation,
+      selectionIndex,
+      depthSelectionIndex,
+      persisted.curriculum,
+      persisted.ratingSource,
+      persisted.ratingReconciliation,
+    )
   } catch (error) {
     try {
       const legacy = await getLegacyItem(userId)

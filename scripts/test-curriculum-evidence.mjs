@@ -2,7 +2,9 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { createServer } from "vite"
 
-const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" })
+// This is an SSR-only test. Disabling HMR prevents it from binding the
+// developer-server port while another local Vite session is running.
+const vite = await createServer({ server: { middlewareMode: true, hmr: false }, appType: "custom" })
 try {
   const completion = await vite.ssrLoadModule("/src/training/curriculum/curriculumCompletion.ts")
   const events = await vite.ssrLoadModule("/src/training/curriculum/curriculumEvents.ts")

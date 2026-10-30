@@ -554,6 +554,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
         <summary>Auto selection debug</summary>
         <dl style={{ margin: '8px 0 0', display: 'grid', gap: 4 }}>
          <div><dt style={{ display: 'inline', fontWeight: 700 }}>Rating: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.trainingRating} ({curriculumDecision.autoSelectionDebug.ratingSource})</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Curriculum rating: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.curriculumRating ?? 'unavailable'} ({curriculumDecision.autoSelectionDebug.curriculumRatingSource ?? 'persisted'}){curriculumDecision.autoSelectionDebug.ratingReconciled ? ' — reconciled this selection' : ''}</dd></div>
          <div><dt style={{ display: 'inline', fontWeight: 700 }}>Active plan: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.activePlanLabel}</dd></div>
          <div><dt style={{ display: 'inline', fontWeight: 700 }}>Subject weights: </dt><dd style={{ display: 'inline', margin: 0 }}>{Object.entries(curriculumDecision.autoSelectionDebug.subjectWeights ?? {}).map(([key, value]) => `${key} ${value}%`).join(', ') || 'unavailable'}</dd></div>
          <div><dt style={{ display: 'inline', fontWeight: 700 }}>Imported evidence: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.importedEvidence ?? 'none'}</dd></div>

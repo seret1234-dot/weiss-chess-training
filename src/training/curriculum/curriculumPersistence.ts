@@ -14,6 +14,7 @@ import {
   buildConservativeCurriculumSeed,
   collapseMappedStageEvidence,
   importedWeaknessFromProfile,
+  resolveSeedRating,
   type LegacyCategoryStat,
   type LegacyChunkProgress,
   type LegacyTrainingProgress,
@@ -106,6 +107,7 @@ export async function readCurriculumState(userId: string, client: SupabaseLike =
   return {
     raw: { state: stateResult.data, areas: areaResult.data ?? [], stages: stageResult.data ?? [], themes: themeResult.data ?? [] },
     curriculum: stateFromRows(stateResult.data, areaResult.data ?? [], stageResult.data ?? [], themeResult.data ?? []),
+    ratingSource: String(stateResult.data.rating_source ?? "default"),
   }
 }
 
@@ -121,20 +123,67 @@ async function readLegacyCategoryStats(userId: string, client: SupabaseLike): Pr
  * Lazy seed. It only reads legacy rows and writes new curriculum tables. A failed
  * partial seed stays resumable through seeded_from_existing_progress = false.
  */
-async function synchronizeImportedWeakness(userId: string, existing: Awaited<ReturnType<typeof readCurriculumState>>, client: SupabaseLike) {
+export type CurriculumRatingReconciliation = {
+  reconciled: boolean
+  previousRating: number
+  previousSource: string
+  effectiveRating: number
+  effectiveSource: string
+}
+
+const RATING_SOURCE_PRIORITY: Record<string, number> = {
+  default: 0,
+  target: 1,
+  detected: 2,
+  estimated: 3,
+}
+
+/**
+ * Target rating is a goal, not evidence of playing strength. A verified
+ * detected/estimated rating may replace a target/default seed; a target may
+ * never overwrite a verified current rating.
+ */
+export function getCurriculumRatingReconciliation(state: any, profile: any): CurriculumRatingReconciliation {
+  const previousRating = Number(state?.rating_snapshot ?? 600)
+  const previousSource = String(state?.rating_source ?? 'default')
+  const resolved = resolveSeedRating(profile)
+  const nextPriority = RATING_SOURCE_PRIORITY[resolved.source] ?? -1
+  const previousPriority = RATING_SOURCE_PRIORITY[previousSource] ?? -1
+  const verifiedCurrentRating = resolved.source === 'detected' || resolved.source === 'estimated'
+  const reconciled = verifiedCurrentRating && (
+    nextPriority > previousPriority ||
+    (nextPriority === previousPriority && previousRating !== resolved.rating)
+  )
+  return {
+    reconciled,
+    previousRating,
+    previousSource,
+    effectiveRating: reconciled ? resolved.rating : previousRating,
+    effectiveSource: reconciled ? resolved.source : previousSource,
+  }
+}
+
+async function synchronizeCurriculumProfile(userId: string, existing: Awaited<ReturnType<typeof readCurriculumState>>, client: SupabaseLike) {
   if (!existing?.raw.state) return existing
-  const { data: profile, error } = await client.from("user_auto_profile").select("engine_analysis_summary,engine_analyzed_games_count,updated_at").eq("user_id", userId).maybeSingle()
+  const { data: profile, error } = await client.from("user_auto_profile").select("estimated_rating,detected_ratings,target_rating,engine_analysis_summary,engine_analyzed_games_count,updated_at").eq("user_id", userId).maybeSingle()
   throwIfError(error, "Could not read the Auto profile for curriculum evidence synchronization")
   const weakness = importedWeaknessFromProfile(profile)
   const current = existing.raw.state.imported_weakness_area ?? null
   const sourceUpdatedAt = profile?.updated_at ?? null
-  if (weakness === current && sourceUpdatedAt === (existing.raw.state.source_profile_updated_at ?? null)) return existing
-  const { error: updateError } = await client.from(TABLES.state).update({
+  const rating = getCurriculumRatingReconciliation(existing.raw.state, profile)
+  if (weakness === current && sourceUpdatedAt === (existing.raw.state.source_profile_updated_at ?? null) && !rating.reconciled) return existing
+  const payload: Record<string, unknown> = {
     imported_weakness_area: weakness,
     source_profile_updated_at: sourceUpdatedAt,
-  }).eq("user_id", userId)
+  }
+  if (rating.reconciled) {
+    payload.rating_snapshot = rating.effectiveRating
+    payload.rating_source = rating.effectiveSource
+  }
+  const { error: updateError } = await client.from(TABLES.state).update(payload).eq("user_id", userId)
   throwIfError(updateError, "Could not synchronize imported curriculum evidence")
-  return readCurriculumState(userId, client)
+  const synchronized = await readCurriculumState(userId, client)
+  return synchronized ? { ...synchronized, ratingReconciliation: rating } : synchronized
 }
 
 export async function getOrCreateCurriculumState(userId: string, client: SupabaseLike = supabase) {
@@ -143,7 +192,7 @@ export async function getOrCreateCurriculumState(userId: string, client: Supabas
     // Synchronization is an enhancement, never a reason to block an existing
     // learner's durable curriculum when a legacy/test client cannot expose the
     // profile table.
-    try { return await synchronizeImportedWeakness(userId, existing, client) } catch { return existing }
+    try { return await synchronizeCurriculumProfile(userId, existing, client) } catch { return existing }
   }
 
   const [profileResult, chunkResult, trainingResult, categoryStats] = await Promise.all([
