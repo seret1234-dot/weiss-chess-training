@@ -93,6 +93,8 @@ export function importedWeaknessFromProfile(profile: any): CurriculumArea | null
   const summary = profile?.engine_analysis_summary
   const phase = summary?.byPhase
   if (!phase || typeof phase !== "object") return null
+  const analyzedGames = Math.max(0, Number(profile?.engine_analyzed_games_count ?? summary?.analyzedGames ?? 0))
+  if (analyzedGames < 12) return null
   const choices = [
     ["middlegame", "tactics"],
     ["endgame", "endgame-studies"],

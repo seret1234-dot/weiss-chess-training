@@ -120,7 +120,7 @@ export function isDueItemAllowedByCurriculum(item: CurriculumItem, state: Curric
   return item.available && (persistedCeiling == null || item.stageOrder <= persistedCeiling)
 }
 
-function chooseSequentialItem(area: "mates" | "tactics", state: CurriculumState, selectionIndex: number) {
+function chooseSequentialItem(area: "mates" | "tactics", state: CurriculumState, selectionIndex: number, depthSelectionIndex = selectionIndex) {
   const currentStage = currentSequentialStage(area, state)
   const ceiling = sequentialCeiling(area, state, currentStage)
   const themes = getStageThemes(area, currentStage)
@@ -135,7 +135,10 @@ function chooseSequentialItem(area: "mates" | "tactics", state: CurriculumState,
   let kind: CurriculumRecommendationKind = "current"
   let targetStage = currentStage
   let candidates: CurriculumItem[]
-  const scheduledStage = Math.min(ceiling, selectCalculationDepth(state.rating, selectionIndex))
+  // Area/theme rotation and M1–M4 allocation are deliberately separate
+  // deterministic cycles. An opening or endgame choice must not consume a
+  // calculation-depth slot.
+  const scheduledStage = Math.min(ceiling, selectCalculationDepth(state.rating, depthSelectionIndex))
 
   if (regression && currentStage > 1) {
     kind = "reinforcement"
@@ -181,6 +184,7 @@ function chooseOtherAreaItem(area: CurriculumArea, state: CurriculumState, selec
 
 export function selectCurriculumItem(input: CurriculumSelectionInput): CurriculumRecommendation | null {
   const selectionIndex = input.selectionIndex ?? 0
+  const depthSelectionIndex = input.depthSelectionIndex ?? selectionIndex
   const firstArea = input.area ?? weightedArea(input.state, selectionIndex)
   const candidateAreas = input.area
     ? [firstArea]
@@ -190,7 +194,7 @@ export function selectCurriculumItem(input: CurriculumSelectionInput): Curriculu
   for (const area of candidateAreas) {
     if (excluded.has(area)) continue
     const selected = area === "mates" || area === "tactics"
-      ? chooseSequentialItem(area, input.state, selectionIndex)
+      ? chooseSequentialItem(area, input.state, selectionIndex, depthSelectionIndex)
       : chooseOtherAreaItem(area, input.state, selectionIndex)
     if (!selected?.item) continue
 

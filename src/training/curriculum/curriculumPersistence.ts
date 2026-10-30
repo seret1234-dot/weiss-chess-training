@@ -13,6 +13,7 @@ import {
 import {
   buildConservativeCurriculumSeed,
   collapseMappedStageEvidence,
+  importedWeaknessFromProfile,
   type LegacyCategoryStat,
   type LegacyChunkProgress,
   type LegacyTrainingProgress,
@@ -33,17 +34,22 @@ function throwIfError(error: any, message: string) {
   if (error) throw new Error(`${message}: ${error.message ?? String(error)}`)
 }
 
-function stateFromRows(stateRow: any, areaRows: any[], stageRows: any[], themeRows: any[]): CurriculumState {
+export function stateFromRows(stateRow: any, areaRows: any[], stageRows: any[], themeRows: any[]): CurriculumState {
   const activeStages: Partial<Record<CurriculumArea, number>> = {}
   const difficultyCeilings: Partial<Record<CurriculumArea, number>> = {}
   const temporaryReinforcement: Partial<Record<CurriculumArea, boolean>> = {}
+  const reinforcementUntil: Partial<Record<CurriculumArea, string | null>> = {}
   const stageMastery: Partial<Record<CurriculumArea, Record<number, any>>> = {}
   const themeMastery: Partial<Record<CurriculumArea, Record<string, ThemeMastery>>> = {}
 
   for (const row of areaRows) {
     activeStages[row.area as CurriculumArea] = Number(row.current_stage)
     difficultyCeilings[row.area as CurriculumArea] = Number(row.difficulty_ceiling ?? row.current_stage)
-    temporaryReinforcement[row.area as CurriculumArea] = Boolean(row.temporary_reinforcement)
+    const area = row.area as CurriculumArea
+    const until = typeof row.reinforcement_until === "string" ? row.reinforcement_until : null
+    const active = until ? Date.parse(until) > Date.now() : Boolean(row.temporary_reinforcement)
+    temporaryReinforcement[area] = active
+    reinforcementUntil[area] = until
   }
   for (const row of stageRows) {
     const area = row.area as CurriculumArea
@@ -80,6 +86,7 @@ function stateFromRows(stateRow: any, areaRows: any[], stageRows: any[], themeRo
     stageMastery,
     themeMastery,
     temporaryReinforcement,
+    reinforcementUntil,
     importedWeakness: stateRow.imported_weakness_area as CurriculumArea | null,
   }
 }
@@ -114,9 +121,30 @@ async function readLegacyCategoryStats(userId: string, client: SupabaseLike): Pr
  * Lazy seed. It only reads legacy rows and writes new curriculum tables. A failed
  * partial seed stays resumable through seeded_from_existing_progress = false.
  */
+async function synchronizeImportedWeakness(userId: string, existing: Awaited<ReturnType<typeof readCurriculumState>>, client: SupabaseLike) {
+  if (!existing?.raw.state) return existing
+  const { data: profile, error } = await client.from("user_auto_profile").select("engine_analysis_summary,engine_analyzed_games_count,updated_at").eq("user_id", userId).maybeSingle()
+  throwIfError(error, "Could not read the Auto profile for curriculum evidence synchronization")
+  const weakness = importedWeaknessFromProfile(profile)
+  const current = existing.raw.state.imported_weakness_area ?? null
+  const sourceUpdatedAt = profile?.updated_at ?? null
+  if (weakness === current && sourceUpdatedAt === (existing.raw.state.source_profile_updated_at ?? null)) return existing
+  const { error: updateError } = await client.from(TABLES.state).update({
+    imported_weakness_area: weakness,
+    source_profile_updated_at: sourceUpdatedAt,
+  }).eq("user_id", userId)
+  throwIfError(updateError, "Could not synchronize imported curriculum evidence")
+  return readCurriculumState(userId, client)
+}
+
 export async function getOrCreateCurriculumState(userId: string, client: SupabaseLike = supabase) {
   const existing = await readCurriculumState(userId, client)
-  if (existing?.raw.state.seeded_from_existing_progress) return existing
+  if (existing?.raw.state.seeded_from_existing_progress) {
+    // Synchronization is an enhancement, never a reason to block an existing
+    // learner's durable curriculum when a legacy/test client cannot expose the
+    // profile table.
+    try { return await synchronizeImportedWeakness(userId, existing, client) } catch { return existing }
+  }
 
   const [profileResult, chunkResult, trainingResult, categoryStats] = await Promise.all([
     client.from("user_auto_profile").select("*").eq("user_id", userId).maybeSingle(),
@@ -194,6 +222,20 @@ export async function getCurriculumSelectionIndex(userId: string, client: Supaba
     .eq("user_id", userId)
     .neq("event_kind", "transfer")
   throwIfError(error, "Could not read curriculum session count")
+  return Math.max(0, Number(count ?? 0))
+}
+
+/** The M1–M4 allocation advances only after an eligible calculation chunk.
+ * This intentionally excludes openings, endgames, board vision, and transfer
+ * evidence so the approved rating distributions remain independent of section
+ * rotation. */
+export async function getCalculationDepthSelectionIndex(userId: string, client: SupabaseLike = supabase) {
+  const { count, error } = await client.from(TABLES.session)
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .in("area", ["mates", "tactics"])
+    .neq("event_kind", "transfer")
+  throwIfError(error, "Could not read calculation-depth session count")
   return Math.max(0, Number(count ?? 0))
 }
 

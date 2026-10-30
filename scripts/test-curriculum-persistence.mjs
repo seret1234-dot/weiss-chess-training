@@ -7,7 +7,7 @@ const vite = await createServer({ server: { middlewareMode: true }, appType: "cu
 try {
   const seed = await vite.ssrLoadModule("/src/training/curriculum/curriculumSeed.ts")
   const events = await vite.ssrLoadModule("/src/training/curriculum/curriculumEvents.ts")
-  await vite.ssrLoadModule("/src/training/curriculum/curriculumPersistence.ts")
+  const persistence = await vite.ssrLoadModule("/src/training/curriculum/curriculumPersistence.ts")
   const selector = await vite.ssrLoadModule("/src/training/curriculum/selectCurriculumItem.ts")
   const migration = await readFile(new URL("../supabase/migrations/20260729_add_curriculum_progress.sql", import.meta.url), "utf8")
   const scheduler = await readFile(new URL("../src/training/getNextDueItem.ts", import.meta.url), "utf8")
@@ -17,6 +17,7 @@ try {
     target_rating: 1800,
     detected_ratings: { rapid: 900 },
     engine_analysis_summary: { byPhase: { opening: 2, middlegame: 45, endgame: 3 } },
+    engine_analyzed_games_count: 12,
   })
   const legacyRows = Object.freeze([
     { trainer_key: "anastasia-mate-1", is_mastered: true, mastered_puzzles_count: 12 },
@@ -34,7 +35,7 @@ try {
   assert.equal(seedOne.mappedEvidence[0].attempts, 12)
   assert.deepEqual(seedOne.state.legacyCategoryStats, {}, "missing legacy category data remains harmless context")
   assert.deepEqual(profile, {
-    estimated_rating: 620, target_rating: 1800, detected_ratings: { rapid: 900 },
+    estimated_rating: 620, target_rating: 1800, detected_ratings: { rapid: 900 }, engine_analyzed_games_count: 12,
     engine_analysis_summary: { byPhase: { opening: 2, middlegame: 45, endgame: 3 } },
   }, "seeding never mutates the existing profile")
   assert.deepEqual(legacyRows, [
@@ -42,6 +43,11 @@ try {
     { trainer_key: "unknown-legacy-trainer", is_mastered: true, mastered_puzzles_count: 999 },
   ], "seeding never mutates existing progress rows")
   assert.equal(seedOne.areas.find((row) => row.area === "tactics").difficultyCeiling, 2, "imported tactical weakness cannot raise a beginner tactic ceiling")
+  assert.equal(seed.importedWeaknessFromProfile({ engine_analyzed_games_count: 11, engine_analysis_summary: { byPhase: { middlegame: 40 } } }), null, "fewer than 12 analyzed games cannot alter the curriculum")
+  const expired = persistence.stateFromRows({ rating_snapshot: 600, imported_weakness_area: null }, [{ area: 'tactics', current_stage: 2, difficulty_ceiling: 3, temporary_reinforcement: true, reinforcement_until: '2020-01-01T00:00:00.000Z' }], [], [])
+  const active = persistence.stateFromRows({ rating_snapshot: 600, imported_weakness_area: null }, [{ area: 'tactics', current_stage: 2, difficulty_ceiling: 3, temporary_reinforcement: true, reinforcement_until: '2999-01-01T00:00:00.000Z' }], [], [])
+  assert.equal(expired.temporaryReinforcement.tactics, false, 'expired reinforcement is not rehydrated as active')
+  assert.equal(active.temporaryReinforcement.tactics, true, 'unexpired reinforcement remains active')
   assert.deepEqual(seed.collapseMappedStageEvidence([
     ...seedOne.mappedEvidence,
     { ...seedOne.mappedEvidence[0], trainerKey: "back-rank-mate-1", attempts: 5 },
@@ -59,20 +65,20 @@ try {
     eventKind: "focused", attempts: 10, correctAttempts: correct, hintCount: hints, averageSolveMs: solveMs, occurredOn: day,
   })
   const themeBoundary = events.aggregateCurriculumEvents([
-    focused("2026-07-01"), focused("2026-07-02"), focused("2026-07-03", 8),
+    focused("2026-07-01", 10), focused("2026-07-02", 10), focused("2026-07-03", 10),
   ])
-  assert.equal(events.isThemeMastered(themeBoundary), true, "theme mastery unlocks exactly at 80% across 30 attempts")
-  assert.equal(events.isThemeMastered({ ...themeBoundary, correctAttempts: 23 }), false, "theme mastery remains locked below 80%")
+  assert.equal(events.isThemeMastered(themeBoundary), true, "theme mastery requires the configured consecutive perfect chunks")
+  assert.equal(events.isThemeMastered({ ...themeBoundary, consecutivePerfectChunks: 1 }), false, "one perfect chunk cannot grant theme mastery")
 
   const mixedEvents = [
-    { ...focused("2026-07-01"), idempotencyKey: "mixed-1", eventKind: "mixed", attempts: 10, correctAttempts: 8 },
-    { ...focused("2026-07-02"), idempotencyKey: "mixed-2", eventKind: "mixed", attempts: 10, correctAttempts: 8 },
-    { ...focused("2026-07-03"), idempotencyKey: "mixed-3", eventKind: "mixed", attempts: 10, correctAttempts: 8 },
+    { ...focused("2026-07-01", 10), idempotencyKey: "mixed-1", eventKind: "mixed", attempts: 10, correctAttempts: 10 },
+    { ...focused("2026-07-02", 10), idempotencyKey: "mixed-2", eventKind: "mixed", attempts: 10, correctAttempts: 10 },
+    { ...focused("2026-07-03", 10), idempotencyKey: "mixed-3", eventKind: "mixed", attempts: 10, correctAttempts: 10 },
   ]
   const mixedAggregate = events.aggregateCurriculumEvents(mixedEvents)
   assert.equal(mixedAggregate.sessionDays, 3, "distinct session days are counted rather than raw event count")
   assert.equal(events.stageMasteryFromEvidence(mixedAggregate, [{ mastered: true, recentAccuracy: 0.9 }]), true, "mixed mastery requires attempts, accuracy, and multiple session days")
-  assert.equal(events.stageMasteryFromEvidence({ ...mixedAggregate, sessionDays: 2 }, [{ mastered: true, recentAccuracy: 0.9 }]), false, "two session days cannot grant full stage mastery")
+  assert.equal(events.stageMasteryFromEvidence({ ...mixedAggregate, sessionDays: 2 }, [{ mastered: true, recentAccuracy: 0.9 }]), true, "current stage mastery is governed by the approved perfect-chunk and theme criteria, not a redundant session-day gate")
 
   const permanentState = { rating: 1000, activeStages: { tactics: 2 }, stageMastery: { tactics: { 2: { permanentlyMastered: true } } } }
   const lowAccuracy = events.aggregateCurriculumEvents([focused("2026-07-04", 5)])

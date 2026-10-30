@@ -30,6 +30,7 @@ import { analyzeImportedGamesWithStockfish, getRemainingImportedGamesToAnalyze }
 import { supabase } from "../lib/supabase"
 import "../AccountAutoStudy.css"
 import { autoEntryEnabled } from '../training/autoEntryEnabled'
+import { useBackgroundAnalysis } from '../context/BackgroundAnalysisContext'
 
 const AUTO_BOARD_VISION_SESSION_KEY = "weiss-chess-auto-board-vision-done-v1"
 const AUTO_SECTION_OFFSET_KEY = "weiss-chess-auto-section-offset-v1"
@@ -84,7 +85,8 @@ function advanceAutoSectionOffset(userId: string) {
 function planAwareDecision(plan: PersonalTrainingPlan, decision: CurriculumRuntimeDecision | null, userId: string) {
  const excluded = boardVisionDoneThisSession(userId) ? ["boardVision" as const] : []
  const completedSelections = (decision?.selectionIndex ?? 0) + autoSectionOffset(userId)
- return resolvePlanAutoActivity(plan, decision, userId, completedSelections, excluded)
+ const completedCalculationSelections = decision?.depthSelectionIndex ?? decision?.selectionIndex ?? 0
+ return resolvePlanAutoActivity(plan, decision, userId, completedSelections, excluded, undefined, completedCalculationSelections)
 }
 
 type LoadState =
@@ -138,6 +140,8 @@ export default function AutoStudyPage({ user }: { user: any }) {
  const [remainingAnalysisGames, setRemainingAnalysisGames] = useState<number | null>(null)
  const [weeklyStatus, setWeeklyStatus] = useState<WeeklyTestPlanStatus | null>(null)
  const [curriculumDecision, setCurriculumDecision] = useState<CurriculumRuntimeDecision | null>(null)
+ const { job: backgroundAnalysisJob } = useBackgroundAnalysis()
+ const [analysisRefreshRevision, setAnalysisRefreshRevision] = useState(0)
 
  const [state, setState] = useState<LoadState>({
   status: "loading",
@@ -197,7 +201,16 @@ export default function AutoStudyPage({ user }: { user: any }) {
   return () => {
    cancelled = true
   }
- }, [location.search, navigate, user])
+ }, [analysisRefreshRevision, location.search, navigate, user])
+
+ // Completion is durable in the profile and the provider is mounted above
+ // Routes. Refresh only this Auto dashboard; an active trainer is a different
+ // route and is never navigated or restarted by this listener. Its next return
+ // to Auto therefore receives the newly personalized plan at a chunk boundary.
+ useEffect(() => {
+  if (backgroundAnalysisJob.status !== 'completed' || backgroundAnalysisJob.input?.userId !== user?.id) return
+  setAnalysisRefreshRevision((revision) => revision + 1)
+ }, [backgroundAnalysisJob.jobId, backgroundAnalysisJob.status, backgroundAnalysisJob.updatedAt, user?.id])
 
  useEffect(() => {
   if (!user) return
@@ -336,7 +349,16 @@ export default function AutoStudyPage({ user }: { user: any }) {
    }
    // Re-read Weekly evidence at launch, including a review completed since hydration.
    const currentPlan = state.status === "ready" ? await buildPlanWithMasterGameCadence(state.autoProfile, user.id) : null
-   const plannedDecision = currentPlan ? await planAwareDecision(currentPlan, nextCurriculumDecision, user.id) : nextCurriculumDecision
+   const sectionMultipliers = weeklySections(await getWeeklyPlanMultipliers(user.id))
+   const rawPlannedDecision = currentPlan ? await planAwareDecision(currentPlan, nextCurriculumDecision, user.id) : nextCurriculumDecision
+   const plannedDecision = rawPlannedDecision?.autoSelectionDebug ? {
+    ...rawPlannedDecision,
+    autoSelectionDebug: {
+     ...rawPlannedDecision.autoSelectionDebug,
+     assessmentEvidence: latestWeeklyStatus.status,
+     sectionMultipliers,
+    },
+   } : rawPlannedDecision
    setCurriculumDecision(plannedDecision)
 
    const nextItem = plannedDecision
@@ -533,6 +555,12 @@ export default function AutoStudyPage({ user }: { user: any }) {
         <dl style={{ margin: '8px 0 0', display: 'grid', gap: 4 }}>
          <div><dt style={{ display: 'inline', fontWeight: 700 }}>Rating: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.trainingRating} ({curriculumDecision.autoSelectionDebug.ratingSource})</dd></div>
          <div><dt style={{ display: 'inline', fontWeight: 700 }}>Active plan: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.activePlanLabel}</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Subject weights: </dt><dd style={{ display: 'inline', margin: 0 }}>{Object.entries(curriculumDecision.autoSelectionDebug.subjectWeights ?? {}).map(([key, value]) => `${key} ${value}%`).join(', ') || 'unavailable'}</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Imported evidence: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.importedEvidence ?? 'none'}</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Assessment evidence: </dt><dd style={{ display: 'inline', margin: 0 }}>{weeklyStatus?.status ?? 'unavailable'}</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Assessment multipliers: </dt><dd style={{ display: 'inline', margin: 0 }}>{Object.entries(curriculumDecision.autoSelectionDebug.sectionMultipliers ?? {}).map(([key, value]) => `${key} ×${Number(value).toFixed(2)}`).join(', ') || 'not yet selected'}</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Area/depth ordinals: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.areaSelectionIndex ?? 'n/a'} / {curriculumDecision.autoSelectionDebug.depthSelectionIndex ?? 'n/a'}</dd></div>
+         <div><dt style={{ display: 'inline', fontWeight: 700 }}>Reinforcement: </dt><dd style={{ display: 'inline', margin: 0 }}>{Object.entries(curriculumDecision.autoSelectionDebug.reinforcement ?? {}).map(([area, state]) => `${area}: ${state.active ? `active until ${state.until ?? 'unspecified'}` : 'inactive'}`).join(', ') || 'none'}</dd></div>
          <div><dt style={{ display: 'inline', fontWeight: 700 }}>Chosen exercise: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.chosenExercise}</dd></div>
          <div><dt style={{ display: 'inline', fontWeight: 700 }}>Selection reason: </dt><dd style={{ display: 'inline', margin: 0 }}>{curriculumDecision.autoSelectionDebug.selectionReason}</dd></div>
         </dl>

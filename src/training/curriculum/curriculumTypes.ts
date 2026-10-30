@@ -61,6 +61,8 @@ export type CurriculumState = {
   failedTransferTest?: boolean
   repeatedFailures?: number
   temporaryReinforcement?: Partial<Record<CurriculumArea, boolean>>
+  /** Durable expiry for a temporary reinforcement override. */
+  reinforcementUntil?: Partial<Record<CurriculumArea, string | null>>
   importedWeakness?: CurriculumArea | null
   /** Phase 1 contracts only; actual repertoire-to-line mapping lands in a later phase. */
   openingRelevance?: {
@@ -105,6 +107,8 @@ export type CurriculumSelectionInput = {
   area?: CurriculumArea
   /** A deterministic session ordinal; callers can persist their own random/session seed later. */
   selectionIndex?: number
+  /** Independent ordinal for the approved M1–M4 calculation-depth cycle. */
+  depthSelectionIndex?: number
   /** Session-scoped exclusions, currently used to enforce one Board Vision chunk per Auto session. */
   excludedAreas?: CurriculumArea[]
 }

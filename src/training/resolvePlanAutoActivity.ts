@@ -53,6 +53,11 @@ function withSelectionDebug(
     activePlanLabel: section?.label ?? 'Due review',
     chosenExercise: decision.route,
     selectionReason,
+    subjectWeights: Object.fromEntries(plan.sections.map(item => [item.key, item.weight])),
+    areaSelectionIndex: decision.selectionIndex,
+    depthSelectionIndex: decision.depthSelectionIndex ?? decision.selectionIndex,
+    importedEvidence: decision.adaptiveState?.importedWeakness ?? 'none',
+    reinforcement: decision.adaptiveState?.reinforcement ?? {},
   }
   return { ...decision, autoSelectionDebug: debug }
 }
@@ -67,6 +72,7 @@ function planStarterDecision(
   plan: PersonalTrainingPlan,
   areas: readonly CurriculumArea[],
   selectionIndex: number,
+  depthSelectionIndex = selectionIndex,
 ) {
   const starterState = {
     rating: plan.currentRating,
@@ -77,9 +83,10 @@ function planStarterDecision(
   const recommendation = selectCurriculumItem({
     state: starterState,
     selectionIndex,
+    depthSelectionIndex,
     excludedAreas: CURRICULUM_AREAS.filter((area) => !areas.includes(area)),
   })
-  return recommendation ? buildCurriculumDecision(recommendation, selectionIndex) : null
+  return recommendation ? buildCurriculumDecision(recommendation, selectionIndex, depthSelectionIndex) : null
 }
 
 // Reuse the personal-library rotation and existing family due/unmastered lookup.
@@ -178,6 +185,7 @@ export async function resolvePlanAutoActivity(
   completedSelections: number,
   excluded: TrainingSection['key'][] = [],
   dependencies: AutoActivityDependencies = defaults,
+  completedCalculationSelections = completedSelections,
 ): Promise<CurriculumRuntimeDecision | null> {
   const verify = async (item: CurriculumRuntimeDecision | null) => {
     if (!item || !mixedAutoRoute(item.route)) return item
@@ -240,13 +248,13 @@ export async function resolvePlanAutoActivity(
       const verified = await verify(resolved)
       if (verified) return withSelectionDebug(verified, plan, section, section.reason)
     }
-    const starter = planStarterDecision(plan, selectedAreas, completedSelections)
+    const starter = planStarterDecision(plan, selectedAreas, completedSelections, completedCalculationSelections)
     if (starter && isPlayableAutoRoute(starter.route)) {
       return withSelectionDebug(starter, plan, section, `${section.reason} Curriculum persistence is unavailable, so the same rating placement was resolved locally.`)
     }
     return isNewLegacyFallback(fallback) ? null : fallback
   }
-  const depth = selectCalculationDepth(plan.currentRating, completedSelections)
+  const depth = selectCalculationDepth(plan.currentRating, completedCalculationSelections)
   let activity: ContentActivity | null = null
   try {
     if (section.key === 'masterTactics' || section.key === 'masterMates') {

@@ -60,14 +60,16 @@ try {
   const decision = await runtime.getCurriculumDecisionForUser("test-user", {
     getState: async () => ({ curriculum: baseState() }),
     getSelectionIndex: async () => 9,
+    getDepthSelectionIndex: async () => 9,
     getM1LearnerCompletion: async () => ({}),
     getDueReviewItem: async () => null,
+    excludedAreas: ["mates", "endgame-piece-mates", "endgame-studies", "openings", "master-games", "board-vision"],
     getLegacyItem: async () => {
       throw new Error("legacy fallback must not be used for a valid curriculum decision")
     },
   })
   assert.equal(decision.source, "curriculum")
-  assert.equal(decision.curriculumEventKind, "preview")
+  assert.equal(decision.curriculumEventKind, "current")
   assert.equal(decision.curriculumArea, "tactics")
   const launchedRoute = runtime.buildCurriculumAutoTrainingRoute(decision)
   const params = new URLSearchParams(launchedRoute.split("?")[1])

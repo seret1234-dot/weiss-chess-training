@@ -41,6 +41,35 @@ function legacyNew() {
   }
 }
 
+// Hold the content family constant so the measured cycle is M1–M4 tactics;
+// mates also has legacy M5 routes whose label is outside this approved cycle.
+const calculationAreas = ['mates', 'endgame-piece-mates', 'endgame-studies', 'openings', 'master-games', 'board-vision']
+async function actualRuntimeDepthDistribution(rating) {
+  const state = { rating, activeStages: {}, difficultyCeilings: {}, themeMastery: {} }
+  const counts = { 1: 0, 2: 0, 3: 0, 4: 0 }
+  for (let depthSelectionIndex = 0; depthSelectionIndex < 100; depthSelectionIndex += 1) {
+    // The area ordinal intentionally moves independently and cannot alter the
+    // M1–M4 distribution. This exercises the real runtime, not the selector alone.
+    const decision = await runtime.getCurriculumDecisionForUser('distribution-user', {
+      getState: async () => ({ curriculum: state }),
+      getSelectionIndex: async () => 700 + depthSelectionIndex,
+      getDepthSelectionIndex: async () => depthSelectionIndex,
+      getM1LearnerCompletion: async () => ({}),
+      getLegacyItem: async () => null,
+      getDueReviewItem: async () => null,
+      excludedAreas: calculationAreas,
+    })
+    const stage = Number((decision?.route ?? '').match(/\/m([1-4])\//)?.[1])
+    assert.ok(stage >= 1 && stage <= 4, `runtime selected a calculation stage for ${rating}: ${decision?.route ?? 'no route'}`)
+    counts[stage] += 1
+  }
+  return counts
+}
+
+assert.deepEqual(await actualRuntimeDepthDistribution(600), { 1: 90, 2: 10, 3: 0, 4: 0 }, '600 Auto runtime uses the approved 90/10 cycle')
+assert.deepEqual(await actualRuntimeDepthDistribution(1200), { 1: 35, 2: 50, 3: 15, 4: 0 }, '1200 Auto runtime uses the approved 35/50/15 cycle')
+assert.deepEqual(await actualRuntimeDepthDistribution(1800), { 1: 15, 2: 35, 3: 35, 4: 15 }, '1800 Auto runtime uses the approved 15/35/35/15 cycle')
+
 const unavailableCurriculum = async () => legacyNew()
 const dependencies = {
   curriculum: unavailableCurriculum,
@@ -90,3 +119,4 @@ assert.equal(runtime.canUseRatingPlanAfterWeeklyAssessment('in_progress'), false
 console.log('PASS: 600, 1200, and 1800 first Auto selections follow the established rating plan')
 console.log('PASS: skipped and completed assessments share the rating-plan path; genuine due reviews retain priority')
 console.log('PASS: Auto selection debug records rating, plan section, chosen route, and reason')
+console.log('PASS: 100 actual runtime calculation selections per Elo band preserve independent approved depth distributions')

@@ -23,6 +23,7 @@ import {
 } from "../../trainers/patternTactic/m1toM4LearnerCurriculum"
 import {
   getCurriculumSelectionIndex,
+  getCalculationDepthSelectionIndex,
   getOrCreateCurriculumState,
   reconcileCurriculumState,
 } from "./curriculumPersistence"
@@ -37,6 +38,7 @@ export type CurriculumRuntimeDecision = AutoTrainingItem & {
   label: string
   explanation: string
   selectionIndex: number | null
+  depthSelectionIndex?: number | null
   curriculumArea?: CurriculumRecommendation["area"]
   curriculumStage?: string
   curriculumTheme?: string | null
@@ -47,6 +49,10 @@ export type CurriculumRuntimeDecision = AutoTrainingItem & {
   fallbackReason?: string
   legacyDueState?: DueState
   autoSelectionDebug?: AutoSelectionDebug
+  adaptiveState?: {
+    importedWeakness: string | null
+    reinforcement: Record<string, { active: boolean; until: string | null }>
+  }
 }
 
 /** A support-only explanation of the deterministic Auto choice. */
@@ -57,6 +63,13 @@ export type AutoSelectionDebug = {
   activePlanLabel: string
   chosenExercise: string
   selectionReason: string
+  subjectWeights?: Record<string, number>
+  areaSelectionIndex?: number | null
+  depthSelectionIndex?: number | null
+  importedEvidence?: string
+  assessmentEvidence?: string
+  sectionMultipliers?: Record<string, number>
+  reinforcement?: Record<string, { active: boolean; until: string | null }>
 }
 
 type PersistedCurriculum = { curriculum: CurriculumState } | null
@@ -64,6 +77,7 @@ type PersistedCurriculum = { curriculum: CurriculumState } | null
 export type CurriculumRuntimeDependencies = {
   getState?: (userId: string) => Promise<PersistedCurriculum>
   getSelectionIndex?: (userId: string) => Promise<number>
+  getDepthSelectionIndex?: (userId: string) => Promise<number>
   getLegacyItem?: (userId: string) => Promise<NextDueItem | null>
   getDueReviewItem?: (userId: string) => Promise<NextDueItem | null>
   getM1LearnerCompletion?: (userId: string) => Promise<Record<string, { complete: boolean }>>
@@ -148,6 +162,8 @@ function labelFor(recommendation: CurriculumRecommendation) {
 export function buildCurriculumDecision(
   recommendation: CurriculumRecommendation,
   selectionIndex: number,
+  depthSelectionIndex = selectionIndex,
+  state?: CurriculumState,
 ): CurriculumRuntimeDecision {
   const m2ToM5Learner = getPatternMateM2ToM5LearnerCurriculum(recommendation.trainerKey)
   const tacticLearner = getPatternTacticLearnerCurriculum(recommendation.trainerKey)
@@ -166,6 +182,7 @@ export function buildCurriculumDecision(
     label: labelFor(recommendation),
     explanation: recommendation.explanation,
     selectionIndex,
+    depthSelectionIndex,
     curriculumArea: recommendation.area,
     curriculumStage: recommendation.stage,
     curriculumTheme: recommendation.theme ?? null,
@@ -175,6 +192,13 @@ export function buildCurriculumDecision(
     learnerCurriculumVersion: getPatternMateM1LearnerCurriculum(recommendation.trainerKey)
       ? M1_LEARNER_CURRICULUM_VERSION
       : m2ToM5Learner?.version ?? tacticLearner?.version ?? null,
+    adaptiveState: state ? {
+      importedWeakness: state.importedWeakness ?? null,
+      reinforcement: Object.fromEntries(Object.keys(state.temporaryReinforcement ?? {}).map((area) => [area, {
+        active: Boolean(state.temporaryReinforcement?.[area as keyof typeof state.temporaryReinforcement]),
+        until: state.reinforcementUntil?.[area as keyof typeof state.reinforcementUntil] ?? null,
+      }])),
+    } : undefined,
   }
 }
 
@@ -216,14 +240,16 @@ export async function getCurriculumDecisionForUser(
     }
   })
   const getSelectionIndex = dependencies.getSelectionIndex ?? getCurriculumSelectionIndex
+  const getDepthSelectionIndex = dependencies.getDepthSelectionIndex ?? getCalculationDepthSelectionIndex
   const getLegacyItem = dependencies.getLegacyItem ?? getNextDueItem
   const getDueReviewItem = dependencies.getDueReviewItem ?? getNextDueReviewItem
   const getM1LearnerCompletion = dependencies.getM1LearnerCompletion ?? readM1LearnerCompletion
 
   try {
-    const [persistedState, selectionIndex, m1LearnerCompletion, dueReview] = await Promise.all([
+    const [persistedState, selectionIndex, depthSelectionIndex, m1LearnerCompletion, dueReview] = await Promise.all([
       getState(userId),
       getSelectionIndex(userId),
+      getDepthSelectionIndex(userId),
       getM1LearnerCompletion(userId),
       getDueReviewItem(userId),
     ])
@@ -234,13 +260,14 @@ export async function getCurriculumDecisionForUser(
     const recommendation = selectCurriculumItem({
       state: persisted.curriculum,
       selectionIndex,
+      depthSelectionIndex,
       excludedAreas: dependencies.excludedAreas,
     })
     if (!recommendation?.route || !recommendation.trainerKey) {
       throw new Error("No eligible curriculum route is mapped for this user.")
     }
 
-    return buildCurriculumDecision(recommendation, selectionIndex)
+    return buildCurriculumDecision(recommendation, selectionIndex, depthSelectionIndex, persisted.curriculum)
   } catch (error) {
     try {
       const legacy = await getLegacyItem(userId)
