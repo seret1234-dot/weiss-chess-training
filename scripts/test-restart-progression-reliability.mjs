@@ -147,6 +147,7 @@ for (const family of families) {
     chunk_index: 1,
     mastered_puzzles_count: 0,
     is_mastered: false,
+    started_at: null,
     mastered_at: null,
     review_stage: 0,
     last_reviewed_at: null,
@@ -221,7 +222,7 @@ for (const family of families) {
   assert.deepEqual(JSON.parse(storage.getItem(storageKey)), savedState, 'current chunk snapshot is immediately durable for reload')
   assert.deepEqual(
     client.tables.user_chunk_progress.find((row) => row.user_id === 'user-a' && row.trainer_key === 'tactic-fork-m1:final-v6' && row.chunk_index === 2),
-    { user_id: 'user-a', trainer_key: 'tactic-fork-m1:final-v6', chunk_index: 2, mastered_puzzles_count: 0, is_mastered: false, mastered_at: null, review_stage: 0, last_reviewed_at: null, next_review_at: null, updated_at: '2026-10-30T12:00:00.000Z' },
+    { user_id: 'user-a', trainer_key: 'tactic-fork-m1:final-v6', chunk_index: 2, mastered_puzzles_count: 0, is_mastered: false, started_at: null, mastered_at: null, review_stage: 0, last_reviewed_at: null, next_review_at: null, updated_at: '2026-10-30T12:00:00.000Z' },
     'only the active chunk row is reset',
   )
   assert.equal(client.tables.user_chunk_progress.find((row) => row.user_id === 'user-a' && row.trainer_key === 'tactic-fork-m1:final-v6' && row.chunk_index === 1).is_mastered, true, 'earlier chunk remains untouched')

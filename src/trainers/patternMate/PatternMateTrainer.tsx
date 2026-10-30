@@ -608,6 +608,7 @@ export default function PatternMateTrainer({
  const chunkMasterySaveKeyRef = useRef<string | null>(null)
  const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
  const progressionResetRef = useRef(createProgressionResetCoordinator())
+ const chunkStartMarkerRef = useRef<string | null>(null)
  const { cancelCorrectAutoAdvance, scheduleCorrectAutoAdvance } = useCorrectPuzzleAutoAdvance()
  const { cancelWrongMoveReset, scheduleWrongMoveReset } = useWrongMoveReset()
 
@@ -891,6 +892,33 @@ export default function PatternMateTrainer({
  async function ensureNextChunkExists(userId: string, nextChunkNumber: number) {
  if (nextChunkNumber > chunkFiles.length) return
  await ensureChunkExists(userId, nextChunkNumber)
+ }
+
+ async function markCurrentChunkStarted() {
+  if (!currentUserId) return
+  const chunkNumber = currentChunkIndex + 1
+  const markerKey = `${currentUserId}:${progressTrainerKey}:${chunkNumber}`
+  if (chunkStartMarkerRef.current === markerKey) return
+
+  await ensureChunkExists(currentUserId, chunkNumber)
+  const { error } = await supabase
+   .from('user_chunk_progress')
+   .update({ started_at: new Date().toISOString() })
+   .eq('user_id', currentUserId)
+   .eq('trainer_key', progressTrainerKey)
+   .eq('chunk_index', chunkNumber)
+
+  if (error) {
+   // Keep the trainer usable when source is previewed before the additive
+   // migration. The legacy scheduler still treats its blank row as new.
+   if (error.message?.includes('started_at') && error.message?.includes('does not exist')) {
+    chunkStartMarkerRef.current = markerKey
+    return
+   }
+   console.error('Could not mark mate chunk as started', error)
+   return
+  }
+  chunkStartMarkerRef.current = markerKey
  }
 
  async function markChunkMastered(
@@ -1347,6 +1375,7 @@ function startChunkMasterySave(masteredCount: number) {
   studyCourse: config.studyCourse,
   studyTheme: config.studyTheme,
  })
+ chunkStartMarkerRef.current = null
  const emptyChunkProgress = plan.emptyProgress.map((fastSolves) => ({ fastSolves }))
  chunkProgressRef.current = emptyChunkProgress
  chunkCanBeCompletedRef.current = true
@@ -2233,6 +2262,9 @@ async function completeChunk() {
  }
 
  if (!move) return false
+
+ // Only a legal move makes this chunk resumable across refreshes/devices.
+ void markCurrentChunkStarted()
 
  const playedUci = `${move.from}${move.to}${move.promotion ?? ''}`.toLowerCase()
  perfectionTrackerRef.current.recordCommittedMove(playedUci, performance.now())

@@ -37,13 +37,14 @@ type StudyPlanRow = {
  master_games_weight: number
 }
 
-type ChunkProgressRow = {
+export type ChunkProgressRow = {
  trainer_key: string | null
  chunk_index: number | null
  next_due_at?: string | null
  next_review_at?: string | null
  is_mastered?: boolean | null
  mastered_puzzles_count?: number | null
+ started_at?: string | null
 }
 
 function startOfTodayLocal() {
@@ -151,8 +152,8 @@ async function getOrCreateStudyPlan(userId: string): Promise<StudyPlanRow | null
 }
 
 async function getChunkRows(userId: string): Promise<ChunkProgressRow[] | null> {
- const selectWithNextDue =
- 'trainer_key, chunk_index, next_due_at, next_review_at, is_mastered, mastered_puzzles_count'
+ const coreColumns = 'trainer_key, chunk_index, next_review_at, is_mastered, mastered_puzzles_count'
+ const selectWithNextDue = `${coreColumns}, next_due_at, started_at`
 
  const { data: rowsWithNextDue, error: errorWithNextDue } = await supabase
  .from('user_chunk_progress')
@@ -163,18 +164,26 @@ async function getChunkRows(userId: string): Promise<ChunkProgressRow[] | null> 
  return (rowsWithNextDue ?? []) as ChunkProgressRow[]
  }
 
- const message = errorWithNextDue.message || ''
- const missingNextDue =
- message.includes('next_due_at') &&
- message.includes('does not exist')
+ const missingColumn = (column: string) => {
+  const message = errorWithNextDue.message || ''
+  return message.includes(column) && message.includes('does not exist')
+ }
+ const missingNextDue = missingColumn('next_due_at')
+ const missingStartedAt = missingColumn('started_at')
 
- if (!missingNextDue) {
+ if (!missingNextDue && !missingStartedAt) {
  console.error('Could not load user_chunk_progress', errorWithNextDue)
  return null
  }
 
- const selectFallback =
- 'trainer_key, chunk_index, next_review_at, is_mastered, mastered_puzzles_count'
+ // Preview and production can briefly run this frontend before the additive
+ // migration is applied. In that window blank rows stay "new" rather than
+ // regressing to the old in-progress classification.
+ const selectFallback = [
+  coreColumns,
+  missingNextDue ? null : 'next_due_at',
+  missingStartedAt ? null : 'started_at',
+ ].filter(Boolean).join(', ')
 
  const { data: fallbackRows, error: fallbackError } = await supabase
  .from('user_chunk_progress')
@@ -189,7 +198,7 @@ async function getChunkRows(userId: string): Promise<ChunkProgressRow[] | null> 
  return (fallbackRows ?? []) as ChunkProgressRow[]
 }
 
-function getDueStateFromRow(
+export function getDueStateFromRow(
  bestRow: ChunkProgressRow | undefined,
  todayStart: Date,
  tomorrowStart: Date
@@ -216,7 +225,11 @@ function getDueStateFromRow(
  nextReviewAt = getEffectiveNextReviewAt(bestRow)
 
  if (!nextReviewAt) {
- dueState = bestRow.is_mastered === true ? 'due_today' : 'in_progress'
+ // A blank row is created while a trainer loads. It is not evidence that the
+ // learner began a chunk, so it must not override the rating-based plan when
+ // Auto falls back to this legacy scheduler.
+ const hasDurableAttempt = Boolean(bestRow.started_at) || Number(bestRow.mastered_puzzles_count ?? 0) > 0
+ dueState = bestRow.is_mastered === true ? 'due_today' : hasDurableAttempt ? 'in_progress' : 'new'
  } else {
  const dueDate = new Date(nextReviewAt)
 

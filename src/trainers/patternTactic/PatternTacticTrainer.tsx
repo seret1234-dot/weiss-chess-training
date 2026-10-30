@@ -661,6 +661,7 @@ export default function PatternTacticTrainer({
  const chunkMasterySaveKeyRef = useRef<string | null>(null)
  const chunkMasteryPromiseRef = useRef<Promise<boolean> | null>(null)
  const progressionResetRef = useRef(createProgressionResetCoordinator())
+ const chunkStartMarkerRef = useRef<string | null>(null)
  const { cancelCorrectAutoAdvance, scheduleCorrectAutoAdvance } = useCorrectPuzzleAutoAdvance()
  const { cancelWrongMoveReset, scheduleWrongMoveReset } = useWrongMoveReset()
 
@@ -931,6 +932,33 @@ export default function PatternTacticTrainer({
  async function ensureNextChunkExists(userId: string, nextChunkNumber: number) {
  if (nextChunkNumber > chunkFiles.length) return
  await ensureChunkExists(userId, nextChunkNumber)
+ }
+
+ async function markCurrentChunkStarted() {
+  if (!currentUserId) return
+  const chunkNumber = currentChunkIndex + 1
+  const markerKey = `${currentUserId}:${progressTrainerKey}:${chunkNumber}`
+  if (chunkStartMarkerRef.current === markerKey) return
+
+  await ensureChunkExists(currentUserId, chunkNumber)
+  const { error } = await supabase
+   .from('user_chunk_progress')
+   .update({ started_at: new Date().toISOString() })
+   .eq('user_id', currentUserId)
+   .eq('trainer_key', progressTrainerKey)
+   .eq('chunk_index', chunkNumber)
+
+  if (error) {
+   // The source deploy can precede the additive migration. Keep training
+   // functional in that short window; blank rows still classify as new.
+   if (error.message?.includes('started_at') && error.message?.includes('does not exist')) {
+    chunkStartMarkerRef.current = markerKey
+    return
+   }
+   console.error('Could not mark tactic chunk as started', error)
+   return
+  }
+  chunkStartMarkerRef.current = markerKey
  }
 
  async function markChunkMastered(
@@ -1348,6 +1376,7 @@ function startChunkMasterySave(masteredCount: number) {
   studyCourse: config.studyCourse,
   studyTheme: config.studyTheme,
  })
+ chunkStartMarkerRef.current = null
  const emptyChunkProgress = plan.emptyProgress.map((fastSolves) => ({ fastSolves }))
  chunkProgressRef.current = emptyChunkProgress
  chunkCanBeCompletedRef.current = true
@@ -2295,6 +2324,10 @@ async function completeChunk() {
  }
 
  if (!move) return false
+
+ // Loader-created rows are deliberately not resumable. A durable marker is
+ // written only after chess.js has accepted a real learner move.
+ void markCurrentChunkStarted()
 
  const playedUci = `${move.from}${move.to}${move.promotion ?? ''}`.toLowerCase()
  perfectionTrackerRef.current.recordCommittedMove(playedUci, performance.now())

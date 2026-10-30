@@ -9,6 +9,7 @@ const bundle = await build({
       export * from './src/training/resolvePlanAutoActivity';
       export * from './src/training/curriculum/curriculumRuntime';
       export * from './src/training/curriculum/selectCurriculumItem';
+      export { getDueStateFromRow } from './src/training/getNextDueItem';
     `,
     resolveDir: process.cwd(), loader: 'ts',
   },
@@ -111,6 +112,46 @@ const dueResult = await runtime.resolvePlanAutoActivity(runtime.buildPersonalTra
 assert.equal(dueResult?.route, due.route, 'a genuine due review still takes precedence over new plan material')
 assert.equal(dueResult?.autoSelectionDebug?.activePlanSection, 'due-review')
 
+const today = new Date('2026-10-30T00:00:00.000Z')
+const tomorrow = new Date('2026-10-31T00:00:00.000Z')
+const emptyLoaderRow = runtime.getDueStateFromRow({
+  trainer_key: 'tactic-bishop-fork-m2:m2-verified-final-v1',
+  chunk_index: 1,
+  is_mastered: false,
+  mastered_puzzles_count: 0,
+  started_at: null,
+}, today, tomorrow)
+assert.equal(emptyLoaderRow.dueState, 'new', 'an untouched loader-created row is not resumable')
+
+const emptyFallback = { ...legacyNew(), legacyDueState: emptyLoaderRow.dueState }
+const emptyFallbackResult = await runtime.resolvePlanAutoActivity(
+  runtime.buildPersonalTrainingPlan({ manual_current_rating: 600 }), emptyFallback, 'fresh-user', 0, [], dependencies,
+)
+assert.match(emptyFallbackResult?.route ?? '', /^\/tactics\/m1\//, 'an empty legacy row cannot override the 600 Elo plan')
+
+const attemptedRow = runtime.getDueStateFromRow({
+  trainer_key: 'tactic-bishop-fork-m2:m2-verified-final-v1',
+  chunk_index: 1,
+  is_mastered: false,
+  mastered_puzzles_count: 0,
+  started_at: '2026-10-30T12:00:00.000Z',
+}, today, tomorrow)
+assert.equal(attemptedRow.dueState, 'in_progress', 'a durable legal-move marker resumes an unfinished chunk after refresh')
+const attemptedFallback = { ...legacyNew(), legacyDueState: attemptedRow.dueState, route: '/tactics/m2/bishop-fork?chunk=0' }
+const attemptedFallbackResult = await runtime.resolvePlanAutoActivity(
+  runtime.buildPersonalTrainingPlan({ manual_current_rating: 600 }), attemptedFallback, 'same-user-on-another-device', 0, [], dependencies,
+)
+assert.equal(attemptedFallbackResult?.route, attemptedFallback.route, 'a genuinely started chunk retains resume priority')
+
+const completedRow = runtime.getDueStateFromRow({
+  trainer_key: 'tactic-bishop-fork-m2:m2-verified-final-v1',
+  chunk_index: 1,
+  is_mastered: true,
+  mastered_puzzles_count: 30,
+  started_at: '2026-10-29T12:00:00.000Z',
+}, today, tomorrow)
+assert.equal(completedRow.dueState, 'due_today', 'completed chunks retain established review scheduling')
+
 assert.equal(runtime.canUseRatingPlanAfterWeeklyAssessment('complete'), true, 'completed assessment uses the rating plan')
 assert.equal(runtime.canUseRatingPlanAfterWeeklyAssessment('skipped'), true, 'skipped assessment uses the same rating plan')
 assert.equal(runtime.canUseRatingPlanAfterWeeklyAssessment('due'), false)
@@ -120,3 +161,4 @@ console.log('PASS: 600, 1200, and 1800 first Auto selections follow the establis
 console.log('PASS: skipped and completed assessments share the rating-plan path; genuine due reviews retain priority')
 console.log('PASS: Auto selection debug records rating, plan section, chosen route, and reason')
 console.log('PASS: 100 actual runtime calculation selections per Elo band preserve independent approved depth distributions')
+console.log('PASS: blank loader rows cannot override the Elo plan; durable started rows and completed reviews retain their priorities')

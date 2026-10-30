@@ -2,6 +2,28 @@ export function uniqueProgressTrainerKeys(keys) {
   return [...new Set(keys.map((key) => String(key ?? '').trim()).filter(Boolean))]
 }
 
+function isMissingStartedAtColumn(error) {
+  const message = error?.message ?? String(error ?? '')
+  return message.includes('started_at') && message.includes('does not exist')
+}
+
+async function upsertEmptyChunk(client, payload) {
+  let result = await client
+    .from('user_chunk_progress')
+    .upsert(payload, { onConflict: 'user_id,trainer_key,chunk_index' })
+
+  // Source can be previewed before the additive marker migration is applied.
+  // Preserve restart durability in that compatibility window rather than
+  // failing an otherwise valid reset.
+  if (result.error && isMissingStartedAtColumn(result.error)) {
+    const { started_at: _startedAt, ...legacyPayload } = payload
+    result = await client
+      .from('user_chunk_progress')
+      .upsert(legacyPayload, { onConflict: 'user_id,trainer_key,chunk_index' })
+  }
+  return result
+}
+
 /**
  * Resets exactly one loaded chunk. Unlike course restart, this preserves every
  * sibling chunk and course while keeping the server, account-scoped browser
@@ -39,20 +61,19 @@ export async function resetCurrentChunkProgressPersistence({
 
     // Upsert is deliberate: a reset must be durable whether the chunk row was
     // created by an earlier solve, a review, or has never existed before.
-    const chunkResult = await client
-      .from('user_chunk_progress')
-      .upsert({
+    const chunkResult = await upsertEmptyChunk(client, {
         user_id: userId,
         trainer_key: trainerKey,
         chunk_index: chunkNumber,
         mastered_puzzles_count: 0,
         is_mastered: false,
+        started_at: null,
         mastered_at: null,
         review_stage: 0,
         last_reviewed_at: null,
         next_review_at: null,
         updated_at: now(),
-      }, { onConflict: 'user_id,trainer_key,chunk_index' })
+      })
     throwQueryError(chunkResult.error, 'Could not reset current chunk progression')
   }
 
@@ -175,20 +196,19 @@ export async function resetCourseProgressPersistence({
       .in('trainer_key', trainerKeys)
     throwQueryError(chunkResult.error, 'Could not reset chunk progression')
 
-    const initialResult = await client
-      .from('user_chunk_progress')
-      .upsert({
+    const initialResult = await upsertEmptyChunk(client, {
         user_id: userId,
         trainer_key: activeTrainerKey,
         chunk_index: 1,
         mastered_puzzles_count: 0,
         is_mastered: false,
+        started_at: null,
         mastered_at: null,
         review_stage: 0,
         last_reviewed_at: null,
         next_review_at: null,
         updated_at: now(),
-      }, { onConflict: 'user_id,trainer_key,chunk_index' })
+      })
     throwQueryError(initialResult.error, 'Could not create reset course state')
   }
 
