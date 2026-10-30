@@ -48,7 +48,7 @@ assert.equal(item.learnerCurriculumVersion,'full-precut-v1')
 assert.equal(r.getTrainerByKey(item.progressTrainerKey).route,'/mates/m1/back-rank')
 assert.equal(r.getM1LearnerProgressTrainerKey(item.progressTrainerKey),item.progressTrainerKey,'no double suffix when exact current key is passed')
 const decision=await r.getCurriculumDecisionForUser(user,{
- getState:async()=>null,getSelectionIndex:async()=>0,getM1LearnerCompletion:async()=>({}),getDueReviewItem:async()=>item,
+ getState:async()=>null,getSelectionIndex:async()=>0,getDepthSelectionIndex:async()=>0,getTacticThemeSelectionIndices:async()=>({1:0,2:0,3:0,4:0}),getM1LearnerCompletion:async()=>({}),getDueReviewItem:async()=>item,
  getLegacyItem:async()=>{throw Error('due review must win')},
 })
 const url=new URL(r.buildAutoTrainingRoute(decision),'https://test.invalid')

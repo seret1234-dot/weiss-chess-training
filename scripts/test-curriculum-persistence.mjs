@@ -149,6 +149,39 @@ try {
   await persistence.getOrCreateCurriculumState('rating-user', isolatedClient)
   assert.equal(writes, 1, 'refresh/resume does not rewrite a stable reconciled snapshot')
 
+  // Theme rotation is derived from existing idempotent focused-session evidence,
+  // not from browser state or the global category ordinal. The mock applies the
+  // same account filter that PostgREST/RLS applies in production.
+  const focusedTacticRows = [
+    { user_id: 'account-a', area: 'tactics', event_kind: 'focused', stage_order: 1 },
+    { user_id: 'account-a', area: 'tactics', event_kind: 'focused', stage_order: 1 },
+    { user_id: 'account-a', area: 'tactics', event_kind: 'focused', stage_order: 2 },
+    { user_id: 'account-a', area: 'tactics', event_kind: 'review', stage_order: 1 },
+    { user_id: 'account-b', area: 'tactics', event_kind: 'focused', stage_order: 1 },
+  ]
+  const focusedTacticClient = {
+    from() {
+      const filters = {}
+      const builder = {
+        select() { return builder },
+        eq(column, value) { filters[column] = value; return builder },
+        then(resolve, reject) {
+          const data = focusedTacticRows.filter((row) => Object.entries(filters).every(([column, value]) => row[column] === value))
+          return Promise.resolve({ data, error: null }).then(resolve, reject)
+        },
+      }
+      return builder
+    },
+  }
+  const accountAThemeIndices = await persistence.getTacticThemeSelectionIndices('account-a', focusedTacticClient)
+  const accountBThemeIndices = await persistence.getTacticThemeSelectionIndices('account-b', focusedTacticClient)
+  assert.deepEqual(accountAThemeIndices, { 1: 2, 2: 1, 3: 0, 4: 0 }, 'only completed focused chunks advance their own tactic-depth ordinal')
+  assert.deepEqual(await persistence.getTacticThemeSelectionIndices('account-a', focusedTacticClient), accountAThemeIndices, 'refresh reads the same durable tactic-theme ordinal')
+  assert.deepEqual(accountBThemeIndices, { 1: 1, 2: 0, 3: 0, 4: 0 }, 'account-scoped evidence cannot advance another account\'s theme rotation')
+  const accountASelection = selector.selectCurriculumItem({ state: { rating: 600 }, area: 'tactics', selectionIndex: 99, depthSelectionIndex: 0, tacticThemeSelectionIndices: accountAThemeIndices })
+  const accountBSelection = selector.selectCurriculumItem({ state: { rating: 600 }, area: 'tactics', selectionIndex: 99, depthSelectionIndex: 0, tacticThemeSelectionIndices: accountBThemeIndices })
+  assert.notEqual(accountASelection.theme, accountBSelection.theme, 'the same global Auto ordinal uses each account\'s independent persisted M1 theme ordinal')
+
   for (const table of [
     "user_curriculum_state", "user_curriculum_area_progress", "user_curriculum_stage_progress",
     "user_curriculum_theme_progress", "user_curriculum_session_evidence",
@@ -168,6 +201,7 @@ try {
   console.log("PASS: deterministic curriculum persistence foundation")
   console.log("PASS: conservative seed, mastery, regression, migration contract, and scheduler isolation")
   console.log("PASS: target-to-detected rating reconciliation persists independently of curriculum progress and is idempotent on refresh")
+  console.log("PASS: focused tactic-theme ordinals persist by account and stage; reviews do not advance a new-theme rotation")
 } finally {
   await vite.close()
 }

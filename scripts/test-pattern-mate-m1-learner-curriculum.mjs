@@ -138,6 +138,8 @@ try {
   const decision = await runtime.getCurriculumDecisionForUser("test-user", {
     getState: async () => ({ curriculum: baseState }),
     getSelectionIndex: async () => 0,
+    getDepthSelectionIndex: async () => 0,
+    getTacticThemeSelectionIndices: async () => ({ 1: 0, 2: 0, 3: 0, 4: 0 }),
     getM1LearnerCompletion: async () => completion,
     getDueReviewItem: async () => null,
     getLegacyItem: async () => null,

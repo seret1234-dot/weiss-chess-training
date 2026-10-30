@@ -61,6 +61,7 @@ try {
     getState: async () => ({ curriculum: baseState() }),
     getSelectionIndex: async () => 9,
     getDepthSelectionIndex: async () => 9,
+    getTacticThemeSelectionIndices: async () => ({ 1: 0, 2: 0, 3: 0, 4: 0 }),
     getM1LearnerCompletion: async () => ({}),
     getDueReviewItem: async () => null,
     excludedAreas: ["mates", "endgame-piece-mates", "endgame-studies", "openings", "master-games", "board-vision"],
@@ -107,6 +108,7 @@ try {
       throw new Error("simulated persistence failure")
     },
     getSelectionIndex: async () => 0,
+    getTacticThemeSelectionIndices: async () => ({ 1: 0, 2: 0, 3: 0, 4: 0 }),
     getM1LearnerCompletion: async () => ({}),
     getDueReviewItem: async () => null,
     getLegacyItem: async () => {

@@ -9,6 +9,9 @@ const bundle = await build({
       export * from './src/training/resolvePlanAutoActivity';
       export * from './src/training/curriculum/curriculumRuntime';
       export * from './src/training/curriculum/curriculumPersistence';
+      export * from './src/training/curriculum/curriculumPlacement';
+      export * from './src/training/learningPlanRules';
+      export { getStageThemes } from './src/training/curriculum/curriculumCatalog';
       export * from './src/training/curriculum/selectCurriculumItem';
       export { getDueStateFromRow, getChunkRows } from './src/training/getNextDueItem';
     `,
@@ -46,6 +49,7 @@ function legacyNew() {
 // Hold the content family constant so the measured cycle is M1–M4 tactics;
 // mates also has legacy M5 routes whose label is outside this approved cycle.
 const calculationAreas = ['mates', 'endgame-piece-mates', 'endgame-studies', 'openings', 'master-games', 'board-vision']
+const emptyTacticThemeSelectionIndices = () => ({ 1: 0, 2: 0, 3: 0, 4: 0 })
 async function actualRuntimeDepthDistribution(rating) {
   const state = { rating, activeStages: {}, difficultyCeilings: {}, themeMastery: {} }
   const counts = { 1: 0, 2: 0, 3: 0, 4: 0 }
@@ -56,6 +60,7 @@ async function actualRuntimeDepthDistribution(rating) {
       getState: async () => ({ curriculum: state }),
       getSelectionIndex: async () => 700 + depthSelectionIndex,
       getDepthSelectionIndex: async () => depthSelectionIndex,
+      getTacticThemeSelectionIndices: async () => emptyTacticThemeSelectionIndices(),
       getM1LearnerCompletion: async () => ({}),
       getLegacyItem: async () => null,
       getDueReviewItem: async () => null,
@@ -71,6 +76,75 @@ async function actualRuntimeDepthDistribution(rating) {
 assert.deepEqual(await actualRuntimeDepthDistribution(600), { 1: 90, 2: 10, 3: 0, 4: 0 }, '600 Auto runtime uses the approved 90/10 cycle')
 assert.deepEqual(await actualRuntimeDepthDistribution(1200), { 1: 35, 2: 50, 3: 15, 4: 0 }, '1200 Auto runtime uses the approved 35/50/15 cycle')
 assert.deepEqual(await actualRuntimeDepthDistribution(1800), { 1: 15, 2: 35, 3: 35, 4: 15 }, '1800 Auto runtime uses the approved 15/35/35/15 cycle')
+
+assert.deepEqual(runtime.getCategoryWeights({ rating: 600 }), {
+  mates: 20, tactics: 30, 'endgame-piece-mates': 15, 'endgame-studies': 2,
+  openings: 10, 'master-games': 5, 'board-vision': 18,
+}, 'the approved seven-area weights remain unchanged')
+
+async function actualRuntimeTacticCoverage(rating) {
+  const state = { rating, activeStages: {}, difficultyCeilings: {}, themeMastery: {} }
+  const themeIndices = emptyTacticThemeSelectionIndices()
+  const seen = new Map([['1', new Set()], ['2', new Set()], ['3', new Set()], ['4', new Set()]])
+  let areaSelectionIndex = 0
+  let depthSelectionIndex = 0
+  let tactics = 0
+  while (tactics < 1000 && areaSelectionIndex < 5000) {
+    const decision = await runtime.getCurriculumDecisionForUser(`coverage-${rating}`, {
+      getState: async () => ({ curriculum: state }),
+      getSelectionIndex: async () => areaSelectionIndex,
+      getDepthSelectionIndex: async () => depthSelectionIndex,
+      getTacticThemeSelectionIndices: async () => themeIndices,
+      getM1LearnerCompletion: async () => ({}),
+      getLegacyItem: async () => null,
+      getDueReviewItem: async () => null,
+    })
+    assert.ok(decision, `runtime returned an Auto decision for ${rating}`)
+    if (decision.curriculumArea === 'mates' || decision.curriculumArea === 'tactics') depthSelectionIndex += 1
+    if (decision.curriculumArea === 'tactics') {
+      const stage = Number((decision.route ?? '').match(/\/m([1-4])\//)?.[1])
+      assert.ok(stage >= 1 && stage <= 4, `tactics route has an M1–M4 stage for ${rating}`)
+      seen.get(String(stage)).add(decision.curriculumTheme)
+      themeIndices[stage] += 1 // Model the one idempotent focused completion that advances this depth only.
+      tactics += 1
+    }
+    areaSelectionIndex += 1
+  }
+  assert.equal(tactics, 1000, `collected 1,000 eligible tactic selections for ${rating}`)
+  return seen
+}
+
+for (const rating of [600, 1200, 1800]) {
+  const seen = await actualRuntimeTacticCoverage(rating)
+  const eligibleStages = runtime.CALCULATION_DEPTH_DISTRIBUTIONS[runtime.getTrainingRatingBand(rating)]
+  for (const stage of [1, 2, 3, 4]) {
+    if (!eligibleStages[stage]) continue
+    const expected = runtime.getStageThemes('tactics', stage)
+    assert.deepEqual([...seen.get(String(stage))].sort(), [...expected].sort(), `${rating}: every approved M${stage} tactic theme is reached`)
+  }
+}
+
+const freshState = { rating: 600, activeStages: {}, difficultyCeilings: {}, themeMastery: {} }
+const freshFirst = runtime.selectCurriculumItem({
+  state: freshState, area: 'tactics', selectionIndex: 0, depthSelectionIndex: 0,
+  tacticThemeSelectionIndices: emptyTacticThemeSelectionIndices(),
+})
+const freshReload = runtime.selectCurriculumItem({
+  state: freshState, area: 'tactics', selectionIndex: 0, depthSelectionIndex: 0,
+  tacticThemeSelectionIndices: emptyTacticThemeSelectionIndices(),
+})
+assert.equal(freshFirst?.route, freshReload?.route, 'retries and refreshes do not advance a tactic theme ordinal')
+const afterFirstFocusedCompletion = runtime.selectCurriculumItem({
+  state: freshState, area: 'tactics', selectionIndex: 100, depthSelectionIndex: 100,
+  tacticThemeSelectionIndices: { 1: 1, 2: 0, 3: 0, 4: 0 },
+})
+assert.notEqual(afterFirstFocusedCompletion?.theme, freshFirst?.theme, 'a completed focused M1 chunk advances only the M1 theme rotation')
+const masteredFirstTheme = runtime.selectCurriculumItem({
+  state: { ...freshState, themeMastery: { tactics: { [freshFirst.theme]: { mastered: true } } } },
+  area: 'tactics', selectionIndex: 0, depthSelectionIndex: 0,
+  tacticThemeSelectionIndices: emptyTacticThemeSelectionIndices(),
+})
+assert.notEqual(masteredFirstTheme?.theme, freshFirst?.theme, 'mastered themes remain excluded from focused rotation')
 
 const unavailableCurriculum = async () => legacyNew()
 const dependencies = {
@@ -225,6 +299,8 @@ console.log('PASS: 600, 1200, and 1800 first Auto selections follow the establis
 console.log('PASS: skipped and completed assessments share the rating-plan path; genuine due reviews retain priority')
 console.log('PASS: Auto selection debug records rating, plan section, chosen route, and reason')
 console.log('PASS: 100 actual runtime calculation selections per Elo band preserve independent approved depth distributions')
+console.log('PASS: 1,000 real runtime tactic selections per Elo band cover every approved eligible theme with per-depth durable ordinals')
+console.log('PASS: seven-area weights, refresh stability, focused completion advancement, and mastery exclusion remain intact')
 console.log('PASS: blank loader rows cannot override the Elo plan; durable started rows and completed reviews retain their priorities')
 console.log('PASS: late verified ratings reconcile target-derived curriculum snapshots; 2000 target first-slot M2 becomes 605 first-slot M1')
 console.log('PASS: current and migrated optional-column schemas both retain valid progress rows')

@@ -109,6 +109,12 @@ export type CurriculumSelectionInput = {
   selectionIndex?: number
   /** Independent ordinal for the approved M1–M4 calculation-depth cycle. */
   depthSelectionIndex?: number
+  /**
+   * Per-depth completed focused-tactics ordinals. These deliberately stay
+   * separate from the whole-Auto area ordinal so a repeating seven-area cycle
+   * cannot starve themes whose catalog positions share no selected residues.
+   */
+  tacticThemeSelectionIndices?: Partial<Record<1 | 2 | 3 | 4, number>>
   /** Session-scoped exclusions, currently used to enforce one Board Vision chunk per Auto session. */
   excludedAreas?: CurriculumArea[]
 }

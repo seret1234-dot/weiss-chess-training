@@ -288,6 +288,28 @@ export async function getCalculationDepthSelectionIndex(userId: string, client: 
   return Math.max(0, Number(count ?? 0))
 }
 
+/**
+ * Focused tactic chunks are the durable, idempotent boundary at which a new
+ * tactic theme has actually been completed. Keep one ordinal per M1–M4 depth:
+ * the global area ordinal intentionally includes other subjects and must not
+ * determine which tactic themes can be reached.
+ */
+export async function getTacticThemeSelectionIndices(userId: string, client: SupabaseLike = supabase) {
+  const { data, error } = await client.from(TABLES.session)
+    .select("stage_order")
+    .eq("user_id", userId)
+    .eq("area", "tactics")
+    .eq("event_kind", "focused")
+  throwIfError(error, "Could not read tactic-theme session counts")
+
+  const indices: Record<1 | 2 | 3 | 4, number> = { 1: 0, 2: 0, 3: 0, 4: 0 }
+  for (const row of data ?? []) {
+    const stage = Number((row as any).stage_order)
+    if (stage >= 1 && stage <= 4 && Number.isInteger(stage)) indices[stage as 1 | 2 | 3 | 4] += 1
+  }
+  return indices
+}
+
 export async function recordCurriculumSessionEvidence(event: CurriculumSessionEvidence, client: SupabaseLike = supabase) {
   validateCurriculumEvent(event)
   const { data: existing, error: existingError } = await client.from(TABLES.session).select("*")

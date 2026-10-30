@@ -120,7 +120,24 @@ export function isDueItemAllowedByCurriculum(item: CurriculumItem, state: Curric
   return item.available && (persistedCeiling == null || item.stageOrder <= persistedCeiling)
 }
 
-function chooseSequentialItem(area: "mates" | "tactics", state: CurriculumState, selectionIndex: number, depthSelectionIndex = selectionIndex) {
+function tacticThemeSelectionIndex(
+  area: "mates" | "tactics",
+  stage: number,
+  selectionIndex: number,
+  tacticThemeSelectionIndices?: Partial<Record<1 | 2 | 3 | 4, number>>,
+) {
+  if (area !== "tactics" || stage < 1 || stage > 4) return selectionIndex
+  const persisted = tacticThemeSelectionIndices?.[stage as 1 | 2 | 3 | 4]
+  return Number.isInteger(persisted) && Number(persisted) >= 0 ? Number(persisted) : selectionIndex
+}
+
+function chooseSequentialItem(
+  area: "mates" | "tactics",
+  state: CurriculumState,
+  selectionIndex: number,
+  depthSelectionIndex = selectionIndex,
+  tacticThemeSelectionIndices?: Partial<Record<1 | 2 | 3 | 4, number>>,
+) {
   const currentStage = currentSequentialStage(area, state)
   const ceiling = sequentialCeiling(area, state, currentStage)
   const themes = getStageThemes(area, currentStage)
@@ -151,14 +168,19 @@ function chooseSequentialItem(area: "mates" | "tactics", state: CurriculumState,
   } else if (!mixedUnlocked) {
     const trainableThemes = themes.filter((theme) => availableCurrentThemes.has(theme))
     const unmastered = trainableThemes.filter((theme) => !progress[theme]?.mastered)
-    const focusedTheme = cyclePick(unmastered.length ? unmastered : trainableThemes, selectionIndex)
+    const focusedTheme = cyclePick(
+      unmastered.length ? unmastered : trainableThemes,
+      tacticThemeSelectionIndex(area, currentStage, selectionIndex, tacticThemeSelectionIndices),
+    )
     candidates = allowed.filter((item) => item.stageOrder === currentStage && item.theme === focusedTheme && !item.isMixed)
   } else {
     candidates = allowed.filter((item) => item.stageOrder === currentStage && item.isMixed)
   }
 
-  const usable = candidates.length ? candidates : currentFocused.length ? currentFocused : allowed.filter((item) => item.stageOrder <= ceiling && !item.isMixed)
-  const item = cyclePick(usable, selectionIndex)
+  const usingTargetCandidates = candidates.length > 0
+  const usable = usingTargetCandidates ? candidates : currentFocused.length ? currentFocused : allowed.filter((item) => item.stageOrder <= ceiling && !item.isMixed)
+  const itemStage = usingTargetCandidates ? targetStage : currentStage
+  const item = cyclePick(usable, tacticThemeSelectionIndex(area, itemStage, selectionIndex, tacticThemeSelectionIndices))
   return { item, kind, currentStage, ceiling, mixedUnlocked, regression }
 }
 
@@ -194,7 +216,7 @@ export function selectCurriculumItem(input: CurriculumSelectionInput): Curriculu
   for (const area of candidateAreas) {
     if (excluded.has(area)) continue
     const selected = area === "mates" || area === "tactics"
-      ? chooseSequentialItem(area, input.state, selectionIndex, depthSelectionIndex)
+      ? chooseSequentialItem(area, input.state, selectionIndex, depthSelectionIndex, input.tacticThemeSelectionIndices)
       : chooseOtherAreaItem(area, input.state, selectionIndex)
     if (!selected?.item) continue
 

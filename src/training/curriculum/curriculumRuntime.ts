@@ -24,6 +24,7 @@ import {
 import {
   getCurriculumSelectionIndex,
   getCalculationDepthSelectionIndex,
+  getTacticThemeSelectionIndices,
   getOrCreateCurriculumState,
   reconcileCurriculumState,
   type CurriculumRatingReconciliation,
@@ -89,6 +90,7 @@ export type CurriculumRuntimeDependencies = {
   getState?: (userId: string) => Promise<PersistedCurriculum>
   getSelectionIndex?: (userId: string) => Promise<number>
   getDepthSelectionIndex?: (userId: string) => Promise<number>
+  getTacticThemeSelectionIndices?: (userId: string) => Promise<Partial<Record<1 | 2 | 3 | 4, number>>>
   getLegacyItem?: (userId: string) => Promise<NextDueItem | null>
   getDueReviewItem?: (userId: string) => Promise<NextDueItem | null>
   getM1LearnerCompletion?: (userId: string) => Promise<Record<string, { complete: boolean }>>
@@ -258,15 +260,17 @@ export async function getCurriculumDecisionForUser(
   })
   const getSelectionIndex = dependencies.getSelectionIndex ?? getCurriculumSelectionIndex
   const getDepthSelectionIndex = dependencies.getDepthSelectionIndex ?? getCalculationDepthSelectionIndex
+  const getThemeSelectionIndices = dependencies.getTacticThemeSelectionIndices ?? getTacticThemeSelectionIndices
   const getLegacyItem = dependencies.getLegacyItem ?? getNextDueItem
   const getDueReviewItem = dependencies.getDueReviewItem ?? getNextDueReviewItem
   const getM1LearnerCompletion = dependencies.getM1LearnerCompletion ?? readM1LearnerCompletion
 
   try {
-    const [persistedState, selectionIndex, depthSelectionIndex, m1LearnerCompletion, dueReview] = await Promise.all([
+    const [persistedState, selectionIndex, depthSelectionIndex, tacticThemeSelectionIndices, m1LearnerCompletion, dueReview] = await Promise.all([
       getState(userId),
       getSelectionIndex(userId),
       getDepthSelectionIndex(userId),
+      getThemeSelectionIndices(userId),
       getM1LearnerCompletion(userId),
       getDueReviewItem(userId),
     ])
@@ -278,6 +282,7 @@ export async function getCurriculumDecisionForUser(
       state: persisted.curriculum,
       selectionIndex,
       depthSelectionIndex,
+      tacticThemeSelectionIndices,
       excludedAreas: dependencies.excludedAreas,
     })
     if (!recommendation?.route || !recommendation.trainerKey) {
