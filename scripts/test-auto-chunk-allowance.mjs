@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { build } from 'esbuild'
-import { readFile } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 const state={calls:0,user:'fixture',allowed:true,fail:false}
 const result=await build({entryPoints:['src/training/autoChunkAllowance.ts'],bundle:true,write:false,format:'esm',platform:'node',plugins:[{name:'isolated-account',setup(b){
  b.onResolve({filter:/lib\/supabase$/},()=>({path:'quota-db',namespace:'fixture'}))
@@ -42,3 +42,18 @@ for (const file of ['src/trainers/patternMate/PatternMateTrainer.tsx','src/train
   'loading a due review must not reset mastery or advance scheduling')
 }
 console.log('PASS allowance client: exclusions, idempotent pending requests, continuation, cap, unavailable RPC, exact copy')
+async function runtimeFiles(dir){
+ const files=[]
+ for(const entry of await readdir(dir,{withFileTypes:true})){
+  const path=dir+'/'+entry.name
+  if(entry.isDirectory())files.push(...await runtimeFiles(path))
+  else if(/\.(?:ts|tsx|js|jsx|mjs)$/.test(path))files.push(path)
+ }
+ return files
+}
+for(const path of await runtimeFiles('src')){
+ assert.doesNotMatch(await readFile(path,'utf8'),/get_training_item_usage_status|reserve_training_item_usage|TrainingQuotaProvider|TrainingQuotaRouteGate|10 free training items|10 training items daily|free allowance resets/,path+' cannot reintroduce the retired item gate')
+}
+assert.match(await readFile('src/AppRouter.tsx','utf8'),/<AutoAllowanceBoundary key=\{user\?\.id \?\? "guest"\}>/)
+assert.match(await readFile('src/components/SiteAnalytics.tsx','utf8'),/addEventListener\('weiss:training-item-completed', reportCompletion\)/,'completion events remain available to Analytics')
+console.log('PASS whole-runtime audit: only chunk-admission enforcement, no retired item RPCs/screens; completion Analytics preserved')

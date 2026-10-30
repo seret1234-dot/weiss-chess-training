@@ -1,5 +1,4 @@
 import { VERIFIED_FINAL_TACTIC_COURSES } from "./generatedFinalVerifiedTaxonomy"
-import type { SiteExplanationKey } from "../../content/siteExplanations"
 import { resolveTacticExplanationKey } from "../../content/trainerExplanationKeys"
 
 export const patternTacticPageConfigs = {
@@ -1531,19 +1530,9 @@ const legacyPatternTacticConfigByRoute = {
  "m4/mixed": patternTacticPageConfigs.mixedM4,
 }
 
-// The full route catalog is active again. PatternTacticTrainer resolves each
-// route to the quality-filtered pre-cut curriculum; the generated final-v6
-// configs remain available above as immutable migration/reference evidence.
-export const patternTacticConfigByRoute = Object.fromEntries(
- Object.entries(legacyPatternTacticConfigByRoute).map(([route, config]) => {
-  const theme = route.split("/")[1] ?? ""
-  const explanationKey = resolveTacticExplanationKey(theme)
-  if (!explanationKey) throw new Error(`Missing tactic explanation mapping for ${route}`)
-  return [route, { ...config, explanationKey }]
- }),
-) as {
- [Route in keyof typeof legacyPatternTacticConfigByRoute]:
-  (typeof legacyPatternTacticConfigByRoute)[Route] & { explanationKey: SiteExplanationKey }
-}
+// Only reviewed final-v6 courses may mount a learner board. Historical
+// definitions remain above for progress migration/reference work, never as
+// learner-visible routes.
+export const patternTacticConfigByRoute = generatedVerifiedFinalConfigs
 
 export type PatternTacticPageConfigKey = keyof typeof patternTacticPageConfigs

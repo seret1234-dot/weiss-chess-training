@@ -36,7 +36,7 @@ export function useWeeklyReviewPlayback(options: Options) {
  const paused = state.paused
  const readingMs = weeklyReviewReadingMs(text)
  useEffect(() => {
-  if (!reviewKey || state.key !== reviewKey || paused || !visible || !ready || total < 1) return
+  if (!reviewKey || state.key !== reviewKey || paused || !visible || !ready || total < 0) return
   const timer = window.setTimeout(() => {
    if (ply < total) callbacks.current.advance(ply + 1)
    else if (sequentialThrough === total) callbacks.current.complete()

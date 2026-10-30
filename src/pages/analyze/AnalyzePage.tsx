@@ -259,7 +259,7 @@ boardWidth={boardSize}
  />
 
  <div className="analyze-home-primary-control" style={{ marginTop: 10 }}>
- <PrimaryButton onClick={startAnalysis}>Start Analysis</PrimaryButton>
+ <PrimaryButton data-primary-action="true" onClick={startAnalysis}>Start Analysis</PrimaryButton>
  </div>
 
  <div className="analyze-home-final-controls" style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>

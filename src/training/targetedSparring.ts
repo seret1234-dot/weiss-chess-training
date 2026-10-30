@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js'
 import { captureMaterialLoss } from '../lib/chess/captureMaterial'
+import { accountStorageKey } from '../auth/accountBrowserStorage'
 import type { Move, PieceSymbol, Square } from 'chess.js'
 import { supabase } from '../lib/supabase'
 import { TRAINER_CATALOG } from './trainerCatalog'
@@ -145,11 +146,11 @@ function targetFromTrainerKey(
  }
 }
 
-function readRecentAutoRecords(): RecentAutoRecord[] {
+function readRecentAutoRecords(userId?: string | null): RecentAutoRecord[] {
  if (typeof window === 'undefined') return []
 
  try {
-  const raw = window.localStorage.getItem(RECENT_AUTO_STORAGE_KEY)
+  const raw = window.localStorage.getItem(accountStorageKey(RECENT_AUTO_STORAGE_KEY, userId))
   if (!raw) return []
 
   const parsed = JSON.parse(raw)
@@ -173,20 +174,20 @@ function readRecentAutoRecords(): RecentAutoRecord[] {
  }
 }
 
-function writeRecentAutoRecords(records: RecentAutoRecord[]) {
+function writeRecentAutoRecords(records: RecentAutoRecord[], userId?: string | null) {
  if (typeof window === 'undefined') return
 
  window.localStorage.setItem(
-  RECENT_AUTO_STORAGE_KEY,
+  accountStorageKey(RECENT_AUTO_STORAGE_KEY, userId),
   JSON.stringify(records.slice(0, MAX_RECENT_RECORDS)),
  )
 }
 
-export function recordRecentAutoTrainer(trainerKey: string, route = '') {
+export function recordRecentAutoTrainer(trainerKey: string, route = '', userId?: string | null) {
  const target = targetFromTrainerKey(trainerKey, route)
  if (!target) return null
 
- const records = readRecentAutoRecords().filter(
+ const records = readRecentAutoRecords(userId).filter(
   (item) => item.trainerKey !== trainerKey,
  )
 
@@ -196,7 +197,7 @@ export function recordRecentAutoTrainer(trainerKey: string, route = '') {
   trainedAt: target.trainedAt,
  })
 
- writeRecentAutoRecords(records)
+ writeRecentAutoRecords(records, userId)
  return target
 }
 
@@ -220,15 +221,15 @@ function targetsFromRecords(records: RecentAutoRecord[], maxTargets: number) {
  return targets
 }
 
-export function getRecentTransferTargets(maxTargets = 2) {
- return targetsFromRecords(readRecentAutoRecords(), maxTargets)
+export function getRecentTransferTargets(maxTargets = 2, userId?: string | null) {
+ return targetsFromRecords(readRecentAutoRecords(userId), maxTargets)
 }
 
 export async function loadRecentTransferTargets(
  userId: string,
  maxTargets = 2,
 ): Promise<TransferTarget[]> {
- const localRecords = readRecentAutoRecords()
+ const localRecords = readRecentAutoRecords(userId)
  let cloudRecords: RecentAutoRecord[] = []
 
  try {

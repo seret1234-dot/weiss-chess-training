@@ -3,6 +3,7 @@ import { supabase } from './supabase'
 export const TRAINING_PROGRESS_FAST_TARGET = 5
 
 export type TrainingProgressSaveInput = {
+ userId?: string | null
  course: string
  theme: string
  itemId: string
@@ -22,6 +23,7 @@ export async function getCurrentUserId(): Promise<string | null> {
 }
 
 export async function saveTrainingProgress({
+ userId: expectedUserId,
  course,
  theme,
  itemId,
@@ -31,7 +33,7 @@ export async function saveTrainingProgress({
  intervalDays,
 }: TrainingProgressSaveInput): Promise<void> {
  const userId = await getCurrentUserId()
- if (!userId) return
+ if (!userId || (expectedUserId !== undefined && expectedUserId !== userId)) return
 
  const nowIso = new Date().toISOString()
 

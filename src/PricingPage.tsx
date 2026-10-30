@@ -463,7 +463,8 @@ export default function PricingPage() {
         <p style={subtitleStyle}>
           Unlimited puzzles, openings, master games and endgames,
           plus Auto Study, spaced repetition, progress tracking and
-          AI coach notes. Free accounts receive 10 training items daily.
+          AI coach notes. Free accounts can start 2 new Auto Training chunks per UTC day;
+          already-unlocked and due reviews remain available.
         </p>
 
         {activationMessage && (
@@ -621,8 +622,8 @@ const badgeStyle: React.CSSProperties = {
   position: "absolute",
   top: 16,
   right: 16,
-  background: "var(--theme-accent, #81b64c)",
-  color: "#fff",
+  background: "var(--action-selected-bg)",
+  color: "var(--action-secondary-text)",
   borderRadius: 999,
   padding: "6px 10px",
   fontSize: 11,
@@ -657,8 +658,8 @@ const primaryButtonStyle: React.CSSProperties = {
   border: "none",
   borderRadius: 13,
   padding: "14px 18px",
-  background: "var(--theme-accent, #81b64c)",
-  color: "#fff",
+  background: "var(--action-secondary-bg)",
+  color: "var(--action-secondary-text)",
   fontWeight: 800,
   fontSize: 15,
   cursor: "pointer",
@@ -669,8 +670,8 @@ const secondaryButtonStyle: React.CSSProperties = {
   border: "none",
   borderRadius: 12,
   padding: "13px 18px",
-  background: "var(--theme-accent, #81b64c)",
-  color: "#fff",
+  background: "var(--action-secondary-bg)",
+  color: "var(--action-secondary-text)",
   fontWeight: 800,
   cursor: "pointer",
 }
@@ -723,7 +724,7 @@ const checkoutSuccessStyle: React.CSSProperties = {
 
 const retryButtonStyle: React.CSSProperties = {
   display: "block", marginTop: 8, border: "none", borderRadius: 8,
-  padding: "7px 10px", background: "#81b64c", color: "#fff", fontWeight: 800, cursor: "pointer",
+  padding: "7px 10px", background: "var(--action-secondary-bg)", color: "var(--action-secondary-text)", fontWeight: 800, cursor: "pointer",
 }
 
 const statusStyle: React.CSSProperties = {

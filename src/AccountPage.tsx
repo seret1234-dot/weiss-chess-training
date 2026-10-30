@@ -465,6 +465,7 @@ export default function AccountPage() {
 
  <div className="account-page__actions" style={actionsRowStyle}>
  <button
+  className="account-save-action"
   onClick={() => {
    if (hasUnsavedConnectedAccounts || !hasSavedConnectedAccount) void save()
    else void importConnectedGames(savedChessComUsername, savedLichessUsername)
@@ -505,7 +506,7 @@ export default function AccountPage() {
     compact
    />
    <div style={actionsRowStyle}>
-    <button onClick={() => void saveTrainingGoals()} disabled={savingTrainingGoals} style={saveButtonStyle}>
+    <button className="account-save-action" onClick={() => void saveTrainingGoals()} disabled={savingTrainingGoals} style={saveButtonStyle}>
      {savingTrainingGoals ? "Saving training goals..." : "Save Training Goals"}
     </button>
    </div>
@@ -723,7 +724,7 @@ const saveButtonStyle: React.CSSProperties = {
  borderRadius: 12,
  padding: "13px 18px",
  background: "var(--theme-accent)",
- color: "var(--theme-text)",
+ color: "var(--theme-accent-text)",
  fontWeight: 800,
  fontSize: 14,
  cursor: "pointer",
@@ -846,8 +847,8 @@ const membershipPrimaryButtonStyle: React.CSSProperties = {
  border: "none",
  borderRadius: 11,
  padding: "11px 13px",
- background: "var(--theme-accent)",
- color: "#fff",
+ background: "var(--action-secondary-bg)",
+ color: "var(--action-secondary-text)",
  fontWeight: 800,
  cursor: "pointer",
 }

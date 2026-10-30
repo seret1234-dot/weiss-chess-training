@@ -638,7 +638,7 @@ boardWidth={boardSize}
  flexWrap: "wrap",
  }}
  >
- <PrimaryButton disabled={!fen} onClick={loadInSetup}>
+ <PrimaryButton data-primary-action={Boolean(fen)} disabled={!fen} onClick={loadInSetup}>
  Load in Setup
  </PrimaryButton>
 
@@ -763,6 +763,7 @@ boardWidth={boardSize}
 
  <div className="analyze-image-page__crop-primary-actions">
  <PrimaryButton
+ data-primary-action={!fen}
  disabled={loading || isApplyingCrop || (!processedImage && !completedCrop)}
  onClick={processedImage ? convertImage : applyCrop}
  >

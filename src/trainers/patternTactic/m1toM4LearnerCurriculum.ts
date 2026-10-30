@@ -1,4 +1,7 @@
 export const PATTERN_TACTIC_LEARNER_CHUNK_SIZE = 30
+// A reviewed course may have a short final chunk. Visibility is controlled by
+// the taxonomy's activation threshold, not by the nominal chunk size.
+const PATTERN_TACTIC_ACTIVATION_MINIMUM = 20
 
 import {
   VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY,
@@ -115,13 +118,16 @@ export type PatternTacticSemanticStatus = {
 }
 
 export function getPatternTacticSemanticStatus(theme: string, tacticDistance: 1 | 2 | 3 | 4): PatternTacticSemanticStatus {
-  const course = FULL_PATTERN_TACTIC_COURSE_BY_TRAINER_KEY[`tactic-${theme}-m${tacticDistance}`]
+  // Learner-facing availability is governed solely by the reviewed final-v6
+  // taxonomy.  Full/pre-cut data remains only for legacy progress migration;
+  // it must never make an unreviewed course discoverable again.
+  const course = VERIFIED_FINAL_TACTIC_COURSE_BY_TRAINER_KEY[`tactic-${theme}-m${tacticDistance}`]
   return {
-    version: "full-precut-v1",
-    active: Boolean(course && course.chunkCount > 0),
-    validator: course && course.chunkCount > 0
-      ? "pre-cut-membership-with-deterministic-invalid-exclusions"
-      : "pre-cut-course-unavailable",
+    version: "verified-final-v1",
+    active: Boolean(course && course.exerciseCount >= PATTERN_TACTIC_ACTIVATION_MINIMUM),
+    validator: course && course.exerciseCount >= PATTERN_TACTIC_ACTIVATION_MINIMUM
+      ? "verified-final-candidate-corpus"
+      : "verified-final-candidate-corpus-unavailable",
   }
 }
 

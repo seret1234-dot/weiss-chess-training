@@ -1,6 +1,7 @@
 import { Chess } from 'chess.js'
 import { pendingWeeklyReviewRoute, type WeeklyExplainedReview, type WeeklyAnalysisSnapshot } from './weeklyReviewFlow'
 import { supabase } from '../lib/supabase'
+import { readOwnedJson } from '../auth/accountBrowserStorage'
 import type { TransferOpportunity, TransferTarget } from './targetedSparring'
 import { deriveWeeklyAssessment, type WeeklyAssessment, type WeeklyReviewSummary, type WeeklySectionMultipliers } from './weeklyAssessment'
 
@@ -168,13 +169,11 @@ export function chooseNewestWeeklyTestState<T extends WeeklyStateLike>(
   : localState
 }
 
-function readLocalState(): WeeklyStateLike | null {
+function readLocalState(userId: string): WeeklyStateLike | null {
  if (typeof window === 'undefined') return null
 
  try {
-  const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY)
-  if (!raw) return null
-  return JSON.parse(raw) as WeeklyStateLike
+  return readOwnedJson<WeeklyStateLike>(window.localStorage, LOCAL_STORAGE_KEY, userId)
  } catch {
   return null
  }
@@ -258,7 +257,7 @@ export async function saveWeeklyTestToCloud(
  userId: string,
  state: WeeklyStateLike,
 ): Promise<boolean> {
- if (!state.weekKey) return false
+ if (!state.weekKey || (state.userId && state.userId !== userId)) return false
 
  const planSignals = state.planSignals ?? null
  const { error } = await supabase
@@ -295,10 +294,10 @@ export async function getWeeklyTestStatus(
  date = new Date(),
 ): Promise<WeeklyTestPlanStatus> {
  const weekKey = getCurrentWeekKey(date)
- const localState = readLocalState()
+ const localState = readLocalState(userId)
  const localForWeek =
   localState?.weekKey === weekKey &&
-  (!localState.userId || localState.userId === userId)
+  localState.userId === userId
    ? localState
    : null
 
@@ -524,9 +523,9 @@ function localPlanEvidence(
  multipliers: WeeklyPlanMultipliers
  completedAt: string | null
 } | null {
- const local = readLocalState()
+ const local = readLocalState(userId)
  if (!local?.completedAt) return null
- if (local?.userId && local.userId !== userId) return null
+ if (local?.userId !== userId) return null
  if (!local?.planSignals?.multipliers) return null
 
  return {

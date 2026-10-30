@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { getSpeechRecognition } from './speechRecognition'
+import { useAccountStorageKey } from '../../auth/AccountIdentityContext'
 
 export type TrainerInputMode = 'mouse' | 'voice' | 'both' | 'ai-voice' | 'ai-both'
 export const TRAINER_INPUT_MODE_KEY = 'weiss-chess-trainer-input-mode-v1'
@@ -9,14 +10,15 @@ export function resolveTrainerInputMode(value: string | null): TrainerInputMode 
   return import.meta.env?.DEV === true && (value === 'voice' || value === 'both') ? value : 'mouse'
 }
 export function useTrainerInputMode() {
+  const storageKey = useAccountStorageKey(TRAINER_INPUT_MODE_KEY)
   const [aiReady,setAiReady] = useState(false)
   const [mode, setModeState] = useState<TrainerInputMode>(() => {
-    try { return resolveTrainerInputMode(window.localStorage.getItem(TRAINER_INPUT_MODE_KEY)) } catch { return 'mouse' }
+    try { return resolveTrainerInputMode(window.localStorage.getItem(storageKey)) } catch { return 'mouse' }
   })
   function setMode(next: TrainerInputMode) {
     const available = resolveTrainerInputMode(next)
     setModeState(available)
-    try { window.localStorage.setItem(TRAINER_INPUT_MODE_KEY, available) } catch { /* Session-only fallback. */ }
+    try { window.localStorage.setItem(storageKey, available) } catch { /* Session-only fallback. */ }
   }
   return { mode, setMode, setAiReady, mouseEnabled: mode === 'ai-voice' ? !aiReady : mode !== 'voice' || !getSpeechRecognition() }
 }

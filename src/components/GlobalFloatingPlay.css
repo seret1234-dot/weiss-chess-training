@@ -133,30 +133,6 @@
 }
 
 /* The adaptive-course action is fixed independently of page layouts. */
-.auto-training-controller {
-  position: fixed;
-  left: 50%;
-  right: auto;
-  bottom: 20px;
-  max-width: calc(100vw - 32px);
-  box-sizing: border-box;
-  transform: translateX(-50%);
-}
-
-/* Board Vision and Opening Trainer provide this host in their control panel.
-   Keeping the course CTA in normal flow means it can never cover a square. */
-.trainer-completion-actions:has(.auto-training-controller) {
-  display: block;
-  margin: 0 0 12px;
-}
-
-.trainer-completion-actions .auto-training-controller {
-  position: static;
-  width: 100%;
-  max-width: 100%;
-  transform: none;
-}
-
 .global-mobile-nav {
   display: none;
 }
@@ -200,13 +176,6 @@
     min-height: 34px;
     padding: 6px 9px;
     font-size: 11px;
-  }
-
-  .auto-training-controller {
-    left: 50%;
-    right: auto;
-    bottom: calc(var(--site-fixed-bottom-clearance) + 12px);
-    max-width: calc(100vw - 24px);
   }
 
   .global-mobile-nav {
@@ -275,14 +244,8 @@
   }
 
   .global-mobile-nav__button--primary {
-    background:
-      linear-gradient(
-        180deg,
-        var(--theme-accent-strong),
-        var(--theme-accent)
-      );
-
-    color: var(--theme-accent-text);
+    background: var(--action-secondary-bg);
+    color: var(--action-secondary-text);
   }
 
   .global-mobile-nav__auth-error {
@@ -291,13 +254,8 @@
   }
 
   .global-mobile-nav__button--signup {
-    background:
-      linear-gradient(
-        180deg,
-        var(--theme-accent-strong),
-        var(--theme-accent)
-      );
-    color: var(--theme-accent-text);
+    background: var(--action-secondary-bg);
+    color: var(--action-secondary-text);
     line-height: 1.05;
     white-space: normal;
   }

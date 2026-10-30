@@ -26,7 +26,10 @@ const outDir = path.join(
 const chunkSize = 30
 const maxPuzzles = 1500
 const mateDistance = 5
-const solutionMoveCount = mateDistance * 2 - 1
+// Lichess `Moves` begins with the opponent/pre-move. Its remaining solution
+// tail can be longer than the minimum Mate-in-5 line, so preserve that entire
+// authoritative tail rather than using a fixed ply slice.
+const minimumSolutionMoveCount = mateDistance * 2 + 1
 const puzzles = []
 
 console.log("Using CSV:", csvPath)
@@ -75,8 +78,8 @@ rl.on("line", (line) => {
  .split(/\s+/)
  .filter(Boolean)
 
- // preMove + 9 solution moves for mate in 5
- if (moveTokens.length < 1 + solutionMoveCount) return
+ // preMove + at least 11 solution moves for mate in 5
+ if (moveTokens.length < 1 + minimumSolutionMoveCount) return
 
  puzzles.push({
  id: PuzzleId,
@@ -119,7 +122,7 @@ rl.on("close", () => {
  theme: "Back Rank Mate",
  chunkNumber,
  chunkIndex: indexInChunk,
- solutionLine: puzzle.moves.slice(1, 1 + solutionMoveCount),
+ solutionLine: puzzle.moves.slice(1),
  userMoveIndexes: [0, 2, 4, 6, 8],
 
  lichessId: puzzle.id,

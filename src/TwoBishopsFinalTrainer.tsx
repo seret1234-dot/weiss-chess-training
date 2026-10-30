@@ -1,4 +1,6 @@
 import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
+import { accountStorageKey } from './auth/accountBrowserStorage'
+import { useAccountIdentity } from './auth/AccountIdentityContext'
 import { useEndgameInput } from './trainers/endgame/useEndgameInput'
 import {
  BigMessage,
@@ -603,10 +605,10 @@ function getPuzzleProgress(map: Record<string, PuzzleProgress>, id: string): Puz
  return map[id] ?? { fastSolves: 0, totalSolves: 0, mastered: false }
 }
 
-async function loadStoredProgress(): Promise<Record<string, PuzzleProgress>> {
+async function loadStoredProgress(accountId: string | null): Promise<Record<string, PuzzleProgress>> {
  let localProgress: Record<string, PuzzleProgress> = {}
 
- const raw = localStorage.getItem(PROGRESS_KEY)
+ const raw = localStorage.getItem(accountStorageKey(PROGRESS_KEY, accountId))
  if (raw) {
  try {
  localProgress = JSON.parse(raw) as Record<string, PuzzleProgress>
@@ -618,7 +620,7 @@ async function loadStoredProgress(): Promise<Record<string, PuzzleProgress>> {
  const { data: authData } = await supabase.auth.getUser()
  const user = authData.user
 
- if (!user) return localProgress
+ if (!user || user.id !== accountId) return localProgress
 
  const { data, error } = await supabase
  .from('training_progress')
@@ -658,12 +660,12 @@ async function loadStoredProgress(): Promise<Record<string, PuzzleProgress>> {
  return merged
 }
 
-async function saveProgress(progressMap: Record<string, PuzzleProgress>) {
- localStorage.setItem(PROGRESS_KEY, JSON.stringify(progressMap))
+async function saveProgress(progressMap: Record<string, PuzzleProgress>, accountId: string | null) {
+ localStorage.setItem(accountStorageKey(PROGRESS_KEY, accountId), JSON.stringify(progressMap))
 
  const { data: authData } = await supabase.auth.getUser()
  const user = authData.user
- if (!user) return
+ if (!user || user.id !== accountId) return
 
  const rows = await buildEndgameProgressRows({
     userId: user.id,
@@ -804,6 +806,7 @@ function phaseTitle(mode: Mode, currentChunk: Phase1TrainerChunk | null) {
 }
 
 export default function TwoBishopsFinalTrainer() {
+ const accountId = useAccountIdentity()
  const admitAutoChunk = useAutoChunkAdmission()
  const phase1Chunks = useMemo(() => buildPhase1TrainerChunks(), [])
  const phase2 = useMemo(() => buildFreeplaySet(phase2Data as FreeplayFile), [])
@@ -877,7 +880,7 @@ export default function TwoBishopsFinalTrainer() {
 
  useEffect(() => {
  async function bootProgress() {
- const stored = await loadStoredProgress()
+ const stored = await loadStoredProgress(accountId)
  setProgressMap(stored)
  setProgressLoaded(true)
  }
@@ -887,7 +890,7 @@ export default function TwoBishopsFinalTrainer() {
 
  useEffect(() => {
  if (!progressLoaded) return
- void saveProgress(progressMap)
+ void saveProgress(progressMap, accountId)
  }, [progressMap, progressLoaded])
 
  useEffect(() => {

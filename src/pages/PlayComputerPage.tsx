@@ -6,11 +6,15 @@ import ThemedChessboard from "../theme/ThemedChessboard"
 import PromotionChooser, { type PromotionPiece } from '../components/chess/PromotionChooser'
 import './PlayComputerPage.css'
 import { stockfishService } from '../lib/chess/stockfishService'
+import { getGameResult } from '../lib/chess/gameResult'
 import { supabase } from '../lib/supabase'
+import { useAccountIdentity } from '../auth/AccountIdentityContext'
+import { accountStorageKey, readOwnedJson, writeOwnedJson } from '../auth/accountBrowserStorage'
 import { explainedReviewResolved, pendingWeeklyReviewRoute, weeklyReviewRoute, type WeeklyExplainedReview } from '../training/weeklyReviewFlow'
 import { AUTO_TRAINING_ENTRY_ROUTE } from '../training/resolveAutoStartRoute'
 import { useGlobalBoard } from '../hooks/useGlobalBoard'
-import { useHintAction } from '../context/HintActionContext'
+import { readNormalPlaySession, restoreNormalPlaySession, saveNormalPlaySession, normalPlaySessionShouldStart } from '../utils/playComputerSession'
+import { autoGameReviewRoute, saveAutoGameResult } from '../training/autoGameReview'
 import {
  buildWeeklyPlanSignals,
  chooseNewestWeeklyTestState,
@@ -45,7 +49,10 @@ const PLAY_COMPUTER_MOBILE_BREAKPOINT = 768
 const PLAY_COMPUTER_DEFAULT_BOARD_SIZE = 820
 const PLAY_COMPUTER_MAX_BOARD_SIZE = 920
 
-function getInitialPlayComputerBoardSize() {
+function getInitialPlayComputerBoardSize(compactLandscape = false) {
+ if (typeof window !== 'undefined' && compactLandscape && window.innerWidth <= 1024 && window.innerHeight <= 600 && window.innerWidth > window.innerHeight) {
+  return Math.min(window.innerWidth - 16, Math.max(192, window.innerHeight - 156))
+ }
  if (typeof window === 'undefined' || window.innerWidth > PLAY_COMPUTER_MOBILE_BREAKPOINT) {
   return PLAY_COMPUTER_DEFAULT_BOARD_SIZE
  }
@@ -110,8 +117,8 @@ function emptyWeeklyGame(color: Side, transferTarget?: TransferTarget): WeeklyGa
  }
 }
 
-function createWeeklyTestState(weekKey: string, engineElo: number): WeeklyTestState {
- const transferTargets = getRecentTransferTargets(2)
+function createWeeklyTestState(weekKey: string, engineElo: number, userId: string | null): WeeklyTestState {
+ const transferTargets = getRecentTransferTargets(2, userId)
  return {
  reviewFlowVersion: 1,
  weekKey,
@@ -126,18 +133,16 @@ function createWeeklyTestState(weekKey: string, engineElo: number): WeeklyTestSt
  }
 }
 
-function loadWeeklyTestState(weekKey: string, engineElo: number): WeeklyTestState {
+function loadWeeklyTestState(weekKey: string, engineElo: number, userId: string | null): WeeklyTestState {
  try {
- const raw = window.localStorage.getItem(WEEKLY_TEST_STORAGE_KEY)
- if (!raw) return createWeeklyTestState(weekKey, engineElo)
-
- const parsed = JSON.parse(raw) as WeeklyTestState
+ const parsed = readOwnedJson<WeeklyTestState>(window.localStorage, WEEKLY_TEST_STORAGE_KEY, userId)
+ if (!parsed) return createWeeklyTestState(weekKey, engineElo, userId)
  if (
  parsed.weekKey !== weekKey ||
  !Array.isArray(parsed.games) ||
  parsed.games.length !== 2
  ) {
- return createWeeklyTestState(weekKey, engineElo)
+ return createWeeklyTestState(weekKey, engineElo, userId)
  }
 
  return {
@@ -164,21 +169,12 @@ function loadWeeklyTestState(weekKey: string, engineElo: number): WeeklyTestStat
   .filter((target): target is TransferTarget => Boolean(target)),
  }
  } catch {
- return createWeeklyTestState(weekKey, engineElo)
+ return createWeeklyTestState(weekKey, engineElo, userId)
  }
 }
 
 function saveWeeklyTestState(state: WeeklyTestState) {
- window.localStorage.setItem(WEEKLY_TEST_STORAGE_KEY, JSON.stringify(state))
-}
-
-function getGameResult(chess: Chess) {
- if (chess.isCheckmate()) {
- return chess.turn() === 'w' ? '0-1' : '1-0'
- }
-
- if (chess.isDraw()) return '1/2-1/2'
- return '*'
+ writeOwnedJson(window.localStorage, WEEKLY_TEST_STORAGE_KEY, state)
 }
 
 function chessFromWeeklyGame(record?: WeeklyGameRecord) {
@@ -474,6 +470,7 @@ function EmptyCapturedRow() {
 }
 
 export default function PlayComputerPage() {
+ const accountId = useAccountIdentity()
  const location = useLocation()
  const navigate = useNavigate()
  const searchParams = new URLSearchParams(location.search)
@@ -481,8 +478,9 @@ export default function PlayComputerPage() {
  const isWeeklyTest = searchParams.get('weekly') === '1'
  const isEndgameTransfer = searchParams.get('endgameTransfer') === '1'
  const isAssessment = isWeeklyTest || isEndgameTransfer
+ const isAutoGame = !isWeeklyTest && searchParams.get('auto') === '1'
  const initialEndgameTransfer = isEndgameTransfer
-  ? loadEndgameTransferSession()
+  ? loadEndgameTransferSession(accountId)
   : null
  const continueWeeklyGameTwo = searchParams.get('continue') === '2'
  const weeklyWeekKey = getCurrentWeekKey()
@@ -492,7 +490,7 @@ export default function PlayComputerPage() {
  Math.min(3000, Number.isFinite(requestedWeeklyElo) ? requestedWeeklyElo : 1500),
  )
  const initialWeeklyTest = isWeeklyTest
- ? loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo)
+ ? loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo, accountId)
  : null
  const initialWeeklyGameIndex: 0 | 1 =
  initialWeeklyTest?.currentGame === 1 || initialWeeklyTest?.currentGame === 2 ? 1 : 0
@@ -520,20 +518,26 @@ export default function PlayComputerPage() {
  const initialMode: Mode =
  queryMode === 'analyze' || stateMode === 'analyze' ? 'analyze' : 'play'
 
+ const [normalResume] = useState(() => !isAssessment && initialMode === 'play' ? readNormalPlaySession(initialFen, accountId, isAutoGame) : null)
+ const [normalGameId] = useState(() => normalResume?.gameId || crypto.randomUUID())
+ const autoReviewLaunchedRef = useRef(false)
+ const appliedEntryRef = useRef(location.key)
+ const [settingsOpen, setSettingsOpen] = useState(false)
+
  const containerRef = useRef<HTMLDivElement | null>(null)
  const chessRef = useRef(
  isWeeklyTest
   ? chessFromWeeklyGame(initialWeeklyRecord)
   : isEndgameTransfer
   ? chessFromEndgameTransfer(initialEndgameTransfer)
-  : makeChessSafe(initialFen),
+  : normalResume ? restoreNormalPlaySession(normalResume) : makeChessSafe(initialFen),
  )
  const endgameTransferFinishedRef = useRef(false)
  const engineMovePendingRef = useRef(false)
  const evalPendingRef = useRef(false)
  const weeklyCloudSaveTimerRef = useRef<number | null>(null)
  const weeklyCloudSavePendingRef = useRef<Promise<boolean>>(Promise.resolve(true))
- const weeklyAutoReviewTimerRef = useRef<number | null>(null)
+ const weeklyReviewNavigationEpochRef = useRef(0)
  const weeklyAutoReviewLaunchRef = useRef<string | null>(null)
  const weeklyTransferOpportunitiesRef = useRef<TransferOpportunity[]>(
   initialWeeklyRecord?.transferOpportunities ?? [],
@@ -542,7 +546,7 @@ export default function PlayComputerPage() {
  const initialAutoStart =
  !isWeeklyTest &&
  initialMode === 'play' &&
- (Boolean(initialEndgameTransfer) || queryAutoStart || stateAutoStart || Boolean(initialFen))
+ (!isAssessment || Boolean(initialEndgameTransfer) || queryAutoStart || stateAutoStart || Boolean(initialFen))
 
  const [weeklyTest, setWeeklyTest] = useState<WeeklyTestState | null>(initialWeeklyTest)
  const [endgameTransfer, setEndgameTransfer] = useState<EndgameTransferSession | null>(
@@ -552,22 +556,22 @@ export default function PlayComputerPage() {
  const [weeklyCloudReady, setWeeklyCloudReady] = useState(false)
  const [weeklyCloudAvailable, setWeeklyCloudAvailable] = useState(false)
  const [gameStarted, setGameStarted] = useState(
- isWeeklyTest ? Boolean(initialWeeklyRecord?.started) : initialMode === 'analyze' || initialAutoStart,
+ isWeeklyTest ? Boolean(initialWeeklyRecord?.started) : normalResume ? normalPlaySessionShouldStart(normalResume) : (initialMode === 'analyze' || initialAutoStart),
  )
  const [mode, setMode] = useState<Mode>(initialMode)
 
  const [playerColor, setPlayerColor] = useState<Side>(
- isWeeklyTest ? initialWeeklyColor : suggestedColor || 'white',
+ isWeeklyTest ? initialWeeklyColor : normalResume?.playerColor || suggestedColor || 'white',
  )
  const [boardOrientation, setBoardOrientation] = useState<Side>(
- isWeeklyTest ? initialWeeklyColor : suggestedColor || 'white',
+ isWeeklyTest ? initialWeeklyColor : normalResume?.orientation || suggestedColor || 'white',
  )
  const [engineElo, setEngineElo] = useState(
  isWeeklyTest
   ? initialWeeklyTest?.engineElo || weeklyDefaultElo
-  : initialEndgameTransfer?.engineElo || (initialFen ? 3000 : 1500),
+  : initialEndgameTransfer?.engineElo || normalResume?.engineElo || (initialFen ? 3000 : 1500),
  )
- const [boardSize, setBoardSize] = useState(getInitialPlayComputerBoardSize)
+ const [boardSize, setBoardSize] = useState(() => getInitialPlayComputerBoardSize(!isAssessment && initialMode === 'play'))
  const desktopBoardSizeRef = useRef(PLAY_COMPUTER_DEFAULT_BOARD_SIZE)
 
  const [position, setPosition] = useState(chessRef.current.fen())
@@ -582,7 +586,6 @@ export default function PlayComputerPage() {
  const [moveList, setMoveList] = useState<string[]>(chessRef.current.history())
  const [selectedHistoryPly, setSelectedHistoryPly] = useState<number | null>(null)
  const [evalText, setEvalText] = useState('-')
- const [hintArrow, setHintArrow] = useState<any[]>([])
  const [showEvalBar, setShowEvalBar] = useState(!isAssessment)
  const [statusText, setStatusText] = useState(
  isWeeklyTest
@@ -600,8 +603,8 @@ export default function PlayComputerPage() {
  : initialFen
  ? initialMode === 'analyze'
  ? 'Position loaded for analysis.'
- : 'Position loaded. Choose settings and start.'
- : 'Choose settings and start a game',
+ : normalResume?.status || 'Loading engine...'
+ : normalResume?.status || 'Loading engine...',
  )
  const [isDragging, setIsDragging] = useState(false)
  const [lastMoveHighlight, setLastMoveHighlight] = useState<string | null>(null)
@@ -613,7 +616,9 @@ export default function PlayComputerPage() {
  const weeklyGameNumber = weeklyGameIndex + 1
  const weeklySessionComplete = weeklyTest?.currentGame === 2
  const weeklyReviewPending = Boolean(weeklyTest && pendingWeeklyReviewRoute(weeklyTest))
- const weeklyInputReady = !isWeeklyTest || (weeklyCloudReady && engineReady && gameStarted && !weeklyReviewPending)
+ const weeklyInputReady = isWeeklyTest
+  ? (weeklyCloudReady && engineReady && gameStarted && !weeklyReviewPending)
+  : mode === 'analyze' || (engineReady && gameStarted)
  const weeklyTransferTarget = weeklyTest?.games[weeklyGameIndex]?.transferTarget
  const weeklyTransferOpportunities =
   weeklyTest?.games[weeklyGameIndex]?.transferOpportunities ?? []
@@ -663,7 +668,6 @@ export default function PlayComputerPage() {
  setPosition(restored.fen())
  setMoveList(restored.history())
  setLastMoveHighlight(null)
- setHintArrow([])
  clearSelection()
  setGameStarted(Boolean(record.started))
  setStatusText(
@@ -721,7 +725,7 @@ export default function PlayComputerPage() {
 
  function markWeeklyAutoReviewOpened(gameIndex: 0 | 1) {
  const openedAt = new Date().toISOString()
- const previous = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo)
+ const previous = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo, accountId)
  const games: [WeeklyGameRecord, WeeklyGameRecord] = [
  { ...previous.games[0] },
  { ...previous.games[1] },
@@ -746,37 +750,38 @@ export default function PlayComputerPage() {
  }
 
  function scheduleWeeklyAutomaticReview(chess: Chess, gameIndex: 0 | 1) {
- if (!isWeeklyTest || !chess.isGameOver()) return
+ if (!isWeeklyTest) return
+ const record = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo, accountId).games[gameIndex]
+ // Completion belongs to the saved assessment, not only to board termination:
+ // a resignation has a result but chess.js correctly keeps a non-terminal board.
+ if (!record.completed || !['1-0', '0-1', '1/2-1/2'].includes(record.result) || explainedReviewResolved(record)) return
 
- const pgn = chess.pgn()
+ const pgn = record.pgn
  if (!pgn.trim()) return
 
- const launchKey = `${weeklyWeekKey}:${gameIndex}:${chess.history().length}:${getGameResult(chess)}`
+ const launchKey = `${weeklyWeekKey}:${gameIndex}:${pgn}`
  if (weeklyAutoReviewLaunchRef.current === launchKey) return
 
  weeklyAutoReviewLaunchRef.current = launchKey
- setStatusText('Game complete. Automatic review starting...')
-
- if (weeklyAutoReviewTimerRef.current !== null) {
- window.clearTimeout(weeklyAutoReviewTimerRef.current)
- }
-
- weeklyAutoReviewTimerRef.current = window.setTimeout(async () => {
- weeklyAutoReviewTimerRef.current = null
+ setStatusText('Analyzing your game…')
+ const epoch = weeklyReviewNavigationEpochRef.current
+ void (async () => {
  const snapshot = markWeeklyAutoReviewOpened(gameIndex)
  if (weeklyCloudSaveTimerRef.current !== null) {
   window.clearTimeout(weeklyCloudSaveTimerRef.current); weeklyCloudSaveTimerRef.current = null
  }
  // Analyze now restores from the durable game, so flush its final snapshot before navigating.
  await weeklyCloudSavePendingRef.current.catch(() => false)
+ if (epoch !== weeklyReviewNavigationEpochRef.current) return
  if (!snapshot.userId || !await saveWeeklyTestToCloud(snapshot.userId, snapshot)) {
   weeklyAutoReviewLaunchRef.current = null
   setStatusText('Could not save the completed Weekly game. Reopen Weekly Test to retry.')
   return
  }
- window.sessionStorage.setItem('weissAnalyzeReviewPgn', pgn)
+ if (epoch !== weeklyReviewNavigationEpochRef.current) return
+ window.sessionStorage.setItem(accountStorageKey('weissAnalyzeReviewPgn', accountId), pgn)
  window.sessionStorage.setItem(
- 'weissWeeklyReviewContext',
+ accountStorageKey('weissWeeklyReviewContext', accountId),
  JSON.stringify({
  weekKey: weeklyWeekKey,
  gameIndex,
@@ -786,20 +791,21 @@ export default function PlayComputerPage() {
  }),
  )
  navigate(weeklyReviewRoute(weeklyWeekKey, gameIndex))
- }, 850)
+ })()
  }
 
- function saveWeeklySnapshot(chess: Chess, started = true) {
+ function saveWeeklySnapshot(chess: Chess, started = true, completionResult?: '1-0' | '0-1' | '1/2-1/2') {
  if (!isWeeklyTest) return
 
- setWeeklyTest((previous) => {
- if (!previous) return previous
+ // Commit locally synchronously before the completion launcher reads the game.
+ // React state-updater execution is not a persistence/ordering guarantee.
+ const previous = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo, accountId)
 
  const gameIndex: 0 | 1 =
  previous.currentGame === 1 || previous.currentGame === 2 ? 1 : 0
  const color: Side = gameIndex === 0 ? 'white' : 'black'
- const completed = chess.isGameOver()
- const result = getGameResult(chess)
+ const completed = Boolean(completionResult) || chess.isGameOver()
+ const result = completionResult || getGameResult(chess)
 
  setWeeklyHeaders(chess, color, result)
 
@@ -843,18 +849,18 @@ export default function PlayComputerPage() {
  }
 
  saveWeeklyTestState(next)
- queueWeeklyCloudSave(next)
- return next
- })
+ setWeeklyTest(next)
+ // Final result is flushed once by the shared review handoff, after older saves.
+ if (!completed) queueWeeklyCloudSave(next)
  }
 
  function openWeeklyReview(gameIndex: 0 | 1) {
  const record = weeklyTest?.games[gameIndex]
  if (!record?.completed || !record.pgn) return
 
- window.sessionStorage.setItem('weissAnalyzeReviewPgn', record.pgn)
+ window.sessionStorage.setItem(accountStorageKey('weissAnalyzeReviewPgn', accountId), record.pgn)
  window.sessionStorage.setItem(
- 'weissWeeklyReviewContext',
+ accountStorageKey('weissWeeklyReviewContext', accountId),
  JSON.stringify({
  weekKey: weeklyWeekKey,
  gameIndex,
@@ -878,7 +884,7 @@ export default function PlayComputerPage() {
 
  if (cancelled) return
 
- if (!user) {
+ if (!user || user.id !== accountId) {
  setWeeklyCloudAvailable(false)
  setWeeklyCloudReady(true)
  return
@@ -894,9 +900,10 @@ export default function PlayComputerPage() {
 
  if (cancelled) return
 
- const latestLocal = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo)
+ const latestLocal = loadWeeklyTestState(weeklyWeekKey, weeklyDefaultElo, accountId)
  const newest = chooseNewestWeeklyTestState(latestLocal, cloudState)
  const recentTargets = await loadRecentTransferTargets(user.id, 2)
+ if (cancelled) return
  const mergedTargets = newest.transferTargets?.length
   ? newest.transferTargets
   : recentTargets
@@ -955,16 +962,14 @@ export default function PlayComputerPage() {
 
  return () => {
  cancelled = true
+ weeklyReviewNavigationEpochRef.current++
+ weeklyAutoReviewLaunchRef.current = null
  if (weeklyCloudSaveTimerRef.current !== null) {
  window.clearTimeout(weeklyCloudSaveTimerRef.current)
  weeklyCloudSaveTimerRef.current = null
  }
- if (weeklyAutoReviewTimerRef.current !== null) {
- window.clearTimeout(weeklyAutoReviewTimerRef.current)
- weeklyAutoReviewTimerRef.current = null
  }
- }
- }, [isWeeklyTest, weeklyWeekKey, weeklyDefaultElo, continueWeeklyGameTwo])
+ }, [isWeeklyTest, weeklyWeekKey, weeklyDefaultElo, continueWeeklyGameTwo, accountId])
 
  useEffect(() => {
  if (!isWeeklyTest || !weeklyCloudReady || !weeklyTest) return
@@ -991,12 +996,14 @@ export default function PlayComputerPage() {
  if (!record?.pgn || record.autoReviewOpenedAt) return
 
  const restored = chessFromWeeklyGame(record)
+ // Preserve pre-explained-review historical behavior; only flow v1 uses the
+ // persisted completion/result path above for non-terminal finished positions.
  if (!restored.isGameOver()) return
-
  scheduleWeeklyAutomaticReview(restored, gameIndex)
  }, [
  isWeeklyTest,
  weeklyCloudReady,
+ weeklyTest,
  weeklyTest?.weekKey,
  weeklyTest?.currentGame,
  weeklyTest?.games[0]?.completed,
@@ -1006,7 +1013,7 @@ export default function PlayComputerPage() {
  ])
 
  useEffect(() => {
- if (!isWeeklyTest && suggestedColor) {
+ if (!isWeeklyTest && suggestedColor && !normalResume) {
  setPlayerColor(suggestedColor)
  setBoardOrientation(suggestedColor)
  }
@@ -1014,6 +1021,9 @@ export default function PlayComputerPage() {
 
  useEffect(() => {
  if (isWeeklyTest) return
+ // The initial board (including a resumed PGN) was already constructed above.
+ if (appliedEntryRef.current === location.key) return
+ appliedEntryRef.current = location.key
 
  const params = new URLSearchParams(location.search)
 
@@ -1047,14 +1057,14 @@ export default function PlayComputerPage() {
  setStatusText(
  nextMode === 'analyze'
  ? 'Position loaded for analysis.'
- : 'Position loaded. Choose settings and start.'
+ : 'Position loaded.'
  )
 
  if (nextColor) {
  setPlayerColor(nextColor)
  setBoardOrientation(nextColor)
  }
- }, [isWeeklyTest, location.search, location.state])
+ }, [isWeeklyTest, location.key, location.search, location.state])
 
  useEffect(() => {
  stockfishService
@@ -1067,6 +1077,44 @@ export default function PlayComputerPage() {
  setStatusText('Engine failed to load')
  })
  }, [])
+
+ useEffect(() => {
+  if (!isAssessment && mode === 'play' && engineReady && gameStarted) updateGameStateLabels()
+ }, [isAssessment, mode, engineReady, gameStarted])
+
+ useEffect(() => {
+  if (isAssessment || mode !== 'play' || !engineReady) return
+  saveNormalPlaySession({
+   gameId: normalGameId,
+   entryFen: initialFen?.trim() || new Chess().fen(),
+   fen: chessRef.current.fen(), pgn: chessRef.current.pgn(),
+   playerColor, orientation: boardOrientation, engineElo, started: gameStarted, status: statusText,
+  }, accountId, isAutoGame)
+ }, [isAssessment, mode, engineReady, position, moveList, playerColor, boardOrientation, engineElo, gameStarted, statusText, initialFen])
+
+ useEffect(() => {
+  if (!isAutoGame || !accountId || !engineReady || mode !== 'play' || autoReviewLaunchedRef.current) return
+  if (isEndgameTransfer && endgameTransfer?.status !== 'completed') return
+  const current = chessRef.current
+  const recorded = current.getHeaders().Result
+  if (!current.isGameOver() && !(!gameStarted && ['1-0', '0-1', '1/2-1/2'].includes(recorded))) return
+  try {
+   const result = current.isGameOver() ? getGameResult(current) : recorded
+   const completed = new Chess(); completed.loadPgn(current.pgn())
+   completed.header('Result', result)
+   const pgn = completed.pgn(), id = endgameTransfer?.sessionId || normalGameId
+   // Save the completed PGN before navigation. Weekly/transfer evidence remains
+   // owned by its existing persistence path, not this review-resume adapter.
+   saveAutoGameResult({ userId: accountId, id, pgn, result, playerColor })
+   if (!isAssessment) saveNormalPlaySession({ gameId: normalGameId,
+    entryFen: initialFen?.trim() || new Chess().fen(), fen: completed.fen(), pgn,
+    playerColor, orientation: boardOrientation, engineElo, started: false, status: 'Analyzing your game…',
+   }, accountId, true)
+   autoReviewLaunchedRef.current = true
+   setStatusText('Analyzing your game…')
+   navigate(autoGameReviewRoute(id), { replace: true })
+  } catch (error) { setStatusText(`Could not save your completed Auto game: ${error instanceof Error ? error.message : String(error)}`) }
+ }, [isAutoGame, accountId, engineReady, mode, position, gameStarted, endgameTransfer?.status, statusText])
 
  useEffect(() => {
   if (!isEndgameTransfer || !endgameTransfer || !gameStarted) return
@@ -1110,10 +1158,8 @@ export default function PlayComputerPage() {
 
  useEffect(() => {
   function syncBoardSizeToViewport() {
-   if (window.innerWidth <= PLAY_COMPUTER_MOBILE_BREAKPOINT) {
-    setBoardSize(
-     Math.min(PLAY_COMPUTER_MAX_BOARD_SIZE, Math.max(0, window.innerWidth - 16)),
-    )
+   if (window.innerWidth <= PLAY_COMPUTER_MOBILE_BREAKPOINT || (!isAssessment && mode === 'play' && window.innerWidth <= 1024 && window.innerHeight <= 600)) {
+    setBoardSize(getInitialPlayComputerBoardSize(!isAssessment && mode === 'play'))
     return
    }
 
@@ -1261,7 +1307,6 @@ export default function PlayComputerPage() {
  }
 
  function syncFromGame() {
- setHintArrow([])
  setPosition(chessRef.current.fen())
  setMoveList(chessRef.current.history())
  setSelectedHistoryPly(null)
@@ -1346,7 +1391,6 @@ export default function PlayComputerPage() {
  setEngineThinking(false)
  setEvalText('-')
  setLastMoveHighlight(null)
- setHintArrow([])
  clearSelection()
  setGameStarted(true)
 
@@ -1359,93 +1403,6 @@ export default function PlayComputerPage() {
  }
  }
  
-async function getBestMoveHint() {
- if (isAssessment) return null
- if (engineThinking || engineMovePendingRef.current) return null
-
- const fen = chessRef.current.fen()
-
- try {
- setHintArrow([])
- setStatusText('Engine hint thinking - ')
-
- await stockfishService.init()
-
- // Stop any eval search first, then ask for the real best move.
- stockfishService.stop()
-
- // Hint should be full-strength, not limited by current play Elo.
- ;(stockfishService as any).send?.('setoption name UCI_LimitStrength value false')
- ;(stockfishService as any).send?.('setoption name Skill Level value 20')
-
- stockfishService.setSkill({
- skillLevel: 20,
- moveTime: 1800,
- })
-
- const result = await stockfishService.getBestMove(fen)
- const bestMove = result.bestMove || ''
-
- if (!bestMove || bestMove.length < 4) {
- setStatusText('No engine hint found.')
- return null
- }
-
- const from = bestMove.slice(0, 2)
- const to = bestMove.slice(2, 4)
- const promotion = bestMove.length > 4 ? bestMove.slice(4, 5) : undefined
-
- const temp = new Chess(fen)
- const move = temp.move({
- from,
- to,
- promotion,
- })
-
- if (!move) {
- setStatusText('Engine returned illegal hint.')
- setHintArrow([])
- return null
- }
-
- return { from, to }
- } catch {
- setStatusText('Could not calculate engine hint.')
- return null
- } finally {
- // Restore normal play strength after hint.
- ;(stockfishService as any).send?.('setoption name UCI_LimitStrength value true')
- ;(stockfishService as any).send?.(`setoption name UCI_Elo value ${engineElo}`)
-
- stockfishService.setSkill({
- skillLevel: 20,
- moveTime: engineElo >= 2500 ? 450 : 250,
- })
- }
-}
-
-const { triggerHint: triggerBestMoveHint } = useHintAction(
- !isAssessment && gameStarted
- ? {
- getHintMove: getBestMoveHint,
- onHintStage: (move, stage) => {
- setHintArrow(
- stage === 'square'
- ? [[move.from, move.to, 'rgba(255, 215, 0, 0.95)']]
- : [],
- )
- setStatusText(
- stage === 'piece'
- ? 'The engine-recommended piece is highlighted.'
- : 'The engine-recommended destination is highlighted.',
- )
- },
- onHintReset: () => setHintArrow([]),
- disabled: !engineReady || engineThinking,
- resetKey: `${position}:${initialFen ?? ''}:${mode}:${gameStarted}`,
- }
- : null,
-)
 
 
 type ComputerMoveChoice = {
@@ -1750,7 +1707,6 @@ async function makeEngineMove() {
  )
  setEvalText('-')
  setLastMoveHighlight(null)
- setHintArrow([])
  clearSelection()
  if (isWeeklyTest) {
   weeklyTransferOpportunitiesRef.current =
@@ -1794,25 +1750,7 @@ async function makeEngineMove() {
 
  function handleSetup() {
  if (isAssessment) return
-
- if (mode === 'play') {
-  const setupGame = new Chess()
-
-  chessRef.current = setupGame
-  setGameStarted(false)
-  setPosition(setupGame.fen())
-  setMoveList([])
-  setSelectedHistoryPly(null)
-  setEvalText('-')
-  setLastMoveHighlight(null)
-  setHintArrow([])
-  clearSelection()
-  setStatusText('Choose settings and start a game')
-
-  navigate(location.pathname, { replace: true, state: null })
-  return
- }
-
+ if (mode === 'play') { setSettingsOpen(true); return }
  setGameStarted(true)
  setStatusText('Analysis mode')
  refreshEval()
@@ -1848,10 +1786,10 @@ async function makeEngineMove() {
 
  const pgn = game.pgn()
 
- window.sessionStorage.setItem('weissAnalyzeReviewPgn', pgn)
- window.sessionStorage.removeItem('weissWeeklyReviewContext')
+ window.sessionStorage.setItem(accountStorageKey('weissAnalyzeReviewPgn', accountId), pgn)
+ window.sessionStorage.removeItem(accountStorageKey('weissWeeklyReviewContext', accountId))
  window.sessionStorage.setItem(
-  'weissPlayComputerReviewContext',
+  accountStorageKey('weissPlayComputerReviewContext', accountId),
   JSON.stringify({
    playerColor,
    engineElo,
@@ -1864,6 +1802,14 @@ async function makeEngineMove() {
  }
 
  function handleResign() {
+ if (isWeeklyTest) {
+  if (!weeklyInputReady || engineThinking || engineMovePendingRef.current || chessRef.current.history().length === 0) return
+  const result = playerColor === 'white' ? '0-1' : '1-0'
+  saveWeeklySnapshot(chessRef.current, true, result)
+  setGameStarted(false)
+  scheduleWeeklyAutomaticReview(chessRef.current, weeklyGameIndex)
+  return
+ }
  if (isAssessment) return
 
  const result = playerColor === 'white' ? '0-1' : '1-0'
@@ -2089,7 +2035,6 @@ async function makeEngineMove() {
  setLastMoveHighlight(
   selectedMove.from + selectedMove.to + (selectedMove.promotion ?? ''),
  )
- setHintArrow([])
  clearSelection()
 
  if (!isAssessment) {
@@ -2150,13 +2095,15 @@ async function makeEngineMove() {
  return (
  <div
  className="play-computer-page site-mobile-dock-scroll"
+ data-normal-play={!isAssessment && mode === 'play' ? 'true' : undefined}
  style={{
  minHeight: '100vh',
  background: '#11110f',
  color: 'white',
  padding: '18px 20px 40px',
  cursor: isDragging ? 'col-resize' : 'default',
- }}
+ '--play-board-size': `${boardSize}px`,
+ } as React.CSSProperties}
  >
  <div className="play-computer-title-row" style={{ maxWidth: 1440, margin: '0 auto 10px' }}>
  <div className="play-computer-title" style={pageTitleStyle}>
@@ -2320,7 +2267,7 @@ boardWidth={boardSize}
  arePiecesDraggable={weeklyInputReady && (gameStarted || mode === 'analyze')}
 
  customSquareStyles={gameStarted || mode === 'analyze' ? customSquareStyles : {}}
- customArrows={(isAssessment ? [] : hintArrow) as any}
+ customArrows={[]}
  animationDuration={220}
  customDarkSquareStyle={{ backgroundColor: '#769656' }}
  customLightSquareStyle={{ backgroundColor: '#eeeed2' }}
@@ -2512,18 +2459,18 @@ boardWidth={boardSize}
  </span>
  </div>
 
- {!gameStarted && mode !== 'analyze' ? (
+ {(isAssessment && !gameStarted && mode !== 'analyze') || (!isAssessment && settingsOpen) ? (
  <div className="play-computer-setup-panel" style={{ padding: 18 }}>
  <div className="play-computer-setup-intro" style={{ opacity: 0.82, marginBottom: 12, lineHeight: 1.5 }}>
  {isWeeklyTest
  ? `Game ${weeklyGameNumber} of 2. You play ${
  weeklyGameIndex === 0 ? 'White' : 'Black'
- }. Untimed, no hints, and no resignation.`
+ }. Untimed, with no hints.`
  : isEndgameTransfer && endgameTransfer
  ? `${endgameTransfer.objective} The exact trainer stays hidden until the test ends.`
  : initialFen
  ? 'This page was opened from an existing board position.'
- : 'Pick your side and engine strength before starting.'}
+ : 'Game settings'}
  </div>
 
  {!isWeeklyTest && source ? (
@@ -2546,6 +2493,8 @@ boardWidth={boardSize}
  <div className="play-computer-button-row" style={{ display: 'flex', gap: 10 }}>
  <button
  onClick={() => handlePlayerColorSelect('white')}
+ aria-pressed={playerColor === 'white'}
+ disabled={!engineReady || engineThinking}
  style={{
  ...segButtonStyle,
  ...(playerColor === 'white' ? segButtonActiveStyle : {}),
@@ -2555,6 +2504,8 @@ boardWidth={boardSize}
  </button>
  <button
  onClick={() => handlePlayerColorSelect('black')}
+ aria-pressed={playerColor === 'black'}
+ disabled={!engineReady || engineThinking}
  style={{
  ...segButtonStyle,
  ...(playerColor === 'black' ? segButtonActiveStyle : {}),
@@ -2572,6 +2523,8 @@ boardWidth={boardSize}
  </div>
  <input
  type="range"
+ aria-label="Computer Strength"
+ disabled={!engineReady || engineThinking}
  min={100}
  max={3000}
  step={100}
@@ -2609,7 +2562,7 @@ boardWidth={boardSize}
  {isWeeklyTest ? 'Weekly rules' : 'Endgame transfer rules'}
  </div>
  <div>No clock or time limit.</div>
- <div>No evaluation, hints, analysis, reset, or resignation.</div>
+ <div>{isWeeklyTest ? 'No evaluation, hints, analysis, or reset during the game.' : 'No evaluation, hints, analysis, reset, or resignation.'}</div>
  <div>
  {isWeeklyTest
   ? 'The game is saved automatically after every move.'
@@ -2619,8 +2572,9 @@ boardWidth={boardSize}
  </div>
  )}
 
- {!isWeeklyTest && <button
+ {isEndgameTransfer && <button
  className="play-computer-primary-control"
+ data-primary-action="true"
  onClick={startGame}
  disabled={!engineReady || (isWeeklyTest && weeklySessionComplete)}
  style={{
@@ -2639,6 +2593,8 @@ boardWidth={boardSize}
  ? 'Start Endgame Test'
  : 'Start Game'}
  </button>}
+
+ {!isAssessment && <button type="button" onClick={() => setSettingsOpen(false)} style={btnStyle}>Close Settings</button>}
 
  {!isAssessment && !initialFen ? (
  <button
@@ -2696,13 +2652,10 @@ boardWidth={boardSize}
  {!isAssessment ? (
  <>
  <button onClick={handleSetup} style={btnStyle}>
- Back to Setup
+ {mode === 'play' ? 'Settings' : 'Back to Setup'}
  </button>
  <button onClick={resetToInitialPlayPosition} style={btnStyle}>
  Reset Position
- </button>
- <button className="site-inline-hint" onClick={() => void triggerBestMoveHint()} style={btnStyle} disabled={!engineReady || engineThinking}>
- Hint
  </button>
  </>
  ) : null}
@@ -2720,7 +2673,7 @@ boardWidth={boardSize}
  {isWeeklyTest ? (
  <>
  <div style={{ marginTop: 6, fontSize: 13, opacity: 0.7 }}>
- Untimed - saved automatically - resignation disabled
+ Untimed - saved automatically
  </div>
  <div style={{ marginTop: 4, fontSize: 12, opacity: 0.58 }}>
  {!weeklyCloudReady
@@ -2911,6 +2864,10 @@ boardWidth={boardSize}
  gap: 10,
  }}
  >
+ {isWeeklyTest && !weeklyTest?.games[weeklyGameIndex]?.completed && (
+ <button onClick={handleResign} style={bigBtnStyle}
+  disabled={!weeklyInputReady || engineThinking || moveList.length === 0}>Resign</button>
+ )}
  {isWeeklyTest ? (
  weeklyGameIndex === 0 ? (
  <>

@@ -3,6 +3,7 @@ import type { CSSProperties, FormEvent } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { autoEntryEnabled } from './training/autoEntryEnabled'
 import { supabase } from "./lib/supabase"
+import { useAccountIdentity } from './auth/AccountIdentityContext'
 import { trackAnalyticsEvent } from "./lib/analytics"
 import {
  consumeTrainingReturnTarget,
@@ -65,14 +66,15 @@ function buttonStyle(background: string): CSSProperties {
 }
 
 export default function AuthPage() {
+ const accountId = useAccountIdentity()
  const location = useLocation()
  const navigate = useNavigate()
  const requestedSignup = new URLSearchParams(location.search).get("mode") === "signup"
  const returnTarget = useMemo(
   () => requestedSignup
    ? null
-   : resolveTrainingReturnTarget({ routerState: location.state, search: location.search }),
-  [location.search, location.state, requestedSignup],
+   : resolveTrainingReturnTarget({ routerState: location.state, search: location.search, userId: accountId }),
+  [location.search, location.state, requestedSignup, accountId],
  )
  const [mode, setMode] = useState<AuthMode>(requestedSignup ? "signup" : "login")
 
@@ -307,6 +309,8 @@ export default function AuthPage() {
 
  <button
  type="submit"
+ data-primary-action={mode === "signup"}
+ data-secondary-action={mode !== "signup" ? true : undefined}
  disabled={loading}
  style={{
  ...buttonStyle("#81b64c"),

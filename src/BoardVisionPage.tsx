@@ -1,4 +1,6 @@
 import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
+import { accountStorageKey } from './auth/accountBrowserStorage'
+import { useAccountIdentity } from './auth/AccountIdentityContext'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -190,6 +192,7 @@ function decodeBoardVisionUrlChunk(value: string | null) {
 }
 
 async function markBoardVisionChunkMastered(
+ expectedUserId: string | null,
  chunkNumber: number,
  masteredCount: number
 ): Promise<boolean> {
@@ -201,7 +204,7 @@ async function markBoardVisionChunkMastered(
  }
 
  const user = authData.user
- if (!user) return false
+ if (!user || user.id !== expectedUserId) return false
 
  const nowIso = new Date().toISOString()
 
@@ -227,6 +230,7 @@ async function markBoardVisionChunkMastered(
 }
 
 async function scheduleBoardVisionFullBoardReview(
+ expectedUserId: string | null,
  side: SideMode,
  masteredCount: number,
  advanceExistingStage: boolean
@@ -239,7 +243,7 @@ async function scheduleBoardVisionFullBoardReview(
  }
 
  const user = authData.user
- if (!user) return false
+ if (!user || user.id !== expectedUserId) return false
 
  const chunkNumber = getCanonicalBoardVisionReviewChunk(side)
  const { data: existing, error: existingError } = await supabase
@@ -922,6 +926,7 @@ function buildCourseChunks(): Chunk[] {
 const COURSE_CHUNKS = buildCourseChunks()
 
 export default function BoardVisionPage() {
+ const accountId = useAccountIdentity()
  const admitAutoChunk = useAutoChunkAdmission()
  const [searchParams] = useSearchParams()
  const isAutoStudyLaunch = searchParams.get('auto') === '1'
@@ -944,7 +949,7 @@ export default function BoardVisionPage() {
  const [sideMode, setSideMode] = useState<SideMode>(() => {
  if (forcedSide) return forcedSide
  try {
- const saved = localStorage.getItem(SIDE_STORAGE_KEY)
+ const saved = localStorage.getItem(accountStorageKey(SIDE_STORAGE_KEY, accountId))
  return saved === 'black' ? 'black' : 'white'
  } catch {
  return 'white'
@@ -1116,7 +1121,7 @@ export default function BoardVisionPage() {
 
  useEffect(() => {
  try {
- localStorage.setItem(SIDE_STORAGE_KEY, sideMode)
+ localStorage.setItem(accountStorageKey(SIDE_STORAGE_KEY, accountId), sideMode)
  } catch {
  // ignore
  }
@@ -1146,7 +1151,7 @@ export default function BoardVisionPage() {
  setStatusText('Loading progress...')
 
  let localProgress: Record<string, number> = {}
- const storageKey = getStorageKey(trainerMode, sideMode)
+ const storageKey = accountStorageKey(getStorageKey(trainerMode, sideMode), accountId)
  const raw = localStorage.getItem(storageKey)
 
  if (raw) {
@@ -1211,13 +1216,13 @@ export default function BoardVisionPage() {
  useEffect(() => {
  if (!progressLoaded) return
 
- const storageKey = getStorageKey(trainerMode, sideMode)
+ const storageKey = accountStorageKey(getStorageKey(trainerMode, sideMode), accountId)
  localStorage.setItem(storageKey, JSON.stringify(progressMap))
 
  async function saveProgressToSupabase() {
  const { data: authData } = await supabase.auth.getUser()
  const user = authData.user
- if (!user) return
+ if (!user || user.id !== accountId) return
 
  const rows = Object.entries(progressMap).map(([itemId, mastery]) => ({
  user_id: user.id,
@@ -1296,7 +1301,8 @@ export default function BoardVisionPage() {
  setStatus('course-complete')
  setStatusText('Board Vision mastery saved')
 
- void scheduleBoardVisionFullBoardReview(
+void scheduleBoardVisionFullBoardReview(
+ accountId,
  sideMode,
  masteredCount,
  false
@@ -1306,7 +1312,8 @@ export default function BoardVisionPage() {
  return
  }
 
- void scheduleBoardVisionFullBoardReview(
+void scheduleBoardVisionFullBoardReview(
+ accountId,
  sideMode,
  masteredCount,
  false
@@ -1668,7 +1675,8 @@ export default function BoardVisionPage() {
  setSelectedSquare(null)
  setSolveStartedAt(null)
 
- void scheduleBoardVisionFullBoardReview(
+void scheduleBoardVisionFullBoardReview(
+ accountId,
  sideMode,
  currentPool.length,
  true
@@ -1686,7 +1694,8 @@ export default function BoardVisionPage() {
  setSelectedSquare(null)
  setSolveStartedAt(null)
 
- void scheduleBoardVisionFullBoardReview(
+void scheduleBoardVisionFullBoardReview(
+ accountId,
  sideMode,
  currentPool.length,
  false
@@ -1696,13 +1705,15 @@ export default function BoardVisionPage() {
  return
  }
 
- void scheduleBoardVisionFullBoardReview(
+void scheduleBoardVisionFullBoardReview(
+ accountId,
  sideMode,
  currentPool.length,
  false
  )
  } else {
- void markBoardVisionChunkMastered(
+void markBoardVisionChunkMastered(
+ accountId,
  getBoardVisionChunkNumber(trainerMode, sideMode, chunkIndex),
  currentPool.length
  )

@@ -28,7 +28,8 @@
     "coach-server": "node server/image-to-position-server.cjs",
     "postinstall": "node scripts/install-stockfish-assets.cjs && node scripts/soften-react-chessboard-pieces.cjs && node scripts/patch-react-chessboard-position.cjs",
     "paypal:audit": "node scripts/audit_paypal_launch.mjs",
-    "audit:positions": "node scripts/run-position-audit.mjs"
+    "audit:positions": "node scripts/run-position-audit.mjs",
+    "validate:release-candidate": "node scripts/validate-release-candidate.mjs"
     ,"test:auto-study": "node scripts/test-personal-training-plan.mjs",
     "test:curriculum": "node scripts/test-curriculum.mjs",
     "test:curriculum-persistence": "node scripts/test-curriculum-persistence.mjs",

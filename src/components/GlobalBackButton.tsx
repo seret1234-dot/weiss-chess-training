@@ -6,6 +6,7 @@ import {
 } from "react-router-dom"
 
 const HISTORY_KEY = "weiss-chess-route-history"
+import { useAccountStorageKey } from '../auth/AccountIdentityContext'
 
 function usesExplicitMateHierarchyBack(pathname: string) {
   return pathname === "/mates"
@@ -15,9 +16,9 @@ function usesExplicitMateHierarchyBack(pathname: string) {
     || /^\/master-tactics(?:\/.*)?$/.test(pathname)
 }
 
-function readRouteHistory(): string[] {
+function readRouteHistory(historyKey: string): string[] {
   try {
-    const stored = sessionStorage.getItem(HISTORY_KEY)
+    const stored = sessionStorage.getItem(historyKey)
     const parsed = stored ? JSON.parse(stored) : []
 
     return Array.isArray(parsed)
@@ -28,14 +29,15 @@ function readRouteHistory(): string[] {
   }
 }
 
-function saveRouteHistory(history: string[]) {
+function saveRouteHistory(history: string[], historyKey: string) {
   sessionStorage.setItem(
-    HISTORY_KEY,
+    historyKey,
     JSON.stringify(history.slice(-50)),
   )
 }
 
 export default function GlobalBackButton() {
+  const historyKey = useAccountStorageKey(HISTORY_KEY)
   const location = useLocation()
   const navigate = useNavigate()
   const navigationType = useNavigationType()
@@ -44,14 +46,14 @@ export default function GlobalBackButton() {
     location.pathname + location.search + location.hash
 
   useEffect(() => {
-    let history = readRouteHistory()
+    let history = readRouteHistory(historyKey)
     const lastPath = history[history.length - 1]
 
     if (lastPath === currentPath) return
 
     if (navigationType === "REPLACE" && history.length > 0) {
       history[history.length - 1] = currentPath
-      saveRouteHistory(history)
+      saveRouteHistory(history, historyKey)
       return
     }
 
@@ -63,13 +65,13 @@ export default function GlobalBackButton() {
       history.push(currentPath)
     }
 
-    saveRouteHistory(history)
-  }, [currentPath, navigationType])
+    saveRouteHistory(history, historyKey)
+  }, [currentPath, navigationType, historyKey])
 
   if (location.pathname === "/" || usesExplicitMateHierarchyBack(location.pathname)) return null
 
   function goBack() {
-    const history = readRouteHistory()
+    const history = readRouteHistory(historyKey)
 
     if (history[history.length - 1] === currentPath) {
       history.pop()
@@ -77,7 +79,7 @@ export default function GlobalBackButton() {
 
     const previousPath = history[history.length - 1] || "/"
 
-    saveRouteHistory(history)
+    saveRouteHistory(history, historyKey)
     navigate(previousPath, { replace: true })
   }
 

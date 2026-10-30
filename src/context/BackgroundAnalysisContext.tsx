@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
 import type { ReactNode } from "react"
+import { accountStorageKey } from '../auth/accountBrowserStorage'
 import type { User } from "@supabase/supabase-js"
 import { supabase } from "../lib/supabase"
 import { importConnectedAccounts } from "../training/importConnectedAccounts"
@@ -50,13 +51,15 @@ function createJobId() {
 }
 
 function persist(job: AnalysisJob) {
- try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(job)) } catch { /* browser storage is optional */ }
+ if (!job.input?.userId) return
+ try { window.localStorage.setItem(accountStorageKey(STORAGE_KEY, job.input.userId), JSON.stringify(job)) } catch { /* browser storage is optional */ }
 }
 
-export function readPersistedJob(): AnalysisJob | null {
+export function readPersistedJob(userId?: string): AnalysisJob | null {
+ if (!userId) return null
  try {
-  const parsed = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "null")
-  if (!parsed?.input || typeof parsed.status !== "string") return null
+  const parsed = JSON.parse(window.localStorage.getItem(accountStorageKey(STORAGE_KEY, userId)) ?? window.localStorage.getItem(STORAGE_KEY) ?? "null")
+  if (parsed?.input?.userId !== userId || typeof parsed.status !== "string") return null
   // Records created before v2 did not have a run ID. Treat the restored record
   // as one stable legacy run rather than allowing it to overwrite a live run.
   const legacyId = `legacy-${parsed.startedAt || parsed.updatedAt || "unknown"}`
@@ -204,7 +207,7 @@ export function BackgroundAnalysisProvider({ user, children }: { user: User | nu
  useEffect(() => {
   if (!user || restoredUserRef.current === user.id) return
   restoredUserRef.current = user.id
-  const saved = readPersistedJob()
+  const saved = readPersistedJob(user.id)
   if (!saved?.input || saved.input.userId !== user.id) return
   if (jobRef.current.status !== "idle") return
 

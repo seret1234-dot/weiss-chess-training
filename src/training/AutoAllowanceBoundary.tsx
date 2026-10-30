@@ -17,9 +17,9 @@ export function AutoAllowanceBoundary({ children }: { children: ReactNode }) {
     <h1>{stop.limited ? AUTO_ALLOWANCE_TITLE : 'Training access could not be verified'}</h1>
     <p>{stop.limited ? AUTO_ALLOWANCE_MESSAGE : stop.message}</p>
     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-      <button onClick={() => navigate('/pricing')}>View Premium</button>
-      <button onClick={() => { setStop(null); navigate('/auto?continue=1', { replace: true }) }}>Check next training</button>
-      <button onClick={() => navigate(autoEntryEnabled ? '/home' : '/')}>Home</button>
+      <button data-primary-action={stop.limited} data-secondary-action={!stop.limited ? true : undefined} onClick={() => navigate('/pricing')}>View Premium</button>
+      <button data-primary-action={!stop.limited} data-secondary-action={stop.limited ? true : undefined} onClick={() => { setStop(null); navigate('/auto?continue=1', { replace: true }) }}>Check next training</button>
+      <button data-secondary-action onClick={() => navigate(autoEntryEnabled ? '/home' : '/')}>Home</button>
     </div>
   </section>
 }

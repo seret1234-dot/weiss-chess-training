@@ -69,12 +69,18 @@ function excludeExternalMasterCorpus(): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "")
   const usesExternalMasterCorpus = Boolean(env.VITE_MASTER_PUZZLES_BASE_URL?.trim())
+  const releaseId = env.VITE_RELEASE_VERSION || env.VERCEL_GIT_COMMIT_SHA || 'local'
+  const sourceRevision = env.VERCEL_GIT_COMMIT_SHA || env.VITE_SOURCE_REVISION || 'untracked-local'
+  const builtAt = env.VITE_BUILD_TIMESTAMP || new Date().toISOString()
 
   return {
     // Public discovery only: expose this boolean, never the server environment.
     // The server continues to authorize every affiliate/payment operation.
     define: {
       'import.meta.env.VITE_AFFILIATE_DISCOVERY_ENABLED': JSON.stringify(env.AFFILIATE_PROGRAM_ENABLED === 'true'),
+      __WEISS_RELEASE_ID__: JSON.stringify(releaseId),
+      __WEISS_SOURCE_REVISION__: JSON.stringify(sourceRevision),
+      __WEISS_BUILD_TIMESTAMP__: JSON.stringify(builtAt),
     },
     plugins: [
       react(),

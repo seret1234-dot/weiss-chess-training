@@ -208,6 +208,7 @@ export default function LandingPage({ onSelectCategory, demoHome = false }: Land
 
  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
  <button
+ data-primary-action="true"
  onClick={() => {
   if (demoHome && user) { navigate('/demo-auto'); return }
   navigate(user ? AUTO_TRAINING_ENTRY_ROUTE : '/auth?mode=signup')

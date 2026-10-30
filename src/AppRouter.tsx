@@ -2,6 +2,9 @@ const StalemateUnderpromotionPage = lazy(() => import('./pages/StalemateUnderpro
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom"
 import { supabase } from "./lib/supabase"
+import AccountSessionBoundary from './auth/AccountSessionBoundary'
+import { TimedMasteryProvider } from './accessibility/TimedMasteryContext'
+import { AccountIdentityContext } from './auth/AccountIdentityContext'
 
 import LandingPage from "./LandingPage"
 const IntroductionPage = lazy(() => import('./pages/IntroductionPage'))
@@ -59,6 +62,7 @@ const FortressTrainer = lazy(() => import("./pages/endgames/FortressTrainer"))
 import AuthPage from "./AuthPage"
 import AffiliateTracking from './affiliate/AffiliateTracking'
 import { AffiliatePage, AffiliateTerms, AffiliateDashboard, AffiliateAdmin } from './affiliate/AffiliatePages'
+import ReleaseManifestPage from './release/ReleaseManifestPage'
 import ResetPasswordPage from "./ResetPasswordPage"
 const MasterGamesPage = lazy(() => import("./MasterGamesPage"))
 import MasterGamesLibraryPage from "./MasterGamesLibraryPage"
@@ -88,10 +92,7 @@ import AutoTrainingController from "./components/AutoTrainingController"
 import { BoardUiProvider } from "./context/BoardUiContext"
 import { SubscriptionProvider } from "./context/SubscriptionContext"
 import { HintActionProvider } from "./context/HintActionContext"
-import {
- TrainingQuotaProvider,
- TrainingQuotaRouteGate,
-} from "./context/TrainingQuotaContext"
+import { AutoAllowanceBoundary } from "./training/AutoAllowanceBoundary"
 import { BackgroundAnalysisProvider } from "./context/BackgroundAnalysisContext"
 import BackgroundAnalysisStatus from "./components/BackgroundAnalysisStatus"
 import { AccessibilityPage, PrivacyPage } from "./compliance/LegalPages"
@@ -228,12 +229,14 @@ export default function AppRouter() {
 
  return (
  <BrowserRouter>
+ <AccountSessionBoundary userId={user?.id ?? null}>
  <AffiliateTracking />
  <SkipToContent />
  <HintActionProvider>
  <BoardUiProvider>
   <SubscriptionProvider key={user?.id ?? "guest"} user={user}>
-  <TrainingQuotaProvider key={user?.id ?? "guest"} user={user}>
+  <AccountIdentityContext.Provider value={user?.id ?? null}>
+  <TimedMasteryProvider>
   <BackgroundAnalysisProvider user={user}>
  <BackgroundAnalysisStatus />
  <GlobalBackButton />
@@ -247,7 +250,7 @@ export default function AppRouter() {
  {autoEntryEnabled && <DemoAutoLocationTracker userId={user?.id} />}
 
  <SiteMainContent>
- <TrainingQuotaRouteGate loadingFallback={publicShellMarkup(false,true)?<PublicMountFallback contentOnly />:undefined}>
+ <AutoAllowanceBoundary key={user?.id ?? "guest"}>
  <Suspense fallback={<PublicMountFallback pageOnly />}>
  <Routes>
  <Route path="/checkmate-patterns/*" element={<PublicContent educational />} />
@@ -271,6 +274,7 @@ export default function AppRouter() {
  <Route path="/affiliate/terms" element={<AffiliateTerms />} />
  <Route path="/affiliate/dashboard" element={<AffiliateDashboard />} />
  <Route path="/admin/affiliates" element={<AffiliateAdmin />} />
+ <Route path="/admin/release" element={user ? <ReleaseManifestPage /> : <Navigate to="/auth" replace />} />
  <Route path="/r/:code" element={<p>Opening Weiss Chess…</p>} />
   <Route path="/pricing" element={<PricingPage />} />
  <Route path="/onboarding" element={<OnboardingPage />} />
@@ -430,14 +434,16 @@ export default function AppRouter() {
  </Routes>
  </Suspense>
  <PublicContent />
- </TrainingQuotaRouteGate>
+ </AutoAllowanceBoundary>
  </SiteMainContent>
  <ComplianceFooter />
  </BackgroundAnalysisProvider>
-  </TrainingQuotaProvider>
+  </TimedMasteryProvider>
+  </AccountIdentityContext.Provider>
    </SubscriptionProvider>
  </BoardUiProvider>
  </HintActionProvider>
+ </AccountSessionBoundary>
  </BrowserRouter>
  )
 }

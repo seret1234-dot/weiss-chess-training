@@ -23,11 +23,9 @@ if(process.argv.includes('--prove-precedence')) {
   assert.equal(matches.length,0,'Public rewrite must not match '+p)
  }
  for(const old of config.rewrites.filter(r=>r.destination!=='/'))assert(proposed.rewrites.some(r=>JSON.stringify(r)===JSON.stringify(old)),'Preserve existing special rule '+old.source)
- console.log('PASS installed Vercel compiler: filesystem dispatch before every rewrite; all prior headers/functions/special route entries preserved; exact INDEX rewrites do not match protected paths or Master trainer descendants. Only existing catch-all destination changes, source pattern unchanged.')
- console.log(JSON.stringify(after.routes.filter(r=>r.dest&&(/master-mates|master-tactics|index.html/.test(r.dest)))))
+ console.log('PASS installed Vercel compiler: filesystem dispatch before every rewrite; headers/functions/special route entries preserved; exact INDEX rewrites do not match protected paths or Master trainer descendants; registered SPA fallbacks remain after filesystem.')
 } else if(process.argv.includes('--print-rewrites')) {
- const publicPaths=new Set(exact.map(r=>r.source))
- console.log(JSON.stringify([...exact,...config.rewrites.filter(r=>!publicPaths.has(r.source)&&r.destination!=='/'),{source:'/((?!data(?:/|$)).*)',destination:'/index.html'}],null,2))
+ console.log(JSON.stringify(config.rewrites,null,2))
 } else {
  const root=exact.find(r=>r.source==='/')
  const early=config.routes.filter(r=>r.dest)
@@ -38,7 +36,8 @@ if(process.argv.includes('--prove-precedence')) {
  for(const rule of exact)assert.deepEqual(config.rewrites.find(r=>r.source===rule.source),rule,rule.source)
  const served=config.rewrites.filter(r=>policy.seoDetails(r.source).indexable)
  assert.deepEqual(served.map(r=>r.source).sort(),exact.filter(r=>r.source!=='/endgames').map(r=>r.source).sort(),'INDEX registry equals public-shell routing')
- assert.deepEqual(config.rewrites.at(-1),{source:'/((?!data(?:/|$)).*)',destination:'/index.html'})
+ assert(!config.rewrites.some(r=>r.source==='/((?!data(?:/|$)).*)'),'Unknown routes must reach the real 404, not a catch-all SPA shell')
+ assert(config.rewrites.filter(r=>r.destination==='/index.html').length>0,'Registered SPA routes retain bounded fallbacks')
  for(const r of exact)assert(!/^\/(api|auth|account|admin)(\/|$)/.test(r.source),'Exact public rewrites cannot capture protected routes')
- console.log('PASS registry-derived routing:',exact.length-1,'INDEX rewrites; one existing canonical alias; conservative SPA fallback.')
+ console.log('PASS registry-derived routing:',exact.length-1,'INDEX rewrites; canonical alias redirects; bounded SPA fallback and true missing-route 404.')
 }

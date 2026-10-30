@@ -52,7 +52,7 @@ try{for(const [name,local,remote,winner] of cases){
  release()
  await page.getByText('Account sync active',{exact:true}).waitFor({timeout:30000})
  const verify=async()=>{
-  const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('weiss-weekly-adaptive-test-v1')))
+  const stored=await page.evaluate(id=>JSON.parse(localStorage.getItem(`weiss-weekly-adaptive-test-v1:account:${id}`)),user.id)
   for(const actual of [stored,...writes]){
    assert.equal(actual.currentGame,winner.currentGame,name)
    for(let i=0;i<2;i++)for(const field of ['pgn','fen','started','completed','result'])assert.equal(actual.games[i][field],winner.games[i][field],`${name}: ${field}`)

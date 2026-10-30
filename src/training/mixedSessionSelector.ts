@@ -1,4 +1,5 @@
 import { Chess } from "chess.js"
+import { accountStorageKey } from '../auth/accountBrowserStorage'
 
 const HISTORY_LIMIT = 120
 const PLAN_STORAGE_PREFIX = "weissChess:mixed-session-plan:"
@@ -14,6 +15,7 @@ export type MixedSessionCandidate<T> = {
 }
 
 export type MixedSessionPlanOptions = {
+  userId?: string | null
   sessionId: string
   eligibleThemes?: readonly string[]
   recentlySeenCanonicalIdentities?: readonly string[]
@@ -192,7 +194,7 @@ export function getOrCreateMixedSessionPlan<T>(
   const expectedSize = Math.min(Math.max(0, options.sessionSize ?? prepared.length), prepared.length)
   if (typeof window !== "undefined") {
     try {
-      const raw = window.localStorage.getItem(`${PLAN_STORAGE_PREFIX}${options.sessionId}`)
+      const raw = window.localStorage.getItem(accountStorageKey(`${PLAN_STORAGE_PREFIX}${options.sessionId}`, options.userId))
       const stored = raw ? JSON.parse(raw) : null
       const orderedCandidates = validStoredOrder<T>(stored?.canonicalIdentities, prepared, expectedSize)
       if (orderedCandidates) {
@@ -213,7 +215,7 @@ export function getOrCreateMixedSessionPlan<T>(
   const plan = planMixedSession(prepared, options)
   if (typeof window !== "undefined") {
     try {
-      window.localStorage.setItem(`${PLAN_STORAGE_PREFIX}${options.sessionId}`, JSON.stringify({
+      window.localStorage.setItem(accountStorageKey(`${PLAN_STORAGE_PREFIX}${options.sessionId}`, options.userId), JSON.stringify({
         canonicalIdentities: plan.orderedCandidates.map((candidate) => candidate.canonicalIdentity),
       }))
     } catch {
@@ -223,10 +225,10 @@ export function getOrCreateMixedSessionPlan<T>(
   return plan
 }
 
-export function getRecentMixedCanonicalIdentities(sessionId: string) {
+export function getRecentMixedCanonicalIdentities(sessionId: string, userId?: string | null) {
   if (typeof window === "undefined") return []
   try {
-    const raw = window.localStorage.getItem(HISTORY_STORAGE_PREFIX)
+    const raw = window.localStorage.getItem(accountStorageKey(HISTORY_STORAGE_PREFIX, userId))
     const entries = raw ? JSON.parse(raw) : []
     if (!Array.isArray(entries)) return []
     return entries
@@ -239,13 +241,13 @@ export function getRecentMixedCanonicalIdentities(sessionId: string) {
   }
 }
 
-export function recordMixedCanonicalIdentity(sessionId: string, canonicalIdentity: string) {
+export function recordMixedCanonicalIdentity(sessionId: string, canonicalIdentity: string, userId?: string | null) {
   if (typeof window === "undefined" || !canonicalIdentity) return
   try {
-    const raw = window.localStorage.getItem(HISTORY_STORAGE_PREFIX)
+    const raw = window.localStorage.getItem(accountStorageKey(HISTORY_STORAGE_PREFIX, userId))
     const entries: HistoryEntry[] = raw && Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : []
     const next = [...entries, { sessionId, canonicalIdentity }].slice(-HISTORY_LIMIT)
-    window.localStorage.setItem(HISTORY_STORAGE_PREFIX, JSON.stringify(next))
+    window.localStorage.setItem(accountStorageKey(HISTORY_STORAGE_PREFIX, userId), JSON.stringify(next))
   } catch {
     // History is optional and must never interrupt a trainer session.
   }

@@ -1,4 +1,6 @@
 import { useAutoChunkAdmission } from './training/useAutoChunkAdmission'
+import { accountStorageKey } from './auth/accountBrowserStorage'
+import { useAccountIdentity } from './auth/AccountIdentityContext'
 import { useEndgameInput } from './trainers/endgame/useEndgameInput'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
@@ -375,10 +377,10 @@ function createEmptyTrainerProgress(order: string[] = []): TrainerProgress {
  }
 }
 
-async function loadStoredProgress(): Promise<TrainerProgress | null> {
+async function loadStoredProgress(accountId: string | null): Promise<TrainerProgress | null> {
  let localProgress: TrainerProgress | null = null
 
- const raw = localStorage.getItem(PROGRESS_KEY)
+ const raw = localStorage.getItem(accountStorageKey(PROGRESS_KEY, accountId))
  if (raw) {
  try {
  localProgress = JSON.parse(raw) as TrainerProgress
@@ -387,13 +389,13 @@ async function loadStoredProgress(): Promise<TrainerProgress | null> {
  }
  }
 
- const resetAtRaw = localStorage.getItem(RESET_AT_KEY)
+ const resetAtRaw = localStorage.getItem(accountStorageKey(RESET_AT_KEY, accountId))
  const resetAtMs = resetAtRaw ? Date.parse(resetAtRaw) : 0
 
  const { data: authData } = await supabase.auth.getUser()
  const user = authData.user
 
- if (!user) return localProgress
+ if (!user || user.id !== accountId) return localProgress
 
  const { data, error } = await supabase
  .from('training_progress')
@@ -461,15 +463,15 @@ function mergeProgress(order: string[], stored: TrainerProgress | null): Trainer
  return merged
 }
 
-async function saveProgress(progress: TrainerProgress) {
- localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress))
+async function saveProgress(progress: TrainerProgress, accountId: string | null) {
+ localStorage.setItem(accountStorageKey(PROGRESS_KEY, accountId), JSON.stringify(progress))
 
- const resetAtRaw = localStorage.getItem(RESET_AT_KEY)
+ const resetAtRaw = localStorage.getItem(accountStorageKey(RESET_AT_KEY, accountId))
  const resetAtMs = resetAtRaw ? Date.parse(resetAtRaw) : 0
 
  const { data: authData } = await supabase.auth.getUser()
  const user = authData.user
- if (!user) return
+ if (!user || user.id !== accountId) return
 
  const rows = await buildEndgameProgressRows({
     userId: user.id,
@@ -779,6 +781,7 @@ async function findFirstIncompleteChunk(
 }
 
 export default function BNMateTrainer() {
+ const accountId = useAccountIdentity()
  const admitAutoChunk = useAutoChunkAdmission()
  const [progression, setProgression] = useState<ProgressionFile | null>(null)
  const [progress, setProgress] = useState<TrainerProgress | null>(null)
@@ -830,7 +833,7 @@ export default function BNMateTrainer() {
 
  useEffect(() => {
  if (progress) {
- void saveProgress(progress)
+ void saveProgress(progress, accountId)
  }
  }, [progress])
 
@@ -1198,7 +1201,7 @@ export default function BNMateTrainer() {
  '/data/lichess/bn_v3/bn_v3_progression.json'
  )
 
- const stored = await loadStoredProgress()
+ const stored = await loadStoredProgress(accountId)
  const merged = mergeProgress(loadedProgression.order ?? [], stored)
 
  const firstIncomplete = await findFirstIncompleteChunk(loadedProgression, merged)
@@ -1541,8 +1544,8 @@ export default function BNMateTrainer() {
  }
 
  const resetAt = new Date().toISOString()
- localStorage.setItem(RESET_AT_KEY, resetAt)
- localStorage.setItem(PROGRESS_KEY, JSON.stringify(fresh))
+ localStorage.setItem(accountStorageKey(RESET_AT_KEY, accountId), resetAt)
+ localStorage.setItem(accountStorageKey(PROGRESS_KEY, accountId), JSON.stringify(fresh))
  setAllComplete(false)
  setProgress(fresh)
  setPositions([])

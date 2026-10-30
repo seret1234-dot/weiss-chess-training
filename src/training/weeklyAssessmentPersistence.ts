@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { readOwnedJson, writeOwnedJson } from '../auth/accountBrowserStorage'
 import { buildWeeklyPlanSignals, type WeeklyStateLike } from './weeklyAdaptiveTest'
 import { summarizeWeeklyReview, weeklyGameKey } from './weeklyAssessment'
 import { CURRICULUM_CATALOG } from './curriculum/curriculumCatalog'
@@ -74,7 +75,7 @@ export async function persistWeeklyReview(
   if (!saved) continue
   if (typeof window !== 'undefined') {
    try {
-    const local = JSON.parse(localStorage.getItem('weiss-weekly-adaptive-test-v1') ?? 'null')
+    const local = readOwnedJson<WeeklyStateLike>(localStorage, 'weiss-weekly-adaptive-test-v1', userId)
     if (!local || (local.weekKey === weekKey && local.userId === userId)) {
      // Opening review also updates local metadata. Merge only this assessment
      // into a newer local snapshot; never roll back unsaved play in the other game.
@@ -84,10 +85,10 @@ export async function persistWeeklyReview(
       if (!localGame?.completed || weeklyGameKey(localGame.pgn ?? '') !== key) return next
       const localGames = [...local.games]
       localGames[gameIndex] = { ...localGame, ...flowFields, analysis, transferEvidenceKeys, unmappedTransferTargets }
-      mirror = { ...local, reviewFlowVersion: next.reviewFlowVersion, games: localGames, planSignals: buildWeeklyPlanSignals(localGames),
+      mirror = { ...local, reviewFlowVersion: next.reviewFlowVersion, games: localGames, planSignals: buildWeeklyPlanSignals(localGames as Parameters<typeof buildWeeklyPlanSignals>[0]),
        updatedAt: Date.parse(local.updatedAt) > Date.parse(now) ? local.updatedAt : now }
      }
-     localStorage.setItem('weiss-weekly-adaptive-test-v1', JSON.stringify(mirror))
+     writeOwnedJson(localStorage, 'weiss-weekly-adaptive-test-v1', mirror)
     }
    } catch { /* Cloud remains authoritative if local storage is unavailable. */ }
   }
@@ -138,7 +139,7 @@ export async function persistWeeklyExplainedReview(
   if (!saved) continue
   if (typeof window !== 'undefined') {
    try {
-    const local = JSON.parse(localStorage.getItem('weiss-weekly-adaptive-test-v1') ?? 'null')
+    const local = readOwnedJson<WeeklyStateLike>(localStorage, 'weiss-weekly-adaptive-test-v1', userId)
     if (!local || (local.userId === userId && local.weekKey === weekKey)) {
      // Preserve newer local board snapshots; only this game's review metadata changes.
      const mirror = local && Date.parse(local.updatedAt ?? '') > Date.parse(now) ? {
@@ -146,8 +147,8 @@ export async function persistWeeklyExplainedReview(
       currentGame: Math.max(local.currentGame ?? 0, next.currentGame ?? 0),
       games: local.games.map((g: any, i: number) => i === gameIndex ? { ...g, explainedReview: progress } : g),
      } : next
-     if (mirror !== next) mirror.planSignals = buildWeeklyPlanSignals(mirror.games)
-     localStorage.setItem('weiss-weekly-adaptive-test-v1', JSON.stringify(mirror))
+     if (mirror !== next) mirror.planSignals = buildWeeklyPlanSignals(mirror.games as Parameters<typeof buildWeeklyPlanSignals>[0])
+     writeOwnedJson(localStorage, 'weiss-weekly-adaptive-test-v1', mirror)
     }
    } catch { /* Durable cloud state remains authoritative. */ }
   }

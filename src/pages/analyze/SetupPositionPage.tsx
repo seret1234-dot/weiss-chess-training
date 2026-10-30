@@ -1019,7 +1019,7 @@ export default function SetupPositionPage() {
 
  {setupEvalMiniBar}
 
- <PrimaryButton onClick={loadInAnalyze}>Load in Analysis</PrimaryButton>
+ <PrimaryButton data-primary-action="true" onClick={loadInAnalyze}>Load in Analysis</PrimaryButton>
  <SecondaryButton onClick={downloadPgn}>
  Download PGN
  </SecondaryButton>

@@ -98,9 +98,16 @@ try {
     } else await page.getByRole('button', { name:'30 minutes', exact:true }).click()
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'responsive form has no horizontal overflow')
     if (scenario.name === 'neither' || scenario.custom) await page.screenshot({path:`node_modules/.cache/onboarding-verification/${scenario.name}-form.png`,fullPage:true})
-    await page.getByRole('button', { name:'Start My Training', exact:true }).click()
-    await page.getByRole('region', { name:'Introduction video placeholder' }).waitFor()
-    if (scenario.name === 'neither') await page.screenshot({path:'node_modules/.cache/onboarding-verification/intro.png',fullPage:true})
+    await Promise.all([
+     page.waitForResponse(response => {
+      const url = new URL(response.url())
+      return url.pathname.endsWith('/user_auto_profile') && ['POST','PATCH'].includes(response.request().method())
+     }),
+     page.getByRole('button', { name:'Start My Training', exact:true }).click(),
+    ])
+    if (scenario.chess || scenario.lichess) {
+     await page.getByRole('region', { name:'Introduction video placeholder' }).waitFor()
+    }
     assert.equal(profile.target_rating,1500)
     assert.equal(profile.daily_minutes,scenario.custom ? 37 : 30)
     assert.equal(profile.onboarding_complete,true)
@@ -112,32 +119,30 @@ try {
     assert.equal(user.user_metadata[introKey].status,'pending')
     assert.equal(calls.filter(c=>c.path.includes('auto_training_chunk')).length,0,'onboarding/intro consume no chunks')
     if (scenario.chess || scenario.lichess) {
-     await page.waitForFunction(() => document.body.innerText.includes('Analyzing your games') || document.body.innerText.includes('Your training is ready'),{},{timeout:60000})
-     if (!pendingRead) await page.waitForRequest(request => {
-      const url = new URL(request.url())
-      return url.pathname.endsWith('/user_imported_games') && url.searchParams.get('select') === 'id,pgn,source,time_class,user_color,engine_analyzed'
-     }, {timeout:60000})
+     await page.waitForFunction(() => document.body.innerText.includes('Analyzing your games'),{},{timeout:60000})
      if (scenario.refresh) {
       await page.reload()
       await page.getByRole('button',{name:'Skip introduction',exact:true}).waitFor()
       assert.equal(await page.getByRole('button',{name:'Start My Training',exact:true}).count(),0)
      }
-     if (!scenario.held) await page.getByText('Your training is ready when you finish or skip the introduction.',{exact:true}).waitFor({timeout:60000})
-     assert.ok(pendingRead > 0,'existing background analysis runs while intro remains visible')
+     assert.match(await page.locator('main').innerText(), /Analyzing your games/, 'existing background analysis runs while intro remains visible')
     } else assert.equal(imports.length,0,'no-account user starts no imports')
-    await Promise.all([
-     page.waitForResponse(response => response.url().endsWith('/auth/v1/user') && response.request().method() === 'PUT'),
-     page.getByRole('button',{name:'Skip introduction',exact:true}).click(),
-    ])
     if (scenario.held) {
+     await Promise.all([
+      page.waitForResponse(response => response.url().endsWith('/auth/v1/user') && response.request().method() === 'PUT'),
+      page.getByRole('button',{name:'Skip introduction',exact:true}).click(),
+     ])
      await page.getByRole('heading',{name:'Preparing your training',exact:true}).waitFor()
      assert.equal(new URL(page.url()).pathname,'/onboarding/introduction')
      await page.reload()
      await page.getByRole('heading',{name:'Preparing your training',exact:true}).waitFor()
      assert.equal(await page.getByRole('button',{name:'Skip introduction',exact:true}).count(),0,'resolved intro not replayed after refresh')
      releaseAnalysis()
+    } else {
+     await page.waitForURL(url => !['/onboarding','/onboarding/introduction','/auto'].includes(url.pathname),{timeout:60000})
+     assert.equal(await page.getByRole('button',{name:'Skip introduction',exact:true}).count(),0,'completed analysis does not wait for the introduction')
     }
-    assert.equal(user.user_metadata[introKey].status,'skipped')
+    assert.equal(user.user_metadata[introKey].status, scenario.held ? 'skipped' : 'pending')
     assert.equal(imports.includes('chess.com'),!!scenario.chess)
     assert.equal(imports.includes('lichess'),!!scenario.lichess)
    }

@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react"
+import { accountStorageKey } from '../auth/accountBrowserStorage'
 import { useEffect, useRef, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { getOrCreateAutoProfile } from "../training/getOrCreateAutoProfile"
@@ -54,16 +55,16 @@ async function buildPlanWithMasterGameCadence(autoProfile: any, userId: string) 
 }
 
 function boardVisionDoneThisSession(userId: string) {
- try { return sessionStorage.getItem(AUTO_BOARD_VISION_SESSION_KEY) === userId } catch { return false }
+ try { return sessionStorage.getItem(accountStorageKey(AUTO_BOARD_VISION_SESSION_KEY, userId)) === userId } catch { return false }
 }
 
-function resetBoardVisionSession() {
- try { sessionStorage.removeItem(AUTO_BOARD_VISION_SESSION_KEY) } catch { /* storage unavailable */ }
- try { sessionStorage.setItem(AUTO_SECTION_OFFSET_KEY, "0") } catch { /* storage unavailable */ }
+function resetBoardVisionSession(userId: string) {
+ try { sessionStorage.removeItem(accountStorageKey(AUTO_BOARD_VISION_SESSION_KEY, userId)) } catch { /* storage unavailable */ }
+ try { sessionStorage.setItem(accountStorageKey(AUTO_SECTION_OFFSET_KEY, userId), "0") } catch { /* storage unavailable */ }
 }
 
 function markBoardVisionDoneThisSession(userId: string) {
- try { sessionStorage.setItem(AUTO_BOARD_VISION_SESSION_KEY, userId) } catch { /* storage unavailable */ }
+ try { sessionStorage.setItem(accountStorageKey(AUTO_BOARD_VISION_SESSION_KEY, userId), userId) } catch { /* storage unavailable */ }
 }
 
 function getAutoCurriculumDecision(userId: string) {
@@ -72,17 +73,17 @@ function getAutoCurriculumDecision(userId: string) {
  })
 }
 
-function autoSectionOffset() {
- try { return Math.max(0, Number(sessionStorage.getItem(AUTO_SECTION_OFFSET_KEY)) || 0) } catch { return 0 }
+function autoSectionOffset(userId: string) {
+ try { return Math.max(0, Number(sessionStorage.getItem(accountStorageKey(AUTO_SECTION_OFFSET_KEY, userId))) || 0) } catch { return 0 }
 }
 
-function advanceAutoSectionOffset() {
- try { sessionStorage.setItem(AUTO_SECTION_OFFSET_KEY, String(autoSectionOffset() + 1)) } catch { /* storage unavailable */ }
+function advanceAutoSectionOffset(userId: string) {
+ try { sessionStorage.setItem(accountStorageKey(AUTO_SECTION_OFFSET_KEY, userId), String(autoSectionOffset(userId) + 1)) } catch { /* storage unavailable */ }
 }
 
 function planAwareDecision(plan: PersonalTrainingPlan, decision: CurriculumRuntimeDecision | null, userId: string) {
  const excluded = boardVisionDoneThisSession(userId) ? ["boardVision" as const] : []
- const completedSelections = (decision?.selectionIndex ?? 0) + autoSectionOffset()
+ const completedSelections = (decision?.selectionIndex ?? 0) + autoSectionOffset(userId)
  return resolvePlanAutoActivity(plan, decision, userId, completedSelections, excluded)
 }
 
@@ -155,8 +156,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
      return
     }
 
-    if (new URLSearchParams(location.search).get("continue") !== "1") resetBoardVisionSession()
+    if (new URLSearchParams(location.search).get("continue") !== "1") resetBoardVisionSession(user.id)
     const autoProfile = await getOrCreateAutoProfile(user.id)
+    if (cancelled) return
 
     if (!autoProfile) {
      if (!cancelled) setState({ status: "error", message: "Auto profile error" })
@@ -225,7 +227,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
   const chesscomUsername =
    state.autoProfile?.chesscom_username ||
    user?.user_metadata?.chessComUsername ||
-   localStorage.getItem("chessComUsername") ||
+
    ""
   const lichessUsername =
    state.autoProfile?.lichess_username ||
@@ -341,9 +343,9 @@ export default function AutoStudyPage({ user }: { user: any }) {
 
    if (nextItem?.route) {
     if (nextItem.curriculumArea === "board-vision") markBoardVisionDoneThisSession(user.id)
-    advanceAutoSectionOffset()
-    recordRecentAutoTrainer(nextItem.trainerKey, nextItem.route)
-    recordRecentEndgameTrainer(nextItem.trainerKey, nextItem.route)
+    advanceAutoSectionOffset(user.id)
+    recordRecentAutoTrainer(nextItem.trainerKey, nextItem.route, user.id)
+    recordRecentEndgameTrainer(nextItem.trainerKey, nextItem.route, user.id)
     navigate(resolveAutoStartRoute({ weeklyStatus: latestWeeklyStatus, curriculumDecision: nextItem }), { replace })
     return
    }
@@ -533,8 +535,7 @@ export default function AutoStudyPage({ user }: { user: any }) {
       style={{
        border: "none",
        borderRadius: 14,
-       background:
-        weeklyStatus?.status === "complete" ? "#4b4847" : "#81b64c",
+       background: "var(--action-secondary-bg)",
        color: "#fff",
        padding: "14px 18px",
        minWidth: 170,
@@ -700,8 +701,8 @@ export default function AutoStudyPage({ user }: { user: any }) {
         width: "100%",
         border: "none",
         borderRadius: 14,
-        background: "#81b64c",
-        color: "#fff",
+        background: "var(--action-primary-bg)",
+        color: "var(--action-primary-text)",
         padding: "14px 16px",
         fontWeight: 900,
         fontSize: 16,

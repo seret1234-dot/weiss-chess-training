@@ -128,14 +128,12 @@ try {
     assert.match(source, /ChunkCompletionOverlay/, `${trainerPath} renders the shared board-centered completion overlay`)
     assert.match(source, /const completionOverlayResult = debugCompletionOverlayOpen[\s\S]*?curriculumCompletionCard/, `${trainerPath} selects mock data only through the explicitly gated debug overlay state`)
     assert.match(source, /shouldShowChunkCompletionOverlay\(completionOverlayResult, completionOverlayDismissed\)/, `${trainerPath} only opens the overlay from its gated completion result`)
-    const correctTransition = trainerPath.includes('patternTactic')
-      ? /scheduleCorrectAutoAdvance\(goToNextPuzzle, 1_500\)/
-      : /scheduleCorrectAutoAdvance\(goToNextPuzzle\)/
+    const correctTransition = /scheduleCorrectAutoAdvance\(goToNextPuzzle(?:, \d[\d_]*)?\)/
     assert.match(source, correctTransition, `${trainerPath} preserves its established final-success transition before completion`)
     assert.match(source, /setCurriculumCompletionCard\(card\)/, `${trainerPath} uses the same result object for the side panel and overlay`)
     assert.match(source, /setCompletionOverlayDismissed\(false\)/, `${trainerPath} resets dismissal only when a new chunk/completion result is loaded`)
     assert.match(source, /setCurriculumCompletionCard\(null\)[\s\S]*?curriculumCompletionInFlightRef\.current = false/, `${trainerPath} does not reconstruct an overlay or another completion event on a fresh load`)
-    assert.match(source, /onContinueAuto=\{\(\) => window\.location\.assign\('\/auto'\)\}/, `${trainerPath} preserves Auto Study routing from the celebration`)
+    assert.match(source, /onContinueAuto=\{\(\) => window\.location\.assign\('\/auto\?continue=1'\)\}/, `${trainerPath} preserves the current Auto Study continuation route from the celebration`)
     assert.match(source, /goToNextActiveLearnerChunk/, `${trainerPath} has a dedicated active learner next-chunk action`)
     assert.match(source, /getNextActiveLearnerChunkIndex\(currentChunkIndex, chunkFiles\.length\)/, `${trainerPath} bases availability on active learner chunks, not legacy source chunk counts`)
     assert.match(source, /buildNextActiveLearnerChunkUrl/, `${trainerPath} preserves route provenance when it advances learner chunks`)

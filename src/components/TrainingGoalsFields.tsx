@@ -217,7 +217,7 @@ export default function TrainingGoalsFields({
         type="button"
         onClick={() => onChange({ ...goals, currentMilestoneRating: feasibility.recommendedMilestone })}
         disabled={disabled}
-        style={{ marginLeft: 10, border: "none", borderRadius: 8, background: accentColor, color: "#fff", padding: "6px 9px", fontWeight: 800, cursor: "pointer" }}
+        style={{ marginLeft: 10, border: "none", borderRadius: 8, background: "var(--action-secondary-bg)", color: "var(--action-secondary-text)", padding: "6px 9px", fontWeight: 800, cursor: "pointer" }}
        >
         Use this milestone
        </button>

@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import {
-  readInitialTimedMasteryEnabled,
   TIMED_MASTERY_STORAGE_KEY,
 } from "./timedMasteryPreference"
 
@@ -8,22 +7,28 @@ type TimedMasteryContextValue = {
   timedMasteryEnabled: boolean
   setTimedMasteryEnabled: (enabled: boolean) => void
 }
+import { useAccountStorageKey } from '../auth/AccountIdentityContext'
+import { resolveTimedMasteryEnabled } from './timedMasteryPreference'
 
 const TimedMasteryContext = createContext<TimedMasteryContextValue | null>(null)
 
 export function TimedMasteryProvider({ children }: { children: React.ReactNode }) {
-  const [timedMasteryEnabled, setTimedMasteryEnabledState] = useState(readInitialTimedMasteryEnabled)
+  const storageKey = useAccountStorageKey(TIMED_MASTERY_STORAGE_KEY)
+  const [timedMasteryEnabled, setTimedMasteryEnabledState] = useState(() => {
+    try { return resolveTimedMasteryEnabled(window.localStorage.getItem(storageKey)) }
+    catch { return resolveTimedMasteryEnabled(null) }
+  })
   const setTimedMasteryEnabled = useCallback((enabled: boolean) => {
     setTimedMasteryEnabledState(enabled)
   }, [])
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(TIMED_MASTERY_STORAGE_KEY, String(timedMasteryEnabled))
+      window.localStorage.setItem(storageKey, String(timedMasteryEnabled))
     } catch {
       // The selected accessibility preference still works for this session.
     }
-  }, [timedMasteryEnabled])
+  }, [timedMasteryEnabled, storageKey])
 
   const value = useMemo(
     () => ({ timedMasteryEnabled, setTimedMasteryEnabled }),

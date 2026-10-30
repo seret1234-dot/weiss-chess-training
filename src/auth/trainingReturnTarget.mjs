@@ -76,14 +76,14 @@ function validRecord(value, now = Date.now()) {
   if (!target || !Number.isFinite(createdAt)) return null
   if (createdAt > now + 60_000 || now - createdAt > AUTH_RETURN_TARGET_TTL_MS) return null
 
-  return { target, createdAt }
+  return { target, createdAt, userId: typeof value.userId === 'string' ? value.userId : null }
 }
 
 export function rememberTrainingReturnTarget(targetValue, options = {}) {
   const target = validTrainingReturnTarget(targetValue)
   if (!target) return null
 
-  const record = { target, createdAt: options.now ?? Date.now() }
+  const record = { target, createdAt: options.now ?? Date.now(), userId: options.userId ?? null }
   const storage = storageOrNull(options.storage)
 
   try {
@@ -115,14 +115,17 @@ export function readRememberedTrainingReturnTarget(options = {}) {
   }
 }
 
-export function resolveTrainingReturnTarget({ routerState, search = "", storage, now } = {}) {
+export function resolveTrainingReturnTarget({ routerState, search = "", storage, now, userId } = {}) {
+  // Route safety/TTL alone does not establish account ownership. Old unowned
+  // bookmarks must go through normal account entry, never bypass onboarding.
+  if (!userId) return null
   const stateRecord = validRecord(routerState?.[AUTH_RETURN_TARGET_STATE_KEY], now ?? Date.now())
-  if (stateRecord) return stateRecord.target
+  if (stateRecord?.userId === userId) return stateRecord.target
 
   const params = new URLSearchParams(search)
-  return params.get("resumeTraining") === "1"
-    ? readRememberedTrainingReturnTarget({ storage, now })?.target ?? null
-    : null
+  const remembered = params.get("resumeTraining") === "1"
+    ? readRememberedTrainingReturnTarget({ storage, now }) : null
+  return remembered?.userId === userId ? remembered.target : null
 }
 
 export function consumeTrainingReturnTarget(expectedTarget, options = {}) {

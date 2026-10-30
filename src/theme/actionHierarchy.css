@@ -1,0 +1,76 @@
+/* Green is an action priority, not a navigation/selection state. Keep these
+   paint-only rules independent of board sizing, routes and trainer state. */
+:root {
+  --action-primary-bg: #8db86f;
+  --action-primary-text: #07120c;
+  --action-secondary-bg: #343a36;
+  --action-secondary-hover: #434d46;
+  --action-secondary-text: #f5f5ed;
+  --action-selected-bg: #34483d;
+  --action-selected-border: #a6b7ad;
+}
+
+/* Board interaction is the next action during an exercise. Reset, Hint,
+   navigation and skip controls must not compete with it. Do not target boards. */
+:is(.trainer-shell-side, .trainer-shell-board-controls, .trainer-shell-board-footer,
+    .opening-trainer-panel, .opening-trainer-mode-switcher, .opening-trainer-library-actions,
+    .master-games-trainer-panel, .master-games-trainer-content > div:first-child,
+    [data-testid="master-game-library-actions"],
+    .free-line-play-page__side-panel, .free-line-play-page__mode-actions) button:not([data-primary-action="true"]),
+[data-secondary-action],
+.account-save-action,
+:root .affiliate-page button,
+.affiliate-button {
+  background: var(--action-secondary-bg) !important;
+  color: var(--action-secondary-text) !important;
+  box-shadow: none !important;
+}
+
+:is(button, a)[data-primary-action="true"]:not(:disabled),
+.account-page__main-card:focus-within .account-save-action:not(:disabled),
+.affiliate-page > section > .affiliate-button,
+.affiliate-page form:focus-within button:not([type="button"]):not(:disabled),
+.chunk-completion-overlay__continue:not(:disabled),
+.registration-onboarding .registration-onboarding__primary:not(:disabled) {
+  background: var(--action-primary-bg) !important;
+  color: var(--action-primary-text) !important;
+  border-color: var(--action-primary-bg) !important;
+  box-shadow: none !important;
+}
+
+/* Selected means "where I am", never "click this next". */
+button:is([aria-pressed="true"], [aria-selected="true"], [aria-current]):not([aria-current="false"]),
+a[aria-current]:not([aria-current="false"]),
+.opening-trainer-mode-switcher > span,
+.master-games-trainer-content > div:first-child > div > span,
+.free-line-play-page__mode-actions > span,
+.free-line-play-page__move-button.is-active,
+.master-games-trainer-move-button.is-active {
+  background: var(--action-selected-bg) !important;
+  color: var(--action-secondary-text) !important;
+  border-color: var(--action-selected-border) !important;
+  box-shadow: inset 0 -2px var(--action-selected-border) !important;
+}
+
+:is(button, a)[data-primary-action="true"]:disabled {
+  background: var(--action-secondary-bg) !important;
+  color: var(--action-secondary-text) !important;
+}
+
+:is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid #b9dcff !important;
+  outline-offset: 3px;
+}
+
+[data-secondary-action]:hover:not(:disabled),
+.affiliate-page button:hover:not(:disabled),
+.affiliate-button:hover {
+  background: var(--action-secondary-hover) !important;
+}
+
+/* A dialog is the active task; background page actions remain available but
+   do not compete with the dialog's primary action. */
+body:has([role="dialog"][aria-modal="true"]) [data-primary-action="true"]:not([role="dialog"] *) {
+  background: var(--action-secondary-bg) !important;
+  color: var(--action-secondary-text) !important;
+}

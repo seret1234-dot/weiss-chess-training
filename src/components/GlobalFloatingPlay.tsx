@@ -144,6 +144,9 @@ export default function GlobalFloatingPlay({
   }, [boardState.orientation, currentFen, navigate])
 
   const goPlayComputer = useCallback(() => {
+    // Re-selecting Play is navigation, not a new-game command. Preserve the
+    // active game's Weekly/Auto context, color, saved PGN and engine instance.
+    if (['/play-computer', '/play-vs-computer'].includes(location.pathname)) return
     const url = buildPlayUrl({
       fen: currentFen,
       suggestedColor,
@@ -151,7 +154,7 @@ export default function GlobalFloatingPlay({
     })
 
     window.location.href = url
-  }, [currentFen, suggestedColor, hasBoard])
+    }, [currentFen, suggestedColor, hasBoard, location.pathname])
 
   const goAccount = useCallback(() => {
     window.location.href = "/account"
@@ -297,12 +300,7 @@ export default function GlobalFloatingPlay({
             <button
               type="button"
               onClick={() => closeDesktopMenuThen(goPlayComputer)}
-              style={{
-                ...btnStyle,
-                background:
-                  "linear-gradient(180deg,var(--theme-accent-strong),var(--theme-accent))",
-                color: "var(--theme-accent-text)",
-              }}
+              style={btnStyle}
             >
               Play
             </button>
@@ -351,12 +349,7 @@ export default function GlobalFloatingPlay({
               <button
                 type="button"
                 onClick={() => closeDesktopMenuThen(goSignUp)}
-                style={{
-                  ...btnStyle,
-                  background:
-                    "linear-gradient(180deg,var(--theme-accent-strong),var(--theme-accent))",
-                  color: "var(--theme-accent-text)",
-                }}
+                style={btnStyle}
               >
                 Create Free Account
               </button>

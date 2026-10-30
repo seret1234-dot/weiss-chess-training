@@ -40,4 +40,4 @@ export default function BackgroundAnalysisStatus() {
  )
 }
 
-const buttonStyle = { marginTop: 9, border: "none", borderRadius: 9, padding: "8px 10px", background: "#81b64c", color: "#fff", fontWeight: 800, cursor: "pointer" } as const
+const buttonStyle = { marginTop: 9, border: "none", borderRadius: 9, padding: "8px 10px", background: "var(--action-secondary-bg)", color: "var(--action-secondary-text)", fontWeight: 800, cursor: "pointer" } as const

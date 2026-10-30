@@ -53,17 +53,17 @@ const browser=await chromium.launch({headless:true})
 const page=await browser.newPage(), errors=[]
 page.on('pageerror',e=>errors.push(e.message))
 const control=()=>page.getByTestId('finish-drill-continue')
-async function ready(){await control().waitFor();assert.equal(await control().isEnabled(),true);assert.equal(await control().innerText(),'Finish drill & continue')}
+async function ready(){await page.getByRole('region',{name:'Playable activity'}).waitFor();assert.equal(await control().count(),0);assert.doesNotMatch(await page.locator('body').innerText(),/Opening next item|Finish drill & continue/)}
 try{
  await page.goto(base);await ready()
- await control().click();await page.getByRole('button',{name:'Resolve eligible',exact:true}).click();await ready()
+ await page.getByRole('button',{name:'Natural completion events',exact:true}).click();await page.getByRole('button',{name:'Resolve eligible',exact:true}).click();await ready()
  console.log('PASS eligible destination clears prior Continue state without remount/refresh')
- await control().click();await page.getByRole('button',{name:'Resolve same trainer next chunk',exact:true}).click();await ready()
+ await page.getByRole('button',{name:'Natural completion events',exact:true}).click();await page.getByRole('button',{name:'Resolve same trainer next chunk',exact:true}).click();await ready()
  console.log('PASS same pathname/different chunk clears pending state')
  await page.getByRole('button',{name:'Natural completion events',exact:true}).click()
  await page.getByRole('button',{name:'Resolve eligible',exact:true}).click();await ready()
  console.log('PASS completion-event transition remains usable')
- await control().click();await page.getByRole('button',{name:'Resolve capped',exact:true}).click()
+ await page.getByRole('button',{name:'Natural completion events',exact:true}).click();await page.getByRole('button',{name:'Resolve capped',exact:true}).click()
  await page.getByRole('heading',{name:"Today's free training is complete.",exact:true}).waitFor()
  assert.equal(await control().count(),0)
  assert.equal(await page.getByRole('region',{name:'Playable activity'}).count(),0)
@@ -75,5 +75,7 @@ try{
  await page.reload();await page.getByRole('heading',{name:"Today's free training is complete.",exact:true}).waitFor();assert.equal(await control().count(),0)
  await page.goto(base);await ready();await page.reload();await ready()
  console.log('PASS fresh/reloaded eligible and capped routes never preserve pending state')
+ await page.goto(base+'/?entry='+encodeURIComponent('/mates/m1/back-rank'))
+ await ready();await page.getByRole('button',{name:'Natural completion events',exact:true}).click();assert.equal(await page.getByTestId('route').innerText(),'/mates/m1/back-rank','Manual completion does not enter Auto')
  assert.deepEqual(errors,[])
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}

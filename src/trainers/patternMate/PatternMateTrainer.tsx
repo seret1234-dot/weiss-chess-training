@@ -1,5 +1,7 @@
 import { useAutoChunkAdmission } from '../../training/useAutoChunkAdmission'
+import { accountStorageKey } from '../../auth/accountBrowserStorage'
 import { updateCategoryStats } from '../../training/updateCategoryStats'
+import { useAccountStorageKey, useAccountIdentity } from '../../auth/AccountIdentityContext'
 import { applyReviewOutcome, PUZZLE_MASTERY_RULES, SPACED_REPETITION_LADDER_DAYS } from '../../training/learningPlanRules'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createChunkCompletionGate } from '../chunkCompletionGate'
@@ -39,6 +41,7 @@ import {
 } from '../../components/trainer/ui'
 
 import { reportTrainingItemCompleted } from "../../lib/trainingQuotaEvents"
+import { announceAutoTrainingComplete } from '../../training/autoTrainingRoute'
 import {
  createCanonicalExerciseIdentity,
  getOrCreateMixedSessionPlan,
@@ -88,7 +91,8 @@ import {
 } from "./m2toM5LearnerCurriculum"
 import { acceptsPatternMateMove, getLegalMateInOneMoves, isPatternMateInOneTrainer } from "./m1MateValidation"
 import { FULL_CHUNK_CURRICULUM_VERSION, FULL_MIXED_MATE_COURSES } from "../fullChunkCurriculumCatalog"
-import { createProgressionResetCoordinator, resetCourseProgressPersistence, uniqueProgressTrainerKeys } from "../progressionRestart.mjs"
+import { createProgressionResetCoordinator } from "../progressionRestart.mjs"
+import { createCurrentChunkResetPlan } from "../chunkProgressReset.mjs"
 import { nextPerfectSolveCount, PUZZLE_MOVE_LIMIT_MS, PUZZLE_RECOGNITION_LIMIT_MS, PuzzlePerfectionTracker } from "../puzzlePerfection"
 import { useTimedMastery } from "../../accessibility/TimedMasteryContext"
 import VoiceMoveInput from '../voice/VoiceMoveInput'
@@ -581,6 +585,7 @@ export default function PatternMateTrainer({
  config: PatternMateTrainerConfig
 }) {
  const admitAutoChunk = useAutoChunkAdmission()
+ const accountId = useAccountIdentity()
  const trainerExplanation = config.explanationKey ? siteExplanations[config.explanationKey] : null
  const { backToParent } = useHierarchicalNavigation()
  const { timedMasteryEnabled } = useTimedMastery()
@@ -655,8 +660,8 @@ export default function PatternMateTrainer({
   const activeDataBasePath = learnerCurriculum?.learnerDataBasePath ?? mixedFullCourse?.dataBasePath ?? config.dataBasePath
   const manifestFetchPath = `${activeDataBasePath}/manifest.json`
  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
- const [mixedScope, setMixedScope] = useState<MixedSessionScope>(() => readRememberedMixedScope(config.trainerKey))
-  const [mixedPhase, setMixedPhase] = useState<MixedSessionPhase>(() => requestedMixedPhase ?? readRememberedMixedPhase(config.trainerKey))
+ const [mixedScope, setMixedScope] = useState<MixedSessionScope>(() => readRememberedMixedScope(accountStorageKey(config.trainerKey, accountId)))
+  const [mixedPhase, setMixedPhase] = useState<MixedSessionPhase>(() => requestedMixedPhase ?? readRememberedMixedPhase(accountStorageKey(config.trainerKey, accountId)))
   const [mixedScopeConfirmed, setMixedScopeConfirmed] = useState(!isMixedPatternMate)
   const [mixedAvailableThemes, setMixedAvailableThemes] = useState<string[]>([])
   const [mixedCurriculum, setMixedCurriculum] = useState<CurriculumState | null>(null)
@@ -668,9 +673,9 @@ export default function PatternMateTrainer({
   const curriculumSessionEvidenceRef = useRef({ attempts: 0, correct: 0, hints: 0, solveMsTotal: 0, recordedPuzzleIds: new Set<string>() })
   const curriculumCompletionInFlightRef = useRef(false)
   const mixedPuzzleNeededHelpRef = useRef(false)
-  const storageKey = getStorageKey(
+  const storageKey = useAccountStorageKey(getStorageKey(
    isMixedPatternMate ? `${progressTrainerKey}:mixed-v2:${mixedScope}` : progressTrainerKey
-  )
+  ))
 
  const [chunkFiles, setChunkFiles] = useState<string[]>([])
   const [currentChunkIndex, setCurrentChunkIndex] = useState(0)
@@ -1120,6 +1125,7 @@ function startChunkMasterySave(masteredCount: number) {
   })
   const plan = getOrCreateMixedSessionPlan(candidates, {
   sessionId: mixedSessionId,
+  userId: accountId,
   eligibleThemes: mixedScope === "unlocked"
    ? themesForMixedScope({
     area: "mates",
@@ -1128,7 +1134,7 @@ function startChunkMasterySave(masteredCount: number) {
     curriculum: mixedCurriculum,
    })
    : undefined,
-  recentlySeenCanonicalIdentities: getRecentMixedCanonicalIdentities(mixedSessionId),
+  recentlySeenCanonicalIdentities: getRecentMixedCanonicalIdentities(mixedSessionId, accountId),
   sessionSize: normalized.length,
   })
   setMixedSessionThemes(Object.keys(plan.themeCounts))
@@ -1305,7 +1311,7 @@ function startChunkMasterySave(masteredCount: number) {
  }
  }
 
- async function restartWholeProgression() {
+ async function restartCurrentChunkProgression() {
  const started = await progressionResetRef.current.startReset()
  if (!started) return
  setRestartingProgression(true)
@@ -1316,37 +1322,55 @@ function startChunkMasterySave(masteredCount: number) {
  setMessage('Restarting progression...')
 
  try {
- const reducedTrainerKey = m1LearnerCurriculum
-  ? `${config.trainerKey}:m1-v1`
-  : m2ToM5LearnerCurriculum
-   ? `${m2ToM5LearnerCurriculum.trainerKey}:m${m2ToM5LearnerCurriculum.mateDistance}-v1`
-   : null
- await resetCourseProgressPersistence({
-  client: supabase,
-  userId: currentUserId,
-  activeTrainerKey: progressTrainerKey,
-  relatedTrainerKeys: learnerCurriculum
-   ? uniqueProgressTrainerKeys([config.trainerKey, reducedTrainerKey])
-   : [],
-  storage: localStorage,
-  storageKey,
-  studyCourse: config.studyCourse,
-  studyTheme: config.studyTheme,
+ const plan = createCurrentChunkResetPlan({
+  savedState: getSavedState(storageKey),
+  fileName: currentChunkFileName,
+  currentChunkIndex,
+  puzzleIds: puzzles.map((puzzle) => puzzle.id),
  })
+ if (currentUserId) {
+  if (config.studyCourse && config.studyTheme && plan.puzzleIds.length > 0) {
+   const { error } = await supabase
+    .from('training_progress')
+    .delete()
+    .eq('user_id', currentUserId)
+    .eq('course', config.studyCourse)
+    .eq('theme', config.studyTheme)
+    .in('item_id', plan.puzzleIds)
+   if (error) throw error
+  }
+  if (!(await ensureChunkExists(currentUserId, plan.chunkNumber))) {
+   throw new Error('Could not prepare current chunk progress for restart')
+  }
+  const { error } = await supabase
+   .from('user_chunk_progress')
+   .update({
+    mastered_puzzles_count: 0,
+    is_mastered: false,
+    mastered_at: null,
+    review_stage: 0,
+    last_reviewed_at: null,
+    next_review_at: null,
+    updated_at: new Date().toISOString(),
+   })
+   .eq('user_id', currentUserId)
+   .eq('trainer_key', progressTrainerKey)
+   .eq('chunk_index', plan.chunkNumber)
+  if (error) throw error
+ }
+ saveState(storageKey, plan.savedState)
+ const emptyChunkProgress = plan.emptyProgress.map((fastSolves) => ({ fastSolves }))
+ chunkProgressRef.current = emptyChunkProgress
+ chunkCanBeCompletedRef.current = true
  legacyCompletionCreditRef.current = 0
  chunkMasterySaveKeyRef.current = null
  chunkMasteryPromiseRef.current = null
  curriculumCompletionInFlightRef.current = false
  setCurriculumCompletionCard(null)
  setCompletionOverlayDismissed(false)
- const resetUrl = buildNextActiveLearnerChunkUrl(
-  window.location.pathname,
-  window.location.search,
-  0,
-  learnerCurriculumVersion,
- )
- window.history.replaceState(window.history.state, '', resetUrl)
- await loadChunkByIndex(0, chunkFiles, 0)
+ setChunkProgress(emptyChunkProgress)
+ setCurrentIndex(0)
+ await loadChunkByIndex(currentChunkIndex, chunkFiles, 0)
  setMessage('Progression restarted.')
  } catch (error) {
  console.error('Failed to restart mate progression:', error)
@@ -1694,7 +1718,7 @@ useEffect(() => {
   solutionLine: puzzle.solutionLine,
   sourceIdentity: puzzle.sourceIdentity ?? puzzle.id,
   })
-  recordMixedCanonicalIdentity(servedSessionId, canonicalIdentity)
+  recordMixedCanonicalIdentity(servedSessionId, canonicalIdentity, accountId)
 
   advanceUserMoveIndex(0)
 
@@ -1814,6 +1838,8 @@ useEffect(() => {
  }
 
 async function completeChunk() {
+ const completionRoute = window.location.pathname + window.location.search
+ let chunkSaved = false
  if (progressionResetRef.current.isResetting) return
  if (curriculumCompletionInFlightRef.current) return
  curriculumCompletionInFlightRef.current = true
@@ -1825,7 +1851,7 @@ async function completeChunk() {
  })
 
  if (chunkIsMastered) {
- await startChunkMasterySave(latestProgress.length)
+ chunkSaved = await startChunkMasterySave(latestProgress.length)
  if (progressionResetRef.current.isResetting) {
   curriculumCompletionInFlightRef.current = false
   return
@@ -1834,7 +1860,7 @@ async function completeChunk() {
 
  if (isMixedPatternMate) {
   recordIdentifiedMixedSessionEvidence({
-   trainerKey: config.trainerKey,
+   trainerKey: accountStorageKey(config.trainerKey, accountId),
    sessionId: mixedSessionIdRef.current ?? `v6:${config.trainerKey}:${mixedScope}:${mixedPhase}:${currentChunkFileName}`,
    scope: mixedScope,
    phase: mixedPhase,
@@ -1850,7 +1876,7 @@ async function completeChunk() {
  const stage = Math.min(4, Math.max(1, Number(config.trainerKey.match(/m([1-5])$/)?.[1] ?? 1)))
  const theme = learnerCurriculum?.canonicalThemeKey ?? config.studyTheme ?? config.trainerKey
  const localBlindProgress = isMixedPatternMate && mixedScope === "unlocked" && mixedPhase === "identified"
-  ? getBlindMixedUnlockStatus(config.trainerKey)
+  ? getBlindMixedUnlockStatus(accountStorageKey(config.trainerKey, accountId))
   : null
  const card = {
   theme: isMixedPatternMate ? `${mixedPhase === "blind" ? "Blind" : "Identified"} mixed` : theme,
@@ -1889,6 +1915,12 @@ async function completeChunk() {
   }))
   if (!result) return
   setCurriculumCompletionCard({ ...card, masteryIncreased: result.masteryIncreased, reinforcementActivated: result.reinforcementActivated })
+  if (chunkIsMastered && chunkSaved && currentUserId &&
+      chunkCompletionGateRef.current.canCommit(`${currentUserId}:${progressTrainerKey}:${currentChunkIndex}`, latestProgress.map(item => item.fastSolves), FAST_SOLVES_TO_MASTER) &&
+      new URLSearchParams(window.location.search).get('auto') === '1' &&
+      completionRoute === window.location.pathname + window.location.search) {
+   announceAutoTrainingComplete()
+  }
  } catch (error) {
   console.error("Could not persist curriculum completion", error)
  }
@@ -1981,6 +2013,7 @@ async function completeChunk() {
 
  if (config.studyCourse && config.studyTheme) {
   void progressionResetRef.current.track(() => saveTrainingProgress({
+ userId: accountId,
  course: config.studyCourse,
  theme: config.studyTheme,
  itemId: currentPuzzle?.id ?? '',
@@ -2514,13 +2547,13 @@ return attemptUserMove(sourceSquare, targetSquare, {
   scope: "unlocked",
   curriculum: mixedCurriculum,
  }) : []
- const blindMixedUnlock = getBlindMixedUnlockStatus(config.trainerKey)
+ const blindMixedUnlock = getBlindMixedUnlockStatus(accountStorageKey(config.trainerKey, accountId))
  const beginMixedScope = (scope: MixedSessionScope, phase: MixedSessionPhase) => {
   if (scope === "unlocked" && phase === "blind" && !blindMixedUnlock.unlocked) return
   setMixedScope(scope)
   setMixedPhase(phase)
-  rememberMixedScope(config.trainerKey, scope)
-  rememberMixedPhase(config.trainerKey, phase)
+  rememberMixedScope(accountStorageKey(config.trainerKey, accountId), scope)
+  rememberMixedPhase(accountStorageKey(config.trainerKey, accountId), phase)
   const params = new URLSearchParams(window.location.search)
   params.set("mixedScope", scope)
   params.set("mixedPhase", phase)
@@ -3184,7 +3217,7 @@ return attemptUserMove(sourceSquare, targetSquare, {
 
  <SecondaryButton
  disabled={restartingProgression || setupControlsLocked}
- onClick={() => void restartWholeProgression()}
+ onClick={() => void restartCurrentChunkProgression()}
  style={{ padding: '10px 9px' }}
  >
  {restartingProgression ? 'Restarting progression...' : 'Restart progression'}

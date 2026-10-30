@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Chess } from "chess.js";
+import { useAccountIdentity } from '../../auth/AccountIdentityContext';
+import { accountStorageKey } from '../../auth/accountBrowserStorage';
 import ThemedChessboard from "../../theme/ThemedChessboard"
 import TrainerShell from "../../components/trainer/TrainerShell";
 import "./AnalyzeSubpages.css";
@@ -28,6 +30,7 @@ const PIECE_URLS: Record<string, string> = {
 };
 
 export default function AnalyzeReviewPage() {
+ const accountId = useAccountIdentity();
  const containerRef = useRef<HTMLDivElement | null>(null);
  const pgnFileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -153,7 +156,7 @@ export default function AnalyzeReviewPage() {
  return;
  }
 
- window.sessionStorage.setItem("weissAnalyzeReviewPgn", text);
+ window.sessionStorage.setItem(accountStorageKey("weissAnalyzeReviewPgn", accountId), text);
  window.location.href = "/analyze/board?review=1";
  }
 
@@ -271,7 +274,7 @@ boardWidth={boardSize}
  <SecondaryButton onClick={loadSample}>Sample</SecondaryButton>
  </div>
 
- <PrimaryButton onClick={reviewGame}>Review Game</PrimaryButton>
+ <PrimaryButton data-primary-action="true" onClick={reviewGame}>Review Game</PrimaryButton>
 
  <div style={{ marginTop: 10, fontSize: 12, color: "#aaa", lineHeight: 1.5 }}>
  {message}

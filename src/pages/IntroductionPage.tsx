@@ -54,7 +54,10 @@ export default function IntroductionPage() {
   }
  }, [intro, input, ownJob, startAnalysis])
  useEffect(() => {
-  if (!intro || intro.status === 'pending' || !ready || handedOff.current) return
+  // Analysis completion is the training readiness signal. Do not make a
+  // first-time user finish or skip the optional introduction before handing
+  // them to their now-ready course.
+  if (!intro || !ready || handedOff.current) return
   handedOff.current = true
   if (ownJob?.status === 'completed') acknowledgePlanReady()
   navigate(AUTO_TRAINING_ENTRY_ROUTE, { replace: true })

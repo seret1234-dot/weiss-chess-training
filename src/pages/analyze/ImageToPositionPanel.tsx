@@ -722,7 +722,7 @@ export default function ImageToPositionPanel({
  <div role="status" aria-live="polite" aria-atomic="true" style={{ color: "#aaa", fontSize: 12, lineHeight: 1.4, marginBottom: 8 }}>
  {status}
  </div>
- <PrimaryButton onClick={loadFen}>Load Position into Analyze</PrimaryButton>
+ <PrimaryButton data-primary-action="true" onClick={loadFen}>Load Position into Analyze</PrimaryButton>
  </div>
  </div>
  </div>

@@ -4,6 +4,9 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 import { AUTO_TRAINING_ENTRY_ROUTE } from '../training/resolveAutoStartRoute'
 import { isPlayableAutoRoute } from '../training/autoPlayableRoute'
 import { isAutoMixedEligible, mixedAutoRoute } from '../training/autoMixedEligibility'
+import { getOrCreateAutoProfile } from '../training/getOrCreateAutoProfile'
+import { supabase } from '../lib/supabase'
+import { readIntroduction } from '../onboarding/introduction'
 
 export const DEMO_AUTO_ROUTE = '/demo-auto'
 const keyFor = (userId: string) => `weiss-auto-entry-demo-v1:${userId}`
@@ -41,19 +44,35 @@ export function DemoAutoLocationTracker({ userId }: { userId?: string }) {
 export function DemoAutoEntry({ userId }: { userId?: string }) {
   const target = userId ? demoResumeTarget(userId) : '/auth'
   const [checked, setChecked] = useState<{ key: string; route: string } | null>(null)
+  const [error, setError] = useState('')
   const key = `${userId}:${target}`
   useEffect(() => {
-    if (!userId || !mixedAutoRoute(target)) return
+    if (!userId) return
     let active = true
-    isAutoMixedEligible(userId, target).then(allowed => {
-      if (active) setChecked({ key, route: allowed ? target : AUTO_TRAINING_ENTRY_ROUTE })
-    }).catch(() => { if (active) setChecked({ key, route: AUTO_TRAINING_ENTRY_ROUTE }) })
+    setError('')
+    void (async () => {
+      const profile = await getOrCreateAutoProfile(userId)
+      if (!active) return
+      if (!profile) throw new Error('Unable to load your training account. Please try again.')
+      let route = target
+      if (!profile.onboarding_complete) route = '/onboarding'
+      else {
+        const { data, error: authError } = await supabase.auth.getUser()
+        if (!active) return
+        if (authError || data.user?.id !== userId) throw new Error('Your account changed. Please reopen Auto Training.')
+        if (readIntroduction(data.user.user_metadata)?.status === 'pending') route = '/onboarding/introduction'
+        else if (mixedAutoRoute(target) && !await isAutoMixedEligible(userId, target)) route = AUTO_TRAINING_ENTRY_ROUTE
+      }
+      if (active) setChecked({ key, route })
+    })().catch(err => { if (active) setError(err.message) })
     return () => { active = false }
   }, [userId, target, key])
-  if (mixedAutoRoute(target) && checked?.key !== key) return <div role="status">Checking training prerequisites…</div>
+  if (!userId) return <Navigate replace to="/auth" />
+  if (error) return <div role="alert">{error}</div>
+  if (checked?.key !== key) return <div role="status">Loading your training…</div>
   // Returning mounts the existing trainer anew: its normal persisted progress
   // is restored, but no old in-memory attempt/reaction timer is carried over.
-  return <Navigate replace to={mixedAutoRoute(target) ? checked!.route : target} />
+  return <Navigate replace to={checked.route} />
 }
 
 export function DemoManualPractice({ signedIn }: { signedIn: boolean }) {

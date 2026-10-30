@@ -1,4 +1,6 @@
 import { useAutoChunkAdmission } from '../../training/useAutoChunkAdmission'
+import { storageKeyBelongsToAccount } from '../../auth/accountBrowserStorage'
+import { useAccountStorageKey } from '../../auth/AccountIdentityContext'
 import { useEndgameInput } from '../../trainers/endgame/useEndgameInput'
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
@@ -458,7 +460,7 @@ async function loadStoredProgress(
  const { data: authData } = await supabase.auth.getUser();
  const user = authData.user;
 
- if (!user) return localProgress;
+ if (!user || !storageKeyBelongsToAccount(progressKey, user.id)) return localProgress;
 
  const { data, error } = await supabase
  .from("training_progress")
@@ -525,7 +527,7 @@ async function saveProgress(
 
  const { data: authData } = await supabase.auth.getUser();
  const user = authData.user;
- if (!user) return;
+ if (!user || !storageKeyBelongsToAccount(progressKey, user.id)) return;
 
  const rows = Object.entries(progress.positions).map(([itemId, stats]) => ({
  user_id: user.id,
@@ -893,7 +895,7 @@ export default function PhilidorTrainer() {
  const boardId = "PhilidorTrainerBoard";
  const safeDataPath = dataPath.replace(/\/+$/, "");
  const boardWidthKey = `${trainerId}_boardWidth_v3`;
- const progressKey = `${trainerId}_progress_v3`;
+ const progressKey = useAccountStorageKey(`${trainerId}_progress_v3`);
  const [progression, setProgression] = useState<ProgressionFile | null>(null);
  const [progress, setProgress] = useState<TrainerProgress | null>(null);
  const [positions, setPositions] = useState<TrainingPosition[]>([]);
@@ -1791,7 +1793,7 @@ const REQUIRED_DEFENSE_MOVES = 20;
  void (async () => {
  const { data: authData } = await supabase.auth.getUser();
  const user = authData.user;
- if (!user) return;
+ if (!user || !storageKeyBelongsToAccount(progressKey, user.id)) return;
 
  const { error } = await supabase
  .from("training_progress")

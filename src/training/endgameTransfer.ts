@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase'
 
 export type EndgameTransferExpectedResult = 'win' | 'draw' | 'mate'
+import { accountStorageKey, readOwnedJson, writeOwnedJson } from '../auth/accountBrowserStorage'
 export type EndgameTransferStatus = 'ready' | 'in_progress' | 'completed'
 
 export type EndgameTransferPosition = {
@@ -109,30 +110,30 @@ function definitionForTheme(theme: string) {
  return ENDGAME_DEFINITIONS.find((item) => item.theme === theme) || null
 }
 
-export function recordRecentEndgameTrainer(trainerKey: string, route = '') {
+export function recordRecentEndgameTrainer(trainerKey: string, route = '', userId?: string | null) {
  const definition = definitionForTrainer(trainerKey)
  if (!definition) return null
 
  const trainedAt = nowIso()
- const records = safeReadArray<RecentEndgameRecord>(RECENT_STORAGE_KEY).filter(
+ const records = safeReadArray<RecentEndgameRecord>(accountStorageKey(RECENT_STORAGE_KEY, userId)).filter(
   (item) => item.trainerKey !== trainerKey,
  )
  records.unshift({ trainerKey, route: route || definition.route, trainedAt })
- safeWrite(RECENT_STORAGE_KEY, records.slice(0, MAX_RECENT))
+ safeWrite(accountStorageKey(RECENT_STORAGE_KEY, userId), records.slice(0, MAX_RECENT))
  return { trainerKey, trainedAt }
 }
 
-function readRecentEndgames() {
+function readRecentEndgames(userId: string) {
  const cutoff = Date.now() - MAX_AGE_MS
- return safeReadArray<RecentEndgameRecord>(RECENT_STORAGE_KEY).filter((item) => {
+ return safeReadArray<RecentEndgameRecord>(accountStorageKey(RECENT_STORAGE_KEY, userId)).filter((item) => {
   if (!definitionForTrainer(item.trainerKey)) return false
   const ms = new Date(item.trainedAt).getTime()
   return !Number.isFinite(ms) || ms >= cutoff
  })
 }
 
-function readHistory() {
- return safeReadArray<EndgameTransferHistoryRecord>(HISTORY_STORAGE_KEY)
+function readHistory(userId: string) {
+ return safeReadArray<EndgameTransferHistoryRecord>(accountStorageKey(HISTORY_STORAGE_KEY, userId))
 }
 
 function wasAlreadyTested(record: RecentEndgameRecord, history: EndgameTransferHistoryRecord[]) {
@@ -188,12 +189,10 @@ async function loadManifest(): Promise<EndgameTransferManifest | null> {
  }
 }
 
-export function loadEndgameTransferSession(): EndgameTransferSession | null {
+export function loadEndgameTransferSession(userId?: string | null): EndgameTransferSession | null {
  if (typeof window === 'undefined') return null
  try {
-  const raw = window.localStorage.getItem(SESSION_STORAGE_KEY)
-  if (!raw) return null
-  const parsed = JSON.parse(raw) as EndgameTransferSession
+  const parsed = readOwnedJson<EndgameTransferSession>(window.localStorage, SESSION_STORAGE_KEY, userId)
   return parsed?.sessionId && parsed?.fen ? parsed : null
  } catch {
   return null
@@ -201,7 +200,7 @@ export function loadEndgameTransferSession(): EndgameTransferSession | null {
 }
 
 function saveSession(session: EndgameTransferSession) {
- safeWrite(SESSION_STORAGE_KEY, session)
+ if (typeof window !== 'undefined') writeOwnedJson(window.localStorage, SESSION_STORAGE_KEY, session)
  return session
 }
 
@@ -229,7 +228,7 @@ export async function prepareNextEndgameTransfer(
  userId: string,
  engineElo = 1700,
 ): Promise<EndgameTransferSession | null> {
- const existing = loadEndgameTransferSession()
+ const existing = loadEndgameTransferSession(userId)
  if (existing && existing.status !== 'completed') return existing
 
  const [cloud, manifest] = await Promise.all([
@@ -238,7 +237,7 @@ export async function prepareNextEndgameTransfer(
  ])
  if (!manifest) return null
 
- const merged = [...readRecentEndgames(), ...cloud].sort((a, b) => {
+ const merged = [...readRecentEndgames(userId), ...cloud].sort((a, b) => {
   const aMs = new Date(a.trainedAt).getTime()
   const bMs = new Date(b.trainedAt).getTime()
   return (Number.isFinite(bMs) ? bMs : 0) - (Number.isFinite(aMs) ? aMs : 0)
@@ -252,7 +251,7 @@ export async function prepareNextEndgameTransfer(
   unique.push(item)
  }
 
- const history = readHistory()
+ const history = readHistory(userId)
  const record = unique.find((item) => !wasAlreadyTested(item, history))
  if (!record) return null
 
@@ -334,7 +333,7 @@ export async function completeEndgameTransferSession(args: {
   updatedAt: completedAt,
  })
 
- const history = readHistory()
+ const history = readHistory(completed.userId)
  history.unshift({
   sessionId: completed.sessionId,
   trainerKey: completed.trainerKey,
@@ -343,7 +342,7 @@ export async function completeEndgameTransferSession(args: {
   success: args.success,
   completedAt,
  })
- safeWrite(HISTORY_STORAGE_KEY, history.slice(0, MAX_HISTORY))
+ safeWrite(accountStorageKey(HISTORY_STORAGE_KEY, completed.userId), history.slice(0, MAX_HISTORY))
 
  if (!args.success) {
   try {
@@ -361,10 +360,10 @@ export async function completeEndgameTransferSession(args: {
  return completed
 }
 
-export function clearCompletedEndgameTransferSession() {
- const session = loadEndgameTransferSession()
+export function clearCompletedEndgameTransferSession(userId: string) {
+ const session = loadEndgameTransferSession(userId)
  if (!session || session.status !== 'completed') return
  if (typeof window !== 'undefined') {
-  window.localStorage.removeItem(SESSION_STORAGE_KEY)
+  window.localStorage.removeItem(accountStorageKey(SESSION_STORAGE_KEY, userId))
  }
 }

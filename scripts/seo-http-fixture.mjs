@@ -11,25 +11,27 @@ export async function startSeoServer({publicShells=false,legacyShell=false}={}){
  const types={'.html':'text/html','.js':'application/javascript','.css':'text/css','.json':'application/json','.xml':'application/xml','.svg':'image/svg+xml','.png':'image/png','.txt':'text/plain'}
  const server=createServer(async(req,res)=>{
   try{
-   const p=decodeURIComponent(new URL(req.url,'http://localhost').pathname)
+   const requestUrl=new URL(req.url,'http://localhost'),p=decodeURIComponent(requestUrl.pathname)
+   const redirect=config.redirects?.find(r=>new RegExp('^'+r.source+'$').test(p))
+   if(redirect){res.writeHead(redirect.permanent?308:307,{Location:redirect.destination+requestUrl.search});return res.end()}
    if(p.startsWith('/api/')){res.writeHead(503,{'Content-Type':'application/json','X-SEO-Rule':'API reserved; disabled locally'});return res.end('{"error":"Local SEO fixture does not execute APIs"}')}
    const target=path.resolve(root,'.'+p)
    if(!target.startsWith(root+path.sep)&&target!==root){res.writeHead(400);return res.end()}
-   let file,rule
+   let file,rule,status=200
    const publicRow=manifest.find(r=>r.indexable&&r.path===(p==='/endgames'?'/endgame':p))
    if(publicRow){file=path.join(root,publicRow.file);rule='local public-shell mount fixture'}
    // Low-level exact routes run before filesystem dispatch on Vercel.
    const early=config.routes?.find(r=>r.dest&&!r.continue&&new RegExp(r.src).test(p))
    if(!file&&early){file=path.join(root,early.dest);rule=early.src}
    if(!file)try{if((await stat(target)).isFile()){file=target;rule='static file'}else if((await stat(path.join(target,'index.html'))).isFile()){file=path.join(target,'index.html');rule='static directory'}}catch{}
-   if(!file){const r=config.rewrites.find(r=>r.source===p)||config.rewrites.at(-1)
-    if(p.startsWith('/data/')){res.writeHead(404);return res.end()}
-    file=path.join(root,r.destination==='/'?'_route-metadata/home.html':r.destination);rule=r.source
+   if(!file){const r=config.rewrites.find(r=>r.source===p||new RegExp('^'+r.source+'$').test(p))
+    if(r){file=path.join(root,r.destination==='/'?'_route-metadata/home.html':r.destination);rule=r.source}
+    else{file=path.join(root,'404.html');rule='filesystem miss: custom 404';status=404}
    }
    let body=await readFile(file)
    if(legacyRender&&publicRow&&!publicRow.standalone)body=Buffer.from(body.toString().replace(/ data-site-theme="[^"]*"/,'').replace(/<div id="root"[^>]*>[\s\S]*<\/body>/,'<div id="root"><main id="seo-initial-content">'+legacyRender(publicRow.path,true)+'</main></div></body>'))
    for(const r of config.routes||[])if(r.headers&&new RegExp('^'+r.src+'$').test(p))for(const[k,v]of Object.entries(r.headers))res.setHeader(k,v)
-   res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','X-SEO-Rule':rule,'X-SEO-Artifact':path.relative(root,file).replaceAll('\\','/')});res.end(body)
+   res.writeHead(status,{'Content-Type':types[path.extname(file)]||'application/octet-stream','X-SEO-Rule':rule,'X-SEO-Artifact':path.relative(root,file).replaceAll('\\','/')});res.end(body)
   }catch{res.writeHead(404);res.end('Not found')}
  })
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve))

@@ -1,7 +1,13 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Chess, type Square } from "chess.js";
+import { useAccountIdentity } from '../../auth/AccountIdentityContext';
+import { accountStorageKey } from '../../auth/accountBrowserStorage';
 import { captureMaterialLoss } from "../../lib/chess/captureMaterial";
 import { stockfishService } from "../../lib/chess/stockfishService";
+import {
+ terminalConditionAfterMoves,
+ terminalReviewExplanation,
+} from "../../lib/chess/gameResult";
 import { supabase } from "../../lib/supabase";
 import { persistWeeklyReview, persistWeeklyExplainedReview } from '../../training/weeklyAssessmentPersistence';
 import { weeklyGameKey } from '../../training/weeklyAssessment';
@@ -15,6 +21,7 @@ import { useGlobalBoard } from "../../hooks/useGlobalBoard";
 import ImageToPositionPanel from "./ImageToPositionPanel";
 import "./AnalyzeSubpages.css";
 import { useWeeklyReviewPlayback } from './useWeeklyReviewPlayback';
+import { readAutoGameReview, saveAutoGameAnalysis, saveAutoExplainedReview, type AutoGameReview } from '../../training/autoGameReview';
 import {
   explainMistake,
   type MistakeExplainInput,
@@ -206,6 +213,7 @@ function analyzeOrientationFromSearch(search: string): "white" | "black" | null 
 }
 
 export default function AnalyzePage() {
+ const accountId = useAccountIdentity();
  const { showCoordinates, setShowCoordinates } = useSiteTheme();
  const containerRef = useRef<HTMLDivElement | null>(null);
  const pgnFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -298,7 +306,7 @@ export default function AnalyzePage() {
  if (weeklyReviewGame === null) return null;
 
  try {
- const raw = window.sessionStorage.getItem("weissWeeklyReviewContext");
+ const raw = window.sessionStorage.getItem(accountStorageKey("weissWeeklyReviewContext", accountId));
  if (!raw) return null;
 
  const parsed = JSON.parse(raw) as WeeklyReviewContext;
@@ -337,6 +345,10 @@ export default function AnalyzePage() {
  }
  }, [weeklyReviewGame]);
  const [storedWeeklyContext, setStoredWeeklyContext] = useState<WeeklyReviewContext | null>(null);
+ const autoReviewId = weeklyReviewGame === null && new URLSearchParams(window.location.search).get('auto') === '1'
+  ? new URLSearchParams(window.location.search).get('autoReview') : null;
+ const explainedReviewActive = weeklyReviewGame !== null || Boolean(autoReviewId);
+ const [autoReviewRecord, setAutoReviewRecord] = useState<AutoGameReview | null>(null);
  const weeklyReviewContext = storedWeeklyContext ?? sessionWeeklyReviewContext;
  const [weeklyIdentity, setWeeklyIdentity] = useState<{ userId: string; weekKey: string; pgn: string } | null>(null);
  const [weeklyProgress, setWeeklyProgress] = useState<WeeklyExplainedReview | null>(null);
@@ -492,8 +504,8 @@ export default function AnalyzePage() {
  }, [startFen, moveRows]);
 
  function goToPly(ply: number, automatic = false) {
- if (!automatic && weeklyReviewGame !== null) weeklyPlayback.pause();
- if (weeklyReviewGame !== null && (!weeklyProgress || weeklySaveBusyRef.current || weeklyAdvanceRef.current || reviewInProgress)) return;
+ if (!automatic && explainedReviewActive) weeklyPlayback.pause();
+ if (explainedReviewActive && (!weeklyProgress || weeklySaveBusyRef.current || weeklyAdvanceRef.current || reviewInProgress)) return;
  const maxPly = moveRows.length;
  const nextPly = Math.max(0, Math.min(maxPly, ply));
  const fen = fenByPly[nextPly] || startFen;
@@ -512,6 +524,14 @@ export default function AnalyzePage() {
     setCurrentPly(weeklyProgress.currentPly);
     setWeeklyError(String(error.message ?? error));
    }).finally(() => { weeklySaveBusyRef.current = false; setWeeklySaveBusy(false); });
+ } else if (autoReviewRecord && accountId && weeklyProgress) {
+  try {
+   const record = saveAutoExplainedReview(accountId, autoReviewRecord.id, nextPly);
+   setAutoReviewRecord(record); setWeeklyProgress(record.explainedReview!); setWeeklyError('');
+  } catch (error) {
+   setGame(new Chess(fenByPly[weeklyProgress.currentPly] || startFen)); setCurrentPly(weeklyProgress.currentPly);
+   setWeeklyError(String(error instanceof Error ? error.message : error));
+  }
  }
  } catch {
  setMessage("Could not load move position");
@@ -684,6 +704,31 @@ export default function AnalyzePage() {
 
  useEffect(() => {
  const params = new URLSearchParams(window.location.search);
+ if (autoReviewId) {
+  try {
+   const record = readAutoGameReview(accountId, autoReviewId);
+   if (!record) throw new Error('Your completed Auto game could not be restored. Return to Auto to resume.');
+   if (record.explainedReview?.completedAt || record.explainedReview?.skippedAt) {
+    window.location.replace(AUTO_TRAINING_ENTRY_ROUTE); return;
+   }
+   loadPgn(record.pgn); setAutoReviewRecord(record); setBoardOrientation(record.playerColor);
+   const snapshot = record.snapshot, progress = record.explainedReview;
+   if (snapshot && progress) {
+    reviewAutoStartedRef.current = true;
+    setReviewMap(snapshot.classifications as Record<number, ReviewClass>);
+    setReviewLossMap(snapshot.losses); setReviewBestMap(snapshot.best); setReviewUnavailableMap(snapshot.unavailable);
+    setReviewLineMap(snapshot.lines); setReviewCoverage(snapshot.coverage);
+    setReviewCounts(snapshot.counts as Record<ReviewClass, number>);
+    setAccuracyWhite(snapshot.accuracyWhite); setAccuracyBlack(snapshot.accuracyBlack);
+    const replay = new Chess(); replay.loadPgn(record.pgn); const history = replay.history({ verbose: true });
+    setWeeklyProgress(progress); setCurrentPly(progress.currentPly);
+    setGame(new Chess(progress.currentPly ? history[progress.currentPly - 1].after : history[0]?.before || replay.fen()));
+    setReviewProgress({ done: history.length, total: history.length });
+    setReviewSummary('Saved analysis restored. Continue the explained review in move order.');
+   }
+  } catch (error) { setWeeklyError(String(error instanceof Error ? error.message : error)); }
+  return () => { reviewRunIdRef.current++; };
+ }
  if (weeklyReviewGame !== null) {
   let cancelled = false;
   void (async () => {
@@ -729,7 +774,7 @@ export default function AnalyzePage() {
  const sourceOrientation = analyzeOrientationFromSearch(window.location.search);
  const reviewFromSession =
  params.get("review") === "1"
- ? window.sessionStorage.getItem("weissAnalyzeReviewPgn")
+ ? window.sessionStorage.getItem(accountStorageKey("weissAnalyzeReviewPgn", accountId))
  : "";
 
  const pgnToLoad = reviewFromSession || pgnFromUrl;
@@ -888,7 +933,11 @@ export default function AnalyzePage() {
  const nextWhitePlayer = nextGameInfo.white;
  const nextBlackPlayer = nextGameInfo.black;
 
- const replay = new Chess();
+ // Auto transfer games can start from a supplied endgame FEN. Replay the
+ // saved PGN's starting position, not an invented standard opening board.
+ // chess.js represents an absent FEN header as null, not undefined.
+ const autoStartFen = autoReviewId ? headers.FEN || undefined : undefined;
+ const replay = new Chess(autoStartFen);
  const history = parsed.history();
 
  const rows: MoveRow[] = [];
@@ -908,7 +957,7 @@ export default function AnalyzePage() {
  });
  });
 
- const freshStart = new Chess();
+ const freshStart = new Chess(autoStartFen);
  setStartFen(freshStart.fen());
  setMoveRows(rows);
  setCurrentPly(0);
@@ -1182,7 +1231,9 @@ export default function AnalyzePage() {
   }
 
  async function startGameReview() {
- if (moveRows.length < 2) {
+ // A completed assessment may contain only the computer's opening move
+ // (for example, Black resigns). It still needs the same full review pipeline.
+ if (moveRows.length < (weeklyReviewGame !== null ? 1 : autoReviewId ? 0 : 2)) {
  setReviewSummary(
  "Upload or paste a full PGN first. FEN positions use Analyze Now only.",
  );
@@ -1526,6 +1577,18 @@ export default function AnalyzePage() {
  evaluatedMoves > 0 ? Math.max(0, Math.min(100, 100 * Math.exp(-acl / 180))) : null;
  let weeklyAssessmentWarning = '';
  let savedWeekly: WeeklyStateLike | null = null;
+ let savedAuto: AutoGameReview | null = null;
+ if (autoReviewRecord && accountId && reviewRunIdRef.current === runId) {
+  try {
+   savedAuto = saveAutoGameAnalysis(accountId, autoReviewRecord.id, {
+    classifications: nextReviewMap, losses: nextReviewLossMap, best: nextReviewBestMap,
+    unavailable: nextReviewUnavailableMap, lines: nextReviewLineMap, coverage: nextReviewCoverage, counts,
+    accuracyWhite: accuracyFromAcl(whiteLoss / Math.max(1, nextReviewCoverage.white.evaluated), nextReviewCoverage.white.evaluated),
+    accuracyBlack: accuracyFromAcl(blackLoss / Math.max(1, nextReviewCoverage.black.evaluated), nextReviewCoverage.black.evaluated),
+   });
+   setAutoReviewRecord(savedAuto);
+  } catch (error) { setWeeklyError(String(error instanceof Error ? error.message : error)); }
+ }
  if (weeklyReviewGame !== null && weeklyReviewContext?.weekKey) {
   try {
    const { data: auth, error: authError } = await supabase.auth.getUser();
@@ -1621,6 +1684,11 @@ export default function AnalyzePage() {
   setWeeklyProgress(progress ?? null);
   setCurrentPly(ply); setGame(new Chess(fenByPly[ply] || startFen));
   setWeeklyError(progress ? '' : 'Complete analysis must be saved before reviewing. Retry Review Full Game.');
+ } else if (autoReviewId) {
+  const progress = savedAuto?.explainedReview;
+  setWeeklyProgress(progress ?? null); setCurrentPly(progress?.currentPly ?? 0);
+  setGame(new Chess(fenByPly[progress?.currentPly ?? 0] || startFen));
+  if (progress) setWeeklyError('');
  } else goToPly(firstInteresting);
  const whiteCoverageIncomplete =
  nextReviewCoverage.white.eligible > 0 &&
@@ -1652,15 +1720,16 @@ export default function AnalyzePage() {
  useEffect(() => {
  if (!isReviewMode) return;
  if (weeklyReviewGame !== null && !weeklyIdentity) return;
+ if (autoReviewId && !autoReviewRecord) return;
  if (!engineReady) return;
- if (moveRows.length < 2) return;
+ if (moveRows.length < (weeklyReviewGame !== null ? 1 : autoReviewId ? 0 : 2)) return;
  if (reviewInProgress) return;
  if (reviewAutoStartedRef.current) return;
 
  reviewAutoStartedRef.current = true;
  setReviewSummary("Game Analysis starting...");
  void startGameReview();
- }, [isReviewMode, engineReady, moveRows.length, reviewInProgress, weeklyIdentity]);
+ }, [isReviewMode, engineReady, moveRows.length, reviewInProgress, weeklyIdentity, autoReviewRecord]);
 
  // Called only after the final sequential move has received its reading time.
  function completeWeeklyPlayback() {
@@ -1668,6 +1737,15 @@ export default function AnalyzePage() {
  }
 
  function finishWeeklyExplainedReview(skip: boolean) {
+  if (autoReviewRecord && accountId) {
+   if (!weeklyProgress || weeklySaveBusy || weeklySaveBusyRef.current || weeklyAdvanceRef.current || weeklyError || reviewInProgress) return;
+   weeklyPlayback.pause(); weeklyAdvanceRef.current = true;
+   try {
+    saveAutoExplainedReview(accountId, autoReviewRecord.id, currentPly, skip ? 'skip' : true);
+    window.location.replace(AUTO_TRAINING_ENTRY_ROUTE);
+   } catch (error) { weeklyAdvanceRef.current = false; setWeeklyError(String(error instanceof Error ? error.message : error)); }
+   return;
+  }
   if (!weeklyIdentity || weeklyReviewGame === null || !weeklyProgress || weeklySaveBusy || weeklyAdvanceRef.current || weeklyError) return;
   if (reviewInProgress) return;
   if (!skip && (currentPly !== moveRows.length || weeklyProgress.furthestPly !== moveRows.length || weeklyProgress.currentPly !== currentPly)) return;
@@ -1984,6 +2062,17 @@ function reviewShort(label?: ReviewClass) {
 
  const best = reviewBestMap[ply] || "--";
  const moveText = row.san ? `Move ${row.san}: ` : "";
+ const terminal = terminalConditionForPly(ply);
+
+ if (terminal) {
+ return terminalReviewExplanation({
+  terminal,
+  moveSan: row.san,
+  bestMove: best,
+  evalLossCp: reviewLossMap[ply] ?? 0,
+  moverColor: row.color === "w" ? "white" : "black",
+ });
+ }
 
  if (label === "Book") {
  return moveText + "Book move from the opening.";
@@ -2094,11 +2183,11 @@ function reviewShort(label?: ReviewClass) {
  // Cache the existing verified explanations once per completed analysis, not per
  // playback step. Weekly playback never initiates new AI explanation requests.
  const weeklyComments = useMemo(() => {
-  if (weeklyReviewGame === null || !weeklyProgress || reviewInProgress) return {} as Record<number, string>;
+  if (!explainedReviewActive || !weeklyProgress || reviewInProgress) return {} as Record<number, string>;
   return Object.fromEntries(moveRows.map(row => [row.ply, reviewCommentForPly(row.ply)]));
- }, [weeklyReviewGame, Boolean(weeklyProgress), reviewInProgress, moveRows, startFen, reviewMap, reviewBestMap, reviewLossMap, reviewLineMap, reviewUnavailableMap, reviewCoachMap, gameInfo]);
+ }, [explainedReviewActive, Boolean(weeklyProgress), reviewInProgress, moveRows, startFen, reviewMap, reviewBestMap, reviewLossMap, reviewLineMap, reviewUnavailableMap, reviewCoachMap, gameInfo]);
  const weeklyPlayback = useWeeklyReviewPlayback({
-  reviewKey: weeklyIdentity ? `${weeklyIdentity.userId}:${weeklyIdentity.weekKey}:${weeklyReviewGame}` : null,
+  reviewKey: weeklyIdentity ? `${weeklyIdentity.userId}:${weeklyIdentity.weekKey}:${weeklyReviewGame}` : autoReviewRecord ? `${accountId}:auto:${autoReviewRecord.id}` : null,
   ready: Boolean(weeklyProgress && !reviewInProgress && !weeklySaveBusy && !weeklyError),
   ply: currentPly, total: moveRows.length, sequentialThrough: weeklyProgress?.furthestPly ?? 0,
   text: `${moveRows[currentPly - 1]?.san ?? ''} ${reviewMap[currentPly] ?? ''} ${reviewBestMap[currentPly] ?? ''} ${weeklyComments[currentPly] ?? ''}`,
@@ -2106,10 +2195,12 @@ function reviewShort(label?: ReviewClass) {
  });
 
  useEffect(() => {
- if (reviewInProgress || weeklyReviewGame !== null) return;
+ if (reviewInProgress || explainedReviewActive) return;
 
  const label = reviewMap[currentPly];
+ const terminal = terminalConditionForPly(currentPly);
  if (
+ terminal ||
  label !== "Inaccuracy" &&
  label !== "Mistake" &&
  label !== "Miss" &&
@@ -2167,6 +2258,16 @@ function reviewShort(label?: ReviewClass) {
  startFen,
  gameInfo.opening,
  ]);
+
+ function terminalConditionForPly(ply: number) {
+ return terminalConditionAfterMoves({
+  fenBefore: startFen,
+  moves: moveRows.slice(0, ply).map((row) => ({
+   moveUci: row.uci,
+   moveSan: row.san,
+  })),
+ });
+ }
 
  function pgnCommentForRow(row: MoveRow) {
  const label = reviewMap[row.ply]
@@ -3536,6 +3637,7 @@ onSquareClick={(square) => {
  >
  <button
  onClick={startGameReview}
+ data-primary-action={!reviewInProgress && reviewProgress.done === 0 && moveRows.length > 0}
  disabled={
  !engineReady || moveRows.length === 0 || reviewInProgress
  }
@@ -3829,13 +3931,13 @@ onSquareClick={(square) => {
  </div>
  )}
 
- {isReviewMode && weeklyReviewGame !== null && (
+ {isReviewMode && explainedReviewActive && (
  <div data-name="weekly-explained-review" data-ply={currentPly} data-reviewed={weeklyProgress?.furthestPly ?? 0}
   data-ready={Boolean(weeklyProgress && !reviewInProgress)} data-saving={weeklySaveBusy}
   data-paused={weeklyPlayback.paused} data-reading-ms={weeklyPlayback.readingMs} role="status" style={{ marginBottom: 10 }}>
  {weeklyError || (weeklyProgress
-  ? `Weekly Game ${weeklyReviewGame}: explained review ${currentPly} / ${moveRows.length}. ${weeklyPlayback.paused ? 'Playback paused. Resume to continue; skipped moves must still be reviewed in order.' : 'Playing automatically. Navigate manually to pause.'}`
-  : 'Preparing the complete Weekly game analysis…')}
+  ? `${autoReviewId ? 'Auto game' : `Weekly Game ${weeklyReviewGame}`}: explained review ${currentPly} / ${moveRows.length}. ${weeklyPlayback.paused ? 'Playback paused. Resume to continue; skipped moves must still be reviewed in order.' : 'Playing automatically. Navigate manually to pause.'}`
+  : autoReviewId ? 'Analyzing your game…' : 'Preparing the complete Weekly game analysis…')}
  <SecondaryButton onClick={weeklyPlayback.paused ? weeklyPlayback.resume : weeklyPlayback.pause}>
  {weeklyPlayback.paused ? 'Resume playback' : 'Pause playback'}
  </SecondaryButton>
@@ -4116,7 +4218,7 @@ style={{
  lineHeight: 1.6,
 }}
  >
- {weeklyReviewGame !== null ? weeklyComments[currentPly] : reviewCommentForPly(currentPly)}
+ {explainedReviewActive ? weeklyComments[currentPly] : reviewCommentForPly(currentPly)}
  </div>
  </>
  )}
@@ -4306,7 +4408,7 @@ style={{
  {buildSetupFen()}
  </div>
 
- <PrimaryButton onClick={loadSetupPosition}>Load Setup</PrimaryButton>
+ <PrimaryButton data-primary-action={moveRows.length === 0} onClick={loadSetupPosition}>Load Setup</PrimaryButton>
  </div>
  )}
  </PanelCard>
@@ -4334,7 +4436,7 @@ style={{
  />
 
  <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
- <PrimaryButton onClick={loadInput}>Load</PrimaryButton>
+ <PrimaryButton data-primary-action={moveRows.length === 0 && !isSetupPositionOpen} onClick={loadInput}>Load</PrimaryButton>
  <SecondaryButton onClick={resetBoard}>Reset</SecondaryButton>
  </div>
 

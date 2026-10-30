@@ -46,9 +46,9 @@ export function PrimaryButton({
  disabled={disabled}
  style={{
  flex: fullWidth ? 1 : undefined,
- background: disabled ? 'color-mix(in srgb, var(--theme-accent) 48%, var(--theme-panel-input))' : 'linear-gradient(180deg,var(--theme-accent-strong),var(--theme-accent))',
- color: 'var(--theme-accent-text)',
- border: '1px solid color-mix(in srgb, var(--theme-accent-strong) 45%, transparent)',
+ background: 'var(--action-secondary-bg)',
+ color: 'var(--action-secondary-text)',
+ border: '1px solid var(--theme-border)',
  borderRadius: 10,
  padding: '13px 12px',
  fontSize: 14,

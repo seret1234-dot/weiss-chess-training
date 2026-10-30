@@ -37,7 +37,7 @@ export async function admitAutoChunk(unit: AutoChunkUnit, stillActive: () => boo
   try {
     const { data, error } = await supabase.auth.getSession()
     if (error) throw new Error('Log in to continue Auto Training.')
-    // Guests retain their existing sample allowance; this ledger is account-only.
+    // This ledger applies to signed-in Auto Training only.
     if (!data.session?.user?.id) return true
     const userId = data.session.user.id
     if (!stillActive()) return false

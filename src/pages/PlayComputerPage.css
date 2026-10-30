@@ -2,7 +2,7 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-width: 1024px) and (max-height: 600px) {
   html:has(.play-computer-page) {
     max-width: 100%;
     overflow-x: clip !important;
@@ -89,7 +89,7 @@
   }
 
   .play-computer-board-column {
-    width: min(calc(100vw - 16px), 920px) !important;
+    width: min(calc(100vw - 16px), var(--play-board-size, 920px)) !important;
     max-width: 100%;
     min-width: 0;
     margin: 0 auto;
@@ -130,7 +130,7 @@
   }
 
   .play-computer-board-shell {
-    width: min(calc(100vw - 16px), 920px) !important;
+    width: min(calc(100vw - 16px), var(--play-board-size, 920px)) !important;
     height: auto !important;
     max-width: 100%;
     aspect-ratio: 1;
@@ -314,5 +314,32 @@
   .play-computer-page button {
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+}
+
+/* Starting the ordinary game must not move the mobile workspace. The board
+   and short status line have their final size before engine readiness. */
+.play-computer-page[data-normal-play="true"] .play-computer-mobile-status {
+  min-height: 1.4em;
+}
+
+@media (max-width: 1024px) and (max-height: 600px) and (orientation: landscape) {
+  .play-computer-page[data-normal-play="true"] .play-computer-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 92px;
+    min-height: 50px;
+    margin-bottom: 4px !important;
+  }
+  .play-computer-page[data-normal-play="true"] .play-computer-title {
+    font-size: 20px !important;
+    padding: 4px 8px !important;
+  }
+  .play-computer-page[data-normal-play="true"] .play-computer-mobile-status {
+    margin-top: 0;
+  }
+  .play-computer-page[data-normal-play="true"] .play-computer-size-label {
+    display: none !important;
   }
 }
