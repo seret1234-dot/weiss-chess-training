@@ -43,7 +43,10 @@ export default function IntroductionPage() {
  }, [navigate])
 
  const ownJob = input && job.input?.userId === input.userId ? job : null
- const ready = !!intro && (!intro.requiresAnalysis || ownJob?.status === 'completed')
+ // The introduction controls when a new learner enters practice. Import and
+ // analysis are helpful personalization work, never a prerequisite for the
+ // rating-based final-v6 starter curriculum.
+ const ready = !!intro && intro.status !== 'pending'
  useEffect(() => {
   if (!intro?.requiresAnalysis || !input || started.current) return
   // Normally started by OnboardingPage. A missing local checkpoint (for example
@@ -54,9 +57,9 @@ export default function IntroductionPage() {
   }
  }, [intro, input, ownJob, startAnalysis])
  useEffect(() => {
-  // Analysis completion is the training readiness signal. Do not make a
-  // first-time user finish or skip the optional introduction before handing
-  // them to their now-ready course.
+  // Finishing or skipping the video is the training readiness signal. The
+  // background import continues after this navigation and upgrades Auto only
+  // at its existing safe boundary.
   if (!intro || !ready || handedOff.current) return
   handedOff.current = true
   if (ownJob?.status === 'completed') acknowledgePlanReady()
@@ -95,8 +98,8 @@ export default function IntroductionPage() {
     </button>
    </>}
    <p role="status">{!intro ? 'Loading…' : ready
-    ? intro.status === 'pending' ? 'Your training is ready when you finish or skip the introduction.' : 'Opening your training…'
-    : progress}</p>
+    ? 'Opening your rating-appropriate training…'
+    : `${progress} Your rating-based practice will be ready when this introduction ends.`}</p>
    {ownJob?.status === 'failed' && <button onClick={retryAnalysis}>Retry analysis</button>}
    {error && <p role="alert">{error}</p>}
   </section>

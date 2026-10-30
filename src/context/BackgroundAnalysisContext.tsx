@@ -96,6 +96,13 @@ export function createAnalysisJob(input: AnalysisInput, now = new Date().toISOSt
  }
 }
 
+export function shouldReuseActiveAnalysisJob(current: AnalysisJob, input: AnalysisInput) {
+ if (!ACTIVE_STATUSES.includes(current.status) || !current.input) return false
+ return current.input.userId === input.userId
+  && current.input.chesscomUsername === input.chesscomUsername
+  && current.input.lichessUsername === input.lichessUsername
+}
+
 export function BackgroundAnalysisProvider({ user, children }: { user: User | null; children: ReactNode }) {
  const [job, setJob] = useState<AnalysisJob>(idleJob)
  const jobRef = useRef<AnalysisJob>(idleJob)
@@ -182,6 +189,10 @@ export function BackgroundAnalysisProvider({ user, children }: { user: User | nu
  }, [finalizePlan, updateJob])
 
  const startAnalysis = useCallback((input: AnalysisInput) => {
+  // Onboarding starts the durable checkpoint before navigating to the video.
+  // A render or refresh during that handoff must resume the same run instead
+  // of creating a second import or duplicating its downstream work.
+  if (shouldReuseActiveAnalysisJob(jobRef.current, input)) return
   const next = createAnalysisJob(input)
   // Set this synchronously so callbacks from an older job can no longer patch
   // the job while React schedules this new state.

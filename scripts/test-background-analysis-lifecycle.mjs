@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { createServer } from "vite"
 
-const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" })
+const vite = await createServer({ server: { middlewareMode: true, hmr: false }, appType: "custom" })
 
 try {
  await Promise.all([
@@ -15,7 +15,7 @@ try {
   readFile(new URL("../src/context/BackgroundAnalysisContext.tsx", import.meta.url), "utf8"),
   readFile(new URL("../src/AppRouter.tsx", import.meta.url), "utf8"),
  ])
- const { applyAnalysisJobUpdate, createAnalysisJob } = lifecycle
+ const { applyAnalysisJobUpdate, createAnalysisJob, shouldReuseActiveAnalysisJob } = lifecycle
  const input = { userId: "user-1", chesscomUsername: "chess-user", lichessUsername: "lichess-user" }
  const first = createAnalysisJob(input, "2026-08-11T12:00:00.000Z", "job-1")
 
@@ -60,7 +60,13 @@ assert.match(providerSource, /if \(!resume \|\| \(run\.status === "importing" &&
  const completedRegression = applyAnalysisJobUpdate(completed, "job-1", { status: "importing" })
  assert.equal(completedRegression, completed, "completed job cannot restart on navigation")
 
- // 9. An explicit new analysis uses a new run ID and valid importing phase.
+ // 9. Intro navigation reuses its account-scoped active checkpoint rather
+ // than creating a second import while the first run is in flight.
+ assert.equal(shouldReuseActiveAnalysisJob(analyzing, input), true, "matching active checkpoint is reused")
+ assert.equal(shouldReuseActiveAnalysisJob(analyzing, { ...input, chesscomUsername: "changed-user" }), false, "changed account may start a new import")
+ assert.equal(shouldReuseActiveAnalysisJob(completed, input), false, "completed job is not treated as active")
+
+ // 10. An explicit new analysis uses a new run ID and valid importing phase.
  assert.notEqual(first.jobId, second.jobId, "explicit new analysis creates a new run ID")
  assert.equal(second.status, "importing", "explicit new analysis may begin importing")
 

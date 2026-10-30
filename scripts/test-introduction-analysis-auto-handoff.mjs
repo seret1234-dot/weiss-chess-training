@@ -39,11 +39,11 @@ createRoot(document.getElementById('root')).render(<BrowserRouter><App/></Browse
    contents: "import{createContext,useContext}from'react';export const Context=createContext(null);export const useBackgroundAnalysis=()=>useContext(Context)", loader: 'js', resolveDir: process.cwd(),
   }))
   build.onLoad({ filter: /^supabase$/, namespace: 'fixture' }, () => ({
-   contents: "export const supabase={auth:{getUser:async()=>({data:{user:{id:'intro-user',user_metadata:{training_introduction_v1:{version:1,status:'pending',startedAt:'2026-09-01T00:00:00Z',requiresAnalysis:true},chessComUsername:'tester'}}},error:null})},from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{onboarding_complete:true},error:null})})})})}", loader: 'js',
+   contents: "export const supabase={auth:{getUser:async()=>({data:{user:{id:'intro-user',user_metadata:{training_introduction_v1:{version:1,status:'pending',startedAt:'2026-09-01T00:00:00Z',requiresAnalysis:true},chessComUsername:'tester'}}},error:null}),updateUser:async()=>({error:null})},from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{onboarding_complete:true},error:null})})})})}", loader: 'js',
   }))
   build.onLoad({ filter: /^auto-route$/, namespace: 'fixture' }, () => ({ contents: "export const AUTO_TRAINING_ENTRY_ROUTE='/auto?continue=1'", loader: 'js' }))
   build.onLoad({ filter: /^introduction$/, namespace: 'fixture' }, () => ({
-   contents: "export const INTRODUCTION_METADATA_KEY='training_introduction_v1';export const INTRODUCTION_VIDEO_SRC=null;export const readIntroduction=metadata=>metadata?.training_introduction_v1||null", loader: 'js',
+   contents: "export const INTRODUCTION_METADATA_KEY='training_introduction_v1';export const INTRODUCTION_VIDEO_SRC='/introduction.mp4';export const readIntroduction=metadata=>metadata?.training_introduction_v1||null", loader: 'js',
   }))
   build.onLoad({ filter: /^style$/, namespace: 'fixture' }, () => ({ contents: '', loader: 'css' }))
  } }],
@@ -62,11 +62,14 @@ try {
  const errors = []
  page.on('pageerror', (error) => errors.push(error.message))
  await page.goto(`http://127.0.0.1:${server.address().port}/onboarding/introduction`)
+ await page.getByLabel('Introduction video').waitFor()
+ assert.equal(await page.locator('[data-route]').textContent(), '/onboarding/introduction', 'a completed import does not interrupt the instruction video')
+ await page.getByLabel('Introduction video').evaluate((video) => video.dispatchEvent(new Event('ended')))
  await page.waitForFunction(() => document.querySelector('[data-route]')?.textContent === '/auto?continue=1')
  assert.equal(await page.locator('[data-ack]').textContent(), 'true')
  assert.equal(await page.getByRole('button', { name: 'Skip introduction', exact: true }).count(), 0)
  assert.deepEqual(errors, [])
- console.log('PASS: a completed import/analysis job immediately hands a pending introduction to Auto training')
+ console.log('PASS: a completed import/analysis job waits for video completion, then hands the learner to Auto training')
 } finally {
  await browser.close()
  await new Promise((resolve) => server.close(resolve))
