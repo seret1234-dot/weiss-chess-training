@@ -8,7 +8,7 @@ tracked migration directory. The active baseline
 schema-only `pg_dump` of Production project `lahzgtcpbshmzsqoqswf` taken for
 release candidate `709feadbeeb6766b42591fec074bdc40bf4089c7`.
 
-- SHA-256: `05637a73c6f6e781e8d637acf01d0fbdca32f714bbfbfb29e89b12b7da82abae`
+- SHA-256: `303b9e5dac5d7f53378b7af32d6bb496aaee96435e99c29ea31ac38bde0a250c`
 - Scope: `public` schema DDL only: tables, constraints, indexes, functions,
   triggers, policies, privileges, and default privileges.
 - Excluded: table data, customer records, Auth identities, passwords, tokens,
@@ -19,14 +19,15 @@ release candidate `709feadbeeb6766b42591fec074bdc40bf4089c7`.
   omits: `CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public`. Production
   has `pg_trgm` 1.6 in `public`; the statement restores the exact prerequisite
   for indexes using `public.gin_trgm_ops` in a fresh Supabase database.
-- Fresh Supabase projects install permissive `postgres` defaults before
-  application migrations run. The baseline therefore revokes those defaults
-  before creating snapshot objects, applies Production's explicit per-object
-  grants, and restores the Production defaults only at the end. This prevents
-  `anon`, `authenticated`, and `service_role` from inheriting unintended
-  `TRUNCATE`, `TRIGGER`, `REFERENCES`, or `MAINTAIN` rights. The platform-owned
-  `supabase_admin` defaults are left to the Supabase environment, as Production
-  does; application migrations must not attempt to alter that role's defaults.
+- Fresh Supabase projects install permissive defaults before application
+  migrations run. Local migrations execute as `postgres`; hosted branch
+  provisioning executes as `supabase_admin`. The baseline therefore uses the
+  current migration executor to revoke its own defaults before creating snapshot
+  objects, applies Production's explicit per-object grants, and restores that
+  executor's defaults only at the end. This prevents `anon`, `authenticated`,
+  and `service_role` from inheriting unintended `TRUNCATE`, `TRIGGER`,
+  `REFERENCES`, or `MAINTAIN` rights while preserving the other platform-owned
+  role's Supabase-managed defaults.
 
 The executable chain is intentionally only:
 

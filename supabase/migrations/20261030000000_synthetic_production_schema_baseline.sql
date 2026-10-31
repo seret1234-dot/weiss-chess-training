@@ -31,22 +31,32 @@ CREATE SCHEMA IF NOT EXISTS "public";
 ALTER SCHEMA "public" OWNER TO "pg_database_owner";
 
 
--- A newly provisioned Supabase branch can begin with permissive defaults for
--- postgres. The Production snapshot's explicit per-object GRANT statements are
--- restrictive for many application tables, so clear those inherited defaults
--- before any application object is created. The exact Production defaults are
--- restored after all snapshot objects are in place. supabase_admin is a
--- platform-owned role; its matching Production defaults are provisioned by
--- Supabase and must not be modified by an application migration.
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON TABLES FROM "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON TABLES FROM "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON TABLES FROM "service_role";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON SEQUENCES FROM "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON SEQUENCES FROM "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON SEQUENCES FROM "service_role";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON FUNCTIONS FROM "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON FUNCTIONS FROM "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" REVOKE ALL ON FUNCTIONS FROM "service_role";
+-- Supabase applies this snapshot as postgres locally but as supabase_admin on
+-- a hosted branch. Both environments start with permissive defaults for their
+-- respective migration executor. Clear only the executor's defaults before
+-- creating application objects; the dump's explicit grants then reproduce the
+-- restrictive Production ACLs. The matching defaults are restored at the end
+-- without modifying the other platform-owned role.
+DO $$
+DECLARE
+  owner_role text := current_user;
+  grantee_role text;
+  object_kind text;
+BEGIN
+  IF owner_role NOT IN ('postgres', 'supabase_admin') THEN
+    RAISE EXCEPTION 'unexpected synthetic-baseline executor: %', owner_role;
+  END IF;
+  FOREACH object_kind IN ARRAY ARRAY['TABLES', 'SEQUENCES', 'FUNCTIONS'] LOOP
+    FOREACH grantee_role IN ARRAY ARRAY['anon', 'authenticated', 'service_role'] LOOP
+      EXECUTE format(
+        'ALTER DEFAULT PRIVILEGES FOR ROLE %I IN SCHEMA public REVOKE ALL ON %s FROM %I',
+        owner_role,
+        object_kind,
+        grantee_role
+      );
+    END LOOP;
+  END LOOP;
+END $$;
 
 
 COMMENT ON SCHEMA "public" IS 'standard public schema';
@@ -6531,27 +6541,23 @@ GRANT ALL ON TABLE "public"."weekly_adaptive_tests" TO "service_role";
 
 
 
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "service_role";
-
-
-
-
-
-
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "service_role";
-
-
-
-
-
-
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
+DO $$
+DECLARE
+  owner_role text := current_user;
+  grantee_role text;
+  object_kind text;
+BEGIN
+  IF owner_role NOT IN ('postgres', 'supabase_admin') THEN
+    RAISE EXCEPTION 'unexpected synthetic-baseline executor: %', owner_role;
+  END IF;
+  FOREACH object_kind IN ARRAY ARRAY['TABLES', 'SEQUENCES', 'FUNCTIONS'] LOOP
+    FOREACH grantee_role IN ARRAY ARRAY['postgres', 'anon', 'authenticated', 'service_role'] LOOP
+      EXECUTE format(
+        'ALTER DEFAULT PRIVILEGES FOR ROLE %I IN SCHEMA public GRANT ALL ON %s TO %I',
+        owner_role,
+        object_kind,
+        grantee_role
+      );
+    END LOOP;
+  END LOOP;
+END $$;
