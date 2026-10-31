@@ -1,4 +1,5 @@
 import { AUTO_TRAINERS } from "../trainerCatalog"
+import { VERIFIED_FINAL_TACTIC_COURSES } from "../../trainers/patternTactic/generatedFinalVerifiedTaxonomy"
 import type { CurriculumArea, CurriculumItem } from "./curriculumTypes"
 
 export const CURRICULUM_AREAS: CurriculumArea[] = [
@@ -192,4 +193,14 @@ export function getStageThemes(area: "mates" | "tactics", stageOrder: number) {
   return CURRICULUM_CATALOG
     .filter((item) => item.area === "tactics" && item.stageOrder === stageOrder && !item.isMixed && item.available && item.theme)
     .map((item) => item.theme as string)
+}
+
+/** The final-v6 manifest is authoritative for tactic-course mastery. */
+export function getVerifiedFocusedChunkCount(trainerKey: string) {
+  return VERIFIED_FINAL_TACTIC_COURSES.find((course) => course.trainerKey === trainerKey)?.chunkCount ?? null
+}
+
+export function getFocusedChunkMasteryRequirement(item: Pick<CurriculumItem, "area" | "trainerKey">) {
+  const verifiedChunks = item.area === "tactics" ? getVerifiedFocusedChunkCount(item.trainerKey) : null
+  return Math.min(3, verifiedChunks ?? 3)
 }

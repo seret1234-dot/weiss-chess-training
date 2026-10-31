@@ -37,6 +37,10 @@ export type ThemeMastery = {
   averageSolveSeconds?: number
   hintRate?: number
   mastered?: boolean
+  /** Durable, verified focused chunks which earned initial-mastery credit. */
+  perfectChunkIndices?: number[]
+  /** min(3, verified available chunks) for the scoped course. */
+  requiredPerfectChunks?: number
 }
 
 export type StageMastery = {

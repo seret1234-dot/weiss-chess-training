@@ -139,23 +139,24 @@ function withM1LearnerCompletion(
   const mateThemes = { ...(themeMastery.mates ?? {}) }
   for (const definition of PATTERN_MATE_M1_LEARNER_CURRICULA) {
     if (!completion[definition.trainerKey]?.complete) continue
-    mateThemes[definition.theme] = {
-      ...(mateThemes[definition.theme] ?? {}),
+    mateThemes[`1:${definition.theme}`] = {
+      ...(mateThemes[`1:${definition.theme}`] ?? {}),
       mastered: true,
     }
   }
   for (const definition of PATTERN_MATE_M2_TO_M5_LEARNER_CURRICULA) {
     if (!completion[definition.trainerKey]?.complete) continue
-    mateThemes[definition.theme] = {
-      ...(mateThemes[definition.theme] ?? {}),
+    const stage = Math.min(4, definition.mateDistance)
+    mateThemes[`${stage}:${definition.theme}`] = {
+      ...(mateThemes[`${stage}:${definition.theme}`] ?? {}),
       mastered: true,
     }
   }
   const tacticThemes = { ...(themeMastery.tactics ?? {}) }
   for (const definition of PATTERN_TACTIC_M1_TO_M4_LEARNER_CURRICULA) {
     if (!completion[definition.trainerKey]?.complete) continue
-    tacticThemes[definition.theme] = {
-      ...(tacticThemes[definition.theme] ?? {}),
+    tacticThemes[`${definition.tacticDistance}:${definition.theme}`] = {
+      ...(tacticThemes[`${definition.tacticDistance}:${definition.theme}`] ?? {}),
       mastered: true,
     }
   }
@@ -189,11 +190,11 @@ export function buildCurriculumDecision(
     source: "curriculum",
     route,
     trainerKey: recommendation.trainerKey,
-    chunkIndex: m2ToM5Learner
+    chunkIndex: recommendation.chunkIndex ?? (m2ToM5Learner
       ? ((selectionIndex % m2ToM5Learner.activeChunkCount) + m2ToM5Learner.activeChunkCount) % m2ToM5Learner.activeChunkCount
       : tacticLearner
         ? ((selectionIndex % tacticLearner.activeChunkCount) + tacticLearner.activeChunkCount) % tacticLearner.activeChunkCount
-      : recommendation.chunkIndex,
+      : null),
     label: labelFor(recommendation),
     explanation: recommendation.explanation,
     selectionIndex,
@@ -234,6 +235,7 @@ function fallbackDecision(item: NextDueItem, reason: unknown): CurriculumRuntime
     selectionIndex: null,
     fallbackReason: message,
     legacyDueState: item.dueState,
+    curriculumEventKind: item.dueState === "overdue" || item.dueState === "due_today" ? "review" : undefined,
   }
 }
 

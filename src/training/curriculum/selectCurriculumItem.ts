@@ -1,5 +1,6 @@
 import {
   CURRICULUM_CATALOG,
+  getFocusedChunkMasteryRequirement,
   getCurriculumItems,
   getStageThemes,
 } from "./curriculumCatalog"
@@ -64,7 +65,6 @@ function stageProgress(state: CurriculumState, area: CurriculumArea, stage: numb
 
 function currentSequentialStage(area: "mates" | "tactics", state: CurriculumState) {
   const ratingStage = getInitialCurrentStage(area, state.rating)
-  const themeProgress = getThemeMastery(area, state)
   let evidenceCeiling = ratingStage
 
   // Explicit state in a later persistence phase is not trusted to bypass the
@@ -72,6 +72,7 @@ function currentSequentialStage(area: "mates" | "tactics", state: CurriculumStat
   // placed into Mate in 3 merely because a stale due row says so.
   while (evidenceCeiling < 4) {
     const themes = getStageThemes(area, evidenceCeiling)
+    const themeProgress = getThemeMastery(area, state, evidenceCeiling)
     const mastered = isStageMastered(
       stageProgress(state, area, evidenceCeiling),
       themes.map((theme) => themeProgress[theme] ?? {}),
@@ -83,6 +84,46 @@ function currentSequentialStage(area: "mates" | "tactics", state: CurriculumStat
   const requestedStage = state.activeStages?.[area]
   const persistedCeiling = state.difficultyCeilings?.[area] ?? 4
   return Math.max(1, Math.min(requestedStage ?? evidenceCeiling, evidenceCeiling, persistedCeiling))
+}
+
+function focusedThemeForStage(
+  area: "mates" | "tactics",
+  stage: number,
+  themes: string[],
+  state: CurriculumState,
+  selectionIndex: number,
+  tacticThemeSelectionIndices?: Partial<Record<1 | 2 | 3 | 4, number>>,
+) {
+  const progress = getThemeMastery(area, state, stage)
+  const unmastered = themes.filter((theme) => !progress[theme]?.mastered)
+  // A partially completed focused course is the durable focus. This keeps
+  // Chunk 1 -> Chunk 2 -> Chunk 3 together across refreshes and devices.
+  const partial = unmastered
+    .filter((theme) => {
+      const completed = progress[theme]?.perfectChunkIndices?.length ?? 0
+      const required = progress[theme]?.requiredPerfectChunks ?? 3
+      return completed > 0 && completed < required
+    })
+    .sort((left, right) => {
+      const difference = (progress[right]?.perfectChunkIndices?.length ?? 0) - (progress[left]?.perfectChunkIndices?.length ?? 0)
+      return difference || themes.indexOf(left) - themes.indexOf(right)
+    })
+  return partial[0] ?? cyclePick(
+    unmastered.length ? unmastered : themes,
+    tacticThemeSelectionIndex(area, stage, selectionIndex, tacticThemeSelectionIndices),
+  )
+}
+
+function focusedChunkIndex(item: CurriculumItem, state: CurriculumState) {
+  if (item.area !== "tactics" || item.isMixed || !item.theme) return null
+  const progress = getThemeMastery("tactics", state, item.stageOrder)[item.theme]
+  const requirement = getFocusedChunkMasteryRequirement(item)
+  const completed = new Set(progress?.perfectChunkIndices ?? [])
+  const available = Math.max(requirement, 1)
+  for (let chunk = 1; chunk <= available; chunk += 1) {
+    if (!completed.has(chunk)) return chunk - 1
+  }
+  return null
 }
 
 function sequentialCeiling(area: "mates" | "tactics", state: CurriculumState, currentStage: number) {
@@ -104,7 +145,7 @@ export function isDueItemAllowedByCurriculum(item: CurriculumItem, state: Curric
     const ceiling = sequentialCeiling(item.area, state, currentStage)
     if (item.stageOrder > ceiling) return false
     if (item.variantLevel && item.variantLevel > item.stageOrder && item.area === "tactics") return false
-    if (item.isMixed && !isMixedUnlocked(item.area, getStageThemes(item.area, item.stageOrder), state)) return false
+    if (item.isMixed && !isMixedUnlocked(item.area, getStageThemes(item.area, item.stageOrder), state, item.stageOrder)) return false
     return true
   }
   if (item.area === "endgame-piece-mates") {
@@ -141,9 +182,9 @@ function chooseSequentialItem(
   const currentStage = currentSequentialStage(area, state)
   const ceiling = sequentialCeiling(area, state, currentStage)
   const themes = getStageThemes(area, currentStage)
-  const progress = getThemeMastery(area, state)
+  const progress = getThemeMastery(area, state, currentStage)
   const themeProgress = themes.map((theme) => progress[theme] ?? {})
-  const mixedUnlocked = isMixedUnlocked(area, themes, state)
+  const mixedUnlocked = isMixedUnlocked(area, themes, state, currentStage)
   const regression = hasRegressionSignal(area, state, currentStage, themeProgress)
   const allowed = getCurriculumItems(area).filter((item) => isDueItemAllowedByCurriculum(item, state))
   const currentFocused = allowed.filter((item) => item.stageOrder === currentStage && !item.isMixed)
@@ -164,14 +205,12 @@ function chooseSequentialItem(
   } else if (scheduledStage !== currentStage) {
     kind = scheduledStage > currentStage ? "preview" : "current"
     targetStage = scheduledStage
-    candidates = allowed.filter((item) => item.stageOrder === targetStage && !item.isMixed)
+    const scheduledThemes = getStageThemes(area, targetStage)
+    const focusedTheme = focusedThemeForStage(area, targetStage, scheduledThemes, state, selectionIndex, tacticThemeSelectionIndices)
+    candidates = allowed.filter((item) => item.stageOrder === targetStage && item.theme === focusedTheme && !item.isMixed)
   } else if (!mixedUnlocked) {
     const trainableThemes = themes.filter((theme) => availableCurrentThemes.has(theme))
-    const unmastered = trainableThemes.filter((theme) => !progress[theme]?.mastered)
-    const focusedTheme = cyclePick(
-      unmastered.length ? unmastered : trainableThemes,
-      tacticThemeSelectionIndex(area, currentStage, selectionIndex, tacticThemeSelectionIndices),
-    )
+    const focusedTheme = focusedThemeForStage(area, currentStage, trainableThemes, state, selectionIndex, tacticThemeSelectionIndices)
     candidates = allowed.filter((item) => item.stageOrder === currentStage && item.theme === focusedTheme && !item.isMixed)
   } else {
     candidates = allowed.filter((item) => item.stageOrder === currentStage && item.isMixed)
@@ -222,7 +261,7 @@ export function selectCurriculumItem(input: CurriculumSelectionInput): Curriculu
 
     const item = selected.item
     const themes = area === "mates" || area === "tactics" ? getStageThemes(area, selected.currentStage) : []
-    const themeMasteryPercent = themes.length ? getThemeMasteryPercent(area, themes, input.state) : undefined
+    const themeMasteryPercent = themes.length ? getThemeMasteryPercent(area, themes, input.state, selected.currentStage) : undefined
     const weakness = input.state.importedWeakness === area
     const reason = selected.kind === "reinforcement"
       ? "Temporary reinforcement is active after recent difficulty evidence; permanent mastery remains unchanged."
@@ -242,7 +281,7 @@ export function selectCurriculumItem(input: CurriculumSelectionInput): Curriculu
       // Narrow M1 learner-facing curricula expose five deterministic chunks.
       // Their source pools remain available for legacy review, but the same
       // decision that is displayed to the learner launches one of these five.
-      chunkIndex: getLearnerFacingChunkIndex(item.trainerKey, selectionIndex) ?? item.chunkIndex,
+      chunkIndex: focusedChunkIndex(item, input.state) ?? getLearnerFacingChunkIndex(item.trainerKey, selectionIndex) ?? item.chunkIndex,
       theme: item.theme ?? null,
       kind: selected.kind,
       explanation: reason,
@@ -252,7 +291,7 @@ export function selectCurriculumItem(input: CurriculumSelectionInput): Curriculu
         themeMasteryPercent,
         mixedUnlocked: area === "mates" || area === "tactics" ? selected.mixedUnlocked : undefined,
         stageMastered: area === "mates" || area === "tactics"
-          ? isStageMastered(stageProgress(input.state, area, selected.currentStage), themes.map((theme) => getThemeMastery(area, input.state)[theme] ?? {}))
+          ? isStageMastered(stageProgress(input.state, area, selected.currentStage), themes.map((theme) => getThemeMastery(area, input.state, selected.currentStage)[theme] ?? {}))
           : undefined,
         reinforcementActive: area === "mates" || area === "tactics" ? selected.regression : false,
         importedWeaknessApplied: weakness,

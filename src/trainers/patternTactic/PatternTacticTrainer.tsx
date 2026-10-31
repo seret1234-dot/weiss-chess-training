@@ -1935,7 +1935,9 @@ async function completeChunk() {
     ? mixedSessionIdRef.current ?? `mixed:${currentChunkFileName}`
     : `chunk:${currentChunkFileName}`,
    decisionId: searchParams.get("curriculumDecision"),
-   eventKind: isMixedPatternTactic ? (mixedPhase === "identified" ? "mixed" : "review") : "focused",
+   // A due Auto route is a retention review, never another initial focused
+   // chunk credit. Manual and new Auto routes remain focused practice.
+   eventKind: isMixedPatternTactic ? (mixedPhase === "identified" ? "mixed" : "review") : searchParams.get("curriculumEventKind") === "review" ? "review" : "focused",
    attempts,
    correctAttempts: correct,
    hintCount: sessionEvidence.hints,

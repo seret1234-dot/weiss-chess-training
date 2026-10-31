@@ -1,9 +1,9 @@
 import { supabase } from "../../lib/supabase"
 import { backtrackBoardVisionCheckpoint } from "../learningPlanRules"
-import { getStageThemes } from "./curriculumCatalog"
+import { getFocusedChunkMasteryRequirement, getStageThemes } from "./curriculumCatalog"
 import {
   aggregateCurriculumEvents,
-  isThemeMastered,
+  distinctPerfectFocusedChunkIndices,
   regressionReason,
   stageMasteryFromEvidence,
   validateCurriculumEvent,
@@ -71,12 +71,16 @@ export function stateFromRows(stateRow: any, areaRows: any[], stageRows: any[], 
   for (const row of themeRows) {
     const area = row.area as CurriculumArea
     themeMastery[area] ??= {}
-    themeMastery[area]![String(row.theme_key)] = {
+    themeMastery[area]![`${Number(row.stage_order)}:${String(row.theme_key)}`] = {
       attempts: Number(row.attempts ?? 0),
       recentAccuracy: Number(row.attempts ?? 0) > 0 ? Number(row.correct_attempts ?? 0) / Number(row.attempts) : 0,
       averageSolveSeconds: Number(row.average_solve_ms ?? 0) / 1000,
       hintRate: Number(row.attempts ?? 0) > 0 ? Number(row.hint_count ?? 0) / Number(row.attempts) : 0,
       mastered: Boolean(row.permanent_mastery),
+      perfectChunkIndices: Array.isArray(row.perfect_chunk_indices)
+        ? row.perfect_chunk_indices.map(Number).filter((chunk: number) => Number.isInteger(chunk) && chunk > 0).sort((a: number, b: number) => a - b)
+        : [],
+      requiredPerfectChunks: Number(row.required_perfect_chunks ?? 3),
     }
   }
 
@@ -321,6 +325,7 @@ export async function recordCurriculumSessionEvidence(event: CurriculumSessionEv
     idempotency_key: event.idempotencyKey,
     area: event.area,
     stage_order: event.stageOrder,
+    learner_chunk: event.learnerChunk ?? null,
     theme_key: event.themeKey ?? null,
     trainer_key: event.trainerKey,
     route: event.route,
@@ -349,6 +354,7 @@ async function loadStageEvents(userId: string, area: CurriculumArea, stageOrder:
     trainerKey: row.trainer_key,
     route: row.route,
     eventKind: row.event_kind,
+    learnerChunk: row.learner_chunk == null ? null : Number(row.learner_chunk),
     attempts: Number(row.attempts),
     correctAttempts: Number(row.correct_attempts),
     hintCount: Number(row.hint_count ?? 0),
@@ -365,9 +371,12 @@ export async function updateThemeAggregate(userId: string, area: "mates" | "tact
   const { data: existing, error: existingError } = await client.from(TABLES.theme).select("permanent_mastery").eq("user_id", userId)
     .eq("area", area).eq("stage_order", stageOrder).eq("theme_key", themeKey).maybeSingle()
   throwIfError(existingError, "Could not read curriculum theme progress")
-  // The database column keeps its legacy name, but the value is current
-  // demonstrated mastery: a later imperfect chunk must be able to revoke it.
-  const permanentMastery = isThemeMastered(aggregate)
+  const trainerKey = events.find((event) => event.eventKind === "focused")?.trainerKey ?? ""
+  const requirement = getFocusedChunkMasteryRequirement({ area, trainerKey })
+  const perfectChunkIndices = distinctPerfectFocusedChunkIndices(events)
+  // Existing historical mastery remains valid. Older rows have no durable
+  // learner_chunk evidence, so they are never backfilled or fabricated.
+  const permanentMastery = Boolean(existing?.permanent_mastery) || perfectChunkIndices.length >= requirement
   const { error } = await client.from(TABLES.theme).upsert({
     user_id: userId,
     area,
@@ -377,6 +386,8 @@ export async function updateThemeAggregate(userId: string, area: "mates" | "tact
     correct_attempts: aggregate.correctAttempts,
     hint_count: aggregate.hintCount,
     average_solve_ms: aggregate.averageSolveMs,
+    perfect_chunk_indices: perfectChunkIndices,
+    required_perfect_chunks: requirement,
     permanent_mastery: permanentMastery,
     mastered_at: permanentMastery ? new Date().toISOString() : null,
     last_attempt_at: aggregate.lastAttemptAt,

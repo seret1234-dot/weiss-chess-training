@@ -9,6 +9,7 @@ export type CurriculumSessionEvidence = {
   idempotencyKey: string
   area: CurriculumArea
   stageOrder: number
+  learnerChunk?: number | null
   themeKey?: string | null
   trainerKey: string
   route: string
@@ -20,6 +21,18 @@ export type CurriculumSessionEvidence = {
   transferOutcome?: TransferOutcome | null
   occurredOn?: string
   recordedAt?: string
+}
+
+/** Initial theme credit requires a unique learner-facing focused chunk. */
+export function distinctPerfectFocusedChunkIndices(events: CurriculumSessionEvidence[]) {
+  return [...new Set(events
+    .filter((event) => event.eventKind === "focused" && Number.isInteger(event.learnerChunk) && isPerfectCurriculumChunk(event))
+    .map((event) => Number(event.learnerChunk)))]
+    .sort((left, right) => left - right)
+}
+
+export function hasRequiredDistinctPerfectChunks(events: CurriculumSessionEvidence[], requiredChunks: number) {
+  return distinctPerfectFocusedChunkIndices(events).length >= requiredChunks
 }
 
 export type CurriculumEventAggregate = {

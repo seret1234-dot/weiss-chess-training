@@ -132,6 +132,7 @@ export async function recordNormalizedCurriculumCompletion(
     idempotencyKey,
     area: input.area as CurriculumArea,
     stageOrder: input.stageOrder,
+    learnerChunk: input.learnerChunk,
     themeKey: input.eventKind === "focused" ? input.canonicalTheme : null,
     trainerKey: input.trainerKey,
     route: input.route,
