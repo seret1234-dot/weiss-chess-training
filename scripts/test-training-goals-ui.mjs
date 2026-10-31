@@ -12,7 +12,7 @@ try {
     readFile(new URL("../src/pages/OnboardingPage.tsx", import.meta.url), "utf8"),
     readFile(new URL("../src/AccountPage.tsx", import.meta.url), "utf8"),
     readFile(new URL("../src/components/TrainingGoalsFields.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../supabase/migrations/20260811_add_training_goals.sql", import.meta.url), "utf8"),
+    readFile(new URL("../supabase/migrations-archive/20260811_add_training_goals.sql", import.meta.url), "utf8"),
   ])
 
   assert.doesNotMatch(onboarding, /TrainingGoalsFields/, "first registration no longer renders the full Account questionnaire")

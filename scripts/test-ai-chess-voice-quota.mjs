@@ -11,7 +11,7 @@ args[args.indexOf('-d')+1]=database
 const sql=text=>execFileSync(exe,args,{input:text,encoding:'utf8',stdio:['pipe','pipe','pipe']}).trim()
 const uid=n=>`00000000-0000-0000-0000-${String(n).padStart(12,'0')}`
 sql(`do $$ begin if not exists(select from pg_roles where rolname='anon')then create role anon;end if;if not exists(select from pg_roles where rolname='authenticated')then create role authenticated;end if;if not exists(select from pg_roles where rolname='service_role')then create role service_role bypassrls;end if;end $$;create schema auth;create table auth.users(id uuid primary key);create table public.subscriptions(user_id uuid,status text,provider text,current_period_end timestamptz);grant select on public.subscriptions to service_role;insert into auth.users select ('00000000-0000-0000-0000-'||lpad(n::text,12,'0'))::uuid from generate_series(1,12)n;`)
-sql(readFileSync('supabase/migrations/20260909171217_chess_voice_quota.sql','utf8'))
+sql(readFileSync('supabase/migrations-archive/20260909171217_chess_voice_quota.sql','utf8'))
 function quota(n,reserve=false){return JSON.parse(sql(`set role service_role;select public.chess_voice_quota('${uid(n)}',${reserve});`).split('\n').at(-1))}
 function service(text){return sql(`set role service_role;${text}`).split('\n').at(-1)}
 assert.equal(quota(1).remaining,10)

@@ -24,7 +24,7 @@ try {
   // Production is PostgreSQL 17; the installed disposable cluster is 16 and
   // does not recognize PostgreSQL 17's MAINTAIN privilege. The snapshot stays
   // byte-for-byte intact; only the temporary validator copy omits that grant.
-  const snapshot = await readFile("supabase/baseline/production-public-schema.sql", "utf8")
+  const snapshot = await readFile("supabase/migrations/20261030000000_synthetic_production_schema_baseline.sql", "utf8")
   const localSnapshot = join(directory, "production-public-schema.local.sql")
   await writeFile(localSnapshot, snapshot.replaceAll(",MAINTAIN", ""))
   psql(["-f", localSnapshot])

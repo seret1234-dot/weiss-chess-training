@@ -9,7 +9,7 @@ try {
   const events = await vite.ssrLoadModule("/src/training/curriculum/curriculumEvents.ts")
   const persistence = await vite.ssrLoadModule("/src/training/curriculum/curriculumPersistence.ts")
   const selector = await vite.ssrLoadModule("/src/training/curriculum/selectCurriculumItem.ts")
-  const migration = await readFile(new URL("../supabase/migrations/20260729_add_curriculum_progress.sql", import.meta.url), "utf8")
+  const migration = await readFile(new URL("../supabase/migrations-archive/20260729_add_curriculum_progress.sql", import.meta.url), "utf8")
   const scheduler = await readFile(new URL("../src/training/getNextDueItem.ts", import.meta.url), "utf8")
 
   const profile = Object.freeze({

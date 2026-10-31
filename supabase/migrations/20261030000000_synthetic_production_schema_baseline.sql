@@ -1,12 +1,18 @@
 
 
 
--- SYNTHETIC BOOTSTRAP SNAPSHOT — schema only
+-- ACTIVE SYNTHETIC BOOTSTRAP BASELINE — schema only
 -- Source: Production project lahzgtcpbshmzsqoqswf, public schema.
 -- Exported for release candidate 709feadbeeb6766b42591fec074bdc40bf4089c7.
 -- This file contains no table data, auth identities, passwords, tokens, or secrets.
--- It is a reproducibility baseline for an empty Supabase-compatible database;
+-- It is the first migration for an empty Supabase-compatible database;
+-- historical incremental migrations are preserved, unchanged, in
+-- supabase/migrations-archive and must not be replayed with this baseline.
 -- do not apply it to Production or another already-provisioned Weiss Chess database.
+-- Production has pg_trgm 1.6 in public. pg_dump --schema public omits the
+-- extension declaration, so recreate that prerequisite for an empty Supabase
+-- database before restoring indexes that reference public.gin_trgm_ops.
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;

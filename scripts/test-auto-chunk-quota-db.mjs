@@ -30,7 +30,7 @@ try {
  create table public.user_chunk_progress(user_id uuid,trainer_key text,chunk_index integer,is_mastered boolean,mastered_puzzles_count integer,next_review_at timestamptz);
  create table public.training_progress(user_id uuid,course text,theme text,item_id text,mastery integer,next_review_at timestamptz);
  insert into auth.users values('${user}'),('${other}');`)
- sql(await readFile('supabase/migrations/20260911124113_auto_training_chunk_allowance.sql','utf8'))
+ sql(await readFile('supabase/migrations-archive/20260911124113_auto_training_chunk_allowance.sql','utf8'))
  assert.throws(()=>sql(claim('pattern','tactic-fork','1')),/AUTH_REQUIRED/)
  assert.throws(()=>sql('set role anon; '+claim('pattern','tactic-fork','1')),/permission denied/)
  let q=take('pattern','tactic-fork','1'); assert.equal(q.used,1);assert.equal(q.remaining,1)

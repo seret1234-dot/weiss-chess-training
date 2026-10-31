@@ -11,7 +11,7 @@ import {
 } from '../src/masterGamesFlexibleSearch.mjs'
 
 const pageSource = fs.readFileSync(new URL('../src/MasterGamesLibraryPage.tsx', import.meta.url), 'utf8')
-const migrationPath = new URL('../supabase/migrations/20260905135700_master_games_flexible_search.sql', import.meta.url)
+const migrationPath = new URL('../supabase/migrations-archive/20260905135700_master_games_flexible_search.sql', import.meta.url)
 const migration = fs.readFileSync(migrationPath, 'utf8')
 const supabaseSource = fs.readFileSync(new URL('../src/lib/supabase.ts', import.meta.url), 'utf8')
 

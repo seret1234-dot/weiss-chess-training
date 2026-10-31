@@ -76,7 +76,7 @@ await assert.rejects(() => library.addOpeningToLibrary(addClient, '', id1), /Log
 await assert.rejects(() => library.addOpeningToLibrary(addClient, 'user-a', 'not-a-uuid'), /Invalid opening/)
 
 const [migration, router, trainer, libraryPage, practicePage, searchPage] = await Promise.all([
-  readFile(new URL('../supabase/migrations/20260905215331_secure_user_opening_library.sql', import.meta.url), 'utf8'),
+  readFile(new URL('../supabase/migrations-archive/20260905215331_secure_user_opening_library.sql', import.meta.url), 'utf8'),
   readFile(new URL('../src/AppRouter.tsx', import.meta.url), 'utf8'),
   readFile(new URL('../src/OpeningTrainerPage.tsx', import.meta.url), 'utf8'),
   readFile(new URL('../src/openings/MyOpeningsPage.tsx', import.meta.url), 'utf8'),

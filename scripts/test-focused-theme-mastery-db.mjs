@@ -22,7 +22,7 @@ try {
   started = true
   run("pg_ctl", ["-D", directory, "-l", join(directory, "server.log"), "-o", `-h 127.0.0.1 -p ${port}`, "-w", "start"])
   query("create role anon; create role authenticated; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$; grant usage on schema auth to authenticated; grant execute on function auth.uid() to authenticated;")
-  query(await readFile("supabase/migrations/20260729_add_curriculum_progress.sql", "utf8"))
+  query(await readFile("supabase/migrations-archive/20260729_add_curriculum_progress.sql", "utf8"))
   query(await readFile("supabase/migrations/20261031095131_focused_theme_mastery.sql", "utf8"))
   assert.equal(query("select array_to_string(perfect_chunk_indices, ',') from public.user_curriculum_theme_progress limit 1"), "", "new evidence is not backfilled into historical theme rows")
   assert.equal(query("select column_name from information_schema.columns where table_schema='public' and table_name='user_curriculum_session_evidence' and column_name='learner_chunk'"), "learner_chunk")

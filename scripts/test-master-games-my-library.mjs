@@ -98,7 +98,7 @@ await assert.rejects(() => library.addMasterGameToLibrary(addClient, '', 12), /S
 await assert.rejects(() => library.addMasterGameToLibrary(addClient, 'user-a', 0), /Invalid Master Game ID/)
 
 const [migration, router, gamePage, libraryPage, practicePage, searchPage] = await Promise.all([
-  readFile(new URL('../supabase/migrations/20260905184451_secure_user_master_games_library.sql', import.meta.url), 'utf8'),
+  readFile(new URL('../supabase/migrations-archive/20260905184451_secure_user_master_games_library.sql', import.meta.url), 'utf8'),
   readFile(new URL('../src/AppRouter.tsx', import.meta.url), 'utf8'),
   readFile(new URL('../src/MasterGamesPage.tsx', import.meta.url), 'utf8'),
   readFile(new URL('../src/masterGames/MyMasterGamesLibraryPage.tsx', import.meta.url), 'utf8'),
